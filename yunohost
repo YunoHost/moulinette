@@ -76,7 +76,7 @@ def str2fun(astr):
     try:
         func = getattr(mod, function)
     except NameError:
-        print 'Error: Function ' + category + '_' + action + '() is not been defined'
+        print 'Error: Function ' + category + '_' + action + '() is not defined'
         sys.exit(1)
     return func
 
