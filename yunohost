@@ -66,13 +66,19 @@ parser_array = {
 
 """ Useful string-to-function definition """
 def str2fun(astr):
-  module, _, function = astr.rpartition('.')
-  if module:
-    __import__(module)
-    mod = sys.modules[module]
-  else:
-    mod = sys.modules['__main__']  # or whatever's the "default module"
-  return getattr(mod, function)
+    module, _, function = astr.rpartition('.')
+    if module:
+        __import__(module)
+        mod = sys.modules[module]
+    else:
+        mod = sys.modules['__main__']  # or whatever's the "default module"
+    
+    try:
+        func = getattr(mod, function)
+    except NameError:
+        print 'Error: Function ' + category + '_' + action + '() is not been defined'
+        sys.exit(1)
+    return func
 
 """ Intialize parsers """
 parser = argparse.ArgumentParser()
@@ -83,18 +89,13 @@ parsers = subparsers_category = subparsers_action = dict()
 Turn above array into subparsers (e.g. parsers['user_list']) 
 and assign functions related to (e.g. user_list())
 """
-
 for category, info in parser_array.items():
     subparsers_category[category] = subparsers.add_parser(category, help = info['help'])
     subparsers_action[category] = subparsers_category[category].add_subparsers()
     for action, helper in info['actions'].items():
         parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help = helper)
-        try:
-            parsers[category + '_' + action].set_defaults(func = str2fun('yunohost_' + category + '.' + category + '_' + action)) 
-        except AttributeError:
-            print 'Error: Function ' + category + '_' + action + '() has not been defined'
-            sys.exit(1)
-       
+        parsers[category + '_' + action].set_defaults(func = str2fun('yunohost_' + category + '.' + category + '_' + action)) 
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""
                    ARGUMENT PARSING
