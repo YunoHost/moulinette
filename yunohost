@@ -3,7 +3,7 @@
 
 import sys
 import argparse
-sys.path.append('lib')
+sys.path.append('lib') # Local temporary hack
 
 # Version of YunoHost
 version = '2.0'
@@ -133,7 +133,7 @@ parsers['user_list'].add_argument(
 args = parser.parse_args()
 
 def main(args):
-    args.func(args)
+    args.func(vars(args))
 
 if __name__ == '__main__':
     main(args)

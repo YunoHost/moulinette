@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 
 def user_list(args):
-    print vars(args)
+    print args
