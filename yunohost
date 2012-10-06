@@ -87,8 +87,12 @@ for category, info in parser_array.items():
     subparsers_action[category] = subparsers_category[category].add_subparsers()
     for action, helper in info['actions'].items():
         parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help = helper)
-        parsers[category + '_' + action].set_defaults(func=str2fun(category + '_' + action))
-
+        try:
+            parsers[category + '_' + action].set_defaults(func=str2fun(category + '_' + action)) 
+        except AttributeError:
+            print 'Error: Function ' + category + '_' + action + '() has not been defined'
+            sys.exit(1)
+       
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""
                    ARGUMENT PARSING
