@@ -1,0 +1,22 @@
+--- INSTALL ---
+* Récupérer les fichiers de conf dans /tmp/YunoHost/apps/nomDeLApp/conf
+* Si il y a des sources
+* * Téléchargement des sources dans /tmp/YunoHost/apps/nomDeLApp/sources
+* Si il y a des services
+* * Vérifier si les ports sont bien disponibles
+* * Ouvrir les ports dans le firewall
+* Exécuter le script de préinstall
+* Si il y a des dépendances
+* * Si il y a une archi spécifique pour les dépendances
+* * * Regarder l'archi courante
+* * Si il y a des repos
+* * * Installer les repos avec l'archi éventuelle et les clés gpg
+* * Installer les dépendances avec l'archi éventuelle
+* Si les sources ont bien été récupérées
+* * Déplacer les sources au bon endroit
+* * Créer le vhost ou le repertoire
+* * Configurer apache
+* Exécuter le script d'install
+* Inscrire name, description, site_url, icon, user_doc_url, dependencies, service_name, servic
+es_ports, can_be_public et db_version dans le LDAP
+* Supprimer /tmp/YunoHost/apps/nomDeLApp
