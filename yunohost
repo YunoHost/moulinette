@@ -1,12 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+__credits__ = '''Copyright (C) 2012 YunoHost
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program; if not, see http://www.gnu.org/licenses
+'''
+__author__  = 'Kload'
+__version__ = '2.0_beta1'
+
 import sys
 import argparse
 sys.path.append('lib') # Local temporary hack
 
-# Version of YunoHost
-version = '2.0'
+
+""" Useful string-to-function definition """
+def str2fun(astr):
+    module, _, function = astr.rpartition('.')
+    if module:
+        __import__(module)
+        mod = sys.modules[module]
+    else:
+        mod = sys.modules['__main__']  # or whatever's the "default module"
+    
+    try:
+        func = getattr(mod, function)
+    except NameError:
+        print 'Error: Function ' + category + '_' + action + '() is not defined'
+        sys.exit(1)
+    return func
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
                  CATEGORIES / ACTIONS    
@@ -39,62 +72,48 @@ Leads to functions:
     category6_action6()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""
-parser_array = {
-    'user' : {
-        'actions' : {
-            'list'      : 'list users'
+
+def parse_args(parser):
+
+    parser_array = {
+        'user' : {
+            'actions' : {
+                'list'      : 'list users'
+            },
+            'help'    : 'manage users'
         },
-        'help'    : 'manage users'
-    },
-    'domain' : {
-        'actions' : {},
-        'help'    : 'manage domains'
-    },
-    'app' : {
-        'actions' : {},
-        'help'    : 'manage apps'
-    },
-    'monitor' : {
-        'actions' : {},
-        'help'    : 'monitoring functions'
-    },
-    'tools' : {
-        'actions' : {},
-        'help'    : 'specific tools'
+        'domain' : {
+            'actions' : {},
+            'help'    : 'manage domains'
+        },
+        'app' : {
+            'actions' : {},
+            'help'    : 'manage apps'
+        },
+        'monitor' : {
+            'actions' : {},
+            'help'    : 'monitoring functions'
+        },
+        'tools' : {
+            'actions' : {},
+            'help'    : 'specific tools'
+        }
     }
-}
 
-""" Useful string-to-function definition """
-def str2fun(astr):
-    module, _, function = astr.rpartition('.')
-    if module:
-        __import__(module)
-        mod = sys.modules[module]
-    else:
-        mod = sys.modules['__main__']  # or whatever's the "default module"
-    
-    try:
-        func = getattr(mod, function)
-    except NameError:
-        print 'Error: Function ' + category + '_' + action + '() is not defined'
-        sys.exit(1)
-    return func
+    """ Intialize parsers """
+    subparsers = parser.add_subparsers()
+    parsers = subparsers_category = subparsers_action = dict()
 
-""" Intialize parsers """
-parser = argparse.ArgumentParser()
-subparsers = parser.add_subparsers()
-parsers = subparsers_category = subparsers_action = dict()
-
-"""
-Turn above array into subparsers (e.g. parsers['user_list']) 
-and assign functions related to (e.g. user_list())
-"""
-for category, info in parser_array.items():
-    subparsers_category[category] = subparsers.add_parser(category, help = info['help'])
-    subparsers_action[category] = subparsers_category[category].add_subparsers()
-    for action, helper in info['actions'].items():
-        parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help = helper)
-        parsers[category + '_' + action].set_defaults(func = str2fun('yunohost_' + category + '.' + category + '_' + action)) 
+    """
+    Turn above array into subparsers (e.g. parsers['user_list']) 
+    and assign functions related to (e.g. user_list())
+    """
+    for category, info in parser_array.items():
+        subparsers_category[category] = subparsers.add_parser(category, help = info['help'])
+        subparsers_action[category] = subparsers_category[category].add_subparsers()
+        for action, helper in info['actions'].items():
+            parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help = helper)
+            parsers[category + '_' + action].set_defaults(func = str2fun('yunohost_' + category + '.' + category + '_' + action)) 
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -114,26 +133,32 @@ Documentation:
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
-""" General """
-parser.add_argument(
-    '-v', 
-    '--version', 
-    action = 'version',
-    version = '%(prog)s '+ version
-)
+    """ General """
+    parser.add_argument(
+        '-v', 
+        '--version', 
+        action = 'version',
+        version = '%(prog)s '+ version
+    )
 
 
-""" User """
-parsers['user_list'].add_argument(
-    '-a',
-    '--all',
-    action = 'store'
-)
+    """ User """
+    parsers['user_list'].add_argument(
+        '-a',
+        '--all',
+        action = 'store'
+    )
 
-""" Call arguments parsing """
-args = parser.parse_args()
+    """ Call arguments parsing """
+    args = parser.parse_args()
+
+    return args
+
+
 
 def main(args):
+    parser = argparse.ArgumentParser()
+    args = parse_args(parser)
     args.func(vars(args))
 
 if __name__ == '__main__':
