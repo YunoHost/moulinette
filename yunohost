@@ -3,6 +3,7 @@
 
 import sys
 import argparse
+sys.path.append('lib')
 
 # Version of YunoHost
 version = '2.0'
@@ -82,13 +83,14 @@ parsers = subparsers_category = subparsers_action = dict()
 Turn above array into subparsers (e.g. parsers['user_list']) 
 and assign functions related to (e.g. user_list())
 """
+
 for category, info in parser_array.items():
     subparsers_category[category] = subparsers.add_parser(category, help = info['help'])
     subparsers_action[category] = subparsers_category[category].add_subparsers()
     for action, helper in info['actions'].items():
         parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help = helper)
         try:
-            parsers[category + '_' + action].set_defaults(func=str2fun(category + '_' + action)) 
+            parsers[category + '_' + action].set_defaults(func = str2fun('yunohost_' + category + '.' + category + '_' + action)) 
         except AttributeError:
             print 'Error: Function ' + category + '_' + action + '() has not been defined'
             sys.exit(1)
