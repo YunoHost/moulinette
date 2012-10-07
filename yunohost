@@ -17,7 +17,7 @@ __credits__ = """
     You should have received a copy of the GNU Affero General Public License
     along with this program; if not, see http://www.gnu.org/licenses
     """
-__author__  = 'Kload'
+__author__  = 'Kload <kload@kload.fr>'
 __version__ = '2.0 beta1'
 
 import sys
@@ -102,7 +102,11 @@ def parse_args(parsers):
         #argparse.ArgumentParser.add_argument 
      
     """
-    # General
+    #####################
+    #      General      #
+    #####################
+
+    # Version
     parsers['general'].add_argument(
         '-v', 
         '--version', 
@@ -115,11 +119,7 @@ def parse_args(parsers):
     #####################
 
     # user list
-    parsers['user_list'].add_argument(
-        '-a',
-        '--all',
-        action='store'
-    )
+    parsers['user_list'].add_argument('-a', '--all', action='store_true')
 
     # user add
     parsers['user_add'].add_argument('-u', '--username')
@@ -129,9 +129,10 @@ def parse_args(parsers):
     parsers['user_add'].add_argument('-p', '--password')
 
 
-    # Call arguments parsing
+    #########################    
+    #   End of arguments    #
+    #########################
     args = parsers['general'].parse_args()
-
     return args
 
 

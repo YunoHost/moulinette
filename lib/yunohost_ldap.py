@@ -26,7 +26,7 @@ class YunoHostLDAP:
         try:
             self.conn.unbind_s()
         except:
-            print(_('Error: A problem occured on LDAP unbind'))
+            print(msg.error + _('A problem occured on LDAP unbind'))
             return False
         else:
             return True
@@ -40,7 +40,7 @@ class YunoHostLDAP:
         try:
             result = self.conn.search_s(base, ldap.SCOPE_ONELEVEL, filter, attrs)
         except Exception:
-            print(_('Error: An error occured on LDAP search'))
+            print(msg.error + _('An error occured on LDAP search'))
             return False
         
         if result:
