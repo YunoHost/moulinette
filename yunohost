@@ -24,14 +24,22 @@ import argparse
 sys.path.append('lib') # Local temporary hack
 
 
-""" Useful string-to-function definition """
-def str2fun(astr):
+def str_to_func(astr):
+    '''  Call a function from a string name
+    
+    Keyword arguments:
+        astr -- Name of function to call
+    
+    Returns: 
+        Function
+
+    '''
     module, _, function = astr.rpartition('.')
     if module:
         __import__(module)
         mod = sys.modules[module]
     else:
-        mod = sys.modules['__main__']  # or whatever's the "default module"
+        mod = sys.modules['__main__']  # default module
     
     try:
         func = getattr(mod, function)
@@ -41,41 +49,79 @@ def str2fun(astr):
     return func
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
-                 CATEGORIES / ACTIONS    
+def dict_to_parsers(action_dict):
+    ''' Turn action dictionnary to parser and subparsers (2 level)
+    
+    Keyword arguments:
+        action_dict -- Multi-level dictionnary of categories/actions list
+    
+    Returns: 
+        Dictionnrary of parsers
 
-array = {
-    'category1' : {
-        'actions'   : {
-            'action1'   :   'text of action1 help'    
-            'action2'   :   'text of action2 help'    
-            'action3'   :   'text of action3 help'    
-        },
-        'help'      : 'text of category1 help'
-    },
-    'category2' : {
-        'actions'   : {
-            'action4'   :   'text of action4 help'    
-            'action5'   :   'text of action5 help'    
-            'action6'   :   'text of action6 help'    
-        },
-        'help'      : 'text of category2 help'
-    },
-}
+    '''
 
-Leads to functions:
-    category1_action1()
-    category1_action2()
-    category1_action3()
-    category2_action4()
-    category2_action5()
-    category6_action6()
+    # Intialize parsers
+    parsers = subparsers_category = subparsers_action = dict()
+    parsers['general'] = argparse.ArgumentParser()
+    subparsers = parsers['general'].add_subparsers()
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""
+    # Compute dictionnary
+    for category, info in action_dict.items():
+        subparsers_category[category] = subparsers.add_parser(category, help = info['help'])
+        subparsers_action[category] = subparsers_category[category].add_subparsers()
+        for action, helper in info['actions'].items():
+            parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help = helper)
+            parsers[category + '_' + action].set_defaults(func = str_to_func('yunohost_' + category + '.' + category + '_' + action)) 
 
-def parse_args(parser):
+    return parsers
 
-    parser_array = {
+
+def parse_args(parsers):
+    ''' Add and parse arguments
+
+    Keyword arguments:
+        parsers -- parsers and subparsers as a dict    
+    
+    Returns: 
+        Namespace of arguments
+
+    Usage:
+        Add general argument: parsers['general'].add_argument( options )
+        Add specific argument: parsers['user_delete'].add_argument( options )
+    
+    Documentation: 
+        http://docs.python.org/dev/library/argparse.html
+        #argparse.ArgumentParser.add_argument 
+     
+    '''
+
+    # General
+    parsers['general'].add_argument(
+        '-v', 
+        '--version', 
+        action = 'version',
+        version = '%(prog)s '+ __version__
+    )
+
+
+    # User
+    parsers['user_list'].add_argument(
+        '-a',
+        '--all',
+        action = 'store'
+    )
+
+    # Call arguments parsing
+    args = parsers['general'].parse_args()
+
+    return args
+
+
+
+def main():
+    ''' Main instructions '''
+
+    action_dict = {
         'user' : {
             'actions' : {
                 'list'      : 'list users'
@@ -100,66 +146,10 @@ def parse_args(parser):
         }
     }
 
-    """ Intialize parsers """
-    subparsers = parser.add_subparsers()
-    parsers = subparsers_category = subparsers_action = dict()
-
-    """
-    Turn above array into subparsers (e.g. parsers['user_list']) 
-    and assign functions related to (e.g. user_list())
-    """
-    for category, info in parser_array.items():
-        subparsers_category[category] = subparsers.add_parser(category, help = info['help'])
-        subparsers_action[category] = subparsers_category[category].add_subparsers()
-        for action, helper in info['actions'].items():
-            parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help = helper)
-            parsers[category + '_' + action].set_defaults(func = str2fun('yunohost_' + category + '.' + category + '_' + action)) 
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-                   ARGUMENT PARSING
-
-
-Add general argument:
-    parser.add_argument( options )
-
-Add specific argument:
-    parsers['user_delete'].add_argument( options )
-
-Documentation: 
-   http://docs.python.org/dev/library/argparse.html
-   #argparse.ArgumentParser.add_argument 
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-    """ General """
-    parser.add_argument(
-        '-v', 
-        '--version', 
-        action = 'version',
-        version = '%(prog)s '+ version
-    )
-
-
-    """ User """
-    parsers['user_list'].add_argument(
-        '-a',
-        '--all',
-        action = 'store'
-    )
-
-    """ Call arguments parsing """
-    args = parser.parse_args()
-
-    return args
-
-
-
-def main(args):
-    parser = argparse.ArgumentParser()
-    args = parse_args(parser)
+    parsers = dict_to_parsers(action_dict) 
+    args = parse_args(parsers)
     args.func(vars(args))
 
+
 if __name__ == '__main__':
-    main(args)
+    main()
