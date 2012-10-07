@@ -49,7 +49,7 @@ def str_to_func(astr):
         func = getattr(mod, function)
     except NameError:
         print(msg.error + _('Function is not defined'))
-        sys.exit(1)
+        sys.exit(msg.EUNDEFINED)
     else:
         return func
 
@@ -66,7 +66,7 @@ def dict_to_parsers(action_dict):
 
     """
     # Intialize parsers
-    parsers = subparsers_category = subparsers_action = dict()
+    parsers = subparsers_category = subparsers_action = {}
     parsers['general'] = argparse.ArgumentParser()
     subparsers = parsers['general'].add_subparsers()
 
