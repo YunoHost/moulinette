@@ -25,7 +25,7 @@ import argparse
 import gettext
 sys.path.append('lib') # Local temporary hack
 gettext.install('YunoHost')
-
+import yunohost_messages as msg
 
 def str_to_func(astr):
     """
@@ -48,7 +48,7 @@ def str_to_func(astr):
     try:
         func = getattr(mod, function)
     except NameError:
-        print(_('Error: Function is not defined'))
+        print(msg.error + _('Function is not defined'))
         sys.exit(1)
     else:
         return func
@@ -110,13 +110,24 @@ def parse_args(parsers):
         version='%(prog)s ' +  __version__
     )
 
+    #####################
+    #       User        #
+    #####################
 
-    # User
+    # user list
     parsers['user_list'].add_argument(
         '-a',
         '--all',
         action='store'
     )
+
+    # user add
+    parsers['user_add'].add_argument('-u', '--username')
+    parsers['user_add'].add_argument('-m', '--mail')
+    parsers['user_add'].add_argument('-f', '--firstname')
+    parsers['user_add'].add_argument('-l', '--lastname')
+    parsers['user_add'].add_argument('-p', '--password')
+
 
     # Call arguments parsing
     args = parsers['general'].parse_args()
@@ -130,25 +141,26 @@ def main():
 
     action_dict = {
         'user' : {
-            'help'    : 'manage users',
+            'help'    : 'Manage users',
             'actions' : {
-                'list'      : 'list users'
+                'list'      : 'List users',
+                'add'       : 'Add user'
             }
         },
         'domain' : {
-            'help'    : 'manage domains',
+            'help'    : 'Manage domains',
             'actions' : {}
         },
         'app' : {
-            'help'    : 'manage apps',
+            'help'    : 'Manage apps',
             'actions' : {}
         },
         'monitor' : {
-            'help'    : 'monitoring functions',
+            'help'    : 'Monitoring functions',
             'actions' : {}
         },
         'tools' : {
-            'help'    : 'specific tools',
+            'help'    : 'Specific tools',
             'actions' : {}
         }
     }

@@ -3,6 +3,7 @@
 import sys
 import ldap
 import getpass
+import yunohost_messages as msg
 
 class YunoHostLDAP:
     """ Specific LDAP functions for YunoHost """
@@ -12,11 +13,11 @@ class YunoHostLDAP:
 
         self.conn = ldap.initialize('ldap://localhost:389')
         self.base = 'dc=yunohost,dc=org'
-        self.pwd = getpass.getpass()
+        self.pwd = getpass.getpass(_('LDAP Admin Password: '))
         try:
             self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
         except ldap.INVALID_CREDENTIALS:
-            print(_('Error: Wrong credentials'))
+            print(msg.error + _('Wrong credentials'))
             sys.exit(1)
 
     def disconnect(self):
@@ -30,8 +31,11 @@ class YunoHostLDAP:
         else:
             return True
 
-    def search(self, base, filter='(objectClass=*)', attrs=['dn']):
+    def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
         """ Search in LDAP base """
+
+        if not base:
+            base = self.base
 
         try:
             result = self.conn.search_s(base, ldap.SCOPE_ONELEVEL, filter, attrs)
