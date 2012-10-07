@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__credits__ = """Copyright (C) 2012 YunoHost
+__credits__ = """
+    Copyright (C) 2012 YunoHost
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
@@ -15,17 +16,20 @@ __credits__ = """Copyright (C) 2012 YunoHost
 
     You should have received a copy of the GNU Affero General Public License
     along with this program; if not, see http://www.gnu.org/licenses
-"""
+    """
 __author__  = 'Kload'
 __version__ = '2.0 beta1'
 
 import sys
 import argparse
+import gettext
 sys.path.append('lib') # Local temporary hack
+gettext.install('YunoHost')
 
 
 def str_to_func(astr):
-    """Call a function from a string name
+    """
+    Call a function from a string name
     
     Keyword arguments:
         astr -- Name of function to call
@@ -44,14 +48,15 @@ def str_to_func(astr):
     try:
         func = getattr(mod, function)
     except NameError:
-        print 'Error: Function ' + category + '_' + action + '() is not defined'
+        print(_('Error: Function is not defined'))
         sys.exit(1)
     else:
         return func
 
 
 def dict_to_parsers(action_dict):
-    """Turn action dictionnary to parser and subparsers (2 level)
+    """
+    Turn action dictionnary to parser and subparsers (2 level)
     
     Keyword arguments:
         action_dict -- Multi-level dictionnary of categories/actions list
@@ -60,7 +65,6 @@ def dict_to_parsers(action_dict):
         Dictionnrary of parsers
 
     """
-
     # Intialize parsers
     parsers = subparsers_category = subparsers_action = dict()
     parsers['general'] = argparse.ArgumentParser()
@@ -73,15 +77,15 @@ def dict_to_parsers(action_dict):
         for action, helper in info['actions'].items():
             parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=helper)
             parsers[category + '_' + action].set_defaults(
-                func=str_to_func('yunohost_' + category 
-                                + '.' + category 
-                                + '_' + action)) 
+                func=str_to_func('yunohost_' + category + '.' 
+                                 + category + '_' + action)) 
 
     return parsers
 
 
 def parse_args(parsers):
-    """Add and parse arguments
+    """
+    Add and parse arguments
 
     Keyword arguments:
         parsers -- parsers and subparsers as a dict    
@@ -98,7 +102,6 @@ def parse_args(parsers):
         #argparse.ArgumentParser.add_argument 
      
     """
-
     # General
     parsers['general'].add_argument(
         '-v', 
@@ -123,31 +126,30 @@ def parse_args(parsers):
 
 
 def main():
-    """Main instructions
-    """
+    """ Main instructions """
 
     action_dict = {
         'user' : {
+            'help'    : 'manage users',
             'actions' : {
                 'list'      : 'list users'
-            },
-            'help'    : 'manage users'
+            }
         },
         'domain' : {
-            'actions' : {},
-            'help'    : 'manage domains'
+            'help'    : 'manage domains',
+            'actions' : {}
         },
         'app' : {
-            'actions' : {},
-            'help'    : 'manage apps'
+            'help'    : 'manage apps',
+            'actions' : {}
         },
         'monitor' : {
-            'actions' : {},
-            'help'    : 'monitoring functions'
+            'help'    : 'monitoring functions',
+            'actions' : {}
         },
         'tools' : {
-            'actions' : {},
-            'help'    : 'specific tools'
+            'help'    : 'specific tools',
+            'actions' : {}
         }
     }
 
