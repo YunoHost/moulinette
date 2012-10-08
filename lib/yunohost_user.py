@@ -9,12 +9,14 @@ import string
 import getpass
 from yunohost import YunoHostError, YunoHostLDAP, win_msg
 
+
 # Initialize LDAP
 yldap = YunoHostLDAP()
 
+
 def user_list(args): # TODO : fix
     result = yldap.search()
-    print(result)
+    #print(result)
 
 
 def user_add(args):

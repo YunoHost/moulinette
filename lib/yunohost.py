@@ -9,6 +9,14 @@ import getpass
 
 
 def colorize(astr, color):
+    """ 
+    Print with style ;) 
+    
+    Keyword arguments:
+        astr    -- String to colorize
+        color   -- Name of the color
+
+    """
     color_dict = {
         'red'   : '31',
         'green' : '32',
@@ -18,9 +26,18 @@ def colorize(astr, color):
     }
     return "\033["+ color_dict[color] +"m\033[1m" + astr + "\033[m" 
 
+
 def win_msg(astr):
+    """ 
+    Display a success message if isatty 
+    
+    Keyword arguments:
+        astr -- Win message to display
+
+    """
     if os.isatty(1):
         print('\n' + colorize(_("Success: "), 'green') + astr + '\n')
+
 
 def str_to_func(astr):
     """
@@ -49,7 +66,14 @@ def str_to_func(astr):
 
 
 class YunoHostError(Exception):
-    """ Custom exception """
+    """
+    Custom exception
+    
+    Keyword arguments:
+        code    -- Integer error code
+        message -- Error message to display
+
+    """
     def __init__(self, code, message):
         code_dict = {
             1   : _('Fail'),
@@ -76,8 +100,12 @@ class YunoHostLDAP:
     """ Specific LDAP functions for YunoHost """
 
     def __init__(self):
-        """ Connect to LDAP base """
+        """ 
+        Connect to LDAP base 
+        
+        Initialize to localhost, base yunohost.org, prompt for password
 
+        """
         self.conn = ldap.initialize('ldap://localhost:389')
         self.base = 'dc=yunohost,dc=org'
         self.pwd = getpass.getpass(_('LDAP Admin Password: '))
@@ -86,9 +114,15 @@ class YunoHostLDAP:
         except ldap.INVALID_CREDENTIALS:
             raise YunoHostError(13, _('Invalid credentials'))
 
-    def disconnect(self):
-        """ Unbind from LDAP """
 
+    def disconnect(self):
+        """ 
+        Unbind from LDAP 
+        
+        Returns
+            Boolean | YunoHostError
+
+        """
         try:
             self.conn.unbind_s()
         except:
@@ -96,9 +130,20 @@ class YunoHostLDAP:
         else:
             return True
 
-    def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
-        """ Search in LDAP base """
 
+    def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
+        """  
+        Search in LDAP base 
+        
+        Keyword arguments:
+            base    -- Base to search into
+            filter  -- LDAP filter
+            attrs   -- Array of attributes to fetch
+
+        Returns:
+            Boolean | Dict
+
+        """
         if not base:
             base = self.base
 
@@ -117,9 +162,19 @@ class YunoHostLDAP:
         else:
             return False
 
-    def add(self, rdn, attr_dict):
-        """ Add LDAP entry """
 
+    def add(self, rdn, attr_dict):
+        """ 
+        Add LDAP entry 
+        
+        Keyword arguments:
+            rdn         -- DN without domain
+            attr_dict   -- Dictionnary of attributes/values to add
+
+        Returns:
+            Boolean | YunoHostError
+
+        """
         dn = rdn + ',' + self.base
         ldif = modlist.addModlist(attr_dict)
 
@@ -132,6 +187,16 @@ class YunoHostLDAP:
 
 
     def validate(self, regex_dict):
+        """ 
+        Validate attributes with a pattern 
+        
+        Keyword arguments:
+            regex_dict -- Dictionnary of values/pattern to check
+
+        Returns:
+            Boolean | YunoHostError
+
+        """
         for attr, pattern in regex_dict.items():
             if re.match(pattern, attr):
                 continue
@@ -139,11 +204,21 @@ class YunoHostLDAP:
                 raise YunoHostError(22, _('Invalid attribute') + ' ' + attr)
         return True
 
+
     def validate_uniqueness(self, value_dict):
+        """ 
+        Check uniqueness of values 
+        
+        Keyword arguments:
+            value_dict -- Dictionnary of attributes/values to check
+
+        Returns:
+            Boolean | YunoHostError
+
+        """
         for attr, value in value_dict.items():
             if not self.search(filter=attr + '=' + value):
                 continue
             else:
                 raise YunoHostError(17, _('Attribute already exists') + ' "' + attr + '=' + value + '"')
         return True
-
