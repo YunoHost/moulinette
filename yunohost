@@ -33,33 +33,43 @@ gettext.install('YunoHost')
 
 from yunohost import YunoHostError, str_to_func, colorize
 
+
+"""
+Category/actions dictionnary
+
+Usage:
+    Add your "'action' : 'help'" to a category of this dictionnary,
+    and make sure the file yunohost_my-category.py exists in ./lib
+
+    Then create the function called category_action(args).
+
+    You can add some arguments with the function parse_args() below.
+
+Example:
+    'add' : 'Add user' refers to :
+    user_add(args) function in lib/yunohost_user.py
+
+"""
 action_dict = {
-    """
-    Category/actions dictionnary
-
-    Usage:
-        Add your "'action' : 'help'" to a category of this dictionnary,
-        and make sure the file yunohost_my-category.py exists in ./lib
-
-        Then create the function called category_action(args).
-
-        You can add some arguments with the function parse_args() below.
-
-    Example:
-        'add' : 'Add user' refers to :
-        user_add(args) function in lib/yunohost_user.py
-
-    """
-    'user' : {
+        'user' : {
         'help'    : 'Manage users',
         'actions' : {
             'list'      : 'List users',
-            'add'       : 'Add user'
+            'add'       : 'Create user',
+            #'update'    : 'Update user informations',
+            #'delete'    : 'Delete user',
+            #'info'      : 'Show user informations' 
         }
     },
     'domain' : {
         'help'    : 'Manage domains',
-        'actions' : {}
+        'actions' : {
+            #'list'      : 'List domains',
+            #'add'       : 'Add domain',
+            #'remove'    : 'Remove domain',
+            #'info'      : 'Show domain informations',
+            #'renewcert' : 'Renew certificate for a domain'
+        }
     },
     'app' : {
         'help'    : 'Manage apps',

@@ -6,6 +6,7 @@ import ldap
 import ldap.modlist as modlist
 import re
 import getpass
+sys.path.append('./') # Local temporary hack
 
 
 def colorize(astr, color):
@@ -59,7 +60,7 @@ def str_to_func(astr):
     
     try:
         func = getattr(mod, function)
-    except NameError:
+    except AttributeError:
          raise YunoHostError(168, _('Function is not defined'))
     else:
         return func
