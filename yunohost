@@ -20,39 +20,44 @@ __credits__ = """
 __author__  = 'Kload <kload@kload.fr>'
 __version__ = '2.0 beta1'
 
+import os
 import sys
 import argparse
 import gettext
+import json
+if not __debug__:
+    import traceback
+
 sys.path.append('lib') # Local temporary hack
 gettext.install('YunoHost')
-import yunohost_messages as msg
 
-def str_to_func(astr):
-    """
-    Call a function from a string name
-    
-    Keyword arguments:
-        astr -- Name of function to call
-    
-    Returns: 
-        Function
+from yunohost import YunoHostError, str_to_func, colorize
 
-    """
-    module, _, function = astr.rpartition('.')
-    if module:
-        __import__(module)
-        mod = sys.modules[module]
-    else:
-        mod = sys.modules['__main__']  # default module
-    
-    try:
-        func = getattr(mod, function)
-    except NameError:
-        print(msg.error + _('Function is not defined'))
-        sys.exit(msg.EUNDEFINED)
-    else:
-        return func
-
+action_dict = {
+    'user' : {
+        'help'    : 'Manage users',
+        'actions' : {
+            'list'      : 'List users',
+            'add'       : 'Add user'
+        }
+    },
+    'domain' : {
+        'help'    : 'Manage domains',
+        'actions' : {}
+    },
+    'app' : {
+        'help'    : 'Manage apps',
+        'actions' : {}
+    },
+    'monitor' : {
+        'help'    : 'Monitoring functions',
+        'actions' : {}
+    },
+    'tools' : {
+        'help'    : 'Specific tools',
+        'actions' : {}
+    }
+}
 
 def dict_to_parsers(action_dict):
     """
@@ -81,7 +86,6 @@ def dict_to_parsers(action_dict):
                                  + category + '_' + action)) 
 
     return parsers
-
 
 def parse_args(parsers):
     """
@@ -136,40 +140,28 @@ def parse_args(parsers):
     return args
 
 
-
 def main():
-    """ Main instructions """
-
-    action_dict = {
-        'user' : {
-            'help'    : 'Manage users',
-            'actions' : {
-                'list'      : 'List users',
-                'add'       : 'Add user'
-            }
-        },
-        'domain' : {
-            'help'    : 'Manage domains',
-            'actions' : {}
-        },
-        'app' : {
-            'help'    : 'Manage apps',
-            'actions' : {}
-        },
-        'monitor' : {
-            'help'    : 'Monitoring functions',
-            'actions' : {}
-        },
-        'tools' : {
-            'help'    : 'Specific tools',
-            'actions' : {}
-        }
-    }
-
-    parsers = dict_to_parsers(action_dict) 
-    args = parse_args(parsers)
-    args.func(vars(args))
-
+    """ Main instructions """ 
+    try:
+        parsers = dict_to_parsers(action_dict) 
+        args = parse_args(parsers)
+        result = args.func(vars(args))
+    except YunoHostError, error:
+        if not __debug__ :
+            traceback.print_exc()
+        if os.isatty(1):
+            print('\n' + colorize(_('Error: '), 'red') + error.message)
+        else:
+            print(json.dumps({ 'error' : error.message }))
+        return error.code
+    else: 
+        if os.isatty(1):
+            for attr, value in result.items():
+                if type(value) is str: 
+                    print(colorize(attr, 'purple') + ': ' + value)
+        else:
+            print(json.dumps(result))
+        return 0        
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
