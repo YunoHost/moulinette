@@ -7,7 +7,7 @@ import crypt
 import random
 import string
 import getpass
-from yunohost import YunoHostError, win_msg, colorize
+from yunohost import YunoHostError, win_msg, colorize, validate
 
 
 def user_list(args, yldap): # TODO : fix
@@ -15,7 +15,7 @@ def user_list(args, yldap): # TODO : fix
     #print(result)
 
 
-def user_add(args, yldap):
+def user_create(args, yldap):
     """
     Add user to LDAP
 
@@ -66,7 +66,7 @@ def user_add(args, yldap):
     }
 
     # Validate values
-    yldap.validate({
+    validate({
         args['username']    : r'^[a-z0-9_]+$', 
         args['mail']        : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$'
     })

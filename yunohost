@@ -86,7 +86,7 @@ action_dict = {
         'category_help' : _("Manage users"),
         'actions'       : {
             ### user_list()
-            'list'      : {
+            'list' : {
                 'action_help'   : _("List users"),
                 'ldap'          : True,
                 'arguments'     : {
@@ -108,8 +108,8 @@ action_dict = {
                    },
                 }
             },
-            ### user_add()
-            'add'       : {
+            ### user_create()
+            'create' : {
                 'action_help'   : _("Create user"),
                 'ldap'          : True,
                 'arguments'     : {
@@ -133,7 +133,7 @@ action_dict = {
                 }
             },
             ### user_delete()
-            'delete'    : {
+            'delete' : {
                 'action_help'   : _("Delete user"),
                 'ldap'          : True,
                 'arguments'     : {
@@ -144,7 +144,7 @@ action_dict = {
                 }
             },
             ### user_update()
-            'update'    : {
+            'update' : {
                 'action_help'   : _("Update user informations"),
                 'ldap'          : True,
                 'arguments'     : {
@@ -205,9 +205,69 @@ action_dict = {
             },
         }
     },
+    #############################
+    #          Domain           #
+    #############################
     'domain' : {
         'category_help' : _("Manage domains"),
-        'actions'       : {}
+        'actions'       : {
+            ### domain_list()
+            'list' : {
+                'action_help'   : _("List domains"),
+                'ldap'          : True,
+                'arguments'     : {
+                    '-f' : {
+                        'full'      : '--filter',
+                        'help'      : _("LDAP filter used to search"),
+                    },
+                    '-l' : {
+                        'full'      : '--limit',
+                        'help'      : _("Maximum number of users fetched"), 
+                    },
+                    '-o' : {
+                        'full'      : '--offset',
+                        'help'      : _("Starting number for user fetching"), 
+                   },
+                }
+            },
+            ### domain_create()
+            'create' : {
+                'action_help'   : _("Create a custom domain"),
+                'ldap'          : True,
+                'arguments'     : {
+                    'domain name' : {
+                        'help'      : _("Domain name to create"),
+                    }
+                }
+            },
+            ### domain_delete()
+            'delete' : {
+                'action_help'   : _("Delete domains"),
+                'ldap'          : True,
+                'arguments'     : {
+                    'domains' : {
+                        'help'      : _("Domain names to delete"),
+                        'nargs'     : '+',
+                    },
+                }
+            },
+            ### domain_info()
+            'info' : {
+                'action_help'   : _("Get domain informations"),
+                'ldap'          : True,
+                'arguments'     : {
+                    'domain-name' : {}
+                }
+            },
+            ### domain_renewcert()
+            'renewcert' : {
+                'action_help'   : _("Renew domain certificate"),
+                'ldap'          : True,
+                'arguments'     : {
+                    'domain-name' : {}
+                }
+            },
+        }
     },
     'app' : {
         'category_help' : _("Manage apps"),

@@ -63,20 +63,39 @@ def str_to_func(astr):
         Function
 
     """
-    module, _, function = astr.rpartition('.')
-    if module:
-        __import__(module)
-        mod = sys.modules[module]
-    else:
-        mod = sys.modules['__main__']  # default module
-    
     try:
+        module, _, function = astr.rpartition('.')
+        if module:
+            __import__(module)
+            mod = sys.modules[module]
+        else:
+            mod = sys.modules['__main__']  # default module
+    
         func = getattr(mod, function)
-    except AttributeError:
+    except (AttributeError, ImportError):
          #raise YunoHostError(168, _('Function is not defined'))
          return None
     else:
         return func
+
+
+def validate(regex_dict):
+    """ 
+    Validate attributes with a pattern 
+    
+    Keyword arguments:
+        regex_dict -- Dictionnary of values/pattern to check
+
+    Returns:
+        Boolean | YunoHostError
+
+    """
+    for attr, pattern in regex_dict.items():
+        if re.match(pattern, attr):
+            continue
+        else:
+            raise YunoHostError(22, _('Invalid attribute') + ' ' + attr)
+    return True
 
 
 class YunoHostError(Exception):
@@ -198,25 +217,6 @@ class YunoHostLDAP:
             raise YunoHostError(169, _('An error occured during LDAP entry creation'))
         else:
             return True
-
-
-    def validate(self, regex_dict):
-        """ 
-        Validate attributes with a pattern 
-        
-        Keyword arguments:
-            regex_dict -- Dictionnary of values/pattern to check
-
-        Returns:
-            Boolean | YunoHostError
-
-        """
-        for attr, pattern in regex_dict.items():
-            if re.match(pattern, attr):
-                continue
-            else:
-                raise YunoHostError(22, _('Invalid attribute') + ' ' + attr)
-        return True
 
 
     def validate_uniqueness(self, value_dict):
