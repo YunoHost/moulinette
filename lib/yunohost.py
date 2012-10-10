@@ -27,7 +27,14 @@ def colorize(astr, color):
     }
     return "\033["+ color_dict[color] +"m\033[1m" + astr + "\033[m" 
 
-
+def pretty_print_dict(d, depth=0):
+    for k,v in sorted(d.items(), key=lambda x: x[0]):
+        if isinstance(v, dict):
+            print ("  ")*depth + ("%s: " % k)
+            pretty_print_dict(v, depth+1)
+        else:
+            print ("  ")*depth + "%s: %s" % (colorize(k, 'purple'), v)
+            
 def win_msg(astr):
     """ 
     Display a success message if isatty 
