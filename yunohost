@@ -183,7 +183,7 @@ def parse_dict(action_dict):
                 if 'ldap' in action_params: ldap = action_params['ldap']
                 if 'action_help' not in action_params: action_params['action_help'] = ''
                 parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['action_help'])
-                # Set the action\'s related function
+                # Set the action s related function
                 parsers[category + '_' + action].set_defaults(
                     func=str_to_func('yunohost_' + category + '.' 
                                      + category + '_' + action)) 
