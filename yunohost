@@ -51,37 +51,56 @@ Example:
 
 """
 action_dict = {
-        'user' : {
+    #############################
+    #           User            #
+    #############################
+    'user' : {
         'help'    : 'Manage users',
         'actions' : {
-            'list'      : 'List users',
-            'add'       : 'Create user',
-            #'update'    : 'Update user informations',
-            #'delete'    : 'Delete user',
-            #'info'      : 'Show user informations' 
-        }
+            ### user_list()
+            'list'      : {
+                'help'      : 'List users',
+                'arguments' : {
+                   '-a' : {
+                        'full'      : '--all',
+                        'help'      : 'Display all users',
+                        'action'    : 'store_true'
+                   },
+                }
+            },
+            ### user_add()
+            'add'       : {
+                'help'      : 'Create user',
+                'arguments' : {
+                    '-u' : {
+                        'full'      : '--username',
+                    },
+                    '-f' : {
+                        'full'      : '--firstname',
+                    },
+                    '-l' : {
+                        'full'      : '--lastname',
+                    },
+                    '-m' : {
+                        'full'      : '--mail',
+                    },
+                    '-p' : {
+                        'full'      : '--password',
+                    }, 
+                }
+            },
     },
     'domain' : {
         'help'    : 'Manage domains',
-        'actions' : {
-            #'list'      : 'List domains',
-            #'add'       : 'Add domain',
-            #'remove'    : 'Remove domain',
-            #'info'      : 'Show domain informations',
-            #'renewcert' : 'Renew certificate for a domain'
-        }
     },
     'app' : {
         'help'    : 'Manage apps',
-        'actions' : {}
     },
     'monitor' : {
         'help'    : 'Monitoring functions',
-        'actions' : {}
     },
     'tools' : {
         'help'    : 'Specific tools',
-        'actions' : {}
     }
 }
 
@@ -138,15 +157,15 @@ def parse_args(parsers):
     return args
 
 
-def dict_to_parsers(action_dict):
+def dict_to_args(action_dict):
     """
-    Turn action dictionnary to parser and subparsers (2 level)
+    Turn action dictionnary to parser, subparsers and arguments
     
     Keyword arguments:
-        action_dict -- Multi-level dictionnary of categories/actions list
+        action_dict -- Multi-level dictionnary of categories/actions/arguments list
     
     Returns: 
-        Dictionnrary of parsers
+        Namespace of args
 
     """
     # Intialize parsers
@@ -158,20 +177,28 @@ def dict_to_parsers(action_dict):
     for category, info in action_dict.items():
         subparsers_category[category] = subparsers.add_parser(category, help=info['help'])
         subparsers_action[category] = subparsers_category[category].add_subparsers()
-        for action, helper in info['actions'].items():
-            parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=helper)
+        for action, action_params in info['actions'].items():
+            parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['help'])
             parsers[category + '_' + action].set_defaults(
                 func=str_to_func('yunohost_' + category + '.' 
                                  + category + '_' + action)) 
+            # Argument parsing
+            for arg_name, arg_params in action_params['arguments'].items():
+                if arg_params['full']:
+                    arg_fullname = arg_params['full']
+                    del arg_params['full']
+                    parsers[category + '_' + action].add_argument(arg_name, arg_fullname, **arg_params)
+                else:
+                    parsers[category + '_' + action].add_argument(arg_name, **arg_params)
 
-    return parsers
-
+    args = parsers['general'].parse_args()
+    return args
 
 def main():
     """ Main instructions """ 
     try:
-        parsers = dict_to_parsers(action_dict) 
-        args = parse_args(parsers)
+        args = dict_to_args(action_dict) 
+        #args = parse_args(parsers)
         result = args.func(vars(args))
     except YunoHostError, error:
         if not __debug__ :
