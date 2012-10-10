@@ -28,29 +28,52 @@ import json
 if not __debug__:
     import traceback
 
-sys.path.append('lib') # Local temporary hack
+sys.path.append('lib')
 gettext.install('YunoHost')
 
 from yunohost import YunoHostError, str_to_func, colorize
 
 
 """
-Category/actions dictionnary
+Category/actions/arguments dictionnary
+
+
+Except for general_arguments, this dictionary contains 3 levels
+as in this sample command line :
+
+    yunohost   monitor    info    --cpu --ram
+       ^          ^         ^          ^
+    (script) | category | action | parameters
+
+
+Above example will lead to the function 'monitor_info(args)'
+in the file 'lib/yunohost_monitor.py' with 'cpu' and 'ram'
+stored in args dictionnary.
 
 Usage:
-    Add your "'action' : 'help'" to a category of this dictionnary,
-    and make sure the file yunohost_my-category.py exists in ./lib
+    You can add a category at the first level, action at the second one,
+    and arguments at the third one.
 
-    Then create the function called category_action(args).
+Documentation:
+    You can see all arguments settings at the argparse documentation:
+    http://docs.python.org/dev/library/argparse.html
+    #argparse.ArgumentParser.add_argument
 
-    You can add some arguments with the function parse_args() below.
-
-Example:
-    'add' : 'Add user' refers to :
-    user_add(args) function in lib/yunohost_user.py
+    Don't forget to turn them as a dictionnary ('setting' : 'value')
 
 """
-action_dict = {
+action_dict = { 
+    #############################
+    #       General args        #
+    #############################
+    'general_arguments' : {
+        '-v' : {
+            'full'      : '--version',
+            'help'      : 'Display %(prog)s version',
+            'action'    : 'version',
+            'version'   : '%(prog)s ' + __version__,
+        },
+    }
     #############################
     #           User            #
     #############################
@@ -109,59 +132,6 @@ action_dict = {
     }
 }
 
-def parse_args(parsers):
-    """
-    Add and parse arguments
-
-    Keyword arguments:
-        parsers -- parsers and subparsers as a dict    
-    
-    Returns: 
-        Namespace of arguments
-
-    Usage:
-        Add general argument: parsers['general'].add_argument( options )
-        Add specific argument: parsers['user_delete'].add_argument( options )
-    
-    Documentation: 
-        http://docs.python.org/dev/library/argparse.html
-        #argparse.ArgumentParser.add_argument 
-     
-    """
-    #####################
-    #      General      #
-    #####################
-
-    # Version
-    parsers['general'].add_argument(
-        '-v', 
-        '--version', 
-        action='version',
-        version='%(prog)s ' +  __version__
-    )
-
-    #####################
-    #       User        #
-    #####################
-
-    # user list
-    parsers['user_list'].add_argument('-a', '--all', action='store_true')
-
-    # user add
-    parsers['user_add'].add_argument('-u', '--username')
-    parsers['user_add'].add_argument('-m', '--mail')
-    parsers['user_add'].add_argument('-f', '--firstname')
-    parsers['user_add'].add_argument('-l', '--lastname')
-    parsers['user_add'].add_argument('-p', '--password')
-
-
-    #########################    
-    #   End of arguments    #
-    #########################
-    args = parsers['general'].parse_args()
-    return args
-
-
 def dict_to_args(action_dict):
     """
     Turn action dictionnary to parser, subparsers and arguments
@@ -178,16 +148,29 @@ def dict_to_args(action_dict):
     parsers['general'] = argparse.ArgumentParser()
     subparsers = parsers['general'].add_subparsers()
 
-    # Compute dictionnary
+    # Add general arguments
+    for arg_name, arg_params in action_dict['general_arguments'].items():
+        if arg_params['full']:
+            arg_fullname = arg_params['full']
+            del arg_params['full']
+            parsers['general'].add_argument(arg_name, arg_fullname, **arg_params)
+        else:
+            parsers['general'].add_argument(arg_name, **arg_params)
+
+    del action_dict['general_arguments'] 
+
+    # Split categories into subparsers
     for category, cat_params in action_dict.items():
         subparsers_category[category] = subparsers.add_parser(category, help=cat_params['help'])
         subparsers_action[category] = subparsers_category[category].add_subparsers()
+        # Split actions
         for action, action_params in cat_params['actions'].items():
             parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['help'])
+            # Set the action's related function
             parsers[category + '_' + action].set_defaults(
                 func=str_to_func('yunohost_' + category + '.' 
                                  + category + '_' + action)) 
-            # Argument parsing
+            # Add arguments
             for arg_name, arg_params in action_params['arguments'].items():
                 if arg_params['full']:
                     arg_fullname = arg_params['full']
@@ -200,10 +183,18 @@ def dict_to_args(action_dict):
     return args
 
 def main():
-    """ Main instructions """ 
+    """ 
+    Main instructions 
+   
+    Parse the action_dict and execute the action-specific function
+    Then print json or pretty result if executed in a tty :)
+
+    Returns:
+        int -- 0 or error code
+    
+    """ 
     try:
         args = dict_to_args(action_dict) 
-        #args = parse_args(parsers)
         result = args.func(vars(args))
     except YunoHostError, error:
         if not __debug__ :
