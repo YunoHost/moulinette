@@ -28,11 +28,14 @@ import json
 if not __debug__:
     import traceback
 
-sys.path.append('lib')
 gettext.install('YunoHost')
 
-from yunohost import YunoHostError, str_to_func, colorize, pretty_print_dict
-
+try:
+    sys.path.append('lib')
+    from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict
+except ImportError:
+    sys.stderr.write('Require YunoHost lib')
+    sys.exit(1)
 
 """
 Category/actions/arguments dictionnary
@@ -78,12 +81,13 @@ action_dict = {
     #           User            #
     #############################
     'user' : {
-        'help'    : 'Manage users',
-        'actions' : {
+        'category_help' : 'Manage users',
+        'actions'       : {
             ### user_list()
             'list'      : {
-                'help'      : 'List users',
-                'arguments' : {
+                'action_help'   : 'List users',
+                'ldap'          : True,
+                'arguments'     : {
                    '-a' : {
                         'full'      : '--all',
                         'help'      : 'Display all users',
@@ -93,8 +97,9 @@ action_dict = {
             },
             ### user_add()
             'add'       : {
-                'help'      : 'Create user',
-                'arguments' : {
+                'action_help'   : 'Create user',
+                'ldap'          : True,
+                'arguments'     : {
                     '-u' : {
                         'full'      : '--username',
                     },
@@ -113,29 +118,30 @@ action_dict = {
                 }
             },
             'info'      : {
-                'help'      : 'Get user informations',
+                'ldap'          : True,
+                'action_help'   : 'Get user informations',
             },
         }
     },
     'domain' : {
-        'help'    : 'Manage domains',
-        'actions' : {}
+        'category_help' : 'Manage domains',
+        'actions'       : {}
     },
     'app' : {
-        'help'    : 'Manage apps',
-        'actions' : {}
+        'category_help' : 'Manage apps',
+        'actions'       : {}
     },
     'monitor' : {
-        'help'    : 'Monitoring functions',
-        'actions' : {}
+        'category_help' : 'Monitoring functions',
+        'actions'       : {}
     },
     'tools' : {
-        'help'    : 'Specific tools',
-        'actions' : {}
+        'category_help' : 'Specific tools',
+        'actions'       : {}
     }
 }
 
-def dict_to_args(action_dict):
+def parse_dict(action_dict):
     """
     Turn action dictionnary to parser, subparsers and arguments
     
@@ -146,6 +152,9 @@ def dict_to_args(action_dict):
         Namespace of args
 
     """
+    # Connection required
+    ldap = False
+
     # Intialize parsers
     parsers = subparsers_category = subparsers_action = {}
     parsers['general'] = argparse.ArgumentParser()
@@ -163,28 +172,33 @@ def dict_to_args(action_dict):
     del action_dict['general_arguments'] 
 
     # Split categories into subparsers
-    for category, cat_params in action_dict.items():
-        subparsers_category[category] = subparsers.add_parser(category, help=cat_params['help'])
+    for category, category_params in action_dict.items():
+        if 'category_help' not in category_params: category_params['category_help'] = ''
+        subparsers_category[category] = subparsers.add_parser(category, help=category_params['category_help'])
         subparsers_action[category] = subparsers_category[category].add_subparsers()
         # Split actions
-        for action, action_params in cat_params['actions'].items():
-            parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['help'])
-            # Set the action's related function
-            parsers[category + '_' + action].set_defaults(
-                func=str_to_func('yunohost_' + category + '.' 
-                                 + category + '_' + action)) 
-            # Add arguments
-            if 'arguments' in action_params:
-                for arg_name, arg_params in action_params['arguments'].items():
-                    if arg_params['full']:
-                        arg_fullname = arg_params['full']
-                        del arg_params['full']
-                        parsers[category + '_' + action].add_argument(arg_name, arg_fullname, **arg_params)
-                    else:
-                        parsers[category + '_' + action].add_argument(arg_name, **arg_params)
+        if 'actions' in category_params:
+            for action, action_params in category_params['actions'].items():
+                # Service settings
+                if 'ldap' in action_params: ldap = action_params['ldap']
+                if 'action_help' not in action_params: action_params['action_help'] = ''
+                parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['action_help'])
+                # Set the action\'s related function
+                parsers[category + '_' + action].set_defaults(
+                    func=str_to_func('yunohost_' + category + '.' 
+                                     + category + '_' + action)) 
+                # Add arguments
+                if 'arguments' in action_params:
+                    for arg_name, arg_params in action_params['arguments'].items():
+                        if arg_params['full']:
+                            arg_fullname = arg_params['full']
+                            del arg_params['full']
+                            parsers[category + '_' + action].add_argument(arg_name, arg_fullname, **arg_params)
+                        else:
+                            parsers[category + '_' + action].add_argument(arg_name, **arg_params)
 
     args = parsers['general'].parse_args()
-    return args
+    return { 'ldap' : ldap, 'args' : args }
 
 def main():
     """ 
@@ -197,9 +211,15 @@ def main():
         int -- 0 or error code
     
     """ 
+    parse = parse_dict(action_dict) 
+    if parse['ldap']:
+        yldap = YunoHostLDAP()
+
     try:
-        args = dict_to_args(action_dict) 
-        result = args.func(vars(args))
+        if parse['ldap']:
+            result = parse['args'].func(vars(parse['args']), yldap)
+        else:
+            result = parse['args'].func(vars(parse['args']))
     except YunoHostError, error:
         if not __debug__ :
             traceback.print_exc()
@@ -213,7 +233,11 @@ def main():
             pretty_print_dict(result)
         else:
             print(json.dumps(result))
-        return 0        
+    finally:
+        if parse['ldap']:
+            yldap.disconnect()
+    
+    return 0        
 
 if __name__ == '__main__':
     sys.exit(main())

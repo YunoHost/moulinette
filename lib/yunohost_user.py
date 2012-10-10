@@ -7,19 +7,15 @@ import crypt
 import random
 import string
 import getpass
-from yunohost import YunoHostError, YunoHostLDAP, win_msg
+from yunohost import YunoHostError, win_msg, colorize
 
 
-# Initialize LDAP
-yldap = YunoHostLDAP()
-
-
-def user_list(args): # TODO : fix
+def user_list(args, yldap): # TODO : fix
     result = yldap.search()
     #print(result)
 
 
-def user_add(args):
+def user_add(args, yldap):
     """
     Add user to LDAP
 
@@ -36,14 +32,14 @@ def user_add(args):
         for arg in required_args:
             if not args[arg]:
                 if os.isatty(1):
-                    args[arg] = raw_input(arg.capitalize()+': ')
+                    args[arg] = raw_input(colorize(arg.capitalize()+': ', 'yellow'))
                 else:
                     raise Exception
         # Password
         if not args['password']:
             if os.isatty(1):
-                args['password'] = getpass.getpass()
-                pwd2 = getpass.getpass('Retype password:')
+                args['password'] = getpass.getpass(colorize('Password: ', 'yellow'))
+                pwd2 = getpass.getpass(colorize('Retype password:', 'yellow'))
                 if args['password'] != pwd2:
                     raise YunoHostError(22, _("Passwords doesn't match"))
             else:
