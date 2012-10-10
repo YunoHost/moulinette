@@ -73,7 +73,7 @@ action_dict = {
             'action'    : 'version',
             'version'   : '%(prog)s ' + __version__,
         },
-    }
+    },
     #############################
     #           User            #
     #############################
@@ -111,6 +111,9 @@ action_dict = {
                         'full'      : '--password',
                     }, 
                 }
+            },
+            'info'      : {
+                'help'      : 'Get user informations',
             },
         }
     },
@@ -171,13 +174,14 @@ def dict_to_args(action_dict):
                 func=str_to_func('yunohost_' + category + '.' 
                                  + category + '_' + action)) 
             # Add arguments
-            for arg_name, arg_params in action_params['arguments'].items():
-                if arg_params['full']:
-                    arg_fullname = arg_params['full']
-                    del arg_params['full']
-                    parsers[category + '_' + action].add_argument(arg_name, arg_fullname, **arg_params)
-                else:
-                    parsers[category + '_' + action].add_argument(arg_name, **arg_params)
+            if 'arguments' in action_params:
+                for arg_name, arg_params in action_params['arguments'].items():
+                    if arg_params['full']:
+                        arg_fullname = arg_params['full']
+                        del arg_params['full']
+                        parsers[category + '_' + action].add_argument(arg_name, arg_fullname, **arg_params)
+                    else:
+                        parsers[category + '_' + action].add_argument(arg_name, **arg_params)
 
     args = parsers['general'].parse_args()
     return args
