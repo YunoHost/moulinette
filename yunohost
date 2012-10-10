@@ -211,15 +211,17 @@ def main():
         int -- 0 or error code
     
     """ 
-    parse = parse_dict(action_dict) 
-    if parse['ldap']:
+    action = parse_dict(action_dict)
+
+    # Connect to LDAP if the action is requiring it
+    if action['ldap']:
         yldap = YunoHostLDAP()
 
     try:
-        if parse['ldap']:
-            result = parse['args'].func(vars(parse['args']), yldap)
+        if action['ldap']:
+            result = action['args'].func(vars(action['args']), yldap)
         else:
-            result = parse['args'].func(vars(parse['args']))
+            result = action['args'].func(vars(action['args']))
     except YunoHostError, error:
         if not __debug__ :
             traceback.print_exc()
@@ -234,7 +236,7 @@ def main():
         else:
             print(json.dumps(result))
     finally:
-        if parse['ldap']:
+        if action['ldap']:
             yldap.disconnect()
     
     return 0        
