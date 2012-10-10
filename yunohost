@@ -56,6 +56,8 @@ stored in args dictionnary.
 Usage:
     You can add a category at the first level, action at the second one,
     and arguments at the third one.
+    If the action need LDAP connexion, don't forget to add 'ldap' : True
+    to the action parameters.
 
 Documentation:
     You can see all arguments settings at the argparse documentation:
@@ -72,7 +74,7 @@ action_dict = {
     'general_arguments' : {
         '-v' : {
             'full'      : '--version',
-            'help'      : 'Display %(prog)s version',
+            'help'      : _('Display %(prog)s version'),
             'action'    : 'version',
             'version'   : '%(prog)s ' + __version__,
         },
@@ -81,62 +83,67 @@ action_dict = {
     #           User            #
     #############################
     'user' : {
-        'category_help' : 'Manage users',
+        'category_help' : _('Manage users'),
         'actions'       : {
             ### user_list()
             'list'      : {
-                'action_help'   : 'List users',
+                'action_help'   : _('List users'),
                 'ldap'          : True,
                 'arguments'     : {
                    '-a' : {
                         'full'      : '--all',
-                        'help'      : 'Display all users',
+                        'help'      : _('Display all users'),
                         'action'    : 'store_true'
                    },
                 }
             },
             ### user_add()
             'add'       : {
-                'action_help'   : 'Create user',
+                'action_help'   : _('Create user'),
                 'ldap'          : True,
                 'arguments'     : {
                     '-u' : {
                         'full'      : '--username',
+                        'metavar'   : _('username'),
                     },
                     '-f' : {
                         'full'      : '--firstname',
+                        'metavar'   : _('firstname'),
                     },
                     '-l' : {
                         'full'      : '--lastname',
+                        'metavar'   : _('lastname'),
                     },
                     '-m' : {
                         'full'      : '--mail',
+                        'metavar'   : _('mail'),
                     },
                     '-p' : {
                         'full'      : '--password',
+                        'metavar'   : _('password'),
                     }, 
                 }
             },
             'info'      : {
                 'ldap'          : True,
-                'action_help'   : 'Get user informations',
+                'action_help'   : _('Get user informations'),
             },
         }
     },
     'domain' : {
-        'category_help' : 'Manage domains',
+        'category_help' : _('Manage domains'),
         'actions'       : {}
     },
     'app' : {
-        'category_help' : 'Manage apps',
+        'category_help' : _('Manage apps'),
         'actions'       : {}
     },
     'monitor' : {
-        'category_help' : 'Monitoring functions',
+        'category_help' : _('Monitoring functions'),
         'actions'       : {}
     },
     'tools' : {
-        'category_help' : 'Specific tools',
+        'category_help' : _('Specific tools'),
         'actions'       : {}
     }
 }
