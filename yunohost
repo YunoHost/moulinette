@@ -74,7 +74,7 @@ action_dict = {
     'general_arguments' : {
         '-v' : {
             'full'      : '--version',
-            'help'      : _('Display %(prog)s version'),
+            'help'      : _("Display %(prog)s version"),
             'action'    : 'version',
             'version'   : '%(prog)s ' + __version__,
         },
@@ -83,67 +83,142 @@ action_dict = {
     #           User            #
     #############################
     'user' : {
-        'category_help' : _('Manage users'),
+        'category_help' : _("Manage users"),
         'actions'       : {
             ### user_list()
             'list'      : {
-                'action_help'   : _('List users'),
+                'action_help'   : _("List users"),
                 'ldap'          : True,
                 'arguments'     : {
-                   '-a' : {
-                        'full'      : '--all',
-                        'help'      : _('Display all users'),
-                        'action'    : 'store_true'
+                   '--fields' : {
+                        'help'      : _("Fields to fetch"),
+                        'nargs'     : '+',
+                   },
+                   '-f' : {
+                        'full'      : '--filter',
+                        'help'      : _("LDAP filter used to search"),
+                   },
+                   '-l' : {
+                        'full'      : '--limit',
+                        'help'      : _("Maximum number of users fetched"), 
+                   },
+                   '-o' : {
+                        'full'      : '--offset',
+                        'help'      : _("Starting number for user fetching"), 
                    },
                 }
             },
             ### user_add()
             'add'       : {
-                'action_help'   : _('Create user'),
+                'action_help'   : _("Create user"),
                 'ldap'          : True,
                 'arguments'     : {
                     '-u' : {
                         'full'      : '--username',
-                        'metavar'   : _('username'),
+                        'help'      : _("Must be unique"),
                     },
                     '-f' : {
                         'full'      : '--firstname',
-                        'metavar'   : _('firstname'),
                     },
                     '-l' : {
                         'full'      : '--lastname',
-                        'metavar'   : _('lastname'),
                     },
                     '-m' : {
                         'full'      : '--mail',
-                        'metavar'   : _('mail'),
+                        'help'      : _("Main mail address, must be unique"),
                     },
                     '-p' : {
                         'full'      : '--password',
-                        'metavar'   : _('password'),
                     }, 
                 }
             },
-            'info'      : {
+            ### user_delete()
+            'delete'    : {
+                'action_help'   : _("Delete user"),
                 'ldap'          : True,
-                'action_help'   : _('Get user informations'),
+                'arguments'     : {
+                    'users' : {
+                        'help'      : _("Username of users to delete"),
+                        'nargs'     : '+',
+                    },
+                }
+            },
+            ### user_update()
+            'update'    : {
+                'action_help'   : _("Update user informations"),
+                'ldap'          : True,
+                'arguments'     : {
+                    'user' : {
+                        'help'      : _("Username of user to update"),
+                    },
+                    '-f' : {
+                        'full'      : '--firstname',
+                    },
+                    '-l' : {
+                        'full'      : '--lastname',
+                    },
+                    '-m' : {
+                        'full'      : '--mail',
+                    },
+                    '-cp' : {
+                        'full'      : '--change-password',
+                        'help'      : _("New password to set"),
+                        'metavar'   : 'PASSWORD',
+                    },
+                    '--add-mailforward' : {
+                        'help'      : _("Mailforward addresses to add"),
+                        'nargs'     : '+',
+                        'metavar'   : 'MAIL',
+                    },
+                    '--remove-mailforward' : {
+                        'help'      : _("Mailforward addresses to remove"),
+                        'nargs'     : '+',
+                        'metavar'   : 'MAIL',
+                    },
+                    '-add-mailalias' : {
+                        'help'      : _("Mail aliases to add"),
+                        'nargs'     : '+',
+                        'metavar'   : 'MAIL',
+                    },
+                    '-remove-mailalias' : {
+                        'help'      : _("Mail aliases to remove"),
+                        'nargs'     : '+',
+                        'metavar'   : 'MAIL',
+                    },
+                }
+            },
+            ### user_info()
+            'info'      : {
+                'action_help'   : _("Get user informations"),
+                'ldap'          : True,
+                'arguments'     : {
+                    'user' : {
+                        'nargs'     : '?',
+                    }, 
+                    '-m' : {
+                        'full'      : '--mail',
+                    }, 
+                    '-cn' : {
+                        'full'      : '--fullname',
+                    }, 
+                }
             },
         }
     },
     'domain' : {
-        'category_help' : _('Manage domains'),
+        'category_help' : _("Manage domains"),
         'actions'       : {}
     },
     'app' : {
-        'category_help' : _('Manage apps'),
+        'category_help' : _("Manage apps"),
         'actions'       : {}
     },
     'monitor' : {
-        'category_help' : _('Monitoring functions'),
+        'category_help' : _("Monitoring functions"),
         'actions'       : {}
     },
     'tools' : {
-        'category_help' : _('Specific tools'),
+        'category_help' : _("Specific tools"),
         'actions'       : {}
     }
 }
@@ -197,7 +272,7 @@ def parse_dict(action_dict):
                 # Add arguments
                 if 'arguments' in action_params:
                     for arg_name, arg_params in action_params['arguments'].items():
-                        if arg_params['full']:
+                        if 'full' in arg_params:
                             arg_fullname = arg_params['full']
                             del arg_params['full']
                             parsers[category + '_' + action].add_argument(arg_name, arg_fullname, **arg_params)
@@ -229,11 +304,14 @@ def main():
             result = action['args'].func(vars(action['args']), yldap)
         else:
             result = action['args'].func(vars(action['args']))
+    #except TypeError:
+        #print(_("Not (yet) implemented function"))
+        #return 1
     except YunoHostError, error:
         if not __debug__ :
             traceback.print_exc()
         if os.isatty(1):
-            print('\n' + colorize(_('Error: '), 'red') + error.message)
+            print('\n' + colorize(_("Error: "), 'red') + error.message)
         else:
             print(json.dumps({ 'error' : error.message }))
         return error.code
