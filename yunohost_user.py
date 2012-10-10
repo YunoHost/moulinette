@@ -32,14 +32,14 @@ def user_create(args, yldap):
         for arg in required_args:
             if not args[arg]:
                 if os.isatty(1):
-                    args[arg] = raw_input(colorize(arg.capitalize()+': ', 'yellow'))
+                    args[arg] = raw_input(colorize(arg.capitalize()+': ', 'cyan'))
                 else:
                     raise Exception
         # Password
         if not args['password']:
             if os.isatty(1):
-                args['password'] = getpass.getpass(colorize('Password: ', 'yellow'))
-                pwd2 = getpass.getpass(colorize('Retype password:', 'yellow'))
+                args['password'] = getpass.getpass(colorize('Password: ', 'cyan'))
+                pwd2 = getpass.getpass(colorize('Retype password:', 'cyan'))
                 if args['password'] != pwd2:
                     raise YunoHostError(22, _("Passwords doesn't match"))
             else:
@@ -78,8 +78,10 @@ def user_create(args, yldap):
         'mailalias' : args['mail']
     })
 
+    #TODO: check if mail belongs to a domain
+
     if yldap.add(rdn, attr_dict):
         win_msg(_("User successfully created"))
-        return attr_dict
+        return { _("Fullname") : fullname, _("Username") : args['username'], _("Mail") : args['mail'] }
     else:
         raise YunoHostError(169, _('An error occured during user creation'))

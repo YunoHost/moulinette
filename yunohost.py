@@ -6,7 +6,6 @@ import ldap
 import ldap.modlist as modlist
 import re
 import getpass
-sys.path.append('./') # Local temporary hack
 
 
 def colorize(astr, color):
@@ -141,7 +140,7 @@ class YunoHostLDAP:
         """
         self.conn = ldap.initialize('ldap://localhost:389')
         self.base = 'dc=yunohost,dc=org'
-        self.pwd = getpass.getpass(_('LDAP Admin Password: '))
+        self.pwd = getpass.getpass(colorize(_('LDAP Admin Password: '), 'yellow'))
         try:
             self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
         except ldap.INVALID_CREDENTIALS:

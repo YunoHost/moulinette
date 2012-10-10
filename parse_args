@@ -31,7 +31,6 @@ if not __debug__:
 gettext.install('YunoHost')
 
 try:
-    sys.path.append('lib')
     from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict
 except ImportError:
     sys.stderr.write('Require YunoHost lib')
@@ -342,6 +341,18 @@ def parse_dict(action_dict):
     args = parsers['general'].parse_args()
     return { 'ldap' : ldap, 'args' : args }
 
+def display_error(error):
+    """
+    Nice error displaying
+
+    """
+    if not __debug__ :
+        traceback.print_exc()
+    if os.isatty(1):
+        print('\n' + colorize(_("Error: "), 'red') + error.message)
+    else:
+        print(json.dumps({ 'error' : error.message }))
+
 def main():
     """ 
     Main instructions 
@@ -355,25 +366,24 @@ def main():
     """ 
     action = parse_dict(action_dict)
 
-    # Connect to LDAP if the action is requiring it
-    if action['ldap']:
-        yldap = YunoHostLDAP()
+    try:
+        # Connect to LDAP if the action is requiring it
+        if action['ldap']:
+            yldap = YunoHostLDAP()
+    except YunoHostError, error:
+        display_error(error)
+        return error.code
 
     try:
         if action['ldap']:
             result = action['args'].func(vars(action['args']), yldap)
         else:
             result = action['args'].func(vars(action['args']))
-    #except TypeError:
-        #print(_("Not (yet) implemented function"))
-        #return 1
+    except TypeError:
+        print(_("Not (yet) implemented function"))
+        return 1
     except YunoHostError, error:
-        if not __debug__ :
-            traceback.print_exc()
-        if os.isatty(1):
-            print('\n' + colorize(_("Error: "), 'red') + error.message)
-        else:
-            print(json.dumps({ 'error' : error.message }))
+        display_error(error)
         return error.code
     else: 
         if os.isatty(1):
