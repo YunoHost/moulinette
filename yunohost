@@ -89,18 +89,23 @@ action_dict = {
                     }, 
                 }
             },
+        }
     },
     'domain' : {
         'help'    : 'Manage domains',
+        'actions' : {}
     },
     'app' : {
         'help'    : 'Manage apps',
+        'actions' : {}
     },
     'monitor' : {
         'help'    : 'Monitoring functions',
+        'actions' : {}
     },
     'tools' : {
         'help'    : 'Specific tools',
+        'actions' : {}
     }
 }
 
@@ -174,10 +179,10 @@ def dict_to_args(action_dict):
     subparsers = parsers['general'].add_subparsers()
 
     # Compute dictionnary
-    for category, info in action_dict.items():
-        subparsers_category[category] = subparsers.add_parser(category, help=info['help'])
+    for category, cat_params in action_dict.items():
+        subparsers_category[category] = subparsers.add_parser(category, help=cat_params['help'])
         subparsers_action[category] = subparsers_category[category].add_subparsers()
-        for action, action_params in info['actions'].items():
+        for action, action_params in cat_params['actions'].items():
             parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['help'])
             parsers[category + '_' + action].set_defaults(
                 func=str_to_func('yunohost_' + category + '.' 
