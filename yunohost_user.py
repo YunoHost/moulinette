@@ -10,12 +10,11 @@ import getpass
 from yunohost import YunoHostError, win_msg, colorize, validate
 
 
-def user_list(args, yldap): # TODO : fix
-    result = yldap.search()
-    #print(result)
+def user_list(args, connections): # TODO : fix
+    print(args)
 
 
-def user_create(args, yldap):
+def user_create(args, connections):
     """
     Add user to LDAP
 
@@ -25,6 +24,7 @@ def user_create(args, yldap):
     Returns:
         Boolean
     """
+    yldap = connections['ldap']
     required_args = ['username', 'mail', 'firstname', 'lastname']
 
     # Input missing values

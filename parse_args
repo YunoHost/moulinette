@@ -49,21 +49,21 @@ as in this sample command line :
 
 
 Above example will lead to the function 'monitor_info(args)'
-in the file 'lib/yunohost_monitor.py' with 'cpu' and 'ram'
+in the file 'yunohost_monitor.py' with 'cpu' and 'ram'
 stored in args dictionnary.
 
 Usage:
     You can add a category at the first level, action at the second one,
     and arguments at the third one.
-    If the action need LDAP connexion, don't forget to add 'ldap' : True
-    to the action parameters.
+    If a connexion is needed for the action, don't forget to add it to
+    the action parameters (ldap, repo, dns or firewall).
 
 Documentation:
     You can see all arguments settings at the argparse documentation:
     http://docs.python.org/dev/library/argparse.html
     #argparse.ArgumentParser.add_argument
 
-    Don't forget to turn them as a dictionnary ('setting' : 'value')
+    Don't forget to turn argument as dictionnary ('setting' : 'value')
 
 """
 action_dict = { 
@@ -87,10 +87,10 @@ action_dict = {
             ### user_list()
             'list' : {
                 'action_help'   : _("List users"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                    '--fields' : {
-                        'help'      : _("Fields to fetch"),
+                        'help'      : _("fields to fetch"),
                         'nargs'     : '+',
                    },
                    '-f' : {
@@ -99,7 +99,7 @@ action_dict = {
                    },
                    '-l' : {
                         'full'      : '--limit',
-                        'help'      : _("Maximum number of users fetched"), 
+                        'help'      : _("Maximum number of user fetched"), 
                    },
                    '-o' : {
                         'full'      : '--offset',
@@ -110,7 +110,7 @@ action_dict = {
             ### user_create()
             'create' : {
                 'action_help'   : _("Create user"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     '-u' : {
                         'full'      : '--username',
@@ -134,7 +134,7 @@ action_dict = {
             ### user_delete()
             'delete' : {
                 'action_help'   : _("Delete user"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     'users' : {
                         'help'      : _("Username of users to delete"),
@@ -145,7 +145,7 @@ action_dict = {
             ### user_update()
             'update' : {
                 'action_help'   : _("Update user informations"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     'user' : {
                         'help'      : _("Username of user to update"),
@@ -189,7 +189,7 @@ action_dict = {
             ### user_info()
             'info'      : {
                 'action_help'   : _("Get user informations"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     'user' : {
                         'nargs'     : '?',
@@ -213,7 +213,7 @@ action_dict = {
             ### domain_list()
             'list' : {
                 'action_help'   : _("List domains"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     '-f' : {
                         'full'      : '--filter',
@@ -221,18 +221,18 @@ action_dict = {
                     },
                     '-l' : {
                         'full'      : '--limit',
-                        'help'      : _("Maximum number of users fetched"), 
+                        'help'      : _("Maximum number of domain fetched"), 
                     },
                     '-o' : {
                         'full'      : '--offset',
-                        'help'      : _("Starting number for user fetching"), 
+                        'help'      : _("Starting number for domain fetching"), 
                    },
                 }
             },
             ### domain_create()
             'create' : {
                 'action_help'   : _("Create a custom domain"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     'domain name' : {
                         'help'      : _("Domain name to create"),
@@ -242,10 +242,10 @@ action_dict = {
             ### domain_delete()
             'delete' : {
                 'action_help'   : _("Delete domains"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
-                    'domains' : {
-                        'help'      : _("Domain names to delete"),
+                    'domain' : {
+                        'help'      : _("Domain(s) to delete"),
                         'nargs'     : '+',
                     },
                 }
@@ -253,7 +253,7 @@ action_dict = {
             ### domain_info()
             'info' : {
                 'action_help'   : _("Get domain informations"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     'domain-name' : {}
                 }
@@ -261,16 +261,153 @@ action_dict = {
             ### domain_renewcert()
             'renewcert' : {
                 'action_help'   : _("Renew domain certificate"),
-                'ldap'          : True,
+                'connections'   : ['ldap'],
                 'arguments'     : {
                     'domain-name' : {}
                 }
             },
         }
     },
+    #############################
+    #            App            #
+    #############################
     'app' : {
         'category_help' : _("Manage apps"),
-        'actions'       : {}
+        'actions'       : {
+            ### app_list()
+            'list' : {
+                'action_help'   : _("List apps"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    '--fields' : {
+                        'help'      : _("fields to fetch"),
+                        'nargs'     : '+',
+                    },
+                    '-f' : {
+                        'full'      : '--filter',
+                        'help'      : _("LDAP filter used to search"),
+                    },
+                    '-l' : {
+                        'full'      : '--limit',
+                        'help'      : _("Maximum number of app fetched"), 
+                    },
+                    '-o' : {
+                        'full'      : '--offset',
+                        'help'      : _("Starting number for app fetching"), 
+                   },
+                }
+            },
+            ### app_install() TODO: Write help
+            'install' : {
+                'action_help'   : _("Install apps"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    'appname' : {
+                        'nargs'     : '+',
+                    },
+                    '-d' : {
+                        'full'      : '--domain',
+                    },
+                    '-p' : {
+                        'full'      : '--path',
+                    },
+                    '-l' : {
+                        'full'      : '--label',
+                    },
+                    '--public' : {
+                        'action'    : 'store_true',
+                    },
+                    '--protected' : {
+                        'action'    : 'store_true',
+                    },
+                }
+            },
+            ### app_remove() TODO: Write help
+            'remove' : {
+                'action_help'   : _("Remove app"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    'app' : {
+                        'help'      : _("App(s) to delete"),
+                        'nargs'     : '+',
+                    },
+                }
+            },
+            ### app_upgrade()
+            'upgrade' : {
+                'action_help'   : _("Upgrade app"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    'app' : {
+                        'help'      : _("App(s) to upgrade"),
+                        'nargs'     : '+',
+                    },
+                }
+            },
+            ### app_info() TODO: Write help
+            'info' : {
+                'action_help'   : _("Get app informations"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    'app' : {},
+                }
+            },
+            ### app_addaccess() TODO: Write help
+            'addaccess' : {
+                'action_help'   : _("Grant access right to users (everyone by default)"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    'app' : {
+                        'nargs'     : '+',
+                    },
+                    '-u' : {
+                        'full'      : '--user',
+                        'nargs'     : '+',
+                    },
+                }
+            },
+            ### app_removeaccess() TODO: Write help
+            'removeaccess' : {
+                'action_help'   : _("Revoke access right to users (everyone by default)"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    'app' : {
+                        'nargs'     : '+',
+                    },
+                    '-u' : {
+                        'full'      : '--user',
+                        'nargs'     : '+',
+                    },
+                }
+            },
+        }
+    },
+    #############################
+    #        Repository         #
+    #############################
+    'repo' : {
+        'category_help' : _("Manage app repositories"),
+        'actions'       : {
+            ### repo_list()
+            'list' : {
+                'action_help'   : _("List repositories"),
+                'connections'   : ['ldap'],
+                'arguments'     : {
+                    '-f' : {
+                        'full'      : '--filter',
+                        'help'      : _("LDAP filter used to search"),
+                    },
+                    '-l' : {
+                        'full'      : '--limit',
+                        'help'      : _("Maximum number of repository fetched"), 
+                    },
+                    '-o' : {
+                        'full'      : '--offset',
+                        'help'      : _("Starting number for repository fetching"), 
+                   },
+                }
+            },
+        }
     },
     'monitor' : {
         'category_help' : _("Monitoring functions"),
@@ -293,8 +430,9 @@ def parse_dict(action_dict):
         Namespace of args
 
     """
-    # Connection required
-    ldap = False
+    # Connections
+    connections_available = ['ldap', 'repo', 'dns', 'firewall']
+    connections_enabled = []
 
     # Intialize parsers
     parsers = subparsers_category = subparsers_action = {}
@@ -320,8 +458,10 @@ def parse_dict(action_dict):
         # Split actions
         if 'actions' in category_params:
             for action, action_params in category_params['actions'].items():
-                # Service settings
-                if 'ldap' in action_params: ldap = action_params['ldap']
+                # Connections settings
+                for connection in connections_available:
+                    if connection in action_params['connections']:
+                        connections_enabled.append(connection)
                 if 'action_help' not in action_params: action_params['action_help'] = ''
                 parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['action_help'])
                 # Set the action s related function
@@ -339,7 +479,7 @@ def parse_dict(action_dict):
                             parsers[category + '_' + action].add_argument(arg_name, **arg_params)
 
     args = parsers['general'].parse_args()
-    return { 'ldap' : ldap, 'args' : args }
+    return { 'connections' : connections_enabled, 'args' : args }
 
 def display_error(error):
     """
@@ -365,18 +505,22 @@ def main():
     
     """ 
     action = parse_dict(action_dict)
+    connections = {}
 
     try:
-        # Connect to LDAP if the action is requiring it
-        if action['ldap']:
-            yldap = YunoHostLDAP()
+        # Connect to different services if the action is requiring it
+        if 'ldap' in action['connections']:
+            connections['ldap'] = YunoHostLDAP()
+        if 'firewall' in action['connections']:
+            connections['firewall'] = open('/etc/init.d/iptables', 'w')
+        # TODO: Add other services connections
     except YunoHostError, error:
         display_error(error)
         return error.code
 
     try:
-        if action['ldap']:
-            result = action['args'].func(vars(action['args']), yldap)
+        if connections:
+            result = action['args'].func(vars(action['args']), connections)
         else:
             result = action['args'].func(vars(action['args']))
     except TypeError:
@@ -391,9 +535,11 @@ def main():
         else:
             print(json.dumps(result))
     finally:
-        if action['ldap']:
-            yldap.disconnect()
-    
+        if 'ldap' in action['connections']:
+            connections['ldap'].disconnect()
+        if 'firewall' in action['connections']:
+            connections['firewall'].close()
+        # TODO: Add other services deconnections 
     return 0        
 
 if __name__ == '__main__':
