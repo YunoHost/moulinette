@@ -459,9 +459,10 @@ def parse_dict(action_dict):
         if 'actions' in category_params:
             for action, action_params in category_params['actions'].items():
                 # Connections settings
-                for connection in connections_available:
-                    if connection in action_params['connections']:
-                        connections_enabled.append(connection)
+                if 'connections' in action_params:
+                    for connection in connections_available:
+                        if connection in action_params['connections']:
+                            connections_enabled.append(connection)
                 if 'action_help' not in action_params: action_params['action_help'] = ''
                 parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['action_help'])
                 # Set the action s related function
