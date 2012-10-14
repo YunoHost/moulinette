@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import psutil
+from datetime import datetime, timedelta
 from psutil._compat import print_
 
 def bytes2human(n):
@@ -42,8 +43,11 @@ def ifconfig():
         ip = output[(output.find('Bcast')-15):(output.find('inet')+22)]
         print 'MAC: ' + mac + ' IP: ' +ip
     else:
-        return 'MAC NOT FOUND!'
+        print 'MAC NOT FOUND!'
 
+def uptime():
+    uptime = datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)
+    print "Uptime: %s" % (str(uptime).split('.')[0])
 
 def monitor_info(args, connections):
     if args['memory'] == True:
@@ -54,3 +58,5 @@ def monitor_info(args, connections):
        check_disk()
     elif args['ifconfig'] == True:
        ifconfig() 
+    elif args['uptime'] == True:
+       uptime()

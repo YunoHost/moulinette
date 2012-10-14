@@ -436,6 +436,11 @@ action_dict = {
                         'help'      : _("Ifconfig"),
                         'action'    : 'store_true',
                         },
+                    '-u' : {
+                        'full'      : '--uptime',
+                        'help'      : _("Show Uptime"),
+                        'action'    : 'store_true',
+                        },
                     }
                 },
             }
