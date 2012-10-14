@@ -88,6 +88,6 @@ Dev self-notes
 * One single action function is called after the parsing, named like 'category_action()'
 * Connection to LDAP and/or config file openning is made before the action function
 * Parsed arguments and connection dictionary are the only parameters passed to the action function 
-    category_<action>(args, connections)
+    category_action(args, connections)
 * 'connections' is optionnal
 * Connections are closed just before the sys.exit calling
