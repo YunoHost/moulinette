@@ -491,7 +491,7 @@ def connect_services(action_map):
         action_map -- Map of actions
 
     Returns:
-        Dict|int -- openned connections or error code
+        Dict -- openned connections or error code
 
     """
     action_dict = action_map[sys.argv[1]]['actions'][sys.argv[2]]
@@ -510,7 +510,7 @@ def connect_services(action_map):
         # TODO: Add other services connections
     except YunoHostError, error:
         display_error(error)
-        return error.code
+        sys.exit(error.code)
     else:
         return connections
 
@@ -522,10 +522,11 @@ def disconnect_services(connections):
         connections -- Dictionnary of openned connections
 
     Returns:
-        Boolean|int
+        Boolean
 
     """
     try:
+        print connections
         if 'ldap' in connections:
             connections['ldap'].disconnect()
         if 'firewall' in connections:
@@ -533,7 +534,7 @@ def disconnect_services(connections):
         # TODO: Add other services deconnections 
     except YunoHostError, error:
         display_error(error)
-        return error.code
+        sys.exit(error.code)
     else:
         return True
     
