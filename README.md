@@ -7,7 +7,8 @@ YunoHost CLI
 
 ### User
 
-    yunohost user list --fields=fields,.. --filter=filter --limit=limit --offset=offset
+    yunohost user list [-h] [--fields FIELDS [FIELDS ...]] [-o OFFSET]
+                            [-f FILTER] [-l LIMIT]
     yunohost user add [fields=values...]
     yunohost user delete [users...]
     yunohost user update [user] --changepassword [oldpwd] [newpwd] | --mailforward [add/remove] [mails...]  | --    mailalias [add/remove] [mails...] | [fields=values...]
