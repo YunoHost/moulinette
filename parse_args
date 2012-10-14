@@ -31,7 +31,7 @@ if not __debug__:
 gettext.install('YunoHost')
 
 try:
-    from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict
+    from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, connect_services, disconnect_services
 except ImportError:
     sys.stderr.write('Require YunoHost lib')
     sys.exit(1)
@@ -229,18 +229,18 @@ action_map = {
                    },
                 }
             },
-            ### domain_create()
-            'create' : {
+            ### domain_add()
+            'add' : {
                 'action_help'   : _("Create a custom domain"),
                 'connections'   : ['ldap'],
                 'arguments'     : {
-                    'domain name' : {
-                        'help'      : _("Domain name to create"),
+                    'domain' : {
+                        'help'      : _("Domain name to add"),
                     }
                 }
             },
-            ### domain_delete()
-            'delete' : {
+            ### domain_remove()
+            'remove' : {
                 'action_help'   : _("Delete domains"),
                 'connections'   : ['ldap'],
                 'arguments'     : {
@@ -255,14 +255,14 @@ action_map = {
                 'action_help'   : _("Get domain informations"),
                 'connections'   : ['ldap'],
                 'arguments'     : {
-                    'domain-name' : {}
+                    'domain' : {}
                 }
             },
             ### domain_renewcert()
             'renewcert' : {
                 'action_help'   : _("Renew domain certificate"),
                 'arguments'     : {
-                    'domain-name' : {}
+                    'domain' : {}
                 }
             },
         }
@@ -301,7 +301,7 @@ action_map = {
                 'action_help'   : _("Install apps"),
                 'connections'   : ['ldap', 'dns'],
                 'arguments'     : {
-                    'appname' : {
+                    'app' : {
                         'nargs'     : '+',
                     },
                     '-d' : {
@@ -338,8 +338,8 @@ action_map = {
                 'connections'   : ['ldap'],
                 'arguments'     : {
                     'app' : {
-                        'help'      : _("App(s) to upgrade"),
-                        'nargs'     : '+',
+                        'help'      : _("App(s) to upgrade (default all)"),
+                        'nargs'     : '*',
                     },
                 }
             },
@@ -406,6 +406,7 @@ action_map = {
                    },
                 }
             },
+            ### repo_add()
             'add' : {
                 'action_help'   : _("Add app repository"),
                 'connections'   : ['repo'],
@@ -419,6 +420,7 @@ action_map = {
                     },
                 }
             },
+            ### repo_remove()
             'remove' : {
                 'action_help'   : _("Remove repository"),
                 'connections'   : ['repo'],
@@ -480,10 +482,12 @@ action_map = {
     'firewall' : {
         'category_help' : _("Manage firewall rules"),
         'actions'       : {
+            ### firewall_list()
             'list' : {
                 'action_help'   : _("List all firewall rules"),
                 'connections'   : ['firewall'],
             },
+            ### firewall_allow()
             'allow' : {
                 'action_help'   : _("Allow connection port/protocol"),
                 'connections'   : ['firewall'],
@@ -500,6 +504,7 @@ action_map = {
                     },
                 }
             },
+            ### firewall_disallow()
             'disallow' : {
                 'action_help'   : _("Disallow connection"),
                 'connections'   : ['firewall'],
@@ -573,71 +578,6 @@ def parse_dict(action_map):
 
     return parsers['general'].parse_args()
 
-def display_error(error):
-    """
-    Nice error displaying
-
-    """
-    if not __debug__ :
-        traceback.print_exc()
-    if os.isatty(1):
-        print('\n' + colorize(_("Error: "), 'red') + error.message)
-    else:
-        print(json.dumps({ 'error' : error.message }))
-
-def connect_services(action_map):
-    """
-    Connect to different services needed by the action
-
-    Keyword arguments:
-        action_map -- Map of actions
-
-    Returns:
-        Dict -- openned connections or error code
-
-    """
-    action_dict = action_map[sys.argv[1]]['actions'][sys.argv[2]]
-    connections = {}
-    required_connections = []
-
-    if 'connections' in action_dict:
-        required_connections = action_dict['connections']
-    
-    try:
-        # Connect to different services if the action is requiring it
-        if 'ldap' in required_connections:
-            connections['ldap'] = YunoHostLDAP()
-        if 'firewall' in required_connections:
-            connections['firewall'] = open('/etc/init.d/iptables', 'w')
-        # TODO: Add other services connections
-    except YunoHostError, error:
-        display_error(error)
-        sys.exit(error.code)
-    else:
-        return connections
-
-def disconnect_services(connections):
-    """
-    Disconnect openned connections
-
-    Keyword arguments:
-        connections -- Dictionnary of openned connections
-
-    Returns:
-        Boolean
-
-    """
-    try:
-        if 'ldap' in connections:
-            connections['ldap'].disconnect()
-        if 'firewall' in connections:
-            connections['firewall'].close()
-        # TODO: Add other services deconnections 
-    except YunoHostError, error:
-        display_error(error)
-        sys.exit(error.code)
-    else:
-        return True
     
 def main(action_map):
     """ 
