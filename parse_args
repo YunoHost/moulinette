@@ -501,7 +501,7 @@ def parse_dict(action_map):
                         else:
                             parsers[category + '_' + action].add_argument(arg_name, **arg_params)
 
-    return { 'category' : sys.argv[1], 'action' : sys.argv[2], 'args' : parsers['general'].parse_args() }
+    return parsers['general'].parse_args()
 
 def display_error(error):
     """
@@ -515,25 +515,24 @@ def display_error(error):
     else:
         print(json.dumps({ 'error' : error.message }))
 
-def main():
-    """ 
-    Main instructions 
-   
-    Parse the action_dict and execute the action-specific function,
-    then print json or pretty result if executed in a tty :)
+def connect_services(action_map):
+    """
+    Connect to different services needed by the action
+
+    Keyword arguments:
+        action_map -- Map of actions
 
     Returns:
-        int -- 0 or error code
-    
-    """ 
-    parsed = parse_dict(action_map)
-    action_dict = action_map[parsed['category']]['actions'][parsed['action']]
+        Dict|int -- openned connections or error code
+
+    """
+    action_dict = action_map[argv[1]]['actions'][argv[2]]
     connections = {}
     required_connections = []
 
     if 'connections' in action_dict:
         required_connections = action_dict['connections']
-
+    
     try:
         # Connect to different services if the action is requiring it
         if 'ldap' in required_connections:
@@ -544,12 +543,51 @@ def main():
     except YunoHostError, error:
         display_error(error)
         return error.code
+    else:
+        return connections
+
+def disconnect_services(connections):
+    """
+    Disconnect openned connections
+
+    Keyword arguments:
+        connections -- Dictionnary of openned connections
+
+    Returns:
+        Boolean|int
+
+    """
+    try:
+        if 'ldap' in connections:
+            connections['ldap'].disconnect()
+        if 'firewall' in connections:
+            connections['firewall'].close()
+        # TODO: Add other services deconnections 
+    except YunoHostError, error:
+        display_error(error)
+        return error.code
+    else:
+        return True
+    
+def main(action_map):
+    """ 
+    Main instructions 
+   
+    Parse the action_dict and execute the action-specific function,
+    then print json or pretty result if executed in a tty :)
+
+    Returns:
+        int -- 0 or error code
+    
+    """ 
+    args = parse_dict(action_map)
+    connections = connect_services(action_map)
 
     try:
         if connections:
-            result = parsed['args'].func(vars(parsed['args']), connections)
+            result = args.func(vars(args), connections)
         else:
-            result = parsed['args'].func(vars(parsed['args']))
+            result = args.func(vars(args))
     except TypeError:
         print(_("Not (yet) implemented function"))
         return 1
@@ -562,12 +600,9 @@ def main():
         else:
             print(json.dumps(result))
     finally:
-        if 'ldap' in required_connections:
-            connections['ldap'].disconnect()
-        if 'firewall' in required_connections:
-            connections['firewall'].close()
-        # TODO: Add other services deconnections 
+        disconnect_services(connections)
+
     return 0        
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(action_map))
