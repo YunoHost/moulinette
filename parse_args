@@ -434,6 +434,9 @@ action_map = {
             },
         }
     },
+    #############################
+    #          Monitor          #
+    #############################
     'monitor' : {
         'category_help' : _("Monitoring functions"),
         'actions'       : {
@@ -446,10 +449,10 @@ action_map = {
                         'help'      : _("Check Memory"),
                         'action'    : 'store_true',
                         },
-		    '-c' : {
+		            '-c' : {
                         'full'      : '--cpu',
                         'help'      : _("Check CPU"),
-	                'action'    : 'store_true',		
+	                    'action'    : 'store_true',		
                         },
                     '-d' : {
                         'full'      : '--disk',
@@ -470,10 +473,51 @@ action_map = {
                 },
             }
         },
+    },
+    #############################
+    #         Firewall          #
+    #############################
+    'firewall' : {
+        'category_help' : _("Manage firewall rules"),
+        'actions'       : {
+            'list' : {
+                'action_help'   : _("List all firewall rules"),
+                'connections'   : ['firewall'],
+            },
+            'allow' : {
+                'action_help'   : _("Allow connection port/protocol"),
+                'connections'   : ['firewall'],
+                'arguments'     : {
+                    'port' : {
+                        'help'      : _("Port to open"),
+                    },
+                    'protocol' : {
+                        'help'      : _("Protocol associated with port"),
+                        'choices'   : ['UDP', 'TCP', 'Both'],
+                    },
+                    'name' : {
+                        'help'      : _("Reference name of the rule"),
+                    },
+                }
+            },
+            'disallow' : {
+                'action_help'   : _("Disallow connection"),
+                'connections'   : ['firewall'],
+                'arguments'     : {
+                    'name' : {
+                        'help'      : _("Reference name of the rule to delete"),
+                    },
+                }
+            },
+        }
+    },
+    #############################
+    #           Tools           #
+    #############################
     'tools' : {
         'category_help' : _("Specific tools"),
         'actions'       : {}
-    }
+    },
 }
 
 def parse_dict(action_map):
