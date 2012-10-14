@@ -411,8 +411,35 @@ action_dict = {
     },
     'monitor' : {
         'category_help' : _("Monitoring functions"),
-        'actions'       : {}
-    },
+        'actions'       : {
+            'info': {
+                'action_help'   : _("Check System"),
+                'connections'   : ['ldap'],
+                'arguments' : {
+                    '-m' : {
+                        'full'      : '--memory',
+                        'help'      : _("Check Memory"),
+                        'action'    : 'store_true',
+                        },
+		    '-c' : {
+                        'full'      : '--cpu',
+                        'help'      : _("Check CPU"),
+	                'action'    : 'store_true',		
+                        },
+                    '-d' : {
+                        'full'      : '--disk',
+                        'help'      : _("Check Disk"),
+                        'action'    : 'store_true',
+                        },
+                    '-i' : {
+                        'full'      : '--ifconfig',
+                        'help'      : _("Ifconfig"),
+                        'action'    : 'store_true',
+                        },
+                    }
+                },
+            }
+        },
     'tools' : {
         'category_help' : _("Specific tools"),
         'actions'       : {}
@@ -459,9 +486,10 @@ def parse_dict(action_dict):
         if 'actions' in category_params:
             for action, action_params in category_params['actions'].items():
                 # Connections settings
-                for connection in connections_available:
-                    if connection in action_params['connections']:
-                        connections_enabled.append(connection)
+                if 'connections' in action_params:
+                    for connection in connections_available:
+                        if connection in action_params['connections']:
+                            connections_enabled.append(connection)
                 if 'action_help' not in action_params: action_params['action_help'] = ''
                 parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['action_help'])
                 # Set the action s related function
