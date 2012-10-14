@@ -299,7 +299,7 @@ action_map = {
             ### app_install() TODO: Write help
             'install' : {
                 'action_help'   : _("Install apps"),
-                'connections'   : ['ldap'],
+                'connections'   : ['ldap', 'dns'],
                 'arguments'     : {
                     'appname' : {
                         'nargs'     : '+',
@@ -324,7 +324,7 @@ action_map = {
             ### app_remove() TODO: Write help
             'remove' : {
                 'action_help'   : _("Remove app"),
-                'connections'   : ['ldap'],
+                'connections'   : ['ldap', 'dns'],
                 'arguments'     : {
                     'app' : {
                         'help'      : _("App(s) to delete"),
@@ -390,7 +390,7 @@ action_map = {
             ### repo_list()
             'list' : {
                 'action_help'   : _("List repositories"),
-                'connections'   : ['ldap'],
+                'connections'   : ['repo'],
                 'arguments'     : {
                     '-f' : {
                         'full'      : '--filter',
@@ -405,6 +405,32 @@ action_map = {
                         'help'      : _("Starting number for repository fetching"), 
                    },
                 }
+            },
+            'add' : {
+                'action_help'   : _("Add app repository"),
+                'connections'   : ['repo'],
+                'arguments'     : {
+                    'url' : {
+                        'help'      : _("URL of the repository"),
+                    },
+                    '-n' : {
+                        'full'      : '--name',
+                        'help'      : _("Unique name of the repository"),
+                    },
+                }
+            },
+            'remove' : {
+                'action_help'   : _("Remove repository"),
+                'connections'   : ['repo'],
+                'arguments'     : {
+                    'repo' : {
+                        'help'      : _("Name or URL of the repository"),
+                    },
+                }
+            },
+            'update' : {
+                'action_help'   : _("Update app list from the repositories"),
+                'connections'   : ['repo'],
             },
         }
     },
