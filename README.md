@@ -1,127 +1,79 @@
-Under redaction
-===============
-
-
 YunoHost CLI
-------------
+============
+
+
+Specifications
+--------------
 
 ### User
 
-    yunohost user list --fields=fields,.. --filter=filter --limit=limit --offset=offset
-    yunohost user add [fields=values...]
-    yunohost user delete [users...]
-    yunohost user update [user] --changepassword [oldpwd] [newpwd] | --mailforward [add/remove] [mails...]  | --    mailalias [add/remove] [mails...] | [fields=values...]
-    yunohost user info [user]
+    yunohost user list [-h] [--fields FIELDS [FIELDS ...]] [-o OFFSET]
+                            [-f FILTER] [-l LIMIT]
+    yunohost user create [-h] [-u USERNAME] [-l LASTNAME] [-f FIRSTNAME]
+                              [-p PASSWORD] [-m MAIL]
+    yunohost user delete [-h] users [users ...]
+    yunohost user update [-h] [-remove-mailalias MAIL [MAIL ...]]
+                              [-add-mailalias MAIL [MAIL ...]] [-f FIRSTNAME]
+                              [-m MAIL] [-l LASTNAME]
+                              [--remove-mailforward MAIL [MAIL ...]]
+                              [--add-mailforward MAIL [MAIL ...]]
+                              [-cp PASSWORD]
+                              user
+    yunohost user info [-h] [-m MAIL] [-cn FULLNAME] [user]
     
     
 ### Domain
     
-    yunohost domain list --filter=filter --limit=limit --offset=offset
-    yunohost domain add [domain]
-    yunohost domain delete [domains...]
-    yunohost domain info [domain]
-    yunohost domain renewcert [domain]
+    yunohost domain list [-h] [-l LIMIT] [-o OFFSET] [-f FILTER]
+    yunohost domain add [-h] domain
+    yunohost domain remove [-h] domain [domain ...]
+    yunohost domain info [-h] domain
+    yunohost domain renewcert [-h] domain
     
     
 ### App 
     
-    yunohost app list --fields=fields,.. --filter=filter --limit=limit --offset=offset
-    yunohost app install [apps...] --domain=domain --path=path --label=label --public --protected
-    yunohost app remove [apps...]
-    yunohost app upgrade [apps...]
-    yunohost app info [app]
-    yunohost app addaccess [apps...] --everyone | --users=users,..
-    yunohost app removeaccess [apps...] --everyone | --users=users,..
+    yunohost app list [-h] [--fields FIELDS [FIELDS ...]] [-o OFFSET]
+                           [-f FILTER] [-l LIMIT]
+    yunohost app install [-h] [-d DOMAIN] [--public] [-l LABEL] [-p PATH]
+                              [--protected]
+                              app [app ...]
+    yunohost app remove [-h] app [app ...]
+    yunohost app upgrade [-h] [app [app ...]]
+    yunohost app info [-h] app
+    yunohost app addaccess [-h] [-u USER [USER ...]] app [app ...]
+    yunohost app removeaccess [-h] [-u USER [USER ...]] app [app ...]
     
     
 ### Repo
     
-    yunohost repo list  --filter=filter --limit=limit --offset=offset
-    yunohost repo add [url] --name=name
-    yunohost repo remove [name/url]
-    yunohost repo update
+    yunohost repo list [-h] [-l LIMIT] [-o OFFSET] [-f FILTER]
+    yunohost repo add [-h] [-n NAME] url
+    yunohost repo remove [-h] repo
+    yunohost repo update [-h]
     
     
 ### Firewall
     
-    yunohost firewall list
-    yunohost firewall allow [port] [TCP/UDP/Both] [name]
-    yunohost firewall disallow [name]
+    yunohost firewall list [-h]
+    yunohost firewall allow [-h] {UDP,TCP,Both} port name
+    yunohost firewall disallow [-h] name
     
     
 ### Monitoring
     
-    yunohost monitor
+    yunohost monitor info #FIX
     
     
-### Other
+### Tools
     
-    yunohost paste
-    yunohost support
-    
+    yunohost tools support #FIX
     
     
-YunoHost REST API
------------------
+    
+Contribute
+----------
 
-Prefix: https://mydomain.org:6767
-    
-    /route
-        METHOD  {params}
-    
-    
-### User
-    
-    /user/list
-        GET     {fields, filter, limit, offset}
-    
-    /user
-        GET     {user, fields}
-        POST    {fields, fieldsvalue}
-        DELETE  {users}
-        PUT     {user, fields}
-    
-    /user/changepassword
-        PUT     {user, oldpwd, newpwd}
-    
-    /user/mailforward
-        POST    {mails}
-        DELETE  {mails}
-    
-    /user/mailalias
-        POST    {mails}
-        DELETE  {mails}
-    
-    
-### Domain
-    
-    /domain/list
-        GET     {filter, limit, offset}
-    
-    /domain
-        GET     {domain}
-        POST    {domain}
-        DELETE  {domains}
-    
-    /domain/renewcert
-        PUT     {domain}
-    
-    
-### App
+Only few functions are implemented yet. If you want to contribute, just pick one action above (i.e. 'yunohost app addaccess') and make the function (here 'app_addaccess()') into the right file (here 'yunohost_app.py').
 
-    /app/
-    
-    
-    
-YunoHost Web Views
-------------------
-
-### User
-    
-    /user/list
-    /user/add
-    /user/show/<user>
-    /user/update/<user>
-    /user/changepassword/<user>
-    /user/mailforward/<user>
-    /user/mailalias/<user>    
+If you need LDAP connections or openned configuration files, take a look at the connection documentation in the 'parse_args' file. 
