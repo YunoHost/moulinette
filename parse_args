@@ -494,7 +494,7 @@ def connect_services(action_map):
         Dict|int -- openned connections or error code
 
     """
-    action_dict = action_map[argv[1]]['actions'][argv[2]]
+    action_dict = action_map[sys.argv[1]]['actions'][sys.argv[2]]
     connections = {}
     required_connections = []
 
