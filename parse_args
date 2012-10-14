@@ -66,7 +66,7 @@ Documentation:
     Don't forget to turn argument as dictionnary ('setting' : 'value')
 
 """
-action_dict = { 
+action_map = { 
     #############################
     #       General args        #
     #############################
@@ -261,7 +261,6 @@ action_dict = {
             ### domain_renewcert()
             'renewcert' : {
                 'action_help'   : _("Renew domain certificate"),
-                'connections'   : ['ldap'],
                 'arguments'     : {
                     'domain-name' : {}
                 }
@@ -419,28 +418,24 @@ action_dict = {
     }
 }
 
-def parse_dict(action_dict):
+def parse_dict(action_map):
     """
     Turn action dictionnary to parser, subparsers and arguments
     
     Keyword arguments:
-        action_dict -- Multi-level dictionnary of categories/actions/arguments list
+        action_map -- Multi-level dictionnary of categories/actions/arguments list
     
     Returns: 
         Namespace of args
 
     """
-    # Connections
-    connections_available = ['ldap', 'repo', 'dns', 'firewall']
-    connections_enabled = []
-
     # Intialize parsers
     parsers = subparsers_category = subparsers_action = {}
     parsers['general'] = argparse.ArgumentParser()
     subparsers = parsers['general'].add_subparsers()
 
     # Add general arguments
-    for arg_name, arg_params in action_dict['general_arguments'].items():
+    for arg_name, arg_params in action_map['general_arguments'].items():
         if arg_params['full']:
             arg_fullname = arg_params['full']
             del arg_params['full']
@@ -448,21 +443,16 @@ def parse_dict(action_dict):
         else:
             parsers['general'].add_argument(arg_name, **arg_params)
 
-    del action_dict['general_arguments'] 
+    del action_map['general_arguments'] 
 
     # Split categories into subparsers
-    for category, category_params in action_dict.items():
+    for category, category_params in action_map.items():
         if 'category_help' not in category_params: category_params['category_help'] = ''
         subparsers_category[category] = subparsers.add_parser(category, help=category_params['category_help'])
         subparsers_action[category] = subparsers_category[category].add_subparsers()
         # Split actions
         if 'actions' in category_params:
             for action, action_params in category_params['actions'].items():
-                # Connections settings
-                if 'connections' in action_params:
-                    for connection in connections_available:
-                        if connection in action_params['connections']:
-                            connections_enabled.append(connection)
                 if 'action_help' not in action_params: action_params['action_help'] = ''
                 parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['action_help'])
                 # Set the action s related function
@@ -479,8 +469,7 @@ def parse_dict(action_dict):
                         else:
                             parsers[category + '_' + action].add_argument(arg_name, **arg_params)
 
-    args = parsers['general'].parse_args()
-    return { 'connections' : connections_enabled, 'args' : args }
+    return { 'category' : sys.argv[1], 'action' : sys.argv[2], 'args' : parsers['general'].parse_args() }
 
 def display_error(error):
     """
@@ -505,14 +494,19 @@ def main():
         int -- 0 or error code
     
     """ 
-    action = parse_dict(action_dict)
+    parsed = parse_dict(action_map)
+    action_dict = action_map[parsed['category']]['actions'][parsed['action']]
     connections = {}
+    required_connections = []
+
+    if 'connections' in action_dict:
+        required_connections = action_dict['connections']
 
     try:
         # Connect to different services if the action is requiring it
-        if 'ldap' in action['connections']:
+        if 'ldap' in required_connections:
             connections['ldap'] = YunoHostLDAP()
-        if 'firewall' in action['connections']:
+        if 'firewall' in required_connections:
             connections['firewall'] = open('/etc/init.d/iptables', 'w')
         # TODO: Add other services connections
     except YunoHostError, error:
@@ -521,9 +515,9 @@ def main():
 
     try:
         if connections:
-            result = action['args'].func(vars(action['args']), connections)
+            result = parsed['args'].func(vars(parsed['args']), connections)
         else:
-            result = action['args'].func(vars(action['args']))
+            result = parsed['args'].func(vars(parsed['args']))
     except TypeError:
         print(_("Not (yet) implemented function"))
         return 1
@@ -536,9 +530,9 @@ def main():
         else:
             print(json.dumps(result))
     finally:
-        if 'ldap' in action['connections']:
+        if 'ldap' in required_connections:
             connections['ldap'].disconnect()
-        if 'firewall' in action['connections']:
+        if 'firewall' in required_connections:
             connections['firewall'].close()
         # TODO: Add other services deconnections 
     return 0        
