@@ -65,7 +65,7 @@ def user_create(args, connections):
         'userPassword'  : pwd
     }
 
-    # Validate values
+    # Validate values TODO: validate other values
     validate({
         args['username']    : r'^[a-z0-9_]+$', 
         args['mail']        : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$'
@@ -82,6 +82,7 @@ def user_create(args, connections):
 
     if yldap.add(rdn, attr_dict):
         win_msg(_("User successfully created"))
+        #TODO: Send a welcome mail to user
         return { _("Fullname") : fullname, _("Username") : args['username'], _("Mail") : args['mail'] }
     else:
         raise YunoHostError(169, _('An error occured during user creation'))
