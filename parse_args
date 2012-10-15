@@ -517,6 +517,46 @@ action_map = {
         }
     },
     #############################
+    #         Firewall          #
+    #############################
+    'firewall' : {
+        'category_help' : _("Manage firewall rules"),
+        'actions'       : {
+            ### firewall_list()
+            'list' : {
+                'action_help'   : _("List all firewall rules"),
+                'connections'   : ['firewall'],
+            },
+            ### firewall_allow()
+            'allow' : {
+                'action_help'   : _("Allow connection port/protocol"),
+                'connections'   : ['firewall'],
+                'arguments'     : {
+                    'port' : {
+                        'help'      : _("Port to open"),
+                    },
+                    'protocol' : {
+                        'help'      : _("Protocol associated with port"),
+                        'choices'   : ['UDP', 'TCP', 'Both'],
+                    },
+                    'name' : {
+                        'help'      : _("Reference name of the rule"),
+                    },
+                }
+            },
+            ### firewall_disallow()
+            'disallow' : {
+                'action_help'   : _("Disallow connection"),
+                'connections'   : ['firewall'],
+                'arguments'     : {
+                    'name' : {
+                        'help'      : _("Reference name of the rule to delete"),
+                    },
+                }
+            },
+        }
+    },
+    #############################
     #           Tools           #
     #############################
     'tools' : {
