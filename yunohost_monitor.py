@@ -5,7 +5,7 @@ import sys
 import subprocess
 import psutil
 from datetime import datetime, timedelta
-from psutil._compat import print_
+#from psutil._compat import print_
 
 def bytes2human(n):
     symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
@@ -22,7 +22,7 @@ def check_disk():
     templ = "%s,%s/%s,%s,%s"
     for part in psutil.disk_partitions(all=False):
         usage = psutil.disk_usage(part.mountpoint)
-        print_(templ % (part.mountpoint,
+        print(templ % (part.mountpoint,
                         bytes2human(usage.used),
                         bytes2human(usage.total),
                         bytes2human(usage.free),
@@ -49,14 +49,14 @@ def uptime():
     uptime = datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)
     print "Uptime: %s" % (str(uptime).split('.')[0])
 
-def monitor_info(args, connections):
-    if args['memory'] == True:
+def monitor_info(args):
+    if args['memory']:
        check_memory()
-    elif args['cpu'] == True:
-       check_cpu()
-    elif args['disk'] == True:
+    elif args['cpu']:
+        check_cpu()
+    elif args['disk']:
        check_disk()
-    elif args['ifconfig'] == True:
+    elif args['ifconfig']:
        ifconfig() 
-    elif args['uptime'] == True:
+    elif args['uptime']:
        uptime()

@@ -9,7 +9,6 @@ import string
 import getpass
 from yunohost import YunoHostError, win_msg, colorize, validate
 
-
 def user_list(args, connections): # TODO : fix
     print(args)
 

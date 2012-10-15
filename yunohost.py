@@ -4,6 +4,7 @@ import os
 import sys
 import ldap
 import ldap.modlist as modlist
+import json
 import re
 import getpass
 
@@ -72,8 +73,8 @@ def str_to_func(astr):
     
         func = getattr(mod, function)
     except (AttributeError, ImportError):
-         #raise YunoHostError(168, _('Function is not defined'))
-         return None
+        #raise YunoHostError(168, _('Function is not defined'))
+        return None
     else:
         return func
 
@@ -208,7 +209,7 @@ class YunoHostLDAP:
 
         """
         self.conn = ldap.initialize('ldap://localhost:389')
-        self.base = 'dc=yunohost,dc=org'
+        self.base = 'dc=gavoty,dc=org'
         self.pwd = getpass.getpass(colorize(_('LDAP Admin Password: '), 'yellow'))
         try:
             self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)

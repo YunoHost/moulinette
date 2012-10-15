@@ -444,37 +444,35 @@ action_map = {
         'actions'       : {
             'info': {
                 'action_help'   : _("Check System"),
-                'connections'   : ['ldap'],
-                'arguments' : {
+                'arguments'     : {
                     '-m' : {
                         'full'      : '--memory',
                         'help'      : _("Check Memory"),
                         'action'    : 'store_true',
-                        },
+                    },
 		            '-c' : {
                         'full'      : '--cpu',
                         'help'      : _("Check CPU"),
 	                    'action'    : 'store_true',		
-                        },
+                    },
                     '-d' : {
                         'full'      : '--disk',
                         'help'      : _("Check Disk"),
                         'action'    : 'store_true',
-                        },
+                    },
                     '-i' : {
                         'full'      : '--ifconfig',
                         'help'      : _("Ifconfig"),
                         'action'    : 'store_true',
-                        },
+                    },
                     '-u' : {
                         'full'      : '--uptime',
                         'help'      : _("Show Uptime"),
                         'action'    : 'store_true',
-                        },
-                    }
-                },
-            }
-        },
+                    },
+                }
+            },
+        }
     },
     #############################
     #         Firewall          #
@@ -632,13 +630,14 @@ def main(action_map):
     """ 
     args = parse_dict(action_map)
     connections = connect_services(action_map)
-
+    
     try:
         if connections:
             result = args.func(vars(args), connections)
         else:
             result = args.func(vars(args))
-    except TypeError:
+    except TypeError, error:
+        print error
         print(_("Not (yet) implemented function"))
         return 1
     except YunoHostError, error:
