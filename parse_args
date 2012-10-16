@@ -470,6 +470,11 @@ action_map = {
                         'help'      : _("Show Uptime"),
                         'action'    : 'store_true',
                     },
+					'-p' : {
+                        'full'      : '--process',
+                        'help'      : _("Show Process Account"),
+                        'action'    : 'store_true',
+                    },
                 }
             },
         }

@@ -54,6 +54,40 @@ def uptime():
     uptime = datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)
     print "Uptime: %s" % (str(uptime).split('.')[0])
 
+def processcount():
+    processcount = {'total': 0, 'running': 0, 'sleeping': 0}
+    process_all = [proc for proc in psutil.process_iter()]
+    for proc in process_all:
+        try:
+            if not proc.is_running():
+                try:
+                    process_all.remove(proc)
+                except Exception:
+                    pass
+        except psutil.error.NoSuchProcess:
+            try:
+                self.process_all.remove(proc)
+            except Exception:
+                pass
+        else:
+            try:
+                processcount[str(proc.status)] += 1
+            except psutil.error.NoSuchProcess:
+                pass
+            except KeyError:
+                processcount[str(proc.status)] = 1
+            finally:
+                processcount['total'] += 1
+            try:
+                process.append(self.__get_process_stats__(proc))
+            except Exception:
+                pass
+    
+    print '%s, %s running, %s sleeping' % (str(processcount['total']),
+                                        str(processcount['running']),
+                                        str(processcount['sleeping']))
+
+
 def monitor_info(args):
     if args['memory']:
        check_memory()
@@ -65,3 +99,5 @@ def monitor_info(args):
        ifconfig() 
     elif args['uptime']:
        uptime()
+    elif args['process']:
+        processcount()
