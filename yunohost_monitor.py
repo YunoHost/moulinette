@@ -3,7 +3,12 @@
 import os
 import sys
 import subprocess
-import psutil
+try:
+    import psutil
+except ImportError:
+    sys.stderr.write('Error: Yunohost CLI Require psutil\n')
+    sys.stderr.write('apt-get install python-psutil\n')
+    sys.exit(1)
 from datetime import datetime, timedelta
 #from psutil._compat import print_
 
