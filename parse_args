@@ -33,7 +33,7 @@ gettext.install('YunoHost')
 try:
     from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, connect_services, disconnect_services
 except ImportError:
-    sys.stderr.write('Require YunoHost lib')
+    sys.stderr.write('Error: Yunohost CLI Require YunoHost lib\n')
     sys.exit(1)
 
 """
@@ -468,6 +468,11 @@ action_map = {
                     '-u' : {
                         'full'      : '--uptime',
                         'help'      : _("Show Uptime"),
+                        'action'    : 'store_true',
+                    },
+					'-p' : {
+                        'full'      : '--process',
+                        'help'      : _("Show Process Account"),
                         'action'    : 'store_true',
                     },
                 }

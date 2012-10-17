@@ -2,7 +2,12 @@
 
 import os
 import sys
-import ldap
+try:
+    import ldap
+except ImportError:
+    sys.stderr.write('Error: Yunohost CLI Require LDAP lib\n')
+    sys.stderr.write('apt-get install python-ldap\n')
+    sys.exit(1)
 import ldap.modlist as modlist
 import json
 import re

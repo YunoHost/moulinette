@@ -1,0 +1,33 @@
+# yunohost(1) completion
+
+_yunohost_cli()
+{
+local argc cur prev opts
+COMPREPLY=()
+
+argc=${COMP_CWORD}
+cur="${COMP_WORDS[argc]}"
+prev="${COMP_WORDS[argc-1]}" 
+opts=$(yunohost -h | grep usage | awk -F"{" '{print $2}' | awk -F"}" '{print $1}' | tr ',' ' ')
+
+if [[ $argc = 1 ]];
+then
+	COMPREPLY=( $(compgen -W "$opts --help" -- $cur ) )
+fi
+	
+if [[ "$prev" != "--help" ]];
+then
+	if [[ $argc = 2 ]];
+	then
+		opts2=$(yunohost $prev -h | grep usage | awk -F"{" '{print $2}' | awk -F"}" '{print $1}' | tr ',' ' ')
+		COMPREPLY=( $(compgen -W "$opts2 --help" -- $cur ) )
+	elif [[ $argc = 3 ]];
+	then
+        	COMPREPLY=( $(compgen -W "--help" $cur ) )
+	fi
+else 
+	COMPREPLY=()
+fi
+
+}
+complete -F _yunohost_cli yunohost
