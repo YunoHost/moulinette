@@ -1,4 +1,5 @@
 *What a lovely idea !* :)
+
 **Few points though:**
 
 ### Dafuq is dat moulinette ?
@@ -51,9 +52,11 @@ OK, this is the workflow !
 
 **For gitlab:**
 Development is handle with git branches and you have your own (i.e dev_beudbeud).
-`` git clone git@dev.yunohost.org:moulinette.git ``
-`` git checkout -b dev_beudbeud ``
-`` git rebase origin/dev ``
+```
+git clone git@dev.yunohost.org:moulinette.git
+git checkout -b dev_beudbeud ``
+git rebase origin/dev 
+```
 
 Do your modifications, then :
 `` git commit -am 'My commit message' ``
