@@ -59,23 +59,29 @@ git rebase origin/dev
 ```
 
 Do your modifications, then :
-`` git commit -am 'My commit message' ``
-`` git pull origin dev `` (merge manually if conflicts)
-`` git push origin dev_beudbeud ``
+```
+git commit -am 'My commit message'
+git pull origin dev (merge manually if conflicts)
+git push origin dev_beudbeud 
+```
 
 Then you could ask for a 'merge request' in gitlab.
 
 **For github (here):**
 Development is handle with forked repos and you have your own (i.e beudbeud/moulinette).
-`` git clone https://github.com/beudbeud/moulinette.git ``
-`` git checkout -b dev ``
-`` git rebase origin/dev ``
+```
+git clone https://github.com/beudbeud/moulinette.git ``
+git checkout -b dev
+git rebase origin/dev 
+```
 
 Do your modifications, then:
-`` git commit -am 'My commit message' ``
-`` git remote add vanilla https://github.com/YunoHost/moulinette.git ``
-`` git pull vanilla dev `` (merge manually if conflicts)
-`` git push origin dev ``
+```
+git commit -am 'My commit message'
+git remote add vanilla https://github.com/YunoHost/moulinette.git
+git pull vanilla dev (merge manually if conflicts)
+git push origin dev
+```
 
 Then you could ask for a 'pull request' in github.
 
