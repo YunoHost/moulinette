@@ -24,6 +24,7 @@ Because of potential complexity of its operations, the moulinette has a specific
 If you want to add a new connection (not yet implemented), you just have to put the connect and the disconnect method in `` connect_service() `` and `` disconnect_services() `` in the `` yunohost.py `` file. Then add your connection name to the action in the `` action_map `` dictionary.
 
 We chose to make a class for some connections (i.e LDAP), in order to simplify some operations. Feel free to do the same.
+
 **Note:** We could have used singleton classes. We probably need a Python expert to clarify this. :D
 
 ### Error handling
