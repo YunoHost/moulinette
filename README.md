@@ -71,9 +71,17 @@ Specifications
     yunohost tools support #FIX
     
 
+How to use "as is" ?
+--------------------
+
+The executable file is parse_args, for example:
+
+    ./parse_args user create
+
 
 Contribute
 ----------
 
-
 See CONTRIBUTE.md file
+
+
