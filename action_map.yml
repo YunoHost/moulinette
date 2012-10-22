@@ -10,9 +10,9 @@
 #     (script) | category | action | parameters
 #
 #
-# Above example will lead to the function "monitor_info(args)"
-# in the file "yunohost_monitor.py" with "cpu" and "ram"
-# stored in an "args" dictionnary.
+# Above example will lead to the function 'monitor_info(args)'
+# in the file 'yunohost_monitor.py' with 'cpu' and 'ram'
+# stored in an 'args' dictionnary.
 #
 # Usage:
 #    You can add a category at the first level, action at the second one,
@@ -25,420 +25,420 @@
 #     http://docs.python.org/dev/library/argparse.html
 #     #argparse.ArgumentParser.add_argument
 #
-#     Don't forget to turn argument yaml style setting: "value"
+#     Don't forget to turn argument yaml style (setting: value)
 #
 ##########################################################################
         
 #############################
 #       General args        #
 #############################
-"general_arguments":
-        "-v":
-            "full": "--version"
-            "help": "Display YunoHost version"
-            "action": "version"
-            "version": "YunoHost 2.0 beta1"
+general_arguments:
+        -v:
+            full: --version
+            help: Display YunoHost version
+            action: version
+            version: YunoHost 2.0 beta1
     
 #############################
 #           User            #
 #############################
-"user": 
-    "category_help": "Manage users"
-    "actions": 
+user: 
+    category_help: Manage users
+    actions: 
 
         ### user_list()
-        "list": 
-            "action_help": "List users"
-            "connections": 
-                - "ldap"
-            "arguments": 
-               "--fields": 
-                    "help": "fields to fetch"
-                    "nargs": "+"
-               "-f": 
-                    "full": "--filter"
-                    "help": "LDAP filter used to search"
-               "-l": 
-                    "full": "--limit"
-                    "help": "Maximum number of user fetched" 
-               "-o": 
-                    "full": "--offset"
-                    "help": "Starting number for user fetching" 
+        list: 
+            action_help: List users
+            connections: 
+                - ldap
+            arguments: 
+               --fields: 
+                    help: fields to fetch
+                    nargs: "+"
+               -f: 
+                    full: --filter
+                    help: LDAP filter used to search
+               -l: 
+                    full: --limit
+                    help: Maximum number of user fetched 
+               -o: 
+                    full: --offset
+                    help: Starting number for user fetching 
         
         ### user_create()
-        "create": 
-            "action_help": "Create user"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "-u": 
-                    "full": "--username"
-                    "help": "Must be unique"
-                "-f": 
-                    "full": "--firstname"
-                "-l": 
-                    "full": "--lastname"
-                "-m": 
-                    "full": "--mail"
-                    "help": "Main mail address must be unique"
-                "-p": 
-                    "full": "--password"
+        create: 
+            action_help: Create user
+            connections: 
+                - ldap
+            arguments: 
+                -u: 
+                    full: --username
+                    help: Must be unique
+                -f: 
+                    full: --firstname
+                -l: 
+                    full: --lastname
+                -m: 
+                    full: --mail
+                    help: Main mail address must be unique
+                -p: 
+                    full: --password
         
         ### user_delete()
-        "delete": 
-            "action_help": "Delete user"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "users": 
-                    "help": "Username of users to delete"
-                    "nargs": "+"
+        delete: 
+            action_help: Delete user
+            connections: 
+                - ldap
+            arguments: 
+                users: 
+                    help: Username of users to delete
+                    nargs: "+"
         
         ### user_update()
-        "update": 
-            "action_help": "Update user informations"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "user": 
-                    "help": "Username of user to update"
-                "-f": 
-                    "full": "--firstname"
-                "-l": 
-                    "full": "--lastname"
-                "-m": 
-                    "full": "--mail"
-                "-cp": 
-                    "full": "--change-password"
-                    "help": "New password to set"
-                    "metavar": "PASSWORD"
-                "--add-mailforward": 
-                    "help": "Mailforward addresses to add"
-                    "nargs": "+"
-                    "metavar": "MAIL"
-                "--remove-mailforward": 
-                    "help": "Mailforward addresses to remove"
-                    "nargs": "+"
-                    "metavar": "MAIL"
-                "-add-mailalias": 
-                    "help": "Mail aliases to add"
-                    "nargs": "+"
-                    "metavar": "MAIL"
-                "-remove-mailalias": 
-                    "help": "Mail aliases to remove"
-                    "nargs": "+"
-                    "metavar": "MAIL"
+        update: 
+            action_help: Update user informations
+            connections: 
+                - ldap
+            arguments: 
+                user: 
+                    help: Username of user to update
+                -f: 
+                    full: --firstname
+                -l: 
+                    full: --lastname
+                -m: 
+                    full: --mail
+                -cp: 
+                    full: --change-password
+                    help: New password to set
+                    metavar: PASSWORD
+                --add-mailforward: 
+                    help: Mailforward addresses to add
+                    nargs: "+"
+                    metavar: MAIL
+                --remove-mailforward: 
+                    help: Mailforward addresses to remove
+                    nargs: "+"
+                    metavar: MAIL
+                -add-mailalias: 
+                    help: Mail aliases to add
+                    nargs: "+"
+                    metavar: MAIL
+                -remove-mailalias: 
+                    help: Mail aliases to remove
+                    nargs: "+"
+                    metavar: MAIL
         
         ### user_info()
-        "info": 
-            "action_help": "Get user informations"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "user": 
-                    "nargs": "?"
-                "-m": 
-                    "full": "--mail"
-                "-cn": 
-                    "full": "--fullname"
+        info: 
+            action_help: Get user informations
+            connections: 
+                - ldap
+            arguments: 
+                user: 
+                    nargs: "?"
+                -m: 
+                    full: --mail
+                -cn: 
+                    full: --fullname
     
 
 #############################
 #          Domain           #
 #############################
-"domain": 
-    "category_help": "Manage domains"
-    "actions": 
+domain: 
+    category_help: Manage domains
+    actions: 
         
         ### domain_list()
-        "list": 
-            "action_help": "List domains"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "-f": 
-                    "full": "--filter"
-                    "help": "LDAP filter used to search"
-                "-l": 
-                    "full": "--limit"
-                    "help": "Maximum number of domain fetched" 
-                "-o": 
-                    "full": "--offset"
-                    "help": "Starting number for domain fetching" 
+        list: 
+            action_help: List domains
+            connections: 
+                - ldap
+            arguments: 
+                -f: 
+                    full: --filter
+                    help: LDAP filter used to search
+                -l: 
+                    full: --limit
+                    help: Maximum number of domain fetched 
+                -o: 
+                    full: --offset
+                    help: Starting number for domain fetching 
         
         ### domain_add()
-        "add": 
-            "action_help": "Create a custom domain"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "domain": 
-                    "help": "Domain name to add"
+        add: 
+            action_help: Create a custom domain
+            connections: 
+                - ldap
+            arguments: 
+                domain: 
+                    help: Domain name to add
                 
         ### domain_remove()
-        "remove": 
-            "action_help": "Delete domains"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "domain": 
-                    "help": "Domain(s) to delete"
-                    "nargs": "+"
+        remove: 
+            action_help: Delete domains
+            connections: 
+                - ldap
+            arguments: 
+                domain: 
+                    help: Domain(s) to delete
+                    nargs: "+"
                 
         ### domain_info()
-        "info": 
-            "action_help": "Get domain informations"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "domain": 
-                    "help": ""
-        
+        info: 
+            action_help: Get domain informations
+            connections: 
+                - ldap
+            arguments: 
+                domain: 
+                    help: ""
+
         ### domain_renewcert()
-        "renewcert": 
-            "action_help": "Renew domain certificate"
-            "arguments": 
-                "domain": 
-                    "help": ""
+        renewcert: 
+            action_help: Renew domain certificate
+            arguments: 
+                domain: 
+                    help: ""
 
 #############################
 #            App            #
 #############################
-"app": 
-    "category_help": "Manage apps"
-    "actions": 
+app: 
+    category_help: Manage apps
+    actions: 
 
         ### app_list()
-        "list": 
-            "action_help": "List apps"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "--fields": 
-                    "help": "fields to fetch"
-                    "nargs": "+"
-                "-f": 
-                    "full": "--filter"
-                    "help": "LDAP filter used to search"
-                "-l": 
-                    "full": "--limit"
-                    "help": "Maximum number of app fetched" 
-                "-o": 
-                    "full": "--offset"
-                    "help": "Starting number for app fetching" 
+        list: 
+            action_help: List apps
+            connections: 
+                - ldap
+            arguments: 
+                --fields: 
+                    help: fields to fetch
+                    nargs: "+"
+                -f: 
+                    full: --filter
+                    help: LDAP filter used to search
+                -l: 
+                    full: --limit
+                    help: Maximum number of app fetched 
+                -o: 
+                    full: --offset
+                    help: Starting number for app fetching 
         
         ### app_install() TODO: Write help
-        "install": 
-            "action_help": "Install apps"
-            "connections": 
-                - "ldap" 
-                - "dns"
-            "arguments": 
-                "app": 
-                    "nargs": "+"
-                "-d": 
-                    "full": "--domain"
-                "-p": 
-                    "full": "--path"
-                "-l": 
-                    "full": "--label"
-                "--public": 
-                    "action": "store_true"
-                "--protected": 
-                    "action": "store_true"
+        install: 
+            action_help: Install apps
+            connections: 
+                - ldap 
+                - dns
+            arguments: 
+                app: 
+                    nargs: "+"
+                -d: 
+                    full: --domain
+                -p: 
+                    full: --path
+                -l: 
+                    full: --label
+                --public: 
+                    action: store_true
+                --protected: 
+                    action: store_true
         
         ### app_remove() TODO: Write help
-        "remove": 
-            "action_help": "Remove app"
-            "connections": 
-                - "ldap" 
-                - "dns"
-            "arguments": 
-                "app": 
-                    "help": "App(s) to delete"
-                    "nargs": "+"
+        remove: 
+            action_help: Remove app
+            connections: 
+                - ldap 
+                - dns
+            arguments: 
+                app: 
+                    help: App(s) to delete
+                    nargs: "+"
         
         ### app_upgrade()
-        "upgrade": 
-            "action_help": "Upgrade app"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "app": 
-                    "help": "App(s) to upgrade (default all)"
-                    "nargs": "*"
+        upgrade: 
+            action_help: Upgrade app
+            connections: 
+                - ldap
+            arguments: 
+                app: 
+                    help: App(s) to upgrade (default all)
+                    nargs: "*"
         
         ### app_info() TODO: Write help
-        "info": 
-            "action_help": "Get app informations"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "app": 
-                    "help": ""
+        info: 
+            action_help: Get app informations
+            connections: 
+                - ldap
+            arguments: 
+                app: 
+                    help: ""
         
         ### app_addaccess() TODO: Write help
-        "addaccess": 
-            "action_help": "Grant access right to users (everyone by default)"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "app": 
-                    "nargs": "+"
-                "-u": 
-                    "full": "--user"
-                    "nargs": "+"
+        addaccess: 
+            action_help: Grant access right to users (everyone by default)
+            connections: 
+                - ldap
+            arguments: 
+                app: 
+                    nargs: "+"
+                -u: 
+                    full: --user
+                    nargs: "+"
         
         ### app_removeaccess() TODO: Write help
-        "removeaccess": 
-            "action_help": "Revoke access right to users (everyone by default)"
-            "connections": 
-                - "ldap"
-            "arguments": 
-                "app": 
-                    "nargs": "+"
-                "-u": 
-                    "full": "--user"
-                    "nargs": "+"
+        removeaccess: 
+            action_help: Revoke access right to users (everyone by default)
+            connections: 
+                - ldap
+            arguments: 
+                app: 
+                    nargs: "+"
+                -u: 
+                    full: --user
+                    nargs: "+"
                 
 
 #############################
 #        Repository         #
 #############################
-"repo": 
-    "category_help": "Manage app repositories"
-    "actions": 
+repo: 
+    category_help: Manage app repositories
+    actions: 
 
         ### repo_list()
-        "list": 
-            "action_help": "List repositories"
-            "connections": 
-                - "repo"
-            "arguments": 
-                "-f": 
-                    "full": "--filter"
-                    "help": "LDAP filter used to search"
-                "-l": 
-                    "full": "--limit"
-                    "help": "Maximum number of repository fetched" 
-                "-o": 
-                    "full": "--offset"
-                    "help": "Starting number for repository fetching" 
+        list: 
+            action_help: List repositories
+            connections: 
+                - repo
+            arguments: 
+                -f: 
+                    full: --filter
+                    help: LDAP filter used to search
+                -l: 
+                    full: --limit
+                    help: Maximum number of repository fetched 
+                -o: 
+                    full: --offset
+                    help: Starting number for repository fetching 
         
         ### repo_add()
-        "add": 
-            "action_help": "Add app repository"
-            "connections": 
-                - "repo"
-            "arguments": 
-                "url": 
-                    "help": "URL of the repository"
-                "-n": 
-                    "full": "--name"
-                    "help": "Unique name of the repository"
+        add: 
+            action_help: Add app repository
+            connections: 
+                - repo
+            arguments: 
+                url: 
+                    help: URL of the repository
+                -n: 
+                    full: --name
+                    help: Unique name of the repository
         
         ### repo_remove()
-        "remove": 
-            "action_help": "Remove repository"
-            "connections": 
-                - "repo"
-            "arguments": 
-                "repo": 
-                    "help": "Name or URL of the repository"
+        remove: 
+            action_help: Remove repository
+            connections: 
+                - repo
+            arguments: 
+                repo: 
+                    help: Name or URL of the repository
                 
         ### repo_update()
-        "update": 
-            "action_help": "Update app list from the repositories"
-            "connections": 
-                - "repo"
+        update: 
+            action_help: Update app list from the repositories
+            connections: 
+                - repo
 
 
 #############################
 #          Monitor          #
 #############################
-"monitor": 
-    "category_help": "Monitoring functions"
-    "actions": 
+monitor: 
+    category_help: Monitoring functions
+    actions: 
         
         ### monitor_info()
-        "info": 
-            "action_help": "Check System"
-            "arguments": 
-                "-m": 
-                    "full": "--memory"
-                    "help": "Check Memory"
-                    "action": "store_true"
-                "-c": 
-                    "full": "--cpu"
-                    "help": "Check CPU"
-                    "action": "store_true"
-                "-d": 
-                    "full": "--disk"
-                    "help": "Check Disk"
-                    "action": "store_true"
-                "-i": 
-                    "full": "--ifconfig"
-                    "help": "Ifconfig"
-                    "action": "store_true"
-                "-u": 
-                    "full": "--uptime"
-                    "help": "Show Uptime"
-                    "action": "store_true"
-                "-p": 
-                    "full": "--process"
-                    "help": "Show Process Account"
-                    "action": "store_true"
+        info: 
+            action_help: Check System
+            arguments: 
+                -m: 
+                    full: --memory
+                    help: Check Memory
+                    action: store_true
+                -c: 
+                    full: --cpu
+                    help: Check CPU
+                    action: store_true
+                -d: 
+                    full: --disk
+                    help: Check Disk
+                    action: store_true
+                -i: 
+                    full: --ifconfig
+                    help: Ifconfig
+                    action: store_true
+                -u: 
+                    full: --uptime
+                    help: Show Uptime
+                    action: store_true
+                -p: 
+                    full: --process
+                    help: Show Process Account
+                    action: store_true
     
 
 #############################
 #         Firewall          #
 #############################
-"firewall": 
-    "category_help": "Manage firewall rules"
-    "actions": 
+firewall: 
+    category_help: Manage firewall rules
+    actions: 
 
         ### firewall_list()
-        "list": 
-            "action_help": "List all firewall rules"
-            "connections": 
-                - "firewall"
+        list: 
+            action_help: List all firewall rules
+            connections: 
+                - firewall
         
         ### firewall_allow()
-        "allow": 
-            "action_help": "Allow connection port/protocol"
-            "connections": 
-                - "firewall"
-            "arguments": 
-                "port": 
-                    "help": "Port to open"
-                "protocol": 
-                    "help": "Protocol associated with port"
-                    "choices": 
-                        - "UDP" 
-                        - "TCP" 
-                        - "Both"
-                "name": 
-                    "help": "Reference name of the rule"
+        allow: 
+            action_help: Allow connection port/protocol
+            connections: 
+                - firewall
+            arguments: 
+                port: 
+                    help: Port to open
+                protocol: 
+                    help: Protocol associated with port
+                    choices: 
+                        - UDP 
+                        - TCP 
+                        - Both
+                name: 
+                    help: Reference name of the rule
                 
         ### firewall_disallow()
-        "disallow": 
-            "action_help": "Disallow connection"
-            "connections": 
-                - "firewall"
-            "arguments": 
-                "name": 
-                    "help": "Reference name of the rule to delete"
+        disallow: 
+            action_help: Disallow connection
+            connections: 
+                - firewall
+            arguments: 
+                name: 
+                    help: Reference name of the rule to delete
                 
 
 #############################
 #           Tools           #
 #############################
-"tools": 
-    "category_help": "Specific tools"
-    "actions": 
+tools: 
+    category_help: Specific tools
+    actions: 
 
         ### tools_install()
-        "install": 
-            "action_help": "Install YunoHost LDAP initialization"
-            "connections": 
-                - "ldap"
+        install: 
+            action_help: Install YunoHost LDAP initialization
+            connections: 
+                - ldap
