@@ -76,18 +76,4 @@ Contribute
 ----------
 
 
-Only few functions are implemented yet. If you want to contribute, just pick one action above (i.e. `yunohost app addaccess`) and make the function (here `app_addaccess()`) into the right file (here `yunohost_app.py`).
-
-If you need LDAP connections or openned configuration files, take a look at the connection documentation in the `yunohost.py` file. 
-
-
-Dev self-notes
---------------
-
-* A big dictionary of categories/actions/arguments is translated to parsers and subparsers with argument handling (argparse python library)
-* One single action function is called after the parsing, named like `category_action()`
-* Connection to LDAP and/or config file openning is made before the action function
-* Parsed arguments and connection dictionary are the only parameters passed to the action function :
-`category_action(args, connections)`
-* 'connections' is optionnal
-* Connections are closed just before the sys.exit calling
+See CONTRIBUTE.md file
