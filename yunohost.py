@@ -214,7 +214,7 @@ class YunoHostLDAP:
 
         """
         self.conn = ldap.initialize('ldap://localhost:389')
-        self.base = 'dc=gavoty,dc=org'
+        self.base = 'dc=yunohost,dc=org'
         self.pwd = getpass.getpass(colorize(_('LDAP Admin Password: '), 'yellow'))
         try:
             self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)

@@ -564,7 +564,13 @@ action_map = {
     #############################
     'tools' : {
         'category_help' : _("Specific tools"),
-        'actions'       : {}
+        'actions'       : {
+            ### tools_install()
+            'install' : {
+                'action_help'   : _("Install YunoHost LDAP initialization"),
+                'connections'   : ['ldap'],
+            },
+        }
     },
 }
 
@@ -642,7 +648,8 @@ def main(action_map):
         else:
             result = args.func(vars(args))
     except TypeError, error:
-        print error
+        if not __debug__ :
+            traceback.print_exc()
         print(_("Not (yet) implemented function"))
         return 1
     except YunoHostError, error:
