@@ -12,6 +12,8 @@ import ldap.modlist as modlist
 import json
 import re
 import getpass
+if not __debug__:
+    import traceback
 
 
 def colorize(astr, color):
@@ -262,8 +264,9 @@ class YunoHostLDAP:
         if result:
             result_list = []
             for dn, entry in result:
-                if 'dn' in attrs:
-                    entry['dn'] = [dn]
+                if attrs != None:
+                    if 'dn' in attrs:
+                        entry['dn'] = [dn]
                 result_list.append(entry)
             return result_list       
         else:
@@ -291,6 +294,37 @@ class YunoHostLDAP:
             raise YunoHostError(169, _('An error occured during LDAP entry creation'))
         else:
             return True
+
+
+    def update(self, rdn, attr_dict, new_rdn=False):
+        """ 
+        Modify LDAP entry 
+        
+        Keyword arguments:
+            rdn         -- DN without domain
+            attr_dict   -- Dictionnary of attributes/values to add
+            new_rdn     -- New RDN for modification
+
+        Returns:
+            Boolean | YunoHostError
+
+        """
+        dn = rdn + ',' + self.base
+        actual_entry = self.search(base=dn, attrs=None)
+        if actual_entry[0]['userPassword']:
+            del actual_entry[0]['userPassword']
+        ldif = modlist.modifyModlist(actual_entry[0], attr_dict)
+
+        try:
+            if new_rdn:
+                self.conn.rename_s(dn, new_rdn)
+                dn = new_rdn + ',' + self.base
+
+            self.conn.modify_ext_s(dn, ldif)
+        except:
+            raise YunoHostError(169, _('An error occured during LDAP entry update'))
+        else:
+	    return True
 
 
     def validate_uniqueness(self, value_dict):
