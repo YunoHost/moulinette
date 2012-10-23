@@ -1,66 +1,68 @@
-ou=sudo:
-    ou: sudo
-    objectClass:
-        - organizationalUnit
-        - top
+parents:
+    ou=sudo:
+        ou: sudo
+        objectClass:
+            - organizationalUnit
+            - top
 
-cn=admin,ou=sudo:
-    cn: admin
-    sudoUser: admin
-    sudoHost: ALL
-    sudoCommand: ALL
-    sudoOption: "!authenticate"
-    objectClass:
-        - sudoRole
-        - top
+    ou=users:
+        ou: users
+        objectClass:
+            - organizationalUnit
+            - top
 
-cn=www-data,ou=sudo:
-    cn: www-data
-    sudoUser: www-data
-    sudoHost: ALL
-    sudoCommand: /usr/bin/yunohost
-    sudoOption: "!authenticate"
-    objectClass:
-        - sudoRole
-        - top
+    ou=domains:
+        ou: domains
+        objectClass:
+            - organizationalUnit
+            - top
 
-ou=users:
-    ou: users
-    objectClass:
-        - organizationalUnit
-        - top
+    ou=apps:
+        ou: apps
+        objectClass:
+            - organizationalUnit
+            - top
 
-ou=domains:
-    ou: domains
-    objectClass:
-        - organizationalUnit
-        - top
+    ou=groups:
+        ou: groups
+        objectClass:
+            - organizationalUnit
+            - top
 
-ou=apps:
-    ou: apps
-    objectClass:
-        - organizationalUnit
-        - top
+childs:
+    cn=admins,ou=groups:
+        cn: admins
+        gidNumber: "4001"
+        memberUid: admin
+        objectClass:
+            - posixGroup
+            - top
 
-ou=groups:
-    ou: groups
-    objectClass:
-        - organizationalUnit
-        - top
+    cn=sftpusers,ou=groups:
+        cn: sftpusers
+        gidNumber: "4002"
+        memberUid: admin
+        objectClass:
+            - posixGroup
+            - top
 
-cn=admins,ou=groups:
-    cn: admins
-    gidNumber: "4001"
-    memberUid: admin
-    objectClass:
-        - posixGroup
-        - top
 
-cn=sftpusers,ou=groups:
-    cn: sftpusers
-    gidNumber: "4002"
-    memberUid: admin
-    objectClass:
-        - posixGroup
-        - top
+    cn=admin,ou=sudo:
+        cn: admin
+        sudoUser: admin
+        sudoHost: ALL
+        sudoCommand: ALL
+        sudoOption: "!authenticate"
+        objectClass:
+            - sudoRole
+            - top
 
+    cn=www-data,ou=sudo:
+        cn: www-data
+        sudoUser: www-data
+        sudoHost: ALL
+        sudoCommand: /usr/bin/yunohost
+        sudoOption: "!authenticate"
+        objectClass:
+            - sudoRole
+            - top
