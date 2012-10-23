@@ -437,8 +437,8 @@ tools:
     category_help: Specific tools
     actions: 
 
-        ### tools_install()
-        install: 
+        ### tools_init()
+        init: 
             action_help: Install YunoHost LDAP initialization
             connections: 
                 - ldap
