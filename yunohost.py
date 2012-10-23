@@ -324,7 +324,7 @@ class YunoHostLDAP:
         except:
             raise YunoHostError(169, _('An error occured during LDAP entry update'))
         else:
-	    return True
+            return True
 
 
     def validate_uniqueness(self, value_dict):
