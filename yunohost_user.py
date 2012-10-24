@@ -46,6 +46,13 @@ def user_create(args, connections):
     except KeyboardInterrupt, EOFError:
         raise YunoHostError(125, _("Interrupted, user not created"))
 
+    # Get random UID/GID
+    uid_check = gid_check = 0
+    while uid_check == 0 and gid_check == 0:
+        uid = str(random.randint(200, 99999))
+        uid_check = os.system("getent passwd " + uid)
+        gid_check = os.system("getent group " + uid)
+
     # Manage values
     fullname = args['firstname'] + ' ' + args['lastname']
     rdn = 'cn=' + fullname + ',ou=users'
@@ -54,14 +61,18 @@ def user_create(args, connections):
     salt = '$1$' + salt + '$'
     pwd = '{CRYPT}' + crypt.crypt(str(args['password']), salt)
     attr_dict = {
-        'objectClass'   : ['mailAccount', 'inetOrgPerson'],
+        'objectClass'   : ['mailAccount', 'inetOrgPerson', 'posixAccount'],
         'givenName'     : args['firstname'],
         'sn'            : args['lastname'],
         'displayName'   : fullname,
         'cn'            : fullname,
         'uid'           : args['username'],
         'mail'          : args['mail'],
-        'userPassword'  : pwd
+        'userPassword'  : pwd,
+        'gidNumber'     : uid,
+        'uidNumber'     : uid,
+        'homeDirectory' : '/home/' + args['username'],
+        'loginShell'    : '/bin/bash'
     }
 
     # Validate values TODO: validate other values
@@ -72,7 +83,6 @@ def user_create(args, connections):
 
     yldap.validate_uniqueness({
         'uid'       : args['username'],
-        'cn'        : fullname,
         'mail'      : args['mail'],
         'mailalias' : args['mail']
     })
@@ -80,8 +90,10 @@ def user_create(args, connections):
     #TODO: check if mail belongs to a domain
 
     if yldap.add(rdn, attr_dict):
-        win_msg(_("User successfully created"))
+        # Create user /home directory by switching user
+        os.system("su - " + args['username'] + " -c 'cd'")
         #TODO: Send a welcome mail to user
+        win_msg(_("User successfully created"))
         return { _("Fullname") : fullname, _("Username") : args['username'], _("Mail") : args['mail'] }
     else:
         raise YunoHostError(169, _('An error occured during user creation'))
