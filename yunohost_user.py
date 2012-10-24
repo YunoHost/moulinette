@@ -55,7 +55,7 @@ def user_create(args, connections):
 
     # Manage values
     fullname = args['firstname'] + ' ' + args['lastname']
-    rdn = 'cn=' + fullname + ',ou=users'
+    rdn = 'uid=' + args['username'] + ',ou=users'
     char_set = string.ascii_uppercase + string.digits
     salt = ''.join(random.sample(char_set,8))
     salt = '$1$' + salt + '$'
@@ -75,10 +75,14 @@ def user_create(args, connections):
         'loginShell'    : '/bin/bash'
     }
 
-    # Validate values TODO: validate other values
+    # Validate password length
+    if len(args['password']) < 4:
+        raise YunoHostError(22, _("Password is too short"))
+
+    # Validate other values TODO: validate other values
     validate({
         args['username']    : r'^[a-z0-9_]+$', 
-        args['mail']        : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$'
+        args['mail']        : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$',
     })
 
     yldap.validate_uniqueness({
@@ -87,13 +91,17 @@ def user_create(args, connections):
         'mailalias' : args['mail']
     })
 
+    # Check if unix user already exists
+    if not os.system("getent passwd " + args['username']):
+        raise YunoHostError(17, _("Username not available"))
+
     #TODO: check if mail belongs to a domain
 
     if yldap.add(rdn, attr_dict):
         # Create user /home directory by switching user
-        os.system("su - " + args['username'] + " -c 'cd'")
+        os.system("su - " + args['username'] + " -c ''")
         #TODO: Send a welcome mail to user
         win_msg(_("User successfully created"))
         return { _("Fullname") : fullname, _("Username") : args['username'], _("Mail") : args['mail'] }
     else:
-        raise YunoHostError(169, _('An error occured during user creation'))
+        raise YunoHostError(169, _("An error occured during user creation"))
