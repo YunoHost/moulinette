@@ -125,14 +125,15 @@ def get_required_args(args, required_args, password=False):
                 else:
                     raise Exception #FIX
         # Password
-        if args['password'] is None and 'password' in required_args and password: 
-            if os.isatty(1):
-                args['password'] = getpass.getpass(colorize(required_args['password'] + ': ', 'cyan'))
-                pwd2 = getpass.getpass(colorize('Retype ' + required_args['password'][0].lower() + required_args['password'][1:] + ': ', 'cyan'))
-                if args['password'] != pwd2:
-                    raise YunoHostError(22, _("Passwords doesn't match"))
-            else:
-                raise YunoHostError(22, _("Missing arguments"))
+        if 'password' in required_args and password: 
+            if not args['password']:
+                if os.isatty(1):
+                    args['password'] = getpass.getpass(colorize(required_args['password'] + ': ', 'cyan'))
+                    pwd2 = getpass.getpass(colorize('Retype ' + required_args['password'][0].lower() + required_args['password'][1:] + ': ', 'cyan'))
+                    if args['password'] != pwd2:
+                        raise YunoHostError(22, _("Passwords doesn't match"))
+                else:
+                    raise YunoHostError(22, _("Missing arguments"))
     except KeyboardInterrupt, EOFError:
         raise YunoHostError(125, _("Interrupted, YunoHost not configured"))
 
