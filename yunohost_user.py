@@ -46,6 +46,28 @@ def user_create(args, connections):
     except KeyboardInterrupt, EOFError:
         raise YunoHostError(125, _("Interrupted, user not created"))
 
+    # Validate password length
+    if len(args['password']) < 4:
+        raise YunoHostError(22, _("Password is too short"))
+
+    # Validate other values TODO: validate all values
+    validate({
+        args['username']    : r'^[a-z0-9_]+$', 
+        args['mail']        : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$',
+    })
+
+    yldap.validate_uniqueness({
+        'uid'       : args['username'],
+        'mail'      : args['mail'],
+        'mailalias' : args['mail']
+    })
+
+    # Check if unix user already exists (doesn't work)
+    #if not os.system("getent passwd " + args['username']):
+    #    raise YunoHostError(17, _("Username not available"))
+
+    #TODO: check if mail belongs to a domain
+
     # Get random UID/GID
     uid_check = gid_check = 0
     while uid_check == 0 and gid_check == 0:
@@ -53,7 +75,7 @@ def user_create(args, connections):
         uid_check = os.system("getent passwd " + uid)
         gid_check = os.system("getent group " + uid)
 
-    # Manage values
+    # Adapt values for LDAP
     fullname = args['firstname'] + ' ' + args['lastname']
     rdn = 'uid=' + args['username'] + ',ou=users'
     char_set = string.ascii_uppercase + string.digits
@@ -74,28 +96,6 @@ def user_create(args, connections):
         'homeDirectory' : '/home/' + args['username'],
         'loginShell'    : '/bin/bash'
     }
-
-    # Validate password length
-    if len(args['password']) < 4:
-        raise YunoHostError(22, _("Password is too short"))
-
-    # Validate other values TODO: validate other values
-    validate({
-        args['username']    : r'^[a-z0-9_]+$', 
-        args['mail']        : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$',
-    })
-
-    yldap.validate_uniqueness({
-        'uid'       : args['username'],
-        'mail'      : args['mail'],
-        'mailalias' : args['mail']
-    })
-
-    # Check if unix user already exists
-    if not os.system("getent passwd " + args['username']):
-        raise YunoHostError(17, _("Username not available"))
-
-    #TODO: check if mail belongs to a domain
 
     if yldap.add(rdn, attr_dict):
         # Create user /home directory by switching user
