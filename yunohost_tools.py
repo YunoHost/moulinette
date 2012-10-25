@@ -90,15 +90,15 @@ def tools_maindomain(args):
         dict
 
     """
-    args = get_required_args(args, {'new' : _('New main domain name')})
+    args = get_required_args(args, {'new_domain' : _('New main domain name')})
 
-    if not args['old']:
+    if not args['old_domain']:
         with open('/usr/share/yunohost/yunohost-config/others/current_host', 'r') as f:
-            args['old'] = f.readline()
+            args['old_domain'] = f.readline()
 
     validate({ 
-        args['new'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$',
-        args['old'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' 
+        args['new_domain'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$',
+        args['old_domain'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' 
     })
 
     config_files = [
@@ -124,7 +124,7 @@ def tools_maindomain(args):
             lines = sources.readlines()
         with open(file, "w") as sources:
             for line in lines:
-                sources.write(re.sub(r''+ args['old'] +'', args['new'], line))
+                sources.write(re.sub(r''+ args['old_domain'] +'', args['new_domain'], line))
 
     os.system('/etc/init.d/hostname.sh')
     
@@ -133,7 +133,7 @@ def tools_maindomain(args):
     os.system('echo "01" > '+ tmp +'/ssl/yunoCA/serial')
     os.system('rm '+ tmp +'/ssl/yunoCA/index.txt')
     os.system('touch '+ tmp +'/ssl/yunoCA/index.txt')
-    os.system('sed -i "s/' + args['old'] + '/' + args['new'] + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf')
+    os.system('sed -i "s/' + args['old_domain'] + '/' + args['new_domain'] + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf')
     os.system('openssl req -x509 -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 3650 -out '+ tmp +'/ssl/yunoCA/ca/cacert.pem -keyout '+ tmp +'/ssl/yunoCA/ca/cakey.pem -nodes -batch')
     os.system('openssl req -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -out '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -keyout '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem -nodes -batch')
     os.system('openssl ca -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -in '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -out '+ tmp +'/ssl/yunoCA/certs/yunohost_crt.pem -batch')
@@ -141,7 +141,7 @@ def tools_maindomain(args):
     os.system('cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/')
     os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem')
     os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ejabberd/ejabberd.pem')
-    os.system('echo '+ args['new'] +' > /usr/share/yunohost/yunohost-config/others/current_host')
+    os.system('echo '+ args['new_domain'] +' > /usr/share/yunohost/yunohost-config/others/current_host')
 
     # Restart services
     os.system('/etc/init.d/apache2 restart')
@@ -179,7 +179,7 @@ def tools_postinstall(args, connections):
     tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
 
     # New domain config
-    tools_maindomain({ 'old' : 'yunohost.org', 'new' : args['domain']})
+    tools_maindomain({ 'old_domain' : 'yunohost.org', 'new_domain' : args['domain']})
 
     os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
     
