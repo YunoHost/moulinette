@@ -175,7 +175,6 @@ def tools_postinstall(args, connections):
     # Initialize YunoHost LDAP base
     tools_ldapinit(args, connections)
 
-    print(args)
     # Change LDAP admin password
     tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
 
