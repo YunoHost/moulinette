@@ -188,20 +188,22 @@ class YunoHostError(Exception):
         else:
             self.desc = code
 
-def singleton(cls):
+
+class Singleton(object):
     instances = {}
-    def get_instance():
-        if cls not in instances:
-            instances[cls] = cls()
-        return instances[cls]
-    return get_instance
+    def __new__(cls, *args, **kwargs):
+        if cls not in cls.instances:
+            cls.instances[cls] = super(Singleton, cls).__new__(cls, *args, **kwargs)
+        return cls.instances[cls]
 
-@singleton
-class YunoHostLDAP(object):
+
+class YunoHostLDAP(Singleton):
     """ Specific LDAP functions for YunoHost """
+    pwd = False
+    conn = ldap.initialize('ldap://localhost:389')
+    base = 'dc=yunohost,dc=org'
 
-    def __enter__(self, password=False):
-        self.__init__(password)
+    def __enter__(self):
         return self
 
     def __init__(self, password=False):
@@ -211,10 +213,8 @@ class YunoHostLDAP(object):
         Initialize to localhost, base yunohost.org, prompt for password
 
         """
-        self.conn = ldap.initialize('ldap://localhost:389')
-        self.base = 'dc=yunohost,dc=org'
-        if password:
-            self.pwd = password
+        if password: self.pwd = password
+        elif self.pwd: pass
         else:
             try:
                 self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
@@ -236,12 +236,12 @@ class YunoHostLDAP(object):
             Boolean | YunoHostError
 
         """
-        try:
-            self.conn.unbind_s()
-        except:
-            raise YunoHostError(169, _('An error occured during disconnection'))
-        else:
-            return True
+        #try:
+        self.conn.unbind_s()
+        #except:
+        #    raise YunoHostError(169, _('An error occured during disconnection'))
+        #else:
+        #    return True
 
 
     def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
