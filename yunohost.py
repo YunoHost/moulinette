@@ -223,7 +223,6 @@ class YunoHostLDAP(Singleton):
                 raise YunoHostError(125, _("Interrupted"))
 
         self.level = self.level+1
-        print self.level
         try:
             self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
         except ldap.INVALID_CREDENTIALS:
@@ -244,7 +243,6 @@ class YunoHostLDAP(Singleton):
 
         """
         try:
-            print 'WIN !'
             self.conn.unbind_s()
         except:
             raise YunoHostError(169, _('An error occured during disconnection'))
