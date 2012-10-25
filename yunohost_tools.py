@@ -6,7 +6,7 @@ import yaml
 import re
 import getpass
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
-
+from yunohost_domain import domain_add
 
 def tools_ldapinit(args): 
     """
@@ -30,12 +30,7 @@ def tools_ldapinit(args):
         for rdn, attr_dict in ldap_map['childs'].items():
             yldap.add(rdn, attr_dict)
  
-        domain_dict = { 
-            'objectClass' : ['mailDomain', 'top'],
-            'virtualdomain' : args['domain']    
-        }
-
-        yldap.add('virtualdomain=' + args['domain'] + ',ou=domains', domain_dict)
+        domain_add({ 'domain' : [args['domain']] })
 
         admin_dict = {
             'cn': 'admin',
@@ -136,9 +131,9 @@ def tools_maindomain(args):
     l = os.system('echo '+ args['new_domain'] +' > /usr/share/yunohost/yunohost-config/others/current_host')
 
     # Restart services
-    m = os.system('/etc/init.d/apache2 restart')
-    n = os.system('/etc/init.d/postfix restart')
-    o = os.system('/etc/init.d/ejabberd restart')
+    m = os.system('service apache2 restart')
+    n = os.system('service postfix restart')
+    o = os.system('service ejabberd restart')
 
     if a == b == c == d == e == f == g == h == i == j == k == l == m == n == o == 0:
         win_msg(_("YunoHost main domain has been successfully changed"))
