@@ -163,8 +163,6 @@ def tools_postinstall(args, connections):
         dict
 
     """
-    args = get_required_args(args, {'domain' : _('Main domain name'), 'password' : _('New admin password') }, True)
-
     try:
         with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
     except IOError:
@@ -172,8 +170,10 @@ def tools_postinstall(args, connections):
     else:
         raise YunoHostError(17, _("YunoHost is already installed"))
 
+    args = get_required_args(args, {'domain' : _('Main domain name'), 'password' : _('New admin password') }, True)
+
     # Initialize YunoHost LDAP base
-    #tools_ldapinit(args, connections)
+    tools_ldapinit(args, connections)
 
     # Change LDAP admin password
     tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
