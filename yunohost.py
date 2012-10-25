@@ -225,6 +225,9 @@ class YunoHostLDAP(Singleton):
         except ldap.INVALID_CREDENTIALS:
             raise YunoHostError(13, _('Invalid credentials'))
 
+    def __exit__(self, type, value, traceback):
+        pass
+
     def disconnect(self):
         """ 
         Unbind from LDAP 
