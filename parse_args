@@ -145,8 +145,6 @@ def parse_dict(action_map):
 
     args = parsers['general'].parse_args(sys.argv.extend(new_args))
     args_dict = vars(args)
-    print patterns
-    print args_dict
     for key, value in patterns.items():
         validate(value, args_dict[key])
 

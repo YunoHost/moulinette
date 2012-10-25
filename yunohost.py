@@ -226,7 +226,10 @@ class YunoHostLDAP(Singleton):
             raise YunoHostError(13, _('Invalid credentials'))
 
     def __exit__(self, type, value, traceback):
-        self.disconnect()
+        try:
+            self.disconnect()
+        except:
+            pass
 
     def disconnect(self):
         """ 
@@ -236,12 +239,12 @@ class YunoHostLDAP(Singleton):
             Boolean | YunoHostError
 
         """
-        #try:
-        self.conn.unbind_s()
-        #except:
-        #    raise YunoHostError(169, _('An error occured during disconnection'))
-        #else:
-        #    return True
+        try:
+            self.conn.unbind_s()
+        except:
+            raise YunoHostError(169, _('An error occured during disconnection'))
+        else:
+            return True
 
 
     def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
