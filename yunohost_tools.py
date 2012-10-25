@@ -87,7 +87,7 @@ def tools_maindomain(args):
         dict
 
     """
-    args = get_required_args(args, {'new' : _('New main domain name'))
+    args = get_required_args(args, {'new' : _('New main domain name')})
 
     if not args['old']:
         with open('/usr/share/yunohost/yunohost-config/others/current_host', 'r') as f:
@@ -165,12 +165,12 @@ def tools_postinstall(args, connections):
     try:
         with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
     except IOError:
-        print 'Installing YunoHost'
+        print('Installing YunoHost')
     else:
-        raise YunoHostError(17, _("YunoHost is already installed")
+        raise YunoHostError(17, _("YunoHost is already installed"))
 
     # Initialize YunoHost LDAP base
-    tools_ldapinit(None, connections)
+    tools_ldapinit(args, connections)
 
     # Change LDAP admin password
     tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
