@@ -94,7 +94,7 @@ def tools_maindomain(args):
 
     if not args['old_domain']:
         with open('/usr/share/yunohost/yunohost-config/others/current_host', 'r') as f:
-            args['old_domain'] = f.readline()
+            args['old_domain'] = f.readline().rstrip()
 
     validate({ 
         args['new_domain'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$',
