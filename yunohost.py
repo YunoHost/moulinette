@@ -202,6 +202,7 @@ class YunoHostLDAP(Singleton):
     pwd = False
     conn = ldap.initialize('ldap://localhost:389')
     base = 'dc=yunohost,dc=org'
+    level = 0
 
     def __enter__(self):
         return self
@@ -220,13 +221,19 @@ class YunoHostLDAP(Singleton):
                 self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
             except KeyboardInterrupt, EOFError:
                 raise YunoHostError(125, _("Interrupted"))
+
+        self.level = self.level+1
+        print self.level
         try:
             self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
         except ldap.INVALID_CREDENTIALS:
             raise YunoHostError(13, _('Invalid credentials'))
 
     def __exit__(self, type, value, traceback):
-        pass
+        self.level = self.level-1
+        if self.level == 0:
+            try: self.disconnect()
+            except: pass
 
     def disconnect(self):
         """ 
@@ -237,6 +244,7 @@ class YunoHostLDAP(Singleton):
 
         """
         try:
+            print 'WIN !'
             self.conn.unbind_s()
         except:
             raise YunoHostError(169, _('An error occured during disconnection'))
