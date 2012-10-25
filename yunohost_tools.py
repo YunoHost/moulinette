@@ -5,7 +5,7 @@ import sys
 import yaml
 import re
 import getpass
-from yunohost import validate, colorize, get_required_args
+from yunohost import YunoHostError, validate, colorize, get_required_args
 
 
 def tools_ldapinit(args, connections): 
@@ -58,10 +58,10 @@ def tools_adminpw(args):
         dict
 
     """
-    if not args['old']:
+    if not 'old' in args:
         args['old'] = getpass.getpass(colorize('Actual admin password: ', 'cyan'))
     
-    if not args['new']:
+    if not 'new' in args:
         args['new'] = getpass.getpass(colorize('New admin password: ', 'cyan'))
         pwd2 = getpass.getpass(colorize('Retype new password: ', 'cyan'))
         if args['new'] != pwd2:
@@ -71,9 +71,12 @@ def tools_adminpw(args):
     if len(args['new']) < 4:
         raise YunoHostError(22, _("Password is too short"))
 
-    os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ args['old'] +'" -a "'+ args['old'] +'" -s "' + args['new'] + '"')
+    result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ args['old'] +'" -a "'+ args['old'] +'" -s "' + args['new'] + '"')
 
-    return { 'Success' : _("Admin password has been changed") }
+    if result == 0:
+        return { 'Success' : _("Admin password has been changed") }
+    else:
+        raise YunoHostError(22, _("Invalid password"))
 
 
 def tools_maindomain(args): 
