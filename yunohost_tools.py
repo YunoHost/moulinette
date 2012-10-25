@@ -163,24 +163,24 @@ def tools_postinstall(args, connections):
         dict
 
     """
-    args = get_required_args(args, {'domain' : _('Main domain name'), 'password' : _('New admin password') }, True)
+    with get_required_args(args, {'domain' : _('Main domain name'), 'password' : _('New admin password') }, True) as args:
 
-    try:
-        with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
-    except IOError:
-        print('Installing YunoHost')
-    else:
-        raise YunoHostError(17, _("YunoHost is already installed"))
+        try:
+            with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
+        except IOError:
+            print('Installing YunoHost')
+        else:
+            raise YunoHostError(17, _("YunoHost is already installed"))
 
-    # Initialize YunoHost LDAP base
-    tools_ldapinit(args, connections)
+        # Initialize YunoHost LDAP base
+        tools_ldapinit(args, connections)
 
-    # Change LDAP admin password
-    tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
+        # Change LDAP admin password
+        tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
 
-    # New domain config
-    tools_maindomain({ 'old' : 'yunohost.org', 'new' : args['domain']})
+        # New domain config
+        tools_maindomain({ 'old' : 'yunohost.org', 'new' : args['domain']})
 
-    os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
+        os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
     
     return { 'Success' : _("YunoHost has been successfully configured") }
