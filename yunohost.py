@@ -125,7 +125,7 @@ def get_required_args(args, required_args, password=False):
                 else:
                     raise Exception #FIX
         # Password
-        if not 'password' in args and password and 'password' in required_args:
+        if 'password' not in args and password and 'password' in required_args:
             if os.isatty(1):
                 args['password'] = getpass.getpass(colorize(required_args['password'] + ': ', 'cyan'))
                 pwd2 = getpass.getpass(colorize('Retype ' + required_args['password'][0].lower() + required_args['password'][1:] + ': ', 'cyan'))
