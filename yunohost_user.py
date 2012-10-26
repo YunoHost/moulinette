@@ -7,7 +7,7 @@ import crypt
 import random
 import string
 import getpass
-from yunohost import YunoHostError, win_msg, colorize, validate
+from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
 
 def user_list(args, connections): # TODO : fix
     print(args)
@@ -24,27 +24,13 @@ def user_create(args, connections):
         Boolean
     """
     yldap = connections['ldap']
-    required_args = ['username', 'mail', 'firstname', 'lastname']
-
-    # Input missing values
-    try:
-        for arg in required_args:
-            if not args[arg]:
-                if os.isatty(1):
-                    args[arg] = raw_input(colorize(arg.capitalize()+': ', 'cyan'))
-                else:
-                    raise Exception
-        # Password
-        if not args['password']:
-            if os.isatty(1):
-                args['password'] = getpass.getpass(colorize('Password: ', 'cyan'))
-                pwd2 = getpass.getpass(colorize('Retype password:', 'cyan'))
-                if args['password'] != pwd2:
-                    raise YunoHostError(22, _("Passwords doesn't match"))
-            else:
-                raise YunoHostError(22, _("Missing arguments"))
-    except KeyboardInterrupt, EOFError:
-        raise YunoHostError(125, _("Interrupted, user not created"))
+    args = get_required_args(args, {
+        'username': _('Username'), 
+        'mail': _('Mail address'), 
+        'firstname': _('Firstname'), 
+        'lastname': _('Lastname'), 
+        'password': _('Password')
+    }, True)
 
     # Validate password length
     if len(args['password']) < 4:

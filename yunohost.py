@@ -104,6 +104,40 @@ def validate(regex_dict):
             raise YunoHostError(22, _('Invalid attribute') + ' ' + attr)
     return True
 
+def get_required_args(args, required_args, password=False):
+    """ 
+    Input missing values or raise Exception
+    
+    Keyword arguments:
+       args -- Available arguments
+       required_args -- Dictionary of required arguments and input phrase
+       password -- True|False Hidden password double-input needed
+
+    Returns:
+        args
+
+    """
+    try:
+        for arg, phrase in required_args.items():
+            if not args[arg] and arg != 'password':
+                if os.isatty(1):
+                    args[arg] = raw_input(colorize(phrase + ': ', 'cyan'))
+                else:
+                    raise Exception #FIX
+        # Password
+        if not args['password'] and password and required_args['password']:
+            if os.isatty(1):
+                args['password'] = getpass.getpass(colorize(required_args['password'] + ': ', 'cyan'))
+                pwd2 = getpass.getpass(colorize('Retype ' + required_args['password'][0].lower() + required_args['password'][1:] + ': ', 'cyan'))
+                if args['password'] != pwd2:
+                    raise YunoHostError(22, _("Passwords doesn't match"))
+            else:
+                raise YunoHostError(22, _("Missing arguments"))
+    except KeyboardInterrupt, EOFError:
+        raise YunoHostError(125, _("Interrupted, YunoHost not configured"))
+
+    return args
+
 
 def display_error(error):
     """

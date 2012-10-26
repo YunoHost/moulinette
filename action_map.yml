@@ -437,8 +437,21 @@ tools:
     category_help: Specific tools
     actions: 
 
-        ### tools_init()
-        init: 
-            action_help: Install YunoHost LDAP initialization
+        ### tools_ldapinit()
+        ldapinit: 
+            action_help: YunoHost LDAP initialization
             connections: 
                 - ldap
+
+        ### tools_postinstall()
+        postinstall: 
+            action_help: YunoHost post-install
+            connections: 
+                - ldap
+            arguments: 
+                -d: 
+                    full: --domain
+                    help: YunoHost main domain
+                -p:
+                    full: --password
+                    help: YunoHost admin password
