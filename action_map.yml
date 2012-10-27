@@ -443,6 +443,24 @@ tools:
             connections: 
                 - ldap
 
+        ### tools_adminpw()
+        adminpw: 
+            action_help: Change admin password
+            arguments: 
+                -o: 
+                    full: --old-password
+                -n:
+                    full: --new-password
+
+        ### tools_maindomain()
+        maindomain:
+            action_help: Main domain change tool
+            arguments: 
+                -o:
+                    full: --old-domain
+                -n:
+                    full: --new-domain
+
         ### tools_postinstall()
         postinstall: 
             action_help: YunoHost post-install
