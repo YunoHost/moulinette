@@ -37,15 +37,17 @@ def colorize(astr, color):
 def pretty_print_dict(d, depth=0):
     for k,v in sorted(d.items(), key=lambda x: x[0]):
         k = colorize(k, 'purple')
+        if isinstance(v, list) and len(v) == 1:
+            v = v[0]
         if isinstance(v, dict):
-            print(("  ")*depth + ("%s: " % k))
+            print(("  ") * depth + ("%s: " % k))
             pretty_print_dict(v, depth+1)
-        if isinstance(v, list):
-            print(("  ")*depth + ("%s: " % k))
+        elif isinstance(v, list):
+            print(("  ") * depth + ("%s: " % k))
             for value in v:
-                print(("  ")*(depth+1) + "- " + value)
+                print(("  ") * (depth+1) + "- " + value)
         else:
-            print(("  ")*depth + "%s: %s" % (k, v))
+            print(("  ") * depth + "%s: %s" % (k, v))
             
 def win_msg(astr):
     """ 

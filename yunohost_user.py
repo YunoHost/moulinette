@@ -9,8 +9,49 @@ import string
 import getpass
 from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
 
-def user_list(args, connections): # TODO : fix
-    print(args)
+def user_list(args, connections):
+    """
+    List YunoHost users from LDAP
+
+    Keyword argument:
+        args -- Dictionnary of values (can be empty)
+        connections -- LDAP connection
+
+    Returns:
+        Dict
+    """
+    yldap = connections['ldap']
+    user_attrs = ['uid', 'mail', 'cn']
+    attrs = []
+    result_dict = {}
+    if args['offset']: offset = int(args['offset'])
+    else: offset = 0
+    if args['limit']: limit = int(args['limit'])
+    else: limit = 1000
+    if args['filter']: filter = args['filter']
+    else: filter = 'uid=*'
+    if args['fields']:
+        for attr in args['fields']:
+            if attr in user_attrs:
+                attrs.append(attr)
+                continue
+            else:
+                raise YunoHostError(22, _("Invalid field : ") + attr)        
+    else:
+        attrs = user_attrs
+
+    result = yldap.search('ou=users,dc=yunohost,dc=org', filter, attrs)
+    
+    if len(result) > (0 + offset) and limit > 0:
+        i = 0 + offset
+        for entry in result[i:]:
+           if i < limit:
+               result_dict[str(i)] = entry 
+               i += 1
+    else:
+        result_dict = { 'Notice' : _("No user found") }
+
+    return result_dict
 
 
 def user_create(args, connections):
@@ -21,7 +62,7 @@ def user_create(args, connections):
         args -- Dictionnary of values (can be empty)
 
     Returns:
-        Boolean
+        Dict
     """
     yldap = connections['ldap']
     args = get_required_args(args, {
