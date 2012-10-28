@@ -80,7 +80,7 @@ def user_create(args, connections):
         'gidNumber'     : uid,
         'uidNumber'     : uid,
         'homeDirectory' : '/home/' + args['username'],
-        'loginShell'    : '/bin/bash'
+        'loginShell'    : '/bin/false'
     }
 
     if yldap.add(rdn, attr_dict):

@@ -130,25 +130,28 @@ def tools_maindomain(args):
     
     # Regenerate certificate
     tmp = '/usr/share/yunohost/yunohost-config'
-    os.system('echo "01" > '+ tmp +'/ssl/yunoCA/serial')
-    os.system('rm '+ tmp +'/ssl/yunoCA/index.txt')
-    os.system('touch '+ tmp +'/ssl/yunoCA/index.txt')
-    os.system('sed -i "s/' + args['old_domain'] + '/' + args['new_domain'] + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf')
-    os.system('openssl req -x509 -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 3650 -out '+ tmp +'/ssl/yunoCA/ca/cacert.pem -keyout '+ tmp +'/ssl/yunoCA/ca/cakey.pem -nodes -batch')
-    os.system('openssl req -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -out '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -keyout '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem -nodes -batch')
-    os.system('openssl ca -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -in '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -out '+ tmp +'/ssl/yunoCA/certs/yunohost_crt.pem -batch')
-    os.system('cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem')
-    os.system('cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/')
-    os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem')
-    os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ejabberd/ejabberd.pem')
-    os.system('echo '+ args['new_domain'] +' > /usr/share/yunohost/yunohost-config/others/current_host')
+    a = os.system('echo "01" > '+ tmp +'/ssl/yunoCA/serial')
+    b = os.system('rm '+ tmp +'/ssl/yunoCA/index.txt')
+    c = os.system('touch '+ tmp +'/ssl/yunoCA/index.txt')
+    d = os.system('sed -i "s/' + args['old_domain'] + '/' + args['new_domain'] + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf')
+    e = os.system('openssl req -x509 -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 3650 -out '+ tmp +'/ssl/yunoCA/ca/cacert.pem -keyout '+ tmp +'/ssl/yunoCA/ca/cakey.pem -nodes -batch')
+    f = os.system('openssl req -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -out '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -keyout '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem -nodes -batch')
+    g = os.system('openssl ca -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -in '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -out '+ tmp +'/ssl/yunoCA/certs/yunohost_crt.pem -batch')
+    h = os.system('cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem')
+    i = os.system('cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/')
+    j = os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem')
+    k = os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ejabberd/ejabberd.pem')
+    l = os.system('echo '+ args['new_domain'] +' > /usr/share/yunohost/yunohost-config/others/current_host')
 
     # Restart services
-    os.system('/etc/init.d/apache2 restart')
-    os.system('/etc/init.d/postfix restart')
-    os.system('/etc/init.d/ejabberd restart')
+    m = os.system('/etc/init.d/apache2 restart')
+    n = os.system('/etc/init.d/postfix restart')
+    o = os.system('/etc/init.d/ejabberd restart')
 
-    return { 'Success' : _("YunoHost main domain has been successfully changed") }
+    if a == b == c == d == e == f == g == h == i == j == k == l == m == n == o:
+        return { 'Success' : _("YunoHost main domain has been successfully changed") }
+    else:
+        return { 'Error' : _("There were a problem during domain changing") }
 
 
 def tools_postinstall(args, connections):
@@ -172,14 +175,14 @@ def tools_postinstall(args, connections):
 
     args = get_required_args(args, {'domain' : _('Main domain name'), 'password' : _('New admin password') }, True)
 
+    # New domain config
+    tools_maindomain({ 'old_domain' : 'yunohost.org', 'new_domain' : args['domain']})
+
     # Initialize YunoHost LDAP base
     tools_ldapinit(args, connections)
 
     # Change LDAP admin password
     tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
-
-    # New domain config
-    tools_maindomain({ 'old_domain' : 'yunohost.org', 'new_domain' : args['domain']})
 
     os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
     
