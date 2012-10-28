@@ -384,11 +384,27 @@ monitor:
                     full: --uptime
                     help: Show Uptime
                     action: store_true
-                -p: 
-                    full: --process
-                    help: Show Process Account
+        process:
+            action_help: Check Process
+            arguments:
+                -e: 
+                    full: --enable
+                    help: Enable process
+                -d:
+                    full: --disable
+                    help: Disable process
+                --start:
+                    help: Start process
+                --stop:
+                    help: Stop process
+                -c:
+                    full: --check
+                    help: Check process
+                -i:
+                    full: --info
+                    help: Process info
                     action: store_true
-    
+                    
 
 #############################
 #         Firewall          #

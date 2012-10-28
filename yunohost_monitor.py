@@ -10,7 +10,7 @@ except ImportError:
     sys.stderr.write('apt-get install python-psutil\n')
     sys.exit(1)
 from datetime import datetime, timedelta
-#from psutil._compat import print_
+from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
 
 def bytes2human(n):
     symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
@@ -27,15 +27,15 @@ def check_disk():
     templ = "%s,%s/%s,%s,%s"
     for part in psutil.disk_partitions(all=False):
         usage = psutil.disk_usage(part.mountpoint)
-        print(templ % (part.mountpoint,
+        result = (templ % (part.mountpoint,
                         bytes2human(usage.used),
                         bytes2human(usage.total),
                         bytes2human(usage.free),
                         int(usage.percent)))
+        print result
 
 def check_cpu():
     print psutil.cpu_percent(interval=1)
-
 
 def check_memory():
     print getattr(psutil.phymem_usage(), "percent")
@@ -51,9 +51,8 @@ def ifconfig():
         print 'MAC NOT FOUND!'
 
 def uptime():
-    uptime = datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)
-    print "Uptime: %s" % (str(uptime).split('.')[0])
-
+    uptimeres = (str(datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)).split('.')[0])
+    return uptimeres
 def processcount():
     processcount = {'total': 0, 'running': 0, 'sleeping': 0}
     process_all = [proc for proc in psutil.process_iter()]
@@ -82,10 +81,22 @@ def processcount():
                 process.append(self.__get_process_stats__(proc))
             except Exception:
                 pass
-    
-    print '%s, %s running, %s sleeping' % (str(processcount['total']),
-                                        str(processcount['running']),
-                                        str(processcount['sleeping']))
+
+def process_enable(args):
+    print 'process_enable'
+
+def process_disable(args):
+    uptime = datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)
+    print "Uptime: %s" % (str(uptime).split('.')[0])
+
+def process_start(args):
+    print 'process_start'
+
+def process_stop(args):
+    print 'process_stop'
+
+def process_check(args):
+    print 'process_check'
 
 
 def monitor_info(args):
@@ -96,8 +107,22 @@ def monitor_info(args):
     elif args['disk']:
        check_disk()
     elif args['ifconfig']:
-       ifconfig() 
+       ifconfig()
     elif args['uptime']:
        uptime()
-    elif args['process']:
+       return { 'Uptime' : uptimeres }
+
+def monitor_process(args):
+    if args['enable']:
+        process_enable()
+    elif args['disable']:
+        process_disable()
+    elif args['start']:
+        process_start()
+    elif args['stop']:
+        process_stop()
+    elif args['check']:
+        process_check()
+    elif args['info']:
         processcount()
+        return { _("Total") : str(processcount['total']), _("Running") : str(processcount['running']), _("Sleeping") : str(processcount['sleeping']) }
