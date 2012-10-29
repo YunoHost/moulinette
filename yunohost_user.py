@@ -21,7 +21,7 @@ def user_list(args, connections):
         Dict
     """
     yldap = connections['ldap']
-    user_attrs = ['uid', 'mail', 'cn']
+    user_attrs = ['uid', 'mail', 'cn', 'mailalias']
     attrs = []
     result_dict = {}
     if args['offset']: offset = int(args['offset'])
@@ -44,10 +44,20 @@ def user_list(args, connections):
     
     if result and len(result) > (0 + offset) and limit > 0:
         i = 0 + offset
-        for entry in result[i:]:
-           if i < limit:
-               result_dict[str(i)] = entry 
-               i += 1
+        for user in result[i:]:
+            if i < limit:
+                entry = {
+                    'Username': user['uid'],
+                    'Fullname': user['cn'],
+                    'Mail': user['mail'][0]
+                }
+                if len(user['mail']) > 1:
+                    entry['Mail Forward'] = user['mail'][1:]
+                if 'mailalias' in user:
+                    entry['Mail Aliases'] = user['mailalias']
+                    
+                result_dict[str(i)] = entry 
+                i += 1
     else:
         raise YunoHostError(167, _("No user found"))
 
