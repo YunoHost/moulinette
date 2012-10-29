@@ -166,6 +166,110 @@ def user_delete(args, connections):
     return result 
             
 
+def user_update(args, connections):
+    """
+    Update user informations
+
+    Keyword argument:
+        args -- Dictionnary of values
+        connections -- LDAP connection
+
+    Returns:
+        Dict
+    """
+    yldap = connections['ldap']
+    validate({ args['user'] : r'^[a-z0-9_]+$' })
+    attrs_to_fetch = ['givenName', 'sn', 'mail', 'mailAlias']
+    new_attr_dict = {}
+
+    # Populate user informations
+    result = yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + args['user'], attrs=attrs_to_fetch)
+    if not result:
+        raise YunoHostError(167, _("No user found"))
+    user = result[0]
+
+    # Get modifications from arguments
+    if args['firstname']:
+        new_attr_dict['givenName'] = args['firstname'] # TODO: Validate
+        new_attr_dict['cn'] = new_attr_dict['displayName'] = args['firstname'] + ' ' + user['sn'][0]
+
+    if args['lastname']:
+        new_attr_dict['sn'] = args['lastname'] # TODO: Validate
+        new_attr_dict['cn'] = new_attr_dict['displayName'] = user['givenName'][0] + ' ' + args['lastname']
+
+    if args['lastname'] and args['firstname']:
+        new_attr_dict['cn'] = new_attr_dict['displayName'] = args['firstname'] + ' ' + args['lastname']
+
+    if args['change_password']:
+        char_set = string.ascii_uppercase + string.digits
+        salt = ''.join(random.sample(char_set,8))
+        salt = '$1$' + salt + '$'
+        new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(args['change_password']), salt)
+
+    if args['mail']:
+        validate({ args['mail'] : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
+        yldap.validate_uniqueness({
+            'mail'      : args['mail'],
+            'mailalias' : args['mail']
+        })
+        del user['mail'][0]
+        new_attr_dict['mail'] = [args['mail']] + user['mail']
+
+    if args['add_mailforward']:
+        if not isinstance(args['add_mailforward'], list):
+            args['add_mailforward'] = [ args['add_mailforward'] ]
+        for mail in args['add_mailforward']:
+            validate({ mail : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
+            yldap.validate_uniqueness({
+                'mail'      : mail,
+                'mailalias' : mail
+            })
+            user['mail'].append(mail)
+        new_attr_dict['mail'] = user['mail']
+
+    if args['remove_mailforward']:
+        if not isinstance(args['remove_mailforward'], list):
+            args['remove_mailforward'] = [ args['remove_mailforward'] ]
+        for mail in args['remove_mailforward']:
+            if len(user['mail']) > 1 and mail in user['mail'][1:]:
+                user['mail'].remove(mail)
+            else:
+                raise YunoHostError(22, _("Invalid mail forward : ") + mail) 
+        new_attr_dict['mail'] = user['mail']
+
+    if args['add_mailalias']:
+        if not isinstance(args['add_mailalias'], list):
+            args['add_mailalias'] = [ args['add_mailalias'] ]
+        for mail in args['add_mailalias']:
+            validate({ mail : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
+            yldap.validate_uniqueness({
+                'mail'      : mail,
+                'mailalias' : mail
+            })
+            if 'mailalias' in user:
+                user['mailalias'].append(mail)
+            else:
+                user['mailalias'] = [ mail ]
+        new_attr_dict['mailalias'] = user['mailalias']
+
+    if args['remove_mailalias']:
+        if not isinstance(args['remove_mailalias'], list):
+            args['remove_mailalias'] = [ args['remove_mailalias'] ]
+        for mail in args['remove_mailalias']:
+            if 'mailalias' in user and mail in user['mailalias']:
+                user['mailalias'].remove(mail)
+            else:
+                raise YunoHostError(22, _("Invalid mail alias : ") + mail) 
+        new_attr_dict['mailalias'] = user['mailalias']
+
+    if yldap.update('uid=' + args['user'] + ',ou=users', new_attr_dict):
+       win_msg(_("User successfully updated"))
+       return user_info({ 'user' : args['user'], 'mail' : None }, connections)
+    else:
+       raise YunoHostError(169, _("An error occured during user update"))
+    
+
+
 def user_info(args, connections):
     """
     Fetch user informations from LDAP
@@ -178,7 +282,7 @@ def user_info(args, connections):
         Dict
     """
     yldap = connections['ldap']
-    user_attrs = ['cn', 'mail', 'uid']
+    user_attrs = ['cn', 'mail', 'uid', 'mailAlias']
 
     if args['mail']:
         validate({ args['mail'] : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
@@ -189,9 +293,21 @@ def user_info(args, connections):
         filter = 'uid=' + args['user']
 
     result = yldap.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)
+    user = result[0]
+    result_dict = {
+        'Username': user['uid'],
+        'Fullname': user['cn'],
+        'Mail': user['mail'][0]
+    }
+
+    if len(user['mail']) > 1:
+        result_dict['Mail Forward'] = user['mail'][1:]
+
+    if 'mailalias' in user:
+        result_dict['Mail Aliases'] = user['mailalias']
 
     if result:
-        return result[0]
+        return result_dict
     else:
         raise YunoHostError(167, _("No user found"))
         

@@ -110,7 +110,7 @@ user:
                     full: --lastname
                 -m: 
                     full: --mail
-                -cp: 
+                -p: 
                     full: --change-password
                     help: New password to set
                     metavar: PASSWORD
@@ -122,11 +122,11 @@ user:
                     help: Mailforward addresses to remove
                     nargs: "+"
                     metavar: MAIL
-                -add-mailalias: 
+                --add-mailalias: 
                     help: Mail aliases to add
                     nargs: "+"
                     metavar: MAIL
-                -remove-mailalias: 
+                --remove-mailalias: 
                     help: Mail aliases to remove
                     nargs: "+"
                     metavar: MAIL

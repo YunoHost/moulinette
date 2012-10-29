@@ -367,9 +367,7 @@ class YunoHostLDAP:
         """
         dn = rdn + ',' + self.base
         actual_entry = self.search(base=dn, attrs=None)
-        if actual_entry[0]['userPassword']:
-            del actual_entry[0]['userPassword']
-        ldif = modlist.modifyModlist(actual_entry[0], attr_dict)
+        ldif = modlist.modifyModlist(actual_entry[0], attr_dict, ignore_oldexistent=1)
 
         try:
             if new_rdn:
