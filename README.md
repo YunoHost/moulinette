@@ -12,7 +12,7 @@ Specifications
                             [-f FILTER] [-l LIMIT]
     yunohost user create [-h] [-u USERNAME] [-l LASTNAME] [-f FIRSTNAME]
                               [-p PASSWORD] [-m MAIL]
-    yunohost user delete [-h] users [users ...]
+    yunohost user delete [-h] [--purge] users [users ...]
     yunohost user update [-h] [-f FIRSTNAME]
                               [--add-mailalias MAIL [MAIL ...]] [-m MAIL]
                               [-l LASTNAME]
