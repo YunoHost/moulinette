@@ -42,14 +42,14 @@ def user_list(args, connections):
 
     result = yldap.search('ou=users,dc=yunohost,dc=org', filter, attrs)
     
-    if len(result) > (0 + offset) and limit > 0:
+    if result and len(result) > (0 + offset) and limit > 0:
         i = 0 + offset
         for entry in result[i:]:
            if i < limit:
                result_dict[str(i)] = entry 
                i += 1
     else:
-        result_dict = { 'Notice' : _("No user found") }
+        raise YunoHostError(167, _("No user found"))
 
     return result_dict
 
@@ -155,6 +155,8 @@ def user_delete(args, connections):
     for user in args['users']:
         validate({ user : r'^[a-z0-9_]+$' })
         if yldap.remove('uid=' + user+ ',ou=users'):
+            if args['purge']:
+                os.system('rm -rf /home/' + user)
             result['Users'].append(user)
             continue
         else:
@@ -163,3 +165,33 @@ def user_delete(args, connections):
     win_msg(_("User(s) successfully deleted"))
     return result 
             
+
+def user_info(args, connections):
+    """
+    Fetch user informations from LDAP
+
+    Keyword argument:
+        args -- Dictionnary of values (can be empty)
+        connections -- LDAP connection
+
+    Returns:
+        Dict
+    """
+    yldap = connections['ldap']
+    user_attrs = ['cn', 'mail', 'uid']
+
+    if args['mail']:
+        validate({ args['mail'] : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
+        filter = 'mail=' + args['mail']
+    else:
+        args = get_required_args(args, { 'user' : _("Username") })
+        validate({ args['user'] : r'^[a-z0-9_]+$' })
+        filter = 'uid=' + args['user']
+
+    result = yldap.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)
+
+    if result:
+        return result[0]
+    else:
+        raise YunoHostError(167, _("No user found"))
+        

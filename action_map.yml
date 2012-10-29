@@ -93,6 +93,8 @@ user:
                 users: 
                     help: Username of users to delete
                     nargs: "+"
+                --purge:
+                    action: store_true
         
         ### user_update()
         update: 
@@ -135,12 +137,10 @@ user:
             connections: 
                 - ldap
             arguments: 
-                user: 
-                    nargs: "?"
+                -u: 
+                    full: --user
                 -m: 
                     full: --mail
-                -cn: 
-                    full: --fullname
     
 
 #############################
