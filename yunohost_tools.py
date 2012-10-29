@@ -30,6 +30,13 @@ def tools_ldapinit(args, connections):
 
     for rdn, attr_dict in ldap_map['childs'].items():
         yldap.add(rdn, attr_dict)
+ 
+    validate({ args['domain'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' })
+    domain_dict = { 
+        'objectClass' : ['mailDomain', 'top'],
+        'virtualdomain' : args['domain']    
+    }
+    yldap.add('virtualdomain=' + args['domain'] + ',ou=domains', domain_dict)
 
     admin_dict = {
         'cn': 'admin',
