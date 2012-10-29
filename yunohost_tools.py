@@ -5,7 +5,7 @@ import sys
 import yaml
 import re
 import getpass
-from yunohost import YunoHostError, validate, colorize, get_required_args
+from yunohost import YunoHostError, validate, colorize, get_required_args, win_msg
 
 
 def tools_ldapinit(args, connections): 
