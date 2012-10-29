@@ -21,7 +21,7 @@ Specifications
                               [--add-mailforward MAIL [MAIL ...]]
                               [-p PASSWORD]
                               user
-    yunohost user info [-h] [-m MAIL] [-cn FULLNAME] [user]
+    yunohost user info [-h] [-u USER] [-m MAIL]
     
     
 ### Domain
