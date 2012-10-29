@@ -245,7 +245,7 @@ class YunoHostError(Exception):
 class YunoHostLDAP:
     """ Specific LDAP functions for YunoHost """
 
-    def __init__(self):
+    def __init__(self, password=False):
         """ 
         Connect to LDAP base 
         
@@ -254,7 +254,10 @@ class YunoHostLDAP:
         """
         self.conn = ldap.initialize('ldap://localhost:389')
         self.base = 'dc=yunohost,dc=org'
-        self.pwd = getpass.getpass(colorize(_('LDAP Admin Password: '), 'yellow'))
+        if password:
+            self.pwd = password
+        else:
+            self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
         try:
             self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
         except ldap.INVALID_CREDENTIALS:

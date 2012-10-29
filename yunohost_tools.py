@@ -5,7 +5,7 @@ import sys
 import yaml
 import re
 import getpass
-from yunohost import YunoHostError, validate, colorize, get_required_args, win_msg
+from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 
 
 def tools_ldapinit(args, connections): 
@@ -154,7 +154,7 @@ def tools_maindomain(args):
         raise YunoHostError(17, _("There were a problem during domain changing"))
 
 
-def tools_postinstall(args, connections):
+def tools_postinstall(args):
     """
     Post-install configuration
     
@@ -166,6 +166,7 @@ def tools_postinstall(args, connections):
         dict
 
     """
+    connections = { 'ldap' : YunoHostLDAP(password='yunohost') } 
     try:
         with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
     except IOError:

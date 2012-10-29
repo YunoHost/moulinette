@@ -480,8 +480,6 @@ tools:
         ### tools_postinstall()
         postinstall: 
             action_help: YunoHost post-install
-            connections: 
-                - ldap
             arguments: 
                 -d: 
                     full: --domain
