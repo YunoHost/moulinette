@@ -137,7 +137,7 @@ def get_required_args(args, required_args, password=False):
                 else:
                     raise YunoHostError(22, _("Missing arguments"))
     except KeyboardInterrupt, EOFError:
-        raise YunoHostError(125, _("Interrupted, YunoHost not configured"))
+        raise YunoHostError(125, _("Interrupted"))
 
     return args
 
