@@ -60,6 +60,7 @@ def user_create(args, connections):
 
     Keyword argument:
         args -- Dictionnary of values (can be empty)
+        connections -- LDAP connections
 
     Returns:
         Dict
@@ -132,3 +133,33 @@ def user_create(args, connections):
         return { _("Fullname") : fullname, _("Username") : args['username'], _("Mail") : args['mail'] }
     else:
         raise YunoHostError(169, _("An error occured during user creation"))
+
+
+def user_delete(args, connections):
+    """
+    Remove user from LDAP
+
+    Keyword argument:
+        args -- Dictionnary of values (can be empty)
+        connections -- LDAP connection
+
+    Returns:
+        Dict
+    """
+    yldap = connections['ldap']
+    result = { 'Users' : [] }
+
+    if not isinstance(args['users'], list):
+        args['users'] = [ args['users'] ]
+
+    for user in args['users']:
+        validate({ user : r'^[a-z0-9_]+$' })
+        if yldap.remove('uid=' + user+ ',ou=users'):
+            result['Users'].append(user)
+            continue
+        else:
+            raise YunoHostError(169, _("An error occured during user deletion"))
+
+    win_msg(_("User(s) successfully deleted"))
+    return result 
+            

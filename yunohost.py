@@ -332,6 +332,25 @@ class YunoHostLDAP:
         else:
             return True
 
+    def remove(self, rdn):
+        """ 
+        Remove LDAP entry 
+        
+        Keyword arguments:
+            rdn         -- DN without domain
+
+        Returns:
+            Boolean | YunoHostError
+
+        """
+        dn = rdn + ',' + self.base
+        try:
+            self.conn.delete_s(dn)
+        except:
+            raise YunoHostError(169, _('An error occured during LDAP entry deletion'))
+        else:
+            return True
+
 
     def update(self, rdn, attr_dict, new_rdn=False):
         """ 
