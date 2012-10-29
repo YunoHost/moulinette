@@ -159,6 +159,7 @@ def user_delete(args, connections):
     yldap = connections['ldap']
     result = { 'Users' : [] }
 
+    args = get_required_args(args, { 'users' : _('User to delete') })
     if not isinstance(args['users'], list):
         args['users'] = [ args['users'] ]
 

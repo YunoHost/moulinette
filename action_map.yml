@@ -92,7 +92,7 @@ user:
             arguments: 
                 users: 
                     help: Username of users to delete
-                    nargs: "+"
+                    nargs: "*"
                 --purge:
                     action: store_true
         
@@ -184,7 +184,7 @@ domain:
             arguments: 
                 domain: 
                     help: Domain(s) to delete
-                    nargs: "+"
+                    nargs: "*"
                 
         ### domain_info()
         info: 

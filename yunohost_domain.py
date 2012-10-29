@@ -72,3 +72,31 @@ def domain_add(args, connections):
     return { 'Domains' : result } 
 
 
+def domain_remove(args, connections):
+    """
+    Remove domain from LDAP
+
+    Keyword argument:
+        args -- Dictionnary of values
+        connections -- LDAP connection
+
+    Returns:
+        Dict
+    """
+    yldap = connections['ldap']
+    result = []
+
+    args = get_required_args(args, { 'domain' : _('Domain to remove') })
+    if not isinstance(args['domain'], list):
+        args['domain'] = [ args['domain'] ]
+
+    for domain in args['domain']:
+        validate({ domain : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' })
+        if yldap.remove('virtualdomain=' + domain + ',ou=domains'):
+            result.append(domain)
+            continue
+        else:
+            raise YunoHostError(169, _("An error occured during domain deletion"))
+
+    win_msg(_("Domain(s) successfully deleted"))
+    return { 'Domains' : result }
