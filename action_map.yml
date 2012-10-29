@@ -459,6 +459,10 @@ tools:
             action_help: YunoHost LDAP initialization
             connections: 
                 - ldap
+            arguments:
+                -d: 
+                    full: --domain
+                    help: YunoHost main domain
 
         ### tools_adminpw()
         adminpw: 
