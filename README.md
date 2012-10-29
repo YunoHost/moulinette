@@ -69,7 +69,10 @@ Specifications
     
 ### Tools
     
-    yunohost tools support #FIX
+    yunohost tools postinstall [-h] [-d DOMAIN] [-p PASSWORD]
+    yunohost tools maindomain [-h] [-o OLD_DOMAIN] [-n NEW_DOMAIN]
+    yunohost tools adminpw [-h] [-o OLD_PASSWORD] [-n NEW_PASSWORD]
+    yunohost tools ldapinit [-h]
     
 
 How to use "as is" ?
