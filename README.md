@@ -13,12 +13,13 @@ Specifications
     yunohost user create [-h] [-u USERNAME] [-l LASTNAME] [-f FIRSTNAME]
                               [-p PASSWORD] [-m MAIL]
     yunohost user delete [-h] users [users ...]
-    yunohost user update [-h] [-remove-mailalias MAIL [MAIL ...]]
-                              [-add-mailalias MAIL [MAIL ...]] [-f FIRSTNAME]
-                              [-m MAIL] [-l LASTNAME]
+    yunohost user update [-h] [-f FIRSTNAME]
+                              [--add-mailalias MAIL [MAIL ...]] [-m MAIL]
+                              [-l LASTNAME]
                               [--remove-mailforward MAIL [MAIL ...]]
+                              [--remove-mailalias MAIL [MAIL ...]]
                               [--add-mailforward MAIL [MAIL ...]]
-                              [-cp PASSWORD]
+                              [-p PASSWORD]
                               user
     yunohost user info [-h] [-m MAIL] [-cn FULLNAME] [user]
     
