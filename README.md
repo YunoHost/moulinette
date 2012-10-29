@@ -27,8 +27,8 @@ Specifications
 ### Domain
     
     yunohost domain list [-h] [-l LIMIT] [-o OFFSET] [-f FILTER]
-    yunohost domain add [-h] domain
-    yunohost domain remove [-h] domain [domain ...]
+    yunohost domain add [-h] [domain [domain ...]]
+    yunohost domain remove [-h] [domain [domain ...]]
     yunohost domain info [-h] domain
     yunohost domain renewcert [-h] domain
     
