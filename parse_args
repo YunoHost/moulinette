@@ -130,8 +130,8 @@ def main():
         return error.code
     else: 
         if result is None:
-            result = { 'Notice' : 'No result returned' }
-        if os.isatty(1):
+            pass
+        elif os.isatty(1):
             pretty_print_dict(result)
         else:
             print(json.dumps(result))

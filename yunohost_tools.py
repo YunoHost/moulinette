@@ -44,7 +44,7 @@ def tools_ldapinit(args, connections):
 
     yldap.update('cn=admin', admin_dict)
 
-    return { 'Success' : _("LDAP has been successfully initialized") }
+    win_msg(_("LDAP has been successfully initialized"))
 
 
 def tools_adminpw(args): 
@@ -74,7 +74,7 @@ def tools_adminpw(args):
     result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ args['old'] +'" -a "'+ args['old'] +'" -s "' + args['new'] + '"')
 
     if result == 0:
-        return { 'Success' : _("Admin password has been changed") }
+        win_msg(_("Admin password has been changed"))
     else:
         raise YunoHostError(22, _("Invalid password"))
 
@@ -149,9 +149,9 @@ def tools_maindomain(args):
     o = os.system('/etc/init.d/ejabberd restart')
 
     if a == b == c == d == e == f == g == h == i == j == k == l == m == n == o:
-        return { 'Success' : _("YunoHost main domain has been successfully changed") }
+        win_msg(_("YunoHost main domain has been successfully changed"))
     else:
-        return { 'Error' : _("There were a problem during domain changing") }
+        raise YunoHostError(17, _("There were a problem during domain changing"))
 
 
 def tools_postinstall(args, connections):
@@ -186,4 +186,4 @@ def tools_postinstall(args, connections):
 
     os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
     
-    return { 'Success' : _("YunoHost has been successfully configured") }
+    win_msg(_("YunoHost has been successfully configured"))
