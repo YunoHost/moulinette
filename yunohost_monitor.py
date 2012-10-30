@@ -9,6 +9,12 @@ except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require psutil\n')
     sys.stderr.write('apt-get install python-psutil\n')
     sys.exit(1)
+try:
+    import netifaces
+except ImportError:
+    sys.stderr.write('Error: Yunohost CLI Require netifaces\n')
+    sys.stderr.write('apt-get install python-netifaces\n')
+    sys.exit(1)
 from datetime import datetime, timedelta
 from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
 
@@ -27,32 +33,32 @@ def check_disk():
     templ = "%s,%s/%s,%s,%s"
     for part in psutil.disk_partitions(all=False):
         usage = psutil.disk_usage(part.mountpoint)
-        result = (templ % (part.mountpoint,
-                        bytes2human(usage.used),
-                        bytes2human(usage.total),
-                        bytes2human(usage.free),
-                        int(usage.percent)))
-        print result
+        return { _("Partition") : (part.mountpoint, bytes2human(usage.used), bytes2human(usage.total), bytes2human(usage.free), int(usage.percent)) }
 
 def check_cpu():
-    print psutil.cpu_percent(interval=1)
+     return { _("CPU") : psutil.cpu_percent(interval=3) }
 
 def check_memory():
-    print getattr(psutil.phymem_usage(), "percent")
-    print getattr(psutil.virtmem_usage(), "percent")
+    mem = getattr(psutil.phymem_usage(), "percent")
+    swap = getattr(psutil.virtmem_usage(), "percent")
+    return { _("Memory") : mem, _("Swap") : swap }
 
 def ifconfig():
-    output = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE).communicate()[0]
-    if 'HWaddr' in output:
-        mac = output[(output.find('HWaddr')+7):(output.find('HWaddr')+24)]
-        ip = output[(output.find('Bcast')-15):(output.find('inet')+22)]
-        print 'MAC: ' + mac + ' IP: ' +ip
-    else:
-        print 'MAC NOT FOUND!'
+    listinterfaces = netifaces.interfaces()[1:]
+    for interface in listinterfaces:
+        try:
+            for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
+                ip = link['addr']
+                for link in netifaces.ifaddresses(interface)[netifaces.AF_LINK]:
+                    mac = link['addr']
+        except:
+            pass
+    return { _('IP') : ip, _('MAC') : mac }
 
 def uptime():
-    uptimeres = (str(datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)).split('.')[0])
-    return uptimeres
+    uptime = (str(datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)).split('.')[0])
+    return { _("Uptime") : uptime }
+
 def processcount():
     processcount = {'total': 0, 'running': 0, 'sleeping': 0}
     process_all = [proc for proc in psutil.process_iter()]
@@ -81,19 +87,27 @@ def processcount():
                 process.append(self.__get_process_stats__(proc))
             except Exception:
                 pass
+    return { _("Total") : str(processcount['total']), _("Running") :  str(processcount['running']),  _("Sleeping") :  str(processcount['sleeping']) }
 
 def process_enable(args):
     print 'process_enable'
 
 def process_disable(args):
-    uptime = datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)
-    print "Uptime: %s" % (str(uptime).split('.')[0])
+    print 'process disable'
 
 def process_start(args):
-    print 'process_start'
+    output = subprocess.Popen(['service', args, 'start'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    if output.wait() == 0:
+        return { _('Start') + " "  + args : "OK" }
+    else:
+        raise YunoHostError(1, _('Start failure'))
 
 def process_stop(args):
-    print 'process_stop'
+    output = subprocess.Popen(['service', args, 'stop'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    if output.wait() == 0:
+        return { _('Stop') + " "  + args : "OK" }
+    else:
+        raise YunoHostError(1, _('Start failure'))
 
 def process_check(args):
     print 'process_check'
@@ -101,28 +115,33 @@ def process_check(args):
 
 def monitor_info(args):
     if args['memory']:
-       check_memory()
+       resultat = check_memory()
+       return resultat
     elif args['cpu']:
-        check_cpu()
+        resultat = check_cpu()
+        return resultat
     elif args['disk']:
-       check_disk()
+       resultat = check_disk()
+       return resultat
     elif args['ifconfig']:
-       ifconfig()
+       resultat = ifconfig()
+       return resultat
     elif args['uptime']:
-       uptime()
-       return { 'Uptime' : uptimeres }
+       resultat = uptime()
+       return resultat
 
 def monitor_process(args):
     if args['enable']:
-        process_enable()
+        process_enable(args['enable'])
     elif args['disable']:
-        process_disable()
+        process_disable(args['disable'])
     elif args['start']:
-        process_start()
+        resultat = process_start(args['start'])
+        return resultat
     elif args['stop']:
-        process_stop()
+        process_stop(args['stop'])
     elif args['check']:
-        process_check()
+        process_check(args['check'])
     elif args['info']:
-        processcount()
-        return { _("Total") : str(processcount['total']), _("Running") : str(processcount['running']), _("Sleeping") : str(processcount['sleeping']) }
+        resultat = processcount()
+        return resultat
