@@ -2,6 +2,8 @@
 
 import os
 import sys
+import datetime
+import requests
 from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
 
 def domain_list(args, connections):
@@ -51,6 +53,10 @@ def domain_add(args, connections):
     """
     yldap = connections['ldap']
     attr_dict = { 'objectClass' : ['mailDomain', 'top'] }
+    request_ip = requests.get('http://ip.yunohost.org')
+    ip = str(request_ip.text)
+    now = datetime.datetime.now()
+    timestamp = str(now.year) + str(now.month) + str(now.day) 
     result = []
 
     args = get_required_args(args, { 'domain' : _('New domain') })
@@ -61,6 +67,27 @@ def domain_add(args, connections):
         validate({ domain : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' })
         yldap.validate_uniqueness({ 'virtualdomain' : domain })
         attr_dict['virtualdomain'] = domain
+
+        try:
+            with open('/var/lib/bind/'+ domain +'.zone') as f: pass
+        except IOError as e:
+            zone_lines = [
+             '$TTL    38400',
+             domain +'.      IN SOA ns.'+ domain +'. root.'+ domain +'. '+ timestamp +' 10800 3600 604800 38400',
+             domain +'.      IN NS  ns.'+ domain +'.',
+             domain +'.      IN A   '+ ip,
+             domain +'.      IN MX  5 mail.'+ domain +'.',
+             domain +'.      IN TXT "v=spf1 a mx a:'+ domain +' ?all"',
+             'mail.'+ domain +'. IN A   '+ ip,
+             'ns.'+ domain +'.   IN A   '+ ip,
+             'root.'+ domain +'. IN A   '+ ip
+            ]
+            with open('/var/lib/bind/' + domain + '.zone', 'w') as zone:
+                for line in zone_lines:
+                    zone.write(line + '\n')
+        else:
+            raise YunoHostError(17, _("Zone file already exists for ") + domain)
+
         if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
             result.append(domain)
             continue
@@ -93,6 +120,10 @@ def domain_remove(args, connections):
     for domain in args['domain']:
         validate({ domain : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' })
         if yldap.remove('virtualdomain=' + domain + ',ou=domains'):
+            try:
+                os.remove('/var/lib/bind/'+ domain +'.zone')
+            except:
+                pass
             result.append(domain)
             continue
         else:
