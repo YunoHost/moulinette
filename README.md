@@ -64,7 +64,10 @@ Specifications
     
 ### Monitoring
     
-    yunohost monitor info #FIX
+    yunohost monitor info [-h] [-u] [-d] [-p] [-c] [-m] [-i]
+    yunohost monitor process [-h] [-e PROCESS] [-d PROCESS]
+                                  [--stop PROCESS] [-c PORT] [-i]
+                                  [--start PROCESS]
     
     
 ### Tools
