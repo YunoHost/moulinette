@@ -74,6 +74,13 @@ def public():
         raise YunoHostError(1, _("No connection") )
     return { 'Public IP' : ip }
 
+def public():
+    try:
+        ip = str(urlopen('http://ip.yunohost.org').read())
+    except:
+        raise YunoHostError(1, "No connection" )
+    return { _("Public IP"): ip }
+
 def processcount():
     processcount = {'total': 0, 'running': 0, 'sleeping': 0}
     process_all = [proc for proc in psutil.process_iter()]
