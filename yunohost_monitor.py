@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+from urllib import urlopen
 try:
     import psutil
 except ImportError:
@@ -33,7 +34,7 @@ def check_disk():
     templ = "%s,%s/%s,%s,%s"
     for part in psutil.disk_partitions(all=False):
         usage = psutil.disk_usage(part.mountpoint)
-        return { _("Partition") : (part.mountpoint, bytes2human(usage.used), bytes2human(usage.total), bytes2human(usage.free), int(usage.percent)) }
+    return { _("Partition") : (part.mountpoint, bytes2human(usage.used), bytes2human(usage.total), bytes2human(usage.free), int(usage.percent)) }
 
 def check_cpu():
      return { _("CPU") : psutil.cpu_percent(interval=3) }
@@ -58,6 +59,13 @@ def ifconfig():
 def uptime():
     uptime = (str(datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)).split('.')[0])
     return { _("Uptime") : uptime }
+
+def public():
+    try:
+        ip = str(urlopen('http://ip.yunohost.org').read())
+    except:
+        raise YunoHostError(1, "No connection" )
+    return { _("Public IP"): ip }
 
 def processcount():
     processcount = {'total': 0, 'running': 0, 'sleeping': 0}
@@ -90,27 +98,46 @@ def processcount():
     return { _("Total") : str(processcount['total']), _("Running") :  str(processcount['running']),  _("Sleeping") :  str(processcount['sleeping']) }
 
 def process_enable(args):
-    print 'process_enable'
+    output = subprocess.Popen(['update-rc.d', args, 'defaults'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    if output.wait() == 0:
+        resultat = process_start(args)
+        return resultat
+    else:
+        raise YunoHostError(1, _('Enable ' + agrs + ' failure'))
 
 def process_disable(args):
-    print 'process disable'
+    output = subprocess.Popen(['update-rc.d', args, 'remove'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    if output.wait() == 0:
+        resultat = process_stop(args)
+        return resultat
+    else:
+        raise YunoHostError(1, _('Disable ' + agrs + ' failure'))
 
 def process_start(args):
     output = subprocess.Popen(['service', args, 'start'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     if output.wait() == 0:
-        return { _('Start') + " "  + args : "OK" }
+        return { args.title() + " "  + _('Start') : "OK" }
     else:
-        raise YunoHostError(1, _('Start failure'))
+        raise YunoHostError(1, _('Start ' + args + ' failure'))
 
 def process_stop(args):
     output = subprocess.Popen(['service', args, 'stop'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     if output.wait() == 0:
-        return { _('Stop') + " "  + args : "OK" }
+        return { args.title() + " "  + _('Stop') : "OK" }
     else:
-        raise YunoHostError(1, _('Start failure'))
+        raise YunoHostError(1, _('Stop ' + args + ' failure'))
 
 def process_check(args):
-    print 'process_check'
+    ip = public()['Public IP']
+    output = os.system('/usr/lib/nagios/plugins/check_tcp -H localhost -p' + args  + ' > /dev/null')
+    if output == 0:
+        output = os.system('/usr/lib/nagios/plugins/check_tcp -H ' + ip + ' -p' + args  + ' > /dev/null')
+        if output == 0:
+            return { _("Port") + " " + args : _("is open") }
+        else:
+            raise YunoHostError(1, "Port " + args + " is closed in your box" )
+    else:
+        raise YunoHostError(1, args + " is closed" )
 
 
 def monitor_info(args):
@@ -129,19 +156,26 @@ def monitor_info(args):
     elif args['uptime']:
        resultat = uptime()
        return resultat
+    elif args['public']:
+       resultat = public()
+       return resultat
 
 def monitor_process(args):
     if args['enable']:
-        process_enable(args['enable'])
+        resultat = process_enable(args['enable'])
+        return resultat
     elif args['disable']:
-        process_disable(args['disable'])
+        resultat = process_disable(args['disable'])
+        return resultat
     elif args['start']:
         resultat = process_start(args['start'])
         return resultat
     elif args['stop']:
-        process_stop(args['stop'])
+        resultat = process_stop(args['stop'])
+        return resultat
     elif args['check']:
-        process_check(args['check'])
+        resultat = process_check(args['check'])
+        return resultat
     elif args['info']:
         resultat = processcount()
         return resultat
