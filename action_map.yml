@@ -379,11 +379,15 @@ monitor:
                     action: store_true
                 -i: 
                     full: --ifconfig
-                    help: Ifconfig
+                    help: Show Ip and MAC Adress
                     action: store_true
                 -u: 
                     full: --uptime
                     help: Show Uptime
+                    action: store_true
+                -p:
+                    full: --public
+                    help: Show IP public
                     action: store_true
         process:
             action_help: Check Process
@@ -391,16 +395,21 @@ monitor:
                 -e: 
                     full: --enable
                     help: Enable process
+                    metavar: PROCESS
                 -d:
                     full: --disable
                     help: Disable process
+                    metavar: PROCESS
                 --start:
                     help: Start process
+                    metavar: PROCESS
                 --stop:
                     help: Stop process
+                    metavar: PROCESS
                 -c:
                     full: --check
                     help: Check process
+                    metavar: PORT
                 -i:
                     full: --info
                     help: Process info
