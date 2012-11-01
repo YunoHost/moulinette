@@ -31,18 +31,25 @@ def bytes2human(n):
     return "%sB" % n
 
 def check_disk():
-    templ = "%s,%s/%s,%s,%s"
+    result = {}
     for part in psutil.disk_partitions(all=False):
         usage = psutil.disk_usage(part.mountpoint)
-    return { _("Partition") : (part.mountpoint, bytes2human(usage.used), bytes2human(usage.total), bytes2human(usage.free), int(usage.percent)) }
+        result[part.mountpoint] = { 'Total' : str(bytes2human(usage.total)), 'Used' : str(bytes2human(usage.used)),
+        'Free' : str(bytes2human(usage.free)), 'Percent' : str(usage.percent) + '%' }
+    return { 'Partition' : result }
 
 def check_cpu():
-     return { _("CPU") : psutil.cpu_percent(interval=3) }
+     return { 'CPU' : psutil.cpu_percent(interval=3) }
 
 def check_memory():
-    mem = getattr(psutil.phymem_usage(), "percent")
-    swap = getattr(psutil.virtmem_usage(), "percent")
-    return { _("Memory") : mem, _("Swap") : swap }
+    mem = getattr(psutil.phymem_usage(), "total")
+    memused = getattr(psutil.phymem_usage(), "used")
+    mempercent = getattr(psutil.phymem_usage(), "percent")
+    swap = getattr(psutil.virtmem_usage(), "total")
+    swapused = getattr(psutil.virtmem_usage(), "used")
+    swappercent = getattr(psutil.virtmem_usage(), "percent")
+    return { 'Memory' : { 'Total' : str(bytes2human(mem)), 'Used' : str(bytes2human(memused)), 'Percent' : str(mempercent) + '%' },
+    'Swap' : { 'Total' : str(bytes2human(swap)), 'Used' : str(bytes2human(swapused)), 'Percent' : str(swappercent) + '%' } }
 
 def ifconfig():
     listinterfaces = netifaces.interfaces()[1:]
@@ -54,11 +61,18 @@ def ifconfig():
                     mac = link['addr']
         except:
             pass
-    return { _('IP') : ip, _('MAC') : mac }
+    return { 'IP' : ip, 'MAC' : mac }
 
 def uptime():
     uptime = (str(datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)).split('.')[0])
-    return { _("Uptime") : uptime }
+    return { 'Uptime' : uptime }
+
+def public():
+    try:
+        ip = str(urlopen('http://ip.yunohost.org').read())
+    except:
+        raise YunoHostError(1, _("No connection") )
+    return { 'Public IP' : ip }
 
 def public():
     try:
@@ -95,7 +109,7 @@ def processcount():
                 process.append(self.__get_process_stats__(proc))
             except Exception:
                 pass
-    return { _("Total") : str(processcount['total']), _("Running") :  str(processcount['running']),  _("Sleeping") :  str(processcount['sleeping']) }
+    return { 'Total' : str(processcount['total']), 'Running' :  str(processcount['running']),  'Sleeping' :  str(processcount['sleeping']) }
 
 def process_enable(args):
     output = subprocess.Popen(['update-rc.d', args, 'defaults'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -103,7 +117,7 @@ def process_enable(args):
         resultat = process_start(args)
         return resultat
     else:
-        raise YunoHostError(1, _('Enable ' + agrs + ' failure'))
+        raise YunoHostError(1, 'Enable : ' + args.title() + " " + _("failure"))
 
 def process_disable(args):
     output = subprocess.Popen(['update-rc.d', args, 'remove'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -111,21 +125,21 @@ def process_disable(args):
         resultat = process_stop(args)
         return resultat
     else:
-        raise YunoHostError(1, _('Disable ' + agrs + ' failure'))
+        raise YunoHostError(1, 'Disable : ' + args.title() + " " + _("failure"))
 
 def process_start(args):
     output = subprocess.Popen(['service', args, 'start'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     if output.wait() == 0:
-        return { args.title() + " "  + _('Start') : "OK" }
+        return { 'Start' : args.title() }
     else:
-        raise YunoHostError(1, _('Start ' + args + ' failure'))
+        raise YunoHostError(1, 'Start : ' + args.title() + " " + _("failure"))
 
 def process_stop(args):
     output = subprocess.Popen(['service', args, 'stop'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     if output.wait() == 0:
-        return { args.title() + " "  + _('Stop') : "OK" }
+        return { 'Stop' : args.title() }
     else:
-        raise YunoHostError(1, _('Stop ' + args + ' failure'))
+        raise YunoHostError(1, 'Stop : ' + args.title() + " " + _("failure"))
 
 def process_check(args):
     ip = public()['Public IP']
@@ -133,11 +147,11 @@ def process_check(args):
     if output == 0:
         output = os.system('/usr/lib/nagios/plugins/check_tcp -H ' + ip + ' -p' + args  + ' > /dev/null')
         if output == 0:
-            return { _("Port") + " " + args : _("is open") }
+            return { 'Port' : args + " " + _("is open") }
         else:
-            raise YunoHostError(1, "Port " + args + " is closed in your box" )
+            return { 'Warning' : args + " " + _("is closed in your box") }
     else:
-        raise YunoHostError(1, args + " is closed" )
+        raise YunoHostError(1, args + " " + _("is closed") )
 
 
 def monitor_info(args):
