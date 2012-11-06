@@ -3,7 +3,8 @@
 import os
 import sys
 import datetime
-import requests
+import re
+from urllib import urlopen
 from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
 
 def domain_list(args, connections):
@@ -53,8 +54,7 @@ def domain_add(args, connections):
     """
     yldap = connections['ldap']
     attr_dict = { 'objectClass' : ['mailDomain', 'top'] }
-    request_ip = requests.get('http://ip.yunohost.org')
-    ip = str(request_ip.text)
+    ip = str(urlopen('http://ip.yunohost.org').read())
     now = datetime.datetime.now()
     timestamp = str(now.year) + str(now.month) + str(now.day) 
     result = []
@@ -73,20 +73,34 @@ def domain_add(args, connections):
         except IOError as e:
             zone_lines = [
              '$TTL    38400',
-             domain +'.      IN SOA ns.'+ domain +'. root.'+ domain +'. '+ timestamp +' 10800 3600 604800 38400',
-             domain +'.      IN NS  ns.'+ domain +'.',
-             domain +'.      IN A   '+ ip,
-             domain +'.      IN MX  5 mail.'+ domain +'.',
-             domain +'.      IN TXT "v=spf1 a mx a:'+ domain +' ?all"',
-             'mail.'+ domain +'. IN A   '+ ip,
-             'ns.'+ domain +'.   IN A   '+ ip,
-             'root.'+ domain +'. IN A   '+ ip
+             domain +'.      IN   SOA   ns.'+ domain +'. root.'+ domain +'. '+ timestamp +' 10800 3600 604800 38400',
+             domain +'.      IN   NS    ns.'+ domain +'.',
+             domain +'.      IN   A     '+ ip,
+             domain +'.      IN   MX    5 mail.'+ domain +'.',
+             domain +'.      IN   TXT   "v=spf1 a mx a:'+ domain +' ?all"',
+             'mail.'+ domain +'. IN   A     '+ ip,
+             'ns.'+ domain +'.   IN   A     '+ ip,
+             'root.'+ domain +'. IN   A     '+ ip
             ]
             with open('/var/lib/bind/' + domain + '.zone', 'w') as zone:
                 for line in zone_lines:
                     zone.write(line + '\n')
         else:
             raise YunoHostError(17, _("Zone file already exists for ") + domain)
+
+        conf_lines = [
+            'zone "'+ domain +'" {',
+            '    type master;',
+            '    file "/var/lib/bind/'+ domain +'.zone";',
+            '    allow-transfer {',
+            '        127.0.0.1;',
+            '        localnets;',
+            '    };',
+            '};'
+        ]
+        with open('/etc/bind/named.conf.local', 'a') as conf:
+            for line in conf_lines:
+                    conf.write(line + '\n')
 
         if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
             result.append(domain)
@@ -124,6 +138,18 @@ def domain_remove(args, connections):
                 os.remove('/var/lib/bind/'+ domain +'.zone')
             except:
                 pass
+            with open('/etc/bind/named.conf.local', 'r') as conf:
+                conf_lines = conf.readlines()
+            with open('/etc/bind/named.conf.local', 'w') as conf:
+                in_block = False
+                for line in conf_lines:
+                    if re.search(r'^zone "'+ domain, line):
+                        in_block = True
+                    if in_block:
+                        if re.search(r'^};$', line):
+                            in_block = False
+                    else:
+                        conf.write(line)
             result.append(domain)
             continue
         else:
@@ -131,3 +157,4 @@ def domain_remove(args, connections):
 
     win_msg(_("Domain(s) successfully deleted"))
     return { 'Domains' : result }
+
