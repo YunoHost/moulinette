@@ -58,6 +58,7 @@ user:
                -f: 
                     full: --filter
                     help: LDAP filter used to search
+                    pattern: 'yayaya'
                -l: 
                     full: --limit
                     help: Maximum number of user fetched 
