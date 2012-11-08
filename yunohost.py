@@ -99,6 +99,7 @@ def validate(regex_dict):
         Boolean | YunoHostError
 
     """
+    print regex_dict
     for attr, pattern in regex_dict.items():
         if re.match(pattern, attr):
             continue
@@ -242,27 +243,35 @@ class YunoHostError(Exception):
             self.desc = code
 
 
-class YunoHostLDAP:
+class YunoHostLDAP(object):
     """ Specific LDAP functions for YunoHost """
+    conn = None
 
-    def __init__(self, password=False):
+    def __enter__(self, password=False):
         """ 
         Connect to LDAP base 
         
         Initialize to localhost, base yunohost.org, prompt for password
 
         """
-        self.conn = ldap.initialize('ldap://localhost:389')
-        self.base = 'dc=yunohost,dc=org'
-        if password:
-            self.pwd = password
-        else:
-            self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
-        try:
-            self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
-        except ldap.INVALID_CREDENTIALS:
-            raise YunoHostError(13, _('Invalid credentials'))
+        if self.conn is None:
+            self.conn = ldap.initialize('ldap://localhost:389')
+            self.base = 'dc=yunohost,dc=org'
+            if password:
+                self.pwd = password
+            else:
+                try:
+                    self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
+                except KeyboardInterrupt, EOFError:
+                    raise YunoHostError(125, _("Interrupted"))
+            try:
+                self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
+            except ldap.INVALID_CREDENTIALS:
+                raise YunoHostError(13, _('Invalid credentials'))
+        return self
 
+    def __exit__(self, type, value, traceback):
+        self.disconnect()
 
     def disconnect(self):
         """ 

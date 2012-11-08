@@ -24,6 +24,7 @@ import os
 import sys
 import argparse
 import gettext
+import getpass
 try:
     import yaml
 except ImportError:
@@ -38,7 +39,7 @@ if not __debug__:
 gettext.install('YunoHost')
 
 try:
-    from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, connect_services, disconnect_services, validate
+    from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate
 except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require YunoHost lib\n')
     sys.exit(1)
@@ -59,6 +60,8 @@ def parse_dict(action_map):
     parsers = subparsers_category = subparsers_action = {}
     parsers['general'] = argparse.ArgumentParser()
     subparsers = parsers['general'].add_subparsers()
+    new_args = []
+    patterns = {} 
 
     # Add general arguments
     for arg_name, arg_params in action_map['general_arguments'].items():
@@ -88,28 +91,59 @@ def parse_dict(action_map):
                 # Add arguments
                 if 'arguments' in action_params:
                     for arg_name, arg_params in action_params['arguments'].items():
+                        if 'password' in arg_params:
+                            if arg_params['password']: is_password = True
+                            del arg_params['password']
+                        else: is_password = False
+
                         if 'full' in arg_params:
-                            arg_fullname = arg_params['full']
+                            arg_names = [arg_name, arg_params['full']]
                             del arg_params['full']
-                        else:
-                            arg_fullname = False
+                        else: arg_names = [arg_name]
+
+                        if 'ask' in arg_params:
+                            require_input = True
+                            if (category != sys.argv[1]) or (action != sys.argv[2]):
+                                require_input = False
+                            for name in arg_names:
+                                if name in sys.argv: require_input = False
+
+                            if require_input:
+                                if is_password:
+                                    if os.isatty(1):
+                                        pwd1 = getpass.getpass(colorize(arg_params['ask'] + ': ', 'cyan'))
+                                        pwd2 = getpass.getpass(colorize('Retype ' + arg_params['ask'][0].lower() + arg_params['ask'][1:] + ': ', 'cyan'))
+                                        if pwd1 != pwd2:
+                                            raise YunoHostError(22, _("Passwords don't match"))
+                                            sys.exit(1)
+                                    else:
+                                        raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
+                                    new_args.extend([arg_name, pwd1])
+                                else:
+                                    if os.isatty(1):
+                                        arg_value = raw_input(colorize(arg_params['ask'] + ': ', 'cyan'))
+                                    else:
+                                        raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
+                                    new_args.extend([arg_name, arg_value])
+                            del arg_params['ask']
 
                         if 'pattern' in arg_params:
-                            pattern = arg_params['pattern']
-                            del arg_params['pattern']
-                            def pmatch(string):
-                                validate({ string : pattern })
-                            if arg_fullname:
-                                parsers[category + '_' + action].add_argument(arg_name, arg_fullname, type=pmatch, **arg_params)
-                            else:
-                                parsers[category + '_' + action].add_argument(arg_name, type=pmatch, **arg_params)
-                        else:
-                            if arg_fullname:
-                                parsers[category + '_' + action].add_argument(arg_name, arg_fullname, **arg_params)
-                            else:
-                                parsers[category + '_' + action].add_argument(arg_name, **arg_params)
+                            if (category == sys.argv[1]) and (action == sys.argv[2]):
+                                if 'dest' in arg_params: name = arg_params['dest']
+                                elif arg_fullname: name = arg_fullname
+                                else: name = arg_name
+                                patterns[name] = arg_params['pattern']
+                                del arg_params['pattern']
 
-    return parsers['general'].parse_args()
+                        parsers[category + '_' + action].add_argument(*arg_names, **arg_params)
+
+    args = parsers['general'].parse_args(sys.argv.extend(new_args))
+    args_dict = vars(args)
+    print patterns
+    for key, value in patterns.items():
+        validate({ args_dict[key] : value })
+
+    return args
 
 
 def main():
@@ -126,13 +160,9 @@ def main():
     with open('action_map.yml') as f:
         action_map = yaml.load(f)
 
-    args = parse_dict(action_map)
-    connections = connect_services(action_map)
     try:
-        if connections:
-            result = args.func(vars(args), connections)
-        else:
-            result = args.func(vars(args))
+        args = parse_dict(action_map)
+        result = args.func(vars(args))
     except TypeError, error:
         if not __debug__ :
             traceback.print_exc()
@@ -148,8 +178,6 @@ def main():
             pretty_print_dict(result)
         else:
             print(json.dumps(result))
-    finally:
-        disconnect_services(connections)
 
     return 0
 

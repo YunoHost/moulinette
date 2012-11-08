@@ -58,7 +58,6 @@ user:
                -f: 
                     full: --filter
                     help: LDAP filter used to search
-                    pattern: 'yayaya'
                -l: 
                     full: --limit
                     help: Maximum number of user fetched 
@@ -75,15 +74,24 @@ user:
                 -u: 
                     full: --username
                     help: Must be unique
+                    ask: "Username"
+                    #pattern: '^[a-z0-9_]+$'
+                    pattern: 'aza'
                 -f: 
                     full: --firstname
+                    ask: "Firstname"
                 -l: 
                     full: --lastname
+                    ask: "Lastname"
                 -m: 
                     full: --mail
                     help: Main mail address must be unique
+                    ask: "Mail address"
+                    pattern: '^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$'
                 -p: 
                     full: --password
+                    ask: "User password"
+                    password: yes
         
         ### user_delete()
         delete: 
