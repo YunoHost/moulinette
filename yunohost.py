@@ -88,24 +88,26 @@ def str_to_func(astr):
         return func
 
 
-def validate(regex_dict):
+def validate(pattern, array):
     """ 
     Validate attributes with a pattern 
     
     Keyword arguments:
-        regex_dict -- Dictionnary of values/pattern to check
+        pattern -- Regex to match with the strings
+        array -- List of strings to check
 
     Returns:
         Boolean | YunoHostError
 
     """
-    print regex_dict
-    for attr, pattern in regex_dict.items():
-        if re.match(pattern, attr):
-            continue
+    if isinstance(array, str):
+        array = [array]
+    for string in array:
+        if re.match(pattern, string):
+            pass
         else:
-            raise YunoHostError(22, _('Invalid attribute') + ' ' + attr)
-    return True
+            raise YunoHostError(22, _('Invalid attribute') + ' ' + string)
+        return True
 
 def get_required_args(args, required_args, password=False):
     """ 
@@ -154,62 +156,6 @@ def display_error(error):
         print('\n' + colorize(_("Error: "), 'red') + error.message)
     else:
         print(json.dumps({ 'error' : error.message }))
-
-
-def connect_services(action_map):
-    """
-    Connect to different services needed by the action
-
-    Keyword arguments:
-        action_map -- Map of actions
-
-    Returns:
-        Dict -- openned connections or error code
-
-    """
-    action_dict = action_map[sys.argv[1]]['actions'][sys.argv[2]]
-    connections = {}
-    required_connections = []
-
-    if 'connections' in action_dict:
-        required_connections = action_dict['connections']
-    
-    try:
-        # Connect to different services if the action is requiring it
-        if 'ldap' in required_connections:
-            connections['ldap'] = YunoHostLDAP()
-        if 'firewall' in required_connections:
-            connections['firewall'] = open('/etc/init.d/iptables', 'w')
-        # TODO: Add other services connections
-    except YunoHostError, error:
-        display_error(error)
-        sys.exit(error.code)
-    else:
-        return connections
-        
-
-def disconnect_services(connections):
-    """
-    Disconnect openned connections
-
-    Keyword arguments:
-        connections -- Dictionnary of openned connections
-
-    Returns:
-        Boolean
-
-    """
-    try:
-        if 'ldap' in connections:
-            connections['ldap'].disconnect()
-        if 'firewall' in connections:
-            connections['firewall'].close()
-        # TODO: Add other services deconnections 
-    except YunoHostError, error:
-        display_error(error)
-        sys.exit(error.code)
-    else:
-        return True
 
 
 class YunoHostError(Exception):

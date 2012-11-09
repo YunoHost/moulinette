@@ -73,7 +73,6 @@ def user_create(args):
     Returns:
         Dict
     """
-    print args
     with YunoHostLDAP() as yldap:
         # Validate password length
         if len(args['password']) < 4:
@@ -148,7 +147,6 @@ def user_delete(args):
             args['users'] = [ args['users'] ]
 
         for user in args['users']:
-            validate({ user : r'^[a-z0-9_]+$' })
             if yldap.remove('uid=' + user+ ',ou=users'):
                 if args['purge']:
                     os.system('rm -rf /home/' + user)
@@ -172,7 +170,6 @@ def user_update(args):
         Dict
     """
     with YunoHostLDAP() as yldap:
-        validate({ args['user'] : r'^[a-z0-9_]+$' })
         attrs_to_fetch = ['givenName', 'sn', 'mail', 'mailAlias']
         new_attr_dict = {}
 
@@ -201,7 +198,6 @@ def user_update(args):
             new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(args['change_password']), salt)
 
         if args['mail']:
-            validate({ args['mail'] : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
             yldap.validate_uniqueness({
                 'mail'      : args['mail'],
                 'mailalias' : args['mail']
@@ -213,7 +209,6 @@ def user_update(args):
             if not isinstance(args['add_mailforward'], list):
                 args['add_mailforward'] = [ args['add_mailforward'] ]
             for mail in args['add_mailforward']:
-                validate({ mail : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
                 yldap.validate_uniqueness({
                     'mail'      : mail,
                     'mailalias' : mail
@@ -235,7 +230,6 @@ def user_update(args):
             if not isinstance(args['add_mailalias'], list):
                 args['add_mailalias'] = [ args['add_mailalias'] ]
             for mail in args['add_mailalias']:
-                validate({ mail : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
                 yldap.validate_uniqueness({
                     'mail'      : mail,
                     'mailalias' : mail
@@ -278,11 +272,9 @@ def user_info(args):
         user_attrs = ['cn', 'mail', 'uid', 'mailAlias']
 
         if args['mail']:
-            validate({ args['mail'] : r'^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$' })
             filter = 'mail=' + args['mail']
         else:
             args = get_required_args(args, { 'user' : _("Username") })
-            validate({ args['user'] : r'^[a-z0-9_]+$' })
             filter = 'uid=' + args['user']
 
         result = yldap.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)

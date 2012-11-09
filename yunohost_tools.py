@@ -8,48 +8,47 @@ import getpass
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 
 
-def tools_ldapinit(args, connections): 
+def tools_ldapinit(args): 
     """
     Initialize YunoHost LDAP scheme
     
     Keyword arguments:
         args
-        connections
     
     Returns: 
         dict
 
     """
-    yldap = connections['ldap']
+    with YunoHostLDAP() as yldap:
 
-    with open('ldap_scheme.yml') as f: 
-        ldap_map = yaml.load(f)
+        with open('ldap_scheme.yml') as f: 
+            ldap_map = yaml.load(f)
 
-    for rdn, attr_dict in ldap_map['parents'].items():
-        yldap.add(rdn, attr_dict)
+        for rdn, attr_dict in ldap_map['parents'].items():
+            yldap.add(rdn, attr_dict)
 
-    for rdn, attr_dict in ldap_map['childs'].items():
-        yldap.add(rdn, attr_dict)
+        for rdn, attr_dict in ldap_map['childs'].items():
+            yldap.add(rdn, attr_dict)
  
-    validate({ args['domain'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' })
-    domain_dict = { 
-        'objectClass' : ['mailDomain', 'top'],
-        'virtualdomain' : args['domain']    
-    }
-    yldap.add('virtualdomain=' + args['domain'] + ',ou=domains', domain_dict)
+        domain_dict = { 
+            'objectClass' : ['mailDomain', 'top'],
+            'virtualdomain' : args['domain']    
+        }
 
-    admin_dict = {
-        'cn': 'admin',
-        'uid': 'admin',
-        'description': 'LDAP Administrator',
-        'gidNumber': '1007',
-        'uidNumber': '1007',
-        'homeDirectory': '/home/admin',
-        'loginShell': '/bin/bash',
-        'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject']
-    }
+        yldap.add('virtualdomain=' + args['domain'] + ',ou=domains', domain_dict)
 
-    yldap.update('cn=admin', admin_dict)
+        admin_dict = {
+            'cn': 'admin',
+            'uid': 'admin',
+            'description': 'LDAP Administrator',
+            'gidNumber': '1007',
+            'uidNumber': '1007',
+            'homeDirectory': '/home/admin',
+            'loginShell': '/bin/bash',
+            'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject']
+        }
+
+        yldap.update('cn=admin', admin_dict)
 
     win_msg(_("LDAP has been successfully initialized"))
 
@@ -65,15 +64,6 @@ def tools_adminpw(args):
         dict
 
     """
-    if not 'old' in args:
-        args['old'] = getpass.getpass(colorize('Actual admin password: ', 'cyan'))
-    
-    if not 'new' in args:
-        args['new'] = getpass.getpass(colorize('New admin password: ', 'cyan'))
-        pwd2 = getpass.getpass(colorize('Retype new password: ', 'cyan'))
-        if args['new'] != pwd2:
-            raise YunoHostError(22, _("Passwords doesn't match"))
-
     # Validate password length
     if len(args['new']) < 4:
         raise YunoHostError(22, _("Password is too short"))
@@ -97,16 +87,11 @@ def tools_maindomain(args):
         dict
 
     """
-    args = get_required_args(args, {'new_domain' : _('New main domain name')})
-
     if not args['old_domain']:
         with open('/usr/share/yunohost/yunohost-config/others/current_host', 'r') as f:
             args['old_domain'] = f.readline().rstrip()
 
-    validate({ 
-        args['new_domain'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$',
-        args['old_domain'] : r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$' 
-    })
+    validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', args['old_domain'])
 
     config_files = [
         '/etc/postfix/main.cf',
@@ -155,7 +140,7 @@ def tools_maindomain(args):
     n = os.system('/etc/init.d/postfix restart')
     o = os.system('/etc/init.d/ejabberd restart')
 
-    if a == b == c == d == e == f == g == h == i == j == k == l == m == n == o:
+    if a == b == c == d == e == f == g == h == i == j == k == l == m == n == o == 0:
         win_msg(_("YunoHost main domain has been successfully changed"))
     else:
         raise YunoHostError(17, _("There were a problem during domain changing"))
@@ -167,31 +152,28 @@ def tools_postinstall(args):
     
     Keyword arguments:
         args
-        connection
     
     Returns: 
         dict
 
     """
-    connections = { 'ldap' : YunoHostLDAP(password='yunohost') } 
-    try:
-        with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
-    except IOError:
-        print('Installing YunoHost')
-    else:
-        raise YunoHostError(17, _("YunoHost is already installed"))
+    with YunoHostLDAP(password='yunohost') as yldap:
+        try:
+            with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
+        except IOError:
+            print('Installing YunoHost')
+        else:
+            raise YunoHostError(17, _("YunoHost is already installed"))
 
-    args = get_required_args(args, {'domain' : _('Main domain name'), 'password' : _('New admin password') }, True)
+        # New domain config
+        tools_maindomain({ 'old_domain' : 'yunohost.org', 'new_domain' : args['domain']})
 
-    # New domain config
-    tools_maindomain({ 'old_domain' : 'yunohost.org', 'new_domain' : args['domain']})
+        # Initialize YunoHost LDAP base
+        tools_ldapinit(args)
 
-    # Initialize YunoHost LDAP base
-    tools_ldapinit(args, connections)
+        # Change LDAP admin password
+        tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
 
-    # Change LDAP admin password
-    tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
-
-    os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
+        os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
     
     win_msg(_("YunoHost has been successfully configured"))

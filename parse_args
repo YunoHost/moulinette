@@ -65,12 +65,12 @@ def parse_dict(action_map):
 
     # Add general arguments
     for arg_name, arg_params in action_map['general_arguments'].items():
-        if arg_params['full']:
-            arg_fullname = arg_params['full']
-            del arg_params['full']
-            parsers['general'].add_argument(arg_name, arg_fullname, **arg_params)
-        else:
-            parsers['general'].add_argument(arg_name, **arg_params)
+        if 'full' in arg_params:
+             arg_names = [arg_name, arg_params['full']]
+             arg_fullname = arg_params['full']
+             del arg_params['full']
+        else: arg_names = [arg_name]
+        parsers['general'].add_argument(*arg_names, **arg_params)
 
     del action_map['general_arguments']
 
@@ -91,6 +91,8 @@ def parse_dict(action_map):
                 # Add arguments
                 if 'arguments' in action_params:
                     for arg_name, arg_params in action_params['arguments'].items():
+                        arg_fullname = False
+
                         if 'password' in arg_params:
                             if arg_params['password']: is_password = True
                             del arg_params['password']
@@ -98,6 +100,7 @@ def parse_dict(action_map):
 
                         if 'full' in arg_params:
                             arg_names = [arg_name, arg_params['full']]
+                            arg_fullname = arg_params['full']
                             del arg_params['full']
                         else: arg_names = [arg_name]
 
@@ -106,7 +109,7 @@ def parse_dict(action_map):
                             if (category != sys.argv[1]) or (action != sys.argv[2]):
                                 require_input = False
                             for name in arg_names:
-                                if name in sys.argv: require_input = False
+                                if name in sys.argv[2:]: require_input = False
 
                             if require_input:
                                 if is_password:
@@ -118,30 +121,34 @@ def parse_dict(action_map):
                                             sys.exit(1)
                                     else:
                                         raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
-                                    new_args.extend([arg_name, pwd1])
+                                    if arg_name[0] == '-': arg_extend = [arg_name, pwd1]
+                                    else: arg_extend = [pwd1]
                                 else:
                                     if os.isatty(1):
                                         arg_value = raw_input(colorize(arg_params['ask'] + ': ', 'cyan'))
                                     else:
                                         raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
-                                    new_args.extend([arg_name, arg_value])
+                                    if arg_name[0] == '-': arg_extend = [arg_name, arg_value]
+                                    else: arg_extend = [arg_value]
+                                new_args.extend(arg_extend)
                             del arg_params['ask']
 
                         if 'pattern' in arg_params:
                             if (category == sys.argv[1]) and (action == sys.argv[2]):
                                 if 'dest' in arg_params: name = arg_params['dest']
-                                elif arg_fullname: name = arg_fullname
+                                elif arg_fullname: name = arg_fullname[2:]
                                 else: name = arg_name
                                 patterns[name] = arg_params['pattern']
-                                del arg_params['pattern']
+                            del arg_params['pattern']
 
                         parsers[category + '_' + action].add_argument(*arg_names, **arg_params)
 
     args = parsers['general'].parse_args(sys.argv.extend(new_args))
     args_dict = vars(args)
     print patterns
+    print args_dict
     for key, value in patterns.items():
-        validate({ args_dict[key] : value })
+        validate(value, args_dict[key])
 
     return args
 

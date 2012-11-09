@@ -75,8 +75,7 @@ user:
                     full: --username
                     help: Must be unique
                     ask: "Username"
-                    #pattern: '^[a-z0-9_]+$'
-                    pattern: 'aza'
+                    pattern: '^[a-z0-9_]+$'
                 -f: 
                     full: --firstname
                     ask: "Firstname"
@@ -184,6 +183,8 @@ domain:
                 domain: 
                     help: Domain name to add
                     nargs: '*'
+                    ask: "New domain"
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 
         ### domain_remove()
         remove: 
@@ -194,6 +195,8 @@ domain:
                 domain: 
                     help: Domain(s) to delete
                     nargs: "*"
+                    ask: "Domain to remove"
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 
         ### domain_info()
         info: 
@@ -203,6 +206,7 @@ domain:
             arguments: 
                 domain: 
                     help: ""
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### domain_renewcert()
         renewcert: 
@@ -210,6 +214,7 @@ domain:
             arguments: 
                 domain: 
                     help: ""
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
 #############################
 #            App            #
@@ -481,6 +486,7 @@ tools:
                 -d: 
                     full: --domain
                     help: YunoHost main domain
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### tools_adminpw()
         adminpw: 
@@ -488,8 +494,12 @@ tools:
             arguments: 
                 -o: 
                     full: --old-password
+                    ask: "Actual admin password"
+                    password: yes
                 -n:
                     full: --new-password
+                    ask: "New admin password"
+                    password: yes
 
         ### tools_maindomain()
         maindomain:
@@ -497,8 +507,11 @@ tools:
             arguments: 
                 -o:
                     full: --old-domain
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -n:
                     full: --new-domain
+                    ask: "New main domain"
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### tools_postinstall()
         postinstall: 
@@ -507,6 +520,10 @@ tools:
                 -d: 
                     full: --domain
                     help: YunoHost main domain
+                    ask: "Main domain"
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -p:
                     full: --password
                     help: YunoHost admin password
+                    ask: "New admin password"
+                    password: yes
