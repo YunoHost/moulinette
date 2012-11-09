@@ -107,16 +107,6 @@ We decided to regroup all YunoHost related operations into a single program call
 
 **Note:** `` category_action() `` takes one parameter plus an optional one : `` args `` and `` connections `` if connections were set. `` args `` contains the arguments passed to the command. Refers to `` action_map.yml `` documentation for more informations.
 
-### Service connections
-The so called 'service connection' could actually be multiple things. It just is the resource used for a specific action: a file opening, a SQL or a LDAP connection. For example, I need to access LDAP base for YunoHost's user manipulations, so I have to declare it. It could be a file opening (for repositories for example).
-
-Because of potential complexity of its operations, the moulinette has a specific way to handle connections. A connection is initialized once if the action is requiring it.
-If you want to add a new connection (not yet implemented), you just have to put the connect and the disconnect method in `` connect_service() `` and `` disconnect_services() `` in the `` yunohost.py `` file. Then add your connection name to the action in the `` action_map.yml `` file.
-
-We chose to make a class for some connections (i.e LDAP), in order to simplify some operations. Feel free to do the same.
-
-**Note:** We could have used singleton classes. We probably need a Python expert to clarify this. :D
-
 ### Error handling
 Moulinette has a unified way to handle errors. First, you need to import the ``YunoHostError`` exception:
 `` from yunohost import YunoHostError ``
