@@ -56,10 +56,11 @@ def parse_dict(action_map):
 
     """
     # Intialize parsers
-    parsers = subparsers_category = subparsers_action = patterns = {}
+    parsers = subparsers_category = subparsers_action = {}
     parsers['general'] = argparse.ArgumentParser()
     subparsers = parsers['general'].add_subparsers()
     new_args = []
+    patterns = {}
 
     # Add general arguments
     for arg_name, arg_params in action_map['general_arguments'].items():
