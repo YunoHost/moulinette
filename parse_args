@@ -31,7 +31,6 @@ except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
     sys.stderr.write('apt-get install python-yaml\n')
     sys.exit(1)
-import yaml
 import json
 if not __debug__:
     import traceback
@@ -57,11 +56,10 @@ def parse_dict(action_map):
 
     """
     # Intialize parsers
-    parsers = subparsers_category = subparsers_action = {}
+    parsers = subparsers_category = subparsers_action = patterns = {}
     parsers['general'] = argparse.ArgumentParser()
     subparsers = parsers['general'].add_subparsers()
     new_args = []
-    patterns = {} 
 
     # Add general arguments
     for arg_name, arg_params in action_map['general_arguments'].items():

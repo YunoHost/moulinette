@@ -35,26 +35,19 @@ Specifications
     
 ### App 
     
+    yunohost app updatelist [-h] [-u URL]
     yunohost app list [-h] [--fields FIELDS [FIELDS ...]] [-o OFFSET]
                            [-f FILTER] [-l LIMIT]
     yunohost app install [-h] [-d DOMAIN] [--public] [-l LABEL] [-p PATH]
                               [--protected]
-                              app [app ...]
+                              app
     yunohost app remove [-h] app [app ...]
     yunohost app upgrade [-h] [app [app ...]]
     yunohost app info [-h] app
     yunohost app addaccess [-h] [-u USER [USER ...]] app [app ...]
     yunohost app removeaccess [-h] [-u USER [USER ...]] app [app ...]
-    
-    
-### Repo
-    
-    yunohost repo list [-h] [-l LIMIT] [-o OFFSET] [-f FILTER]
-    yunohost repo add [-h] [-n NAME] url
-    yunohost repo remove [-h] repo
-    yunohost repo update [-h]
-    
-    
+
+
 ### Firewall
     
     yunohost firewall list [-h]
@@ -97,7 +90,7 @@ We decided to regroup all YunoHost related operations into a single program call
 ### Important files
 * `` parse_args `` File executed on function calling - i.e `` ./parse_args user create ``. Will be renamed `` yunohost `` when packaged.
 * `` action_map.yml `` Defines all CLI actions and links arguments.
-* `` yunohost.py `` Contains all YunoHost functions likely to be shared between moulinette files. Also contains service connections classes (erk). Refers to "Service connections" paragraph.
+* `` yunohost.py `` Contains all YunoHost functions likely to be shared between moulinette files. Also contains service connections classes (erk).
 * `` yunohost_*.py `` Files containing action functions. `` * `` is the category: user, domain, firewall, etc.
 
 ### How to add a function ?
@@ -105,7 +98,7 @@ We decided to regroup all YunoHost related operations into a single program call
 2. Also check if the file `` yunohost_category.py `` is created in the working tree. If not, just create it (you may take example of `` yunohost_user.py `` file).
 3. Add your function `` category_action() `` in this file - i.e `` user_create() ``
 
-**Note:** `` category_action() `` takes one parameter plus an optional one : `` args `` and `` connections `` if connections were set. `` args `` contains the arguments passed to the command. Refers to `` action_map.yml `` documentation for more informations.
+**Note:** `` category_action() `` takes one parameter,`` args `` which contains the arguments passed to the command. Refers to `` action_map.yml `` documentation for more informations.
 
 ### Error handling
 Moulinette has a unified way to handle errors. First, you need to import the ``YunoHostError`` exception:

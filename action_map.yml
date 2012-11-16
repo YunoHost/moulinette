@@ -49,8 +49,6 @@ user:
         ### user_list()
         list: 
             action_help: List users
-            connections: 
-                - ldap
             arguments: 
                --fields: 
                     help: fields to fetch
@@ -68,8 +66,6 @@ user:
         ### user_create()
         create: 
             action_help: Create user
-            connections: 
-                - ldap
             arguments: 
                 -u: 
                     full: --username
@@ -95,8 +91,6 @@ user:
         ### user_delete()
         delete: 
             action_help: Delete user
-            connections: 
-                - ldap
             arguments: 
                 users: 
                     help: Username of users to delete
@@ -107,8 +101,6 @@ user:
         ### user_update()
         update: 
             action_help: Update user informations
-            connections: 
-                - ldap
             arguments: 
                 user: 
                     help: Username of user to update
@@ -142,8 +134,6 @@ user:
         ### user_info()
         info: 
             action_help: Get user informations
-            connections: 
-                - ldap
             arguments: 
                 -u: 
                     full: --user
@@ -161,8 +151,6 @@ domain:
         ### domain_list()
         list: 
             action_help: List domains
-            connections: 
-                - ldap
             arguments: 
                 -f: 
                     full: --filter
@@ -177,8 +165,6 @@ domain:
         ### domain_add()
         add: 
             action_help: Create a custom domain
-            connections: 
-                - ldap
             arguments: 
                 domain: 
                     help: Domain name to add
@@ -189,8 +175,6 @@ domain:
         ### domain_remove()
         remove: 
             action_help: Delete domains
-            connections: 
-                - ldap
             arguments: 
                 domain: 
                     help: Domain(s) to delete
@@ -201,8 +185,6 @@ domain:
         ### domain_info()
         info: 
             action_help: Get domain informations
-            connections: 
-                - ldap
             arguments: 
                 domain: 
                     help: ""
@@ -222,12 +204,18 @@ domain:
 app: 
     category_help: Manage apps
     actions: 
+        
+        ### app_updatelist()
+        updatelist:
+            action_help: Fetch application list from app server
+            arguments:
+                -u:
+                    full: --url
+                    help: URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw) 
 
         ### app_list()
         list: 
             action_help: List apps
-            connections: 
-                - ldap
             arguments: 
                 --fields: 
                     help: fields to fetch
@@ -245,12 +233,9 @@ app:
         ### app_install() TODO: Write help
         install: 
             action_help: Install apps
-            connections: 
-                - ldap 
-                - dns
             arguments: 
                 app: 
-                    nargs: "+"
+                    help: App to install
                 -d: 
                     full: --domain
                 -p: 
@@ -265,9 +250,6 @@ app:
         ### app_remove() TODO: Write help
         remove: 
             action_help: Remove app
-            connections: 
-                - ldap 
-                - dns
             arguments: 
                 app: 
                     help: App(s) to delete
@@ -276,8 +258,6 @@ app:
         ### app_upgrade()
         upgrade: 
             action_help: Upgrade app
-            connections: 
-                - ldap
             arguments: 
                 app: 
                     help: App(s) to upgrade (default all)
@@ -286,8 +266,6 @@ app:
         ### app_info() TODO: Write help
         info: 
             action_help: Get app informations
-            connections: 
-                - ldap
             arguments: 
                 app: 
                     help: ""
@@ -295,8 +273,6 @@ app:
         ### app_addaccess() TODO: Write help
         addaccess: 
             action_help: Grant access right to users (everyone by default)
-            connections: 
-                - ldap
             arguments: 
                 app: 
                     nargs: "+"
@@ -307,8 +283,6 @@ app:
         ### app_removeaccess() TODO: Write help
         removeaccess: 
             action_help: Revoke access right to users (everyone by default)
-            connections: 
-                - ldap
             arguments: 
                 app: 
                     nargs: "+"
@@ -327,8 +301,6 @@ repo:
         ### repo_list()
         list: 
             action_help: List repositories
-            connections: 
-                - repo
             arguments: 
                 -f: 
                     full: --filter
@@ -343,8 +315,6 @@ repo:
         ### repo_add()
         add: 
             action_help: Add app repository
-            connections: 
-                - repo
             arguments: 
                 url: 
                     help: URL of the repository
@@ -355,8 +325,6 @@ repo:
         ### repo_remove()
         remove: 
             action_help: Remove repository
-            connections: 
-                - repo
             arguments: 
                 repo: 
                     help: Name or URL of the repository
@@ -364,8 +332,6 @@ repo:
         ### repo_update()
         update: 
             action_help: Update app list from the repositories
-            connections: 
-                - repo
 
 
 #############################
@@ -440,14 +406,10 @@ firewall:
         ### firewall_list()
         list: 
             action_help: List all firewall rules
-            connections: 
-                - firewall
         
         ### firewall_allow()
         allow: 
             action_help: Allow connection port/protocol
-            connections: 
-                - firewall
             arguments: 
                 port: 
                     help: Port to open
@@ -463,8 +425,6 @@ firewall:
         ### firewall_disallow()
         disallow: 
             action_help: Disallow connection
-            connections: 
-                - firewall
             arguments: 
                 name: 
                     help: Reference name of the rule to delete
@@ -480,8 +440,6 @@ tools:
         ### tools_ldapinit()
         ldapinit: 
             action_help: YunoHost LDAP initialization
-            connections: 
-                - ldap
             arguments:
                 -d: 
                     full: --domain
