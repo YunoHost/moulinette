@@ -7,24 +7,25 @@ import re
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
-def domain_list(args):
+def domain_list(filter=None, limit=None, offset=None):
     """
     List YunoHost domains
 
     Keyword argument:
-        args -- Dictionnary of values (can be empty)
+        filter -- LDAP filter to search with
+        limit
+        offset
 
     Returns:
         Dict
     """
     with YunoHostLDAP() as yldap:
         result_dict = {}
-        if args['offset']: offset = int(args['offset'])
+        if offset: offset = int(offset)
         else: offset = 0
-        if args['limit']: limit = int(args['limit'])
+        if limit: limit = int(limit)
         else: limit = 1000
-        if args['filter']: filter = args['filter']
-        else: filter = 'virtualdomain=*'
+        if not filter: filter = 'virtualdomain=*'
 
         result = yldap.search('ou=domains,dc=yunohost,dc=org', filter, attrs=['virtualdomain'])
         
@@ -40,12 +41,12 @@ def domain_list(args):
         return result_dict
 
 
-def domain_add(args):
+def domain_add(domains):
     """
     Add one or more domains
 
     Keyword argument:
-        args -- Dictionnary of values (can be empty)
+        domains -- List of domains to add
 
     Returns:
         Dict
@@ -57,10 +58,10 @@ def domain_add(args):
         timestamp = str(now.year) + str(now.month) + str(now.day) 
         result = []
 
-        if not isinstance(args['domain'], list):
-            args['domain'] = [ args['domain'] ]
+        if not isinstance(domains, list):
+            domains = [ domains ]
         
-        for domain in args['domain']: 
+        for domain in domains: 
             yldap.validate_uniqueness({ 'virtualdomain' : domain })
             attr_dict['virtualdomain'] = domain
 
@@ -109,12 +110,12 @@ def domain_add(args):
         return { 'Domains' : result } 
 
 
-def domain_remove(args):
+def domain_remove(domains):
     """
     Remove domain from LDAP
 
     Keyword argument:
-        args -- Dictionnary of values
+        domains -- List of domains to remove
 
     Returns:
         Dict
@@ -122,10 +123,10 @@ def domain_remove(args):
     with YunoHostLDAP() as yldap:
         result = []
 
-        if not isinstance(args['domain'], list):
-            args['domain'] = [ args['domain'] ]
+        if not isinstance(domains, list):
+            domains = [ domains ]
 
-        for domain in args['domain']:
+        for domain in domains:
             if yldap.remove('virtualdomain=' + domain + ',ou=domains'):
                 try:
                     os.remove('/var/lib/bind/'+ domain +'.zone')

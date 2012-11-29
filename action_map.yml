@@ -171,7 +171,7 @@ domain:
         add: 
             action_help: Create a custom domain
             arguments: 
-                domain: 
+                domains: 
                     help: Domain name to add
                     nargs: '*'
                     ask: "New domain"
@@ -181,7 +181,7 @@ domain:
         remove: 
             action_help: Delete domains
             arguments: 
-                domain: 
+                domains: 
                     help: Domain(s) to delete
                     nargs: "*"
                     ask: "Domain to remove"

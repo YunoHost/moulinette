@@ -65,7 +65,7 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
     return result_dict
 
 
-def user_create(username=None, firstname=None, lastname=None, mail=None, password=None):
+def user_create(username, firstname, lastname, mail, password):
     """
     Add user to LDAP
 
@@ -134,7 +134,7 @@ def user_create(username=None, firstname=None, lastname=None, mail=None, passwor
             raise YunoHostError(169, _("An error occured during user creation"))
 
 
-def user_delete(users=None, purge=None):
+def user_delete(users, purge=None):
     """
     Remove user from LDAP
 
