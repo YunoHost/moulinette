@@ -6,12 +6,12 @@ import json
 from urllib import urlopen, urlretrieve
 from yunohost import YunoHostError, YunoHostLDAP
 
-def app_updatelist(args):
+def app_updatelist(url=None):
     """
     Fetch application list
 
     Keyword arguments:
-        args['url'] -- Custom list URL
+        url -- Custom list URL
 
     Returns:
         True | YunoHostError
@@ -23,7 +23,7 @@ def app_updatelist(args):
     try: os.listdir(app_path)
     except OSError: os.makedirs(app_path)
 
-    if args['url']: list_url = args['url']
+    if url: list_url = url
     else: list_url = 'http://fapp.yunohost.org/app/list/raw'
 
     # Get list
