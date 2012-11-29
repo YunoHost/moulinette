@@ -8,12 +8,12 @@ import getpass
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add
 
-def tools_ldapinit(args): 
+def tools_ldapinit(domain): 
     """
     Initialize YunoHost LDAP scheme
     
     Keyword arguments:
-        args
+        domain -- Main domain name for initialization
     
     Returns: 
         dict
@@ -30,7 +30,7 @@ def tools_ldapinit(args):
         for rdn, attr_dict in ldap_map['childs'].items():
             yldap.add(rdn, attr_dict)
  
-        domain_add({ 'domain' : [args['domain']] })
+        domain_add(domain=[domain])
 
         admin_dict = {
             'cn': 'admin',
@@ -48,22 +48,23 @@ def tools_ldapinit(args):
     win_msg(_("LDAP has been successfully initialized"))
 
 
-def tools_adminpw(args): 
+def tools_adminpw(old_password, new_password): 
     """
     Change admin password
     
     Keyword arguments:
-        args
+        old_password
+        new_password
     
     Returns: 
         dict
 
     """
     # Validate password length
-    if len(args['new']) < 4:
+    if len(new_password) < 4:
         raise YunoHostError(22, _("Password is too short"))
 
-    result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ args['old'] +'" -a "'+ args['old'] +'" -s "' + args['new'] + '"')
+    result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ old_password +'" -a "'+ old_password +'" -s "' + new_password + '"')
 
     if result == 0:
         win_msg(_("Admin password has been changed"))
@@ -71,22 +72,23 @@ def tools_adminpw(args):
         raise YunoHostError(22, _("Invalid password"))
 
 
-def tools_maindomain(args): 
+def tools_maindomain(old_domain, new_domain): 
     """
     Change admin password
     
     Keyword arguments:
-        args
+        old_domain
+        new_domain
     
     Returns: 
         dict
 
     """
-    if not args['old_domain']:
+    if not old_domain:
         with open('/usr/share/yunohost/yunohost-config/others/current_host', 'r') as f:
-            args['old_domain'] = f.readline().rstrip()
+            old_domain = f.readline().rstrip()
 
-    validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', args['old_domain'])
+    validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
 
     config_files = [
         '/etc/postfix/main.cf',
@@ -111,7 +113,7 @@ def tools_maindomain(args):
             lines = sources.readlines()
         with open(file, "w") as sources:
             for line in lines:
-                sources.write(re.sub(r''+ args['old_domain'] +'', args['new_domain'], line))
+                sources.write(re.sub(r''+ old_domain +'', new_domain, line))
 
     os.system('/etc/init.d/hostname.sh')
     
@@ -120,7 +122,7 @@ def tools_maindomain(args):
     a = os.system('echo "01" > '+ tmp +'/ssl/yunoCA/serial')
     b = os.system('rm '+ tmp +'/ssl/yunoCA/index.txt')
     c = os.system('touch '+ tmp +'/ssl/yunoCA/index.txt')
-    d = os.system('sed -i "s/' + args['old_domain'] + '/' + args['new_domain'] + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf')
+    d = os.system('sed -i "s/' + old_domain + '/' + new_domain + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf')
     e = os.system('openssl req -x509 -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 3650 -out '+ tmp +'/ssl/yunoCA/ca/cacert.pem -keyout '+ tmp +'/ssl/yunoCA/ca/cakey.pem -nodes -batch')
     f = os.system('openssl req -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -out '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -keyout '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem -nodes -batch')
     g = os.system('openssl ca -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -in '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -out '+ tmp +'/ssl/yunoCA/certs/yunohost_crt.pem -batch')
@@ -128,7 +130,7 @@ def tools_maindomain(args):
     i = os.system('cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/')
     j = os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem')
     k = os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ejabberd/ejabberd.pem')
-    l = os.system('echo '+ args['new_domain'] +' > /usr/share/yunohost/yunohost-config/others/current_host')
+    l = os.system('echo '+ new_domain +' > /usr/share/yunohost/yunohost-config/others/current_host')
 
     # Restart services
     m = os.system('service apache2 restart')
@@ -141,12 +143,13 @@ def tools_maindomain(args):
         raise YunoHostError(17, _("There were a problem during domain changing"))
 
 
-def tools_postinstall(args):
+def tools_postinstall(domain, password):
     """
     Post-install configuration
     
     Keyword arguments:
-        args
+        domain -- Main domain
+        password -- New admin password
     
     Returns: 
         dict
@@ -161,13 +164,13 @@ def tools_postinstall(args):
             raise YunoHostError(17, _("YunoHost is already installed"))
 
         # New domain config
-        tools_maindomain({ 'old_domain' : 'yunohost.org', 'new_domain' : args['domain']})
+        tools_maindomain(old_domain='yunohost.org', new_domain=domain)
 
         # Initialize YunoHost LDAP base
-        tools_ldapinit(args)
+        tools_ldapinit(domain=domain)
 
         # Change LDAP admin password
-        tools_adminpw({ 'old' : 'yunohost', 'new' : args['password']})
+        tools_adminpw(old_password='yunohost', new_password=password)
 
         os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
     
