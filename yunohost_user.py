@@ -9,12 +9,15 @@ import string
 import getpass
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
-def user_list(args):
+def user_list(fields=None, filter=None, limit=None, offset=None):
     """
     List YunoHost users from LDAP
 
     Keyword argument:
-        args -- Dictionnary of values (can be empty)
+        fields -- Fields to fetch
+        filter -- LDAP filter to use
+        limit  -- Number of user to fetch
+        offset -- User number to begin with
 
     Returns:
         Dict
@@ -23,14 +26,13 @@ def user_list(args):
         user_attrs = ['uid', 'mail', 'cn', 'mailalias']
         attrs = []
         result_dict = {}
-        if args['offset']: offset = int(args['offset'])
+        if offset: offset = int(offset)
         else: offset = 0
-        if args['limit']: limit = int(args['limit'])
+        if limit: limit = int(limit)
         else: limit = 1000
-        if args['filter']: filter = args['filter']
-        else: filter = 'uid=*'
-        if args['fields']:
-            for attr in args['fields']:
+        if not filter: filter = 'uid=*'
+        if fields:
+            for attr in fields:
                 if attr in user_attrs:
                     attrs.append(attr)
                     continue
@@ -63,29 +65,32 @@ def user_list(args):
     return result_dict
 
 
-def user_create(args):
+def user_create(username=None, firstname=None, lastname=None, mail=None, password=None):
     """
     Add user to LDAP
 
     Keyword argument:
-        args -- Dictionnary of values (can be empty)
+        username
+        firstname
+        lastname
+        password
 
     Returns:
         Dict
     """
     with YunoHostLDAP() as yldap:
         # Validate password length
-        if len(args['password']) < 4:
+        if len(password) < 4:
             raise YunoHostError(22, _("Password is too short"))
 
         yldap.validate_uniqueness({
-            'uid'       : args['username'],
-            'mail'      : args['mail'],
-            'mailalias' : args['mail']
+            'uid'       : username,
+            'mail'      : mail,
+            'mailalias' : mail
         })
 
         # Check if unix user already exists (doesn't work)
-        #if not os.system("getent passwd " + args['username']):
+        #if not os.system("getent passwd " + username):
         #    raise YunoHostError(17, _("Username not available"))
 
         #TODO: check if mail belongs to a domain
@@ -98,43 +103,44 @@ def user_create(args):
             gid_check = os.system("getent group " + uid)
 
         # Adapt values for LDAP
-        fullname = args['firstname'] + ' ' + args['lastname']
-        rdn = 'uid=' + args['username'] + ',ou=users'
+        fullname = firstname + ' ' + lastname
+        rdn = 'uid=' + username + ',ou=users'
         char_set = string.ascii_uppercase + string.digits
         salt = ''.join(random.sample(char_set,8))
         salt = '$1$' + salt + '$'
-        pwd = '{CRYPT}' + crypt.crypt(str(args['password']), salt)
+        pwd = '{CRYPT}' + crypt.crypt(str(password), salt)
         attr_dict = {
             'objectClass'   : ['mailAccount', 'inetOrgPerson', 'posixAccount'],
-            'givenName'     : args['firstname'],
-            'sn'            : args['lastname'],
+            'givenName'     : firstname,
+            'sn'            : lastname,
             'displayName'   : fullname,
             'cn'            : fullname,
-            'uid'           : args['username'],
-            'mail'          : args['mail'],
+            'uid'           : username,
+            'mail'          : mail,
             'userPassword'  : pwd,
             'gidNumber'     : uid,
             'uidNumber'     : uid,
-            'homeDirectory' : '/home/' + args['username'],
+            'homeDirectory' : '/home/' + username,
             'loginShell'    : '/bin/false'
         }
 
         if yldap.add(rdn, attr_dict):
             # Create user /home directory by switching user
-            os.system("su - " + args['username'] + " -c ''")
+            os.system("su - " + username + " -c ''")
             #TODO: Send a welcome mail to user
             win_msg(_("User successfully created"))
-            return { _("Fullname") : fullname, _("Username") : args['username'], _("Mail") : args['mail'] }
+            return { _("Fullname") : fullname, _("Username") : username, _("Mail") : mail }
         else:
             raise YunoHostError(169, _("An error occured during user creation"))
 
 
-def user_delete(args):
+def user_delete(users=None, purge=None):
     """
     Remove user from LDAP
 
     Keyword argument:
-        args -- Dictionnary of values (can be empty)
+        users -- List of users to delete or single user
+        purge -- Whether or not purge /home/user directory
 
     Returns:
         Dict
@@ -142,13 +148,12 @@ def user_delete(args):
     with YunoHostLDAP() as yldap:
         result = { 'Users' : [] }
 
-        args = get_required_args(args, { 'users' : _('User to delete') })
-        if not isinstance(args['users'], list):
-            args['users'] = [ args['users'] ]
+        if not isinstance(users, list):
+            users = [ users ]
 
-        for user in args['users']:
+        for user in users:
             if yldap.remove('uid=' + user+ ',ou=users'):
-                if args['purge']:
+                if purge:
                     os.system('rm -rf /home/' + user)
                 result['Users'].append(user)
                 continue
@@ -159,12 +164,22 @@ def user_delete(args):
     return result 
             
 
-def user_update(args):
+def user_update(username, firstname=None, lastname=None, mail=None, change_password=None, 
+        add_mailforward=None, remove_mailforward=None, 
+        add_mailalias=None, remove_mailalias=None):
     """
     Update user informations
 
     Keyword argument:
-        args -- Dictionnary of values
+        username -- Username to update
+        firstname
+        lastname
+        mail
+        change_password -- New password
+        add_mailforward
+        remove_mailforward
+        add_mailalias
+        remove_mailalias
 
     Returns:
         Dict
@@ -174,41 +189,41 @@ def user_update(args):
         new_attr_dict = {}
 
         # Populate user informations
-        result = yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + args['user'], attrs=attrs_to_fetch)
+        result = yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)
         if not result:
             raise YunoHostError(167, _("No user found"))
         user = result[0]
 
         # Get modifications from arguments
-        if args['firstname']:
-            new_attr_dict['givenName'] = args['firstname'] # TODO: Validate
-            new_attr_dict['cn'] = new_attr_dict['displayName'] = args['firstname'] + ' ' + user['sn'][0]
+        if firstname:
+            new_attr_dict['givenName'] = firstname # TODO: Validate
+            new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + user['sn'][0]
 
-        if args['lastname']:
-            new_attr_dict['sn'] = args['lastname'] # TODO: Validate
-            new_attr_dict['cn'] = new_attr_dict['displayName'] = user['givenName'][0] + ' ' + args['lastname']
+        if lastname:
+            new_attr_dict['sn'] = lastname # TODO: Validate
+            new_attr_dict['cn'] = new_attr_dict['displayName'] = user['givenName'][0] + ' ' + lastname
 
-        if args['lastname'] and args['firstname']:
-            new_attr_dict['cn'] = new_attr_dict['displayName'] = args['firstname'] + ' ' + args['lastname']
+        if lastname and firstname:
+            new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + lastname
 
-        if args['change_password']:
+        if change_password:
             char_set = string.ascii_uppercase + string.digits
             salt = ''.join(random.sample(char_set,8))
             salt = '$1$' + salt + '$'
-            new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(args['change_password']), salt)
+            new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(change_password), salt)
 
-        if args['mail']:
+        if mail:
             yldap.validate_uniqueness({
-                'mail'      : args['mail'],
-                'mailalias' : args['mail']
+                'mail'      : mail,
+                'mailalias' : mail
             })
             del user['mail'][0]
-            new_attr_dict['mail'] = [args['mail']] + user['mail']
+            new_attr_dict['mail'] = [mail] + user['mail']
 
-        if args['add_mailforward']:
-            if not isinstance(args['add_mailforward'], list):
-                args['add_mailforward'] = [ args['add_mailforward'] ]
-            for mail in args['add_mailforward']:
+        if add_mailforward:
+            if not isinstance(add_mailforward, list):
+                add_mailforward = [ add_mailforward ]
+            for mail in add_mailforward:
                 yldap.validate_uniqueness({
                     'mail'      : mail,
                     'mailalias' : mail
@@ -216,20 +231,20 @@ def user_update(args):
                 user['mail'].append(mail)
             new_attr_dict['mail'] = user['mail']
 
-        if args['remove_mailforward']:
-            if not isinstance(args['remove_mailforward'], list):
-                args['remove_mailforward'] = [ args['remove_mailforward'] ]
-            for mail in args['remove_mailforward']:
+        if remove_mailforward:
+            if not isinstance(remove_mailforward, list):
+                remove_mailforward = [ remove_mailforward ]
+            for mail in remove_mailforward:
                 if len(user['mail']) > 1 and mail in user['mail'][1:]:
                     user['mail'].remove(mail)
                 else:
                     raise YunoHostError(22, _("Invalid mail forward : ") + mail) 
             new_attr_dict['mail'] = user['mail']
 
-        if args['add_mailalias']:
-            if not isinstance(args['add_mailalias'], list):
-                args['add_mailalias'] = [ args['add_mailalias'] ]
-            for mail in args['add_mailalias']:
+        if add_mailalias:
+            if not isinstance(add_mailalias, list):
+                add_mailalias = [ add_mailalias ]
+            for mail in add_mailalias:
                 yldap.validate_uniqueness({
                     'mail'      : mail,
                     'mailalias' : mail
@@ -240,30 +255,31 @@ def user_update(args):
                     user['mailalias'] = [ mail ]
             new_attr_dict['mailalias'] = user['mailalias']
 
-        if args['remove_mailalias']:
-            if not isinstance(args['remove_mailalias'], list):
-                args['remove_mailalias'] = [ args['remove_mailalias'] ]
-            for mail in args['remove_mailalias']:
+        if remove_mailalias:
+            if not isinstance(remove_mailalias, list):
+                remove_mailalias = [ remove_mailalias ]
+            for mail in remove_mailalias:
                 if 'mailalias' in user and mail in user['mailalias']:
                     user['mailalias'].remove(mail)
                 else:
                     raise YunoHostError(22, _("Invalid mail alias : ") + mail) 
             new_attr_dict['mailalias'] = user['mailalias']
 
-        if yldap.update('uid=' + args['user'] + ',ou=users', new_attr_dict):
+        if yldap.update('uid=' + username + ',ou=users', new_attr_dict):
            win_msg(_("User successfully updated"))
-           return user_info({ 'user' : args['user'], 'mail' : None }, connections)
+           return user_info(username=username)
         else:
            raise YunoHostError(169, _("An error occured during user update"))
     
 
 
-def user_info(args):
+def user_info(username=None, mail=None):
     """
     Fetch user informations from LDAP
 
     Keyword argument:
-        args -- Dictionnary of values (can be empty)
+        username
+        mail
 
     Returns:
         Dict
@@ -271,11 +287,10 @@ def user_info(args):
     with YunoHostLDAP() as yldap:
         user_attrs = ['cn', 'mail', 'uid', 'mailAlias']
 
-        if args['mail']:
-            filter = 'mail=' + args['mail']
+        if mail:
+            filter = 'mail=' + mail
         else:
-            args = get_required_args(args, { 'user' : _("Username") })
-            filter = 'uid=' + args['user']
+            filter = 'uid=' + username
 
         result = yldap.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)
         user = result[0]

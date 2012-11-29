@@ -92,8 +92,11 @@ user:
         delete: 
             action_help: Delete user
             arguments: 
-                users: 
+                -u:
+                    full: --users
                     help: Username of users to delete
+                    ask: "Users to delete"
+                    pattern: '^[a-z0-9_]+$'
                     nargs: "*"
                 --purge:
                     action: store_true
@@ -102,7 +105,7 @@ user:
         update: 
             action_help: Update user informations
             arguments: 
-                user: 
+                username: 
                     help: Username of user to update
                 -f: 
                     full: --firstname
@@ -136,7 +139,9 @@ user:
             action_help: Get user informations
             arguments: 
                 -u: 
-                    full: --user
+                    full: --username
+                    ask: "Username"
+                    pattern: '^[a-z0-9_]+$'
                 -m: 
                     full: --mail
     

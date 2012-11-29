@@ -166,7 +166,7 @@ def main():
 
     try:
         args = parse_dict(action_map)
-        result = args.func(vars(args))
+        result = args.func(args)
     except TypeError, error:
         if not __debug__ :
             traceback.print_exc()
