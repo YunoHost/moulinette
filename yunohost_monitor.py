@@ -154,42 +154,42 @@ def process_check(args):
         raise YunoHostError(1, args + " " + _("is closed") )
 
 
-def monitor_info(args):
-    if args['memory']:
+def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
+    if memory:
        resultat = check_memory()
        return resultat
-    elif args['cpu']:
+    elif cpu:
         resultat = check_cpu()
         return resultat
-    elif args['disk']:
+    elif disk:
        resultat = check_disk()
        return resultat
-    elif args['ifconfig']:
+    elif ifconfig:
        resultat = ifconfig()
        return resultat
-    elif args['uptime']:
+    elif uptime:
        resultat = uptime()
        return resultat
-    elif args['public']:
+    elif public:
        resultat = public()
        return resultat
 
-def monitor_process(args):
-    if args['enable']:
-        resultat = process_enable(args['enable'])
+def monitor_process(enable=None, disable=None, start=None, stop=None, check=None, info=False):
+    if enable:
+        resultat = process_enable(enable)
         return resultat
-    elif args['disable']:
-        resultat = process_disable(args['disable'])
+    elif disable:
+        resultat = process_disable(disable)
         return resultat
-    elif args['start']:
-        resultat = process_start(args['start'])
+    elif start:
+        resultat = process_start(start)
         return resultat
-    elif args['stop']:
-        resultat = process_stop(args['stop'])
+    elif stop:
+        resultat = process_stop(stop)
         return resultat
-    elif args['check']:
-        resultat = process_check(args['check'])
+    elif check:
+        resultat = process_check(check)
         return resultat
-    elif args['info']:
+    elif info:
         resultat = processcount()
         return resultat
