@@ -32,17 +32,17 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
         else: limit = 1000
         if not filter: filter = 'uid=*'
         if fields:
-            for attr in fields:
+            for attr in fields.items():
                 if attr in user_attrs:
                     attrs.append(attr)
                     continue
                 else:
-                    raise YunoHostError(22, _("Invalid field : ") + attr)        
+                    raise YunoHostError(22, _("Invalid field : ") + attr)
         else:
             attrs = user_attrs
 
         result = yldap.search('ou=users,dc=yunohost,dc=org', filter, attrs)
-        
+
         if result and len(result) > (0 + offset) and limit > 0:
             i = 0 + offset
             for user in result[i:]:
@@ -56,8 +56,8 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
                         entry['Mail Forward'] = user['mail'][1:]
                     if 'mailalias' in user:
                         entry['Mail Aliases'] = user['mailalias']
-                        
-                    result_dict[str(i)] = entry 
+
+                    result_dict[str(i)] = entry
                     i += 1
         else:
             raise YunoHostError(167, _("No user found"))
@@ -161,11 +161,11 @@ def user_delete(users, purge=None):
                 raise YunoHostError(169, _("An error occured during user deletion"))
 
         win_msg(_("User(s) successfully deleted"))
-    return result 
-            
+    return result
 
-def user_update(username, firstname=None, lastname=None, mail=None, change_password=None, 
-        add_mailforward=None, remove_mailforward=None, 
+
+def user_update(username, firstname=None, lastname=None, mail=None, change_password=None,
+        add_mailforward=None, remove_mailforward=None,
         add_mailalias=None, remove_mailalias=None):
     """
     Update user informations
@@ -238,7 +238,7 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
                 if len(user['mail']) > 1 and mail in user['mail'][1:]:
                     user['mail'].remove(mail)
                 else:
-                    raise YunoHostError(22, _("Invalid mail forward : ") + mail) 
+                    raise YunoHostError(22, _("Invalid mail forward : ") + mail)
             new_attr_dict['mail'] = user['mail']
 
         if add_mailalias:
@@ -262,18 +262,18 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
                 if 'mailalias' in user and mail in user['mailalias']:
                     user['mailalias'].remove(mail)
                 else:
-                    raise YunoHostError(22, _("Invalid mail alias : ") + mail) 
+                    raise YunoHostError(22, _("Invalid mail alias : ") + mail)
             new_attr_dict['mailalias'] = user['mailalias']
 
         if yldap.update('uid=' + username + ',ou=users', new_attr_dict):
            win_msg(_("User successfully updated"))
-           return user_info(username=username)
+           return user_info(username)
         else:
            raise YunoHostError(169, _("An error occured during user update"))
-    
 
 
-def user_info(username=None, mail=None):
+
+def user_info(user_or_mail):
     """
     Fetch user informations from LDAP
 
@@ -287,13 +287,18 @@ def user_info(username=None, mail=None):
     with YunoHostLDAP() as yldap:
         user_attrs = ['cn', 'mail', 'uid', 'mailAlias']
 
-        if mail:
-            filter = 'mail=' + mail
+        if len(user_or_mail.split('@')) is 2:
+            filter = '(|(mail='+ user_or_mail +')(mailalias='+ user_or_mail +'))'
         else:
-            filter = 'uid=' + username
+            filter = 'uid='+ user_or_mail
 
         result = yldap.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)
-        user = result[0]
+
+        if result:
+            user = result[0]
+        else:
+            raise YunoHostError(22, _("Unknown user/mail"))
+
         result_dict = {
             'Username': user['uid'],
             'Fullname': user['cn'],
@@ -310,4 +315,4 @@ def user_info(username=None, mail=None):
             return result_dict
         else:
             raise YunoHostError(167, _("No user found"))
-        
+

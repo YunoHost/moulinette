@@ -28,7 +28,7 @@
 #     Don't forget to turn argument yaml style (setting: value)
 #
 ##########################################################################
-        
+
 #############################
 #       General args        #
 #############################
@@ -38,60 +38,60 @@ general_arguments:
             help: Display YunoHost version
             action: version
             version: YunoHost 2.0 beta1
-    
+
 #############################
 #           User            #
 #############################
-user: 
+user:
     category_help: Manage users
-    actions: 
+    actions:
 
         ### user_list()
-        list: 
+        list:
             action_help: List users
-            arguments: 
-               --fields: 
+            arguments:
+               --fields:
                     help: fields to fetch
                     nargs: "+"
-               -f: 
+               -f:
                     full: --filter
                     help: LDAP filter used to search
-               -l: 
+               -l:
                     full: --limit
-                    help: Maximum number of user fetched 
-               -o: 
+                    help: Maximum number of user fetched
+               -o:
                     full: --offset
-                    help: Starting number for user fetching 
-        
+                    help: Starting number for user fetching
+
         ### user_create()
-        create: 
+        create:
             action_help: Create user
-            arguments: 
-                -u: 
+            arguments:
+                -u:
                     full: --username
                     help: Must be unique
                     ask: "Username"
                     pattern: '^[a-z0-9_]+$'
-                -f: 
+                -f:
                     full: --firstname
                     ask: "Firstname"
-                -l: 
+                -l:
                     full: --lastname
                     ask: "Lastname"
-                -m: 
+                -m:
                     full: --mail
                     help: Main mail address must be unique
                     ask: "Mail address"
                     pattern: '^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$'
-                -p: 
+                -p:
                     full: --password
                     ask: "User password"
                     password: yes
-        
+
         ### user_delete()
-        delete: 
+        delete:
             action_help: Delete user
-            arguments: 
+            arguments:
                 -u:
                     full: --users
                     help: Username of users to delete
@@ -100,273 +100,269 @@ user:
                     nargs: "*"
                 --purge:
                     action: store_true
-        
+
         ### user_update()
-        update: 
+        update:
             action_help: Update user informations
-            arguments: 
-                username: 
+            arguments:
+                username:
                     help: Username of user to update
-                -f: 
+                -f:
                     full: --firstname
-                -l: 
+                -l:
                     full: --lastname
-                -m: 
+                -m:
                     full: --mail
-                -p: 
+                -p:
                     full: --change-password
                     help: New password to set
                     metavar: PASSWORD
-                --add-mailforward: 
+                --add-mailforward:
                     help: Mailforward addresses to add
                     nargs: "+"
                     metavar: MAIL
-                --remove-mailforward: 
+                --remove-mailforward:
                     help: Mailforward addresses to remove
                     nargs: "+"
                     metavar: MAIL
-                --add-mailalias: 
+                --add-mailalias:
                     help: Mail aliases to add
                     nargs: "+"
                     metavar: MAIL
-                --remove-mailalias: 
+                --remove-mailalias:
                     help: Mail aliases to remove
                     nargs: "+"
                     metavar: MAIL
-        
+
         ### user_info()
-        info: 
+        info:
             action_help: Get user informations
-            arguments: 
-                -u: 
-                    full: --username
-                    ask: "Username"
-                    pattern: '^[a-z0-9_]+$'
-                -m: 
-                    full: --mail
-    
+            arguments:
+                user-or-mail:
+                    help: Username or mail to get informations
+
 
 #############################
 #          Domain           #
 #############################
-domain: 
+domain:
     category_help: Manage domains
-    actions: 
-        
+    actions:
+
         ### domain_list()
-        list: 
+        list:
             action_help: List domains
-            arguments: 
-                -f: 
+            arguments:
+                -f:
                     full: --filter
                     help: LDAP filter used to search
-                -l: 
+                -l:
                     full: --limit
-                    help: Maximum number of domain fetched 
-                -o: 
+                    help: Maximum number of domain fetched
+                -o:
                     full: --offset
-                    help: Starting number for domain fetching 
-        
+                    help: Starting number for domain fetching
+
         ### domain_add()
-        add: 
+        add:
             action_help: Create a custom domain
-            arguments: 
-                domains: 
+            arguments:
+                domains:
                     help: Domain name to add
                     nargs: '*'
                     ask: "New domain"
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
-                
+
         ### domain_remove()
-        remove: 
+        remove:
             action_help: Delete domains
-            arguments: 
-                domains: 
+            arguments:
+                domains:
                     help: Domain(s) to delete
                     nargs: "*"
                     ask: "Domain to remove"
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
-                
+
         ### domain_info()
-        info: 
+        info:
             action_help: Get domain informations
-            arguments: 
-                domain: 
+            arguments:
+                domain:
                     help: ""
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### domain_renewcert()
-        renewcert: 
+        renewcert:
             action_help: Renew domain certificate
-            arguments: 
-                domain: 
+            arguments:
+                domain:
                     help: ""
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
 #############################
 #            App            #
 #############################
-app: 
+app:
     category_help: Manage apps
-    actions: 
-        
+    actions:
+
         ### app_updatelist()
         updatelist:
             action_help: Fetch application list from app server
             arguments:
                 -u:
                     full: --url
-                    help: URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw) 
+                    help: URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw)
 
         ### app_list()
-        list: 
+        list:
             action_help: List apps
-            arguments: 
-                --fields: 
+            arguments:
+                --fields:
                     help: fields to fetch
                     nargs: "+"
-                -f: 
+                -f:
                     full: --filter
                     help: LDAP filter used to search
-                -l: 
+                -l:
                     full: --limit
-                    help: Maximum number of app fetched 
-                -o: 
+                    help: Maximum number of app fetched
+                -o:
                     full: --offset
-                    help: Starting number for app fetching 
-        
+                    help: Starting number for app fetching
+
         ### app_install() TODO: Write help
-        install: 
+        install:
             action_help: Install apps
-            arguments: 
-                app: 
+            arguments:
+                app:
                     help: App to install
-                -d: 
+                -d:
                     full: --domain
-                -p: 
+                -p:
                     full: --path
-                -l: 
+                -l:
                     full: --label
-                --public: 
+                --public:
                     action: store_true
-                --protected: 
+                --protected:
                     action: store_true
-        
+
         ### app_remove() TODO: Write help
-        remove: 
+        remove:
             action_help: Remove app
-            arguments: 
-                app: 
+            arguments:
+                app:
                     help: App(s) to delete
                     nargs: "+"
-        
+
         ### app_upgrade()
-        upgrade: 
+        upgrade:
             action_help: Upgrade app
-            arguments: 
-                app: 
+            arguments:
+                app:
                     help: App(s) to upgrade (default all)
                     nargs: "*"
-        
+
         ### app_info() TODO: Write help
-        info: 
+        info:
             action_help: Get app informations
-            arguments: 
-                app: 
+            arguments:
+                app:
                     help: ""
-        
+
         ### app_addaccess() TODO: Write help
-        addaccess: 
+        addaccess:
             action_help: Grant access right to users (everyone by default)
-            arguments: 
-                app: 
+            arguments:
+                app:
                     nargs: "+"
-                -u: 
+                -u:
                     full: --user
                     nargs: "+"
-        
+
         ### app_removeaccess() TODO: Write help
-        removeaccess: 
+        removeaccess:
             action_help: Revoke access right to users (everyone by default)
-            arguments: 
-                app: 
+            arguments:
+                app:
                     nargs: "+"
-                -u: 
+                -u:
                     full: --user
                     nargs: "+"
-                
+
 
 #############################
 #        Repository         #
 #############################
-repo: 
+repo:
     category_help: Manage app repositories
-    actions: 
+    actions:
 
         ### repo_list()
-        list: 
+        list:
             action_help: List repositories
-            arguments: 
-                -f: 
+            arguments:
+                -f:
                     full: --filter
                     help: LDAP filter used to search
-                -l: 
+                -l:
                     full: --limit
-                    help: Maximum number of repository fetched 
-                -o: 
+                    help: Maximum number of repository fetched
+                -o:
                     full: --offset
-                    help: Starting number for repository fetching 
-        
+                    help: Starting number for repository fetching
+
         ### repo_add()
-        add: 
+        add:
             action_help: Add app repository
-            arguments: 
-                url: 
+            arguments:
+                url:
                     help: URL of the repository
-                -n: 
+                -n:
                     full: --name
                     help: Unique name of the repository
-        
+
         ### repo_remove()
-        remove: 
+        remove:
             action_help: Remove repository
-            arguments: 
-                repo: 
+            arguments:
+                repo:
                     help: Name or URL of the repository
-                
+
         ### repo_update()
-        update: 
+        update:
             action_help: Update app list from the repositories
 
 
 #############################
 #          Monitor          #
 #############################
-monitor: 
+monitor:
     category_help: Monitoring functions
-    actions: 
-        
+    actions:
+
         ### monitor_info()
-        info: 
+        info:
             action_help: Check System
-            arguments: 
-                -m: 
+            arguments:
+                -m:
                     full: --memory
                     help: Check Memory
                     action: store_true
-                -c: 
+                -c:
                     full: --cpu
                     help: Check CPU
                     action: store_true
-                -d: 
+                -d:
                     full: --disk
                     help: Check Disk
                     action: store_true
-                -i: 
+                -i:
                     full: --ifconfig
                     help: Show Ip and MAC Adress
                     action: store_true
-                -u: 
+                -u:
                     full: --uptime
                     help: Show Uptime
                     action: store_true
@@ -377,7 +373,7 @@ monitor:
         process:
             action_help: Check Process
             arguments:
-                -e: 
+                -e:
                     full: --enable
                     help: Enable process
                     metavar: PROCESS
@@ -399,63 +395,63 @@ monitor:
                     full: --info
                     help: Process info
                     action: store_true
-                    
+
 
 #############################
 #         Firewall          #
 #############################
-firewall: 
+firewall:
     category_help: Manage firewall rules
-    actions: 
+    actions:
 
         ### firewall_list()
-        list: 
+        list:
             action_help: List all firewall rules
-        
+
         ### firewall_allow()
-        allow: 
+        allow:
             action_help: Allow connection port/protocol
-            arguments: 
-                port: 
+            arguments:
+                port:
                     help: Port to open
-                protocol: 
+                protocol:
                     help: Protocol associated with port
-                    choices: 
-                        - UDP 
-                        - TCP 
+                    choices:
+                        - UDP
+                        - TCP
                         - Both
-                name: 
+                name:
                     help: Reference name of the rule
-                
+
         ### firewall_disallow()
-        disallow: 
+        disallow:
             action_help: Disallow connection
-            arguments: 
-                name: 
+            arguments:
+                name:
                     help: Reference name of the rule to delete
-                
+
 
 #############################
 #           Tools           #
 #############################
-tools: 
+tools:
     category_help: Specific tools
-    actions: 
+    actions:
 
         ### tools_ldapinit()
-        ldapinit: 
+        ldapinit:
             action_help: YunoHost LDAP initialization
             arguments:
-                -d: 
+                -d:
                     full: --domain
                     help: YunoHost main domain
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### tools_adminpw()
-        adminpw: 
+        adminpw:
             action_help: Change admin password
-            arguments: 
-                -o: 
+            arguments:
+                -o:
                     full: --old-password
                     ask: "Actual admin password"
                     password: yes
@@ -467,7 +463,7 @@ tools:
         ### tools_maindomain()
         maindomain:
             action_help: Main domain change tool
-            arguments: 
+            arguments:
                 -o:
                     full: --old-domain
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
@@ -477,10 +473,10 @@ tools:
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### tools_postinstall()
-        postinstall: 
+        postinstall:
             action_help: YunoHost post-install
-            arguments: 
-                -d: 
+            arguments:
+                -d:
                     full: --domain
                     help: YunoHost main domain
                     ask: "Main domain"

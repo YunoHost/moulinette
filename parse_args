@@ -166,7 +166,14 @@ def main():
 
     try:
         args = parse_dict(action_map)
-        result = args.func(args)
+        args_dict = vars(args).copy()
+        for key in args_dict.keys():
+            sanitized_key = key.replace('-', '_')
+            if sanitized_key is not key:
+                args_dict[sanitized_key] = args_dict[key]
+                del args_dict[key]
+        del args_dict['func']
+        result = args.func(**args_dict)
     except TypeError, error:
         if not __debug__ :
             traceback.print_exc()
@@ -175,7 +182,7 @@ def main():
     except YunoHostError, error:
         display_error(error)
         return error.code
-    else: 
+    else:
         if result is None:
             pass
         elif os.isatty(1):
