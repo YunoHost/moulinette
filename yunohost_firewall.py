@@ -61,10 +61,10 @@ def firewall_reload():
         firewall = yaml.load(f)
     listPortTCP=firewall['ipv4']["TCP"]
     listPortUDP=firewall['ipv4']["UDP"]
-    for port in enumerate (listPortTCP):
-        os.system ("iptables -A INPUT -p tcp -i eth0 --dport "+ port +" -j ACCEPT")
-    for port in enumerate (listPortUDP):
-        os.system ("iptables -A INPUT -p udp -i eth0 --dport "+ port +" -j ACCEPT")
+    for i,port in enumerate (listPortTCP):
+        os.system ("iptables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+    for i,port in enumerate (listPortUDP):
+        os.system ("iptables -A INPUT -p udp -i eth0 --dport "+ str(port) +" -j ACCEPT")
         os.system ("iptables -P INPUT DROP")
 
 def append_port(port=None,protocol=None):
