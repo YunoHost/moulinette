@@ -9,7 +9,7 @@ except ImportError:
     sys.stderr.write('apt-get install python-yaml\n')
     sys.exit(1)
 
-def firewall_allow(protocol=None,port=None,name=None):
+def firewall_allow(protocol=None,port=None):
     if protocol == "Both":
     chaineTCP="iptables -A INPUT -p tcp -i eth0 --dport "+ port +" -j ACCEPT"
 	chaineUDP="iptables -A INPUT -p udp -i eth0 --dport "+ port +" -j ACCEPT"
@@ -23,7 +23,7 @@ def firewall_allow(protocol=None,port=None,name=None):
         append_port(port,protocol)
         os.system(chaine)
 
-def firewall_disallow(protocol=None,port=None,name=None):
+def firewall_disallow(protocol=None,port=None):
     if protocol == "Both":
         chaineTCP="iptables -A INPUT -p tcp -i eth0 --dport "+ port +" -j REJECT"
         chaineUDP="iptables -A INPUT -p udp -i eth0 --dport "+ port +" -j REJECT"
