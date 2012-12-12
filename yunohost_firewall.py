@@ -21,6 +21,7 @@ def firewall_allow(protocol=None,port=None,ip=None):
 
     if protocol == "Both":
         TCP_rule = iptables+" -A INPUT -p tcp -i eth0 --dport "+ port +" -j ACCEPT"
+        
         UDP_rule = iptables+" -A INPUT -p udp -i eth0 --dport "+ port +" -j ACCEPT"
         append_remove_port(port,'tcp','a',ip)
         append_remove_port(port,'udp','a',ip)
@@ -120,15 +121,19 @@ def firewall_reload():
 
     for i,port in enumerate (TCP_port_list_ipv4):
         os.system ("iptables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        print("Port "+str(port)+" on protocol TCP  with ipv4 Open")
 
     for i,port in enumerate (UDP_port_list_ipv4):
         os.system ("iptables -A INPUT -p udp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        print("Port "+str(port)+" on protocol UDP  with ipv4 Open")
 
     for i,port in enumerate (TCP_port_list_ipv6):
         os.system ("ip6tables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        print("Port "+str(port)+" on protocol TCP  with ipv6 Open")
 
     for i,port in enumerate (UDP_port_list_ipv6):
         os.system ("ip6tables -A INPUT -p udp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        print("Port "+str(port)+" on protocol UDP  with ipv6 Open")
 
     os.system ("iptables -P INPUT DROP")
     os.system ("ip6tables -P INPUT DROP")
@@ -139,16 +144,25 @@ def append_remove_port(port=None,protocol=None,mode=None,ip=None):
     '''
     Append port in firewall.yml
     '''
+    if ip == True:
+        ip = 'ipv6'
+    else:
+        ip = 'ipv4'
+
     with open('firewall.yml','r') as f:
         firewall = yaml.load(f)
-
         if mode == 'a':
-            if port not in firewall[ip][protocol]:
+            if int(port) not in firewall[ip][protocol]:
                 firewall[ip][protocol].append(int(port))
+                print("Port "+port+" on protocol "+protocol+" with "+ip+" Open")
+            else:
+                print("Port already open")
         else:
-            if port not in firewall[ip][protocol]:
+            if int(port) in firewall[ip][protocol]:
                 firewall[ip][protocol].remove(int(port))
-
+                print("Port "+port+" on protocol "+protocol+" with "+ip+" Close")
+            else:
+                print("Port already close")
     firewall[ip][protocol].sort()
     f.close
 
