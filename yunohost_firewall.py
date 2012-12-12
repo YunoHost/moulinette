@@ -136,12 +136,15 @@ def append_remove_port(port=None,protocol=None,mode=None,ip=None):
     '''
     with open('firewall.yml','r') as f:
         firewall = yaml.load(f)
-        if port not in firewall[ip][protocol]:
-            if mode == 'a':
+
+        if mode == 'a':
+            if port not in firewall[ip][protocol]:
                 firewall[ip][protocol].append(int(port))
-            else:
+        else:
+            if port not in firewall[ip][protocol]:
                 firewall[ip][protocol].remove(int(port))
-                firewall[ip][protocol].sort()
+
+    firewall[ip][protocol].sort()
     f.close
 
     os.system("mv firewall.yml firewall.yml.old")
