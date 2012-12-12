@@ -42,8 +42,16 @@ def firewall_list():
 	Parse and display firwall.yml
 	'''
     with open ('firewall.yml') as f:
-        firewall = yaml.load(f)
-        print(firewall)
+                firewall = yaml.load(f)
+                listPortTCP=firewall['ipv4']['TCP']
+                listPortUDP=firewall['ipv4']['UDP']
+                print("Port TCP OPEN :")
+        for i,port in enumerate (listPortTCP):
+                print("-"+str(port))
+        print("Port UDP OPEN :")
+        for i,port in enumerate (listPortUDP):
+                print("-"+str(port))
+	f.close()
         
 def firewall_reload():
     '''
