@@ -420,7 +420,11 @@ firewall:
                         - UDP
                         - TCP
                         - Both
-                
+                -i:
+                    full: --ipv6
+                    help: ipv6
+                    action: store_true
+
 
         ### firewall_disallow()
         disallow:
@@ -434,7 +438,10 @@ firewall:
                         - UDP
                         - TCP
                         - Both
-                
+                -i:
+                    full: --ipv6
+                    help: ipv6
+                    action: store_true
 
 
 #############################

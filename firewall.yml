@@ -6,3 +6,5 @@ ipv4:
     UDP: [53]
 
 ipv6:
+    TCP: []
+    UDP: []
