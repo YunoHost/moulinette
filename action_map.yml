@@ -407,6 +407,10 @@ firewall:
         ### firewall_list()
         list:
             action_help: List all firewall rules
+        
+        ### firewall_reload()
+        reload:
+            action_help: Reload  all firewall rules
 
         ### firewall_allow()
         allow:
@@ -420,10 +424,10 @@ firewall:
                         - UDP
                         - TCP
                         - Both
-                -i:
-                    full: --ipv6
-                    help: ipv6
-                    action: store_true
+                #-i:
+                 #   full: --ipv6
+                  #  help: ipv6
+                   # action: store_true
 
 
         ### firewall_disallow()
@@ -438,10 +442,10 @@ firewall:
                         - UDP
                         - TCP
                         - Both
-                -i:
-                    full: --ipv6
-                    help: ipv6
-                    action: store_true
+                #-i:
+                 #   full: --ipv6
+                  #  help: ipv6
+                   # action: store_true
 
 
 #############################
