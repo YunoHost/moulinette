@@ -420,15 +420,21 @@ firewall:
                         - UDP
                         - TCP
                         - Both
-                name:
-                    help: Reference name of the rule
+                
 
         ### firewall_disallow()
         disallow:
             action_help: Disallow connection
             arguments:
-                name:
-                    help: Reference name of the rule to delete
+                port:
+                    help: Port to open
+                protocol:
+                    help: Protocol associated with port
+                    choices:
+                        - UDP
+                        - TCP
+                        - Both
+                
 
 
 #############################
