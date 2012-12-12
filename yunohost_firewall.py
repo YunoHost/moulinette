@@ -12,7 +12,7 @@ except ImportError:
 
 
 def firewall_allow(protocol=None,port=None,ip=None):
-    if ip == true:
+    if ip == True:
         ip = 'ipv6'
         iptables="ip6tables"
     else:
@@ -36,10 +36,12 @@ def firewall_allow(protocol=None,port=None,ip=None):
 
 def firewall_disallow(protocol=None,port=None,ip=None):
 
-    if ip == true:
+    if ip == True:
         ip = 'ipv6'
+        iptables="ip6tables"
     else:
         ip = 'ipv4'
+        iptables="ip6tables"
 
     if protocol == "Both":
         TCP_rule = iptables+" -A INPUT -p tcp -i eth0 --dport "+ port +" -j REJECT"
@@ -107,11 +109,14 @@ def firewall_reload():
     os.system ("iptables -F")
     os.system ("iptables -X")
     os.system ("iptables -A INPUT -p tcp -i eth0 --dport 22 -j ACCEPT")
+    append_remove_port('22','TCP','a',False)
+
 
     os.system ("ip6tables -P INPUT ACCEPT")
     os.system ("ip6tables -F")
     os.system ("ip6tables -X")
     os.system ("ip6tables -A INPUT -p tcp -i eth0 --dport 22 -j ACCEPT")
+    append_remove_port('22','TCP','a',True)
 
     for i,port in enumerate (TCP_port_list_ipv4):
         os.system ("iptables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
