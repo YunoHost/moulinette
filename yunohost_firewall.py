@@ -16,9 +16,12 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
     Allow port in iptables
     
     Keyword arguments:
-    protocol
-    port
-    ipv6
+        protocol -- Protocol used
+        port    -- Port to open
+        ipv6    -- Boolean ipv6
+    
+    Return
+        Dict
     
     """
     if ipv6 == True:
@@ -42,6 +45,8 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
         rule = iptables+" -A INPUT -p "+ protocol +" -i eth0 --dport "+ port +" -j ACCEPT"
         update_yml(port,protocol,'a',ip)
         os.system(rule)
+    
+    return firewall_list()
 
 
 
@@ -50,9 +55,12 @@ def firewall_disallow(protocol=None,port=None,ipv6=None):
     Disallow port in iptables
     
     Keyword arguments:
-    protocol
-    port
-    ipv6
+        protocol -- Protocol used
+        port    -- Port to open
+        ipv6    -- Boolean ipv6
+    
+    Return
+        Dict
     
     """
 
@@ -77,15 +85,21 @@ def firewall_disallow(protocol=None,port=None,ipv6=None):
         rule = iptables+" -A INPUT -p "+ protocol +" -i eth0 --dport "+ port +" -j REJECT"
         update_yml(port,protocol,'r',ip)
         os.system(rule)
+    
+    return firewall_list
 
 
 
 def firewall_list():
     """
-    Display list of allow port
+    Allow port in iptables
     
     Keyword arguments:
-    None
+        None
+    
+    Return
+        Dict
+    
     """
     with open ('firewall.yml') as f:
         firewall = yaml.load(f)
@@ -98,7 +112,10 @@ def firewall_reload():
     Reload iptables configuration
     
     Keyword arguments:
-    None
+        None
+    
+    Return
+        Dict
     '''
     with open('firewall.yml','r') as f:
         firewall = yaml.load(f)
@@ -134,7 +151,8 @@ def firewall_reload():
 
     os.system ("iptables -P INPUT DROP")
     os.system ("ip6tables -P INPUT DROP")
-    firewall_list()
+    
+    return firewall_list()
 
 
 
@@ -143,10 +161,13 @@ def update_yml(port=None,protocol=None,mode=None,ip=None):
     Update firewall.yml
     
     Keyword arguments:
-    protocol
-    port
-    mode
-    ipv6
+        protocol -- Protocol used
+        port    -- Port to open
+        mode -- a=append r=remove
+        ipv6    -- Boolean ipv6
+    
+    Return
+        None
     
     """
     
