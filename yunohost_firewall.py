@@ -45,7 +45,8 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
         rule = iptables+" -A INPUT -p "+ protocol +" -i eth0 --dport "+ port +" -j ACCEPT"
         update_yml(port,protocol,'a',ip)
         os.system(rule)
-    
+        
+    win_msg(_("Port successfully openned"))
     return firewall_list()
 
 
@@ -85,7 +86,7 @@ def firewall_disallow(protocol=None,port=None,ipv6=None):
         rule = iptables+" -A INPUT -p "+ protocol +" -i eth0 --dport "+ port +" -j REJECT"
         update_yml(port,protocol,'r',ip)
         os.system(rule)
-    
+    win_msg(_("Port successfully closed"))
     return firewall_list
 
 
@@ -152,6 +153,7 @@ def firewall_reload():
     os.system ("iptables -P INPUT DROP")
     os.system ("ip6tables -P INPUT DROP")
     
+    win_msg(_("Firewall successfully reloaded"))
     return firewall_list()
 
 
