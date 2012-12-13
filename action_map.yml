@@ -407,6 +407,10 @@ firewall:
         ### firewall_list()
         list:
             action_help: List all firewall rules
+        
+        ### firewall_reload()
+        reload:
+            action_help: Reload  all firewall rules
 
         ### firewall_allow()
         allow:
@@ -420,15 +424,28 @@ firewall:
                         - UDP
                         - TCP
                         - Both
-                name:
-                    help: Reference name of the rule
+                -i:
+                    full: --ipv6
+                    help: ipv6
+                    action: store_true
+
 
         ### firewall_disallow()
         disallow:
             action_help: Disallow connection
             arguments:
-                name:
-                    help: Reference name of the rule to delete
+                port:
+                    help: Port to open
+                protocol:
+                    help: Protocol associated with port
+                    choices:
+                        - UDP
+                        - TCP
+                        - Both
+                -i:
+                    full: --ipv6
+                    help: ipv6
+                    action: store_true
 
 
 #############################
