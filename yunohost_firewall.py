@@ -118,22 +118,23 @@ def firewall_reload():
 
     for i,port in enumerate (firewall['ipv4']['TCP']):
         os.system ("iptables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
-        print("Port "+str(port)+" on protocol TCP  with ipv4 Open")
+        
 
     for i,port in enumerate (firewall['ipv4']['UDP']):
         os.system ("iptables -A INPUT -p udp -i eth0 --dport "+ str(port) +" -j ACCEPT")
-        print("Port "+str(port)+" on protocol UDP  with ipv4 Open")
+        
 
     for i,port in enumerate (firewall['ipv6']['TCP']):
         os.system ("ip6tables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
-        print("Port "+str(port)+" on protocol TCP  with ipv6 Open")
+        
 
     for i,port in enumerate (firewall['ipv6']['UDP']):
         os.system ("ip6tables -A INPUT -p udp -i eth0 --dport "+ str(port) +" -j ACCEPT")
-        print("Port "+str(port)+" on protocol UDP  with ipv6 Open")
+        
 
     os.system ("iptables -P INPUT DROP")
     os.system ("ip6tables -P INPUT DROP")
+    firewall_list()
 
 
 
