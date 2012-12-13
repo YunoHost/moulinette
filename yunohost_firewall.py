@@ -12,6 +12,15 @@ except ImportError:
 
 
 def firewall_allow(protocol=None,port=None,ipv6=None):
+    """
+    Allow port in iptables
+    
+    Keyword arguments:
+    protocol
+    port
+    ipv6
+    
+    """
     if ipv6 == True:
         ip = 'ipv6'
         iptables="ip6tables"
@@ -37,6 +46,15 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
 
 
 def firewall_disallow(protocol=None,port=None,ipv6=None):
+    """
+    Disallow port in iptables
+    
+    Keyword arguments:
+    protocol
+    port
+    ipv6
+    
+    """
 
     if ipv6 == True:
         ip = 'ipv6'
@@ -63,9 +81,12 @@ def firewall_disallow(protocol=None,port=None,ipv6=None):
 
 
 def firewall_list():
-    '''
-    Parse and display firwall.yml
-    '''
+    """
+    Display list of allow port
+    
+    Keyword arguments:
+    None
+    """
     with open ('firewall.yml') as f:
         firewall = yaml.load(f)
     return firewall
@@ -74,11 +95,10 @@ def firewall_list():
 
 def firewall_reload():
     '''
-    Clear filter IPTABLE's table
-    Allow SSH
-    Parse firewall.yml extract the list of port allowed
-    Allow all port in the list
-    Prohibit the rest
+    Reload iptables configuration
+    
+    Keyword arguments:
+    None
     '''
     with open('firewall.yml','r') as f:
         firewall = yaml.load(f)
@@ -118,9 +138,16 @@ def firewall_reload():
 
 
 def update_yml(port=None,protocol=None,mode=None,ip=None):
-    '''
-    Append port in firewall.yml
-    '''
+     """
+    Update firewall.yml
+    
+    Keyword arguments:
+    protocol
+    port
+    mode
+    ipv6
+    
+    """
     
     with open('firewall.yml','r') as f:
         firewall = yaml.load(f)
