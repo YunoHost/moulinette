@@ -8,6 +8,7 @@ except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
     sys.stderr.write('apt-get install python-yaml\n')
     sys.exit(1)
+from yunohost import YunoHostError, win_msg
 
 
 
@@ -24,30 +25,22 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
         Dict
     
     """
-    if ipv6 == True:
-        ip = 'ipv6'
-        iptables="ip6tables"
-    else:
-        ip = 'ipv4'
-        iptables="iptables"
+	if int(port)<65536 and int(port)>0:
+		if protocol == "Both":
 
-    if protocol == "Both":
-        TCP_rule = iptables+" -A INPUT -p tcp -i eth0 --dport "+ port +" -j ACCEPT"       
-        UDP_rule = iptables+" -A INPUT -p udp -i eth0 --dport "+ port +" -j ACCEPT"
-        
-        update_yml(port,'tcp','a',ip)
-        update_yml(port,'udp','a',ip)
-        
-        os.system(TCP_rule)
-        os.system(UDP_rule)
+		    update_yml(port,'tcp','a',ipv6)
+		    update_yml(port,'udp','a',ipv6) 
 
-    else:
-        rule = iptables+" -A INPUT -p "+ protocol +" -i eth0 --dport "+ port +" -j ACCEPT"
-        update_yml(port,protocol,'a',ip)
-        os.system(rule)
-        
-    win_msg(_("Port successfully openned"))
-    return firewall_list()
+		else:
+		    
+		    update_yml(port,protocol,'a',ipv6)
+
+		win_msg(_("Port successfully openned"))
+	else:
+		raise YunoHostError(22,_("Port not between 1 and 65535 : ")+port)
+	
+	firewall_reload()			
+	return firewall_list()
 
 
 
@@ -65,28 +58,14 @@ def firewall_disallow(protocol=None,port=None,ipv6=None):
     
     """
 
-    if ipv6 == True:
-        ip = 'ipv6'
-        iptables="ip6tables"
+    if protocol == "Both":  
+        update_yml(port,'tcp','r',ipv6)
+        update_yml(port,'udp','r',ipv6)     
     else:
-        ip = 'ipv4'
-        iptables="ip6tables"
-
-    if protocol == "Both":
-        TCP_rule = iptables+" -A INPUT -p tcp -i eth0 --dport "+ port +" -j REJECT"
-        UDP_rule = iptables+" -A INPUT -p udp -i eth0 --dport "+ port +" -j REJECT"
-        
-        update_yml(port,'tcp','r',ip)
-        update_yml(port,'udp','r',ip)
-        
-        os.system(TCP_rule)
-        os.system(UDP_rule)
-        
-    else:
-        rule = iptables+" -A INPUT -p "+ protocol +" -i eth0 --dport "+ port +" -j REJECT"
-        update_yml(port,protocol,'r',ip)
-        os.system(rule)
+        update_yml(port,protocol,'r',ipv6)
     win_msg(_("Port successfully closed"))
+	
+	firewall_reload()
     return firewall_list
 
 
@@ -111,10 +90,10 @@ def firewall_list():
 def firewall_reload():
     '''
     Reload iptables configuration
-    
+
     Keyword arguments:
-        None
-    
+	None
+
     Return
         Dict
     '''
@@ -124,15 +103,15 @@ def firewall_reload():
     os.system ("iptables -P INPUT ACCEPT")
     os.system ("iptables -F")
     os.system ("iptables -X")
-    os.system ("iptables -A INPUT -p tcp -i eth0 --dport 22 -j ACCEPT")
-    update_yml('22','TCP','a',False)
+	if '22' not in firewall['ipv4']['TCP']:
+    	update_yml('22','TCP','a',False)
 
 
     os.system ("ip6tables -P INPUT ACCEPT")
     os.system ("ip6tables -F")
     os.system ("ip6tables -X")
-    os.system ("ip6tables -A INPUT -p tcp -i eth0 --dport 22 -j ACCEPT")
-    update_yml('22','TCP','a',True)
+	if '22' not in firewall['ipv6']['TCP']:
+    	update_yml('22','TCP','a',True)
 
     for i,port in enumerate (firewall['ipv4']['TCP']):
         os.system ("iptables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
@@ -158,7 +137,7 @@ def firewall_reload():
 
 
 
-def update_yml(port=None,protocol=None,mode=None,ip=None):
+def update_yml(port=None,protocol=None,mode=None,ipv6=None):
      """
     Update firewall.yml
     
@@ -172,22 +151,29 @@ def update_yml(port=None,protocol=None,mode=None,ip=None):
         None
     
     """
-    
+    if ipv6:
+        ip = 'ipv6'
+    else:
+        ip = 'ipv4'
+
     with open('firewall.yml','r') as f:
         firewall = yaml.load(f)
+
     if mode == 'a':
-        if int(port) not in firewall[ip][protocol]:
-            firewall[ip][protocol].append(int(port))
-            print("Port "+port+" on protocol "+protocol+" with "+ip+" Open")
+        if port not in firewall[ip][protocol]:
+            firewall[ip][protocol].append(port)
+
         else:
-            print("Port already open")
+            raise YunoHostError(22,_("Port already openned")+port)
+
     else:
-        if int(port) in firewall[ip][protocol]:
-            firewall[ip][protocol].remove(int(port))
-            print("Port "+port+" on protocol "+protocol+" with "+ip+" Close")
+        if port in firewall[ip][protocol]:
+            firewall[ip][protocol].remove(port)
+
         else:
-            print("Port already close")
-    firewall[ip][protocol].sort()
+            raise YunoHostError(22,_("Port already closed")+port)
+
+    firewall[ip][protocol].sort(key=int)
 
     os.system("mv firewall.yml firewall.yml.old")
     with open('firewall.yml','w') as f:
