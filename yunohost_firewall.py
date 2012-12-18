@@ -39,8 +39,7 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
     else:
         raise YunoHostError(22,_("Port not between 1 and 65535 : ")+port)
 
-        firewall_reload()
-        return firewall_list()
+    return firewall_reload()
 
 
 
@@ -65,8 +64,7 @@ def firewall_disallow(protocol=None,port=None,ipv6=None):
         update_yml(port,protocol,'r',ipv6)
     win_msg(_("Port successfully closed"))
 
-    firewall_reload()
-    return firewall_list
+    return firewall_reload()
 
 
 
@@ -133,6 +131,7 @@ def firewall_reload():
     os.system ("ip6tables -P INPUT DROP")
 
     win_msg(_("Firewall successfully reloaded"))
+
     return firewall_list()
 
 
@@ -162,18 +161,18 @@ def update_yml(port=None,protocol=None,mode=None,ipv6=None):
             firewall[ip][protocol].append(port)
 
         else:
-            raise YunoHostError(22,_("Port already openned")+port)
+            raise YunoHostError(22,_("Port already openned ")+port)
 
     else:
         if port in firewall[ip][protocol]:
             firewall[ip][protocol].remove(port)
 
         else:
-            raise YunoHostError(22,_("Port already closed")+port)
+            raise YunoHostError(22,_("Port already closed ")+port)
 
     firewall[ip][protocol].sort(key=int)
 
     os.system("mv firewall.yml firewall.yml.old")
+
     with open('firewall.yml','w') as f:
         yaml.dump(firewall,f)
-
