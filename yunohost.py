@@ -45,15 +45,10 @@ def pretty_print_dict(d, depth=0):
         elif isinstance(v, list):
             print(("  ") * depth + ("%s: " % k))
             for value in v:
-                if isinstance(value,str):
-                    print(("  ") * (depth+1) + "- " + value)
-                else:
-                    print(("  ") * (depth+1) + "- " +str(value))
+                print(("  ") * (depth+1) + "- " +str(value))
         else:
-            if isinstance(v,str):
-                print(("  ") * depth + "%s: %s" % (k, v))
-            else:
-                print(("  ") * depth + "%s: %s" % (k, str(v)))
+            print(("  ") * depth + "%s: %s" % (k, str(v)))
+
 def win_msg(astr):
     """ 
     Display a success message if isatty 
