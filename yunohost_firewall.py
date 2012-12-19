@@ -28,8 +28,8 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
     port=int(port)
     if port<65536 and port>0:
         if protocol == "Both":
-            update_yml(port,'tcp','a',ipv6)
-            update_yml(port,'udp','a',ipv6) 
+            update_yml(port,'TCP','a',ipv6)
+            update_yml(port,'UDP','a',ipv6) 
 
         else:
             update_yml(port,protocol,'a',ipv6)
@@ -37,7 +37,7 @@ def firewall_allow(protocol=None,port=None,ipv6=None):
         win_msg(_("Port successfully openned"))
 
     else:
-        raise YunoHostError(22,_("Port not between 1 and 65535 : ")+port)
+        raise YunoHostError(22,_("Port not between 1 and 65535 : ")+str(port))
 
     return firewall_reload()
 
@@ -59,8 +59,8 @@ def firewall_disallow(protocol=None,port=None,ipv6=None):
 
     port=int(port)
     if protocol == "Both":  
-        update_yml(port,'tcp','r',ipv6)
-        update_yml(port,'udp','r',ipv6)
+        update_yml(port,'TCP','r',ipv6)
+        update_yml(port,'UDP','r',ipv6)
     else:
         update_yml(port,protocol,'r',ipv6)
     win_msg(_("Port successfully closed"))
@@ -162,14 +162,14 @@ def update_yml(port=None,protocol=None,mode=None,ipv6=None):
             firewall[ip][protocol].append(port)
 
         else:
-            raise YunoHostError(22,_("Port already openned :")+port)
+            raise YunoHostError(22,_("Port already openned :")+str(port))
 
     else:
         if port in firewall[ip][protocol]:
             firewall[ip][protocol].remove(port)
 
         else:
-            raise YunoHostError(22,_("Port already closed :")+port)
+            raise YunoHostError(22,_("Port already closed :")+str(port))
 
     firewall[ip][protocol].sort()
 
