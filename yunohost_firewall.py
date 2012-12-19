@@ -161,14 +161,14 @@ def update_yml(port=None,protocol=None,mode=None,ipv6=None):
             firewall[ip][protocol].append(port)
 
         else:
-            raise YunoHostError(22,_("Port already openned ")+port)
+            raise YunoHostError(22,_("Port already openned :")+port)
 
     else:
         if port in firewall[ip][protocol]:
             firewall[ip][protocol].remove(port)
 
         else:
-            raise YunoHostError(22,_("Port already closed ")+port)
+            raise YunoHostError(22,_("Port already closed :")+port)
 
     firewall[ip][protocol].sort(key=int)
 
