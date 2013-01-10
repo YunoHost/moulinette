@@ -2,6 +2,8 @@
 
 import os
 import sys
+import miniupnpc
+
 try:
     import yaml
 except ImportError:
@@ -109,23 +111,56 @@ def firewall_reload():
     os.system ("ip6tables -P INPUT ACCEPT")
     os.system ("ip6tables -F")
     os.system ("ip6tables -X")
+
+    u=miniupnpc.UPnP()
+    u.discoverdelay=200
+
+    if u.discover()==0:
+        igd=False
+        win_msg(_("No igd devices found, you'll need to manually open port on your router"))
+    else:
+        u.selectigd()
+        igd=True
+        # list the redirections :
+        i = 0
+        while True:
+            p = u.getgenericportmapping(i)
+            if p==None:
+                break
+            (port, proto, (ihost,iport), desc, c, d, e) = p
+            u.deleteportmapping(port,proto);
+            #print port, desc
+            i = i + 1
+
+
     if 22 not in firewall['ipv6']['TCP']:
         update_yml(22,'TCP','a',True)
 
     for i,port in enumerate (firewall['ipv4']['TCP']):
         os.system ("iptables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        if igd:
+            u.addportmapping(port,'TCP',u.lanaddr,port,'UPnP IGD Tester port %u' % port, '')
+        
 
 
     for i,port in enumerate (firewall['ipv4']['UDP']):
         os.system ("iptables -A INPUT -p udp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        if igd:
+            u.addportmapping(port,'UDP',u.lanaddr,port,'UPnP IGD Tester port %u' % port, '')
 
 
     for i,port in enumerate (firewall['ipv6']['TCP']):
         os.system ("ip6tables -A INPUT -p tcp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        if igd:
+            u.addportmapping(port,'TCP',u.lanaddr,port,'UPnP IGD Tester port %u' % port, '')
+        
 
 
     for i,port in enumerate (firewall['ipv6']['UDP']):
         os.system ("ip6tables -A INPUT -p udp -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        if igd:
+            u.addportmapping(port,'UDP',u.lanaddr,port,'UPnP IGD Tester port %u' % port, '')
+        
 
 
     os.system ("iptables -P INPUT DROP")
