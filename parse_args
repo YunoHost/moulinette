@@ -164,6 +164,15 @@ def main():
     with open('action_map.yml') as f:
         action_map = yaml.load(f)
 
+    admin_password_provided = False
+
+    for key, arg in enumerate(sys.argv):
+        if arg == '--admin-password':
+            admin_password_provided = True
+            admin_password = sys.argv[key+1] 
+            sys.argv.pop(key)
+            sys.argv.pop(key)
+
     try:
         args = parse_dict(action_map)
         args_dict = vars(args).copy()
@@ -173,7 +182,11 @@ def main():
                 args_dict[sanitized_key] = args_dict[key]
                 del args_dict[key]
         del args_dict['func']
-        result = args.func(**args_dict)
+        if admin_password_provided:
+            with YunoHostLDAP(password=admin_password):
+                result = args.func(**args_dict)
+        else:
+            result = args.func(**args_dict)
     except TypeError, error:
         if not __debug__ :
             traceback.print_exc()
