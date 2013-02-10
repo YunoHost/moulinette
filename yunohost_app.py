@@ -32,7 +32,7 @@ def app_updatelist(url=None):
     finally:
         if info_fetch and (info_fetch.code == 200): info_dict = json.loads(str(info_fetch.read()))
         else: raise YunoHostError(1, _("List server connection failed"))
-    
+
     # Fetch manifests and icons
     for appid, infos in info_dict.items():
         if appid not in os.listdir(app_path):
@@ -43,13 +43,13 @@ def app_updatelist(url=None):
 
             try: manifest_fetch = urlopen(infos['manifest'])
             except IOError: manifest_fetch = False
-            finally: 
+            finally:
                 if manifest_fetch and (manifest_fetch.code == 200): urlretrieve(infos['manifest'], app_path + appid + '/' + str(infos['lastUpdate']))
                 else: raise YunoHostError(1, appid + _(" manifest download failed"))
 
             try: icon_fetch = urlopen(infos['icon'])
             except IOError: icon_fetch = False
-            finally: 
+            finally:
                 if icon_fetch and (icon_fetch.code == 200): urlretrieve(infos['icon'], app_path + appid + '/icon.png')
                 else: raise YunoHostError(1, appid + _(" icon download failed"))
 

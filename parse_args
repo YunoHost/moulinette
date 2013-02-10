@@ -161,6 +161,9 @@ def main():
         int -- 0 or error code
 
     """
+    if len(sys.argv) < 2:
+        sys.argv.append('-h')
+
     with open('action_map.yml') as f:
         action_map = yaml.load(f)
 
@@ -169,7 +172,7 @@ def main():
     for key, arg in enumerate(sys.argv):
         if arg == '--admin-password':
             admin_password_provided = True
-            admin_password = sys.argv[key+1] 
+            admin_password = sys.argv[key+1]
             sys.argv.pop(key)
             sys.argv.pop(key)
 
