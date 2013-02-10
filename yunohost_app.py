@@ -35,17 +35,43 @@ def app_updatelist(url=None):
     win_msg(_("List updated successfully"))
 
 
-def app_list(filter=None, fields=None, offset=None, limit=None):
+def app_list(offset=None, limit=None):
+    """
+    List available applications
+
+    Keyword arguments:
+        offset -- App to begin with
+        limit -- Number of apps to list 
+
+    Returns:
+        Dict of apps
+
+    """
+
+    # TODO: List installed applications
+    # TODO: Implement fields to fetch
+
+    if offset: offset = int(offset)
+    else: offset = 0
+    if limit: limit = int(limit)
+    else: limit = 1000
     with open('/var/cache/yunohost/apps/list.json') as json_list:
         app_dict = json.loads(str(json_list.read()))
 
     list_dict = {}
 
-    for app_id, app_info in app_dict.items():
-        list_dict[app_id] = { 
-            'Name': app_info['manifest']['name'],
-            'Version': app_info['manifest']['version'],
-            'Description': app_info['manifest']['description']
-        }
+    if len(app_dict) > (0 + offset) and limit > 0:
+        i = 0 + offset
+        sorted_app_dict = {} 
+        for sorted_keys in sorted(app_dict.keys())[i:]:
+            if i <= limit:
+                sorted_app_dict[sorted_keys] = app_dict[sorted_keys]
+                i += 1
+        for app_id, app_info in sorted_app_dict.items():
+            list_dict[app_id] = { 
+                'Name': app_info['manifest']['name'],
+                'Version': app_info['manifest']['version'],
+                'Description': app_info['manifest']['description']
+            }
 
     return list_dict

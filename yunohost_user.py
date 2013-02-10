@@ -46,7 +46,7 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
         if result and len(result) > (0 + offset) and limit > 0:
             i = 0 + offset
             for user in result[i:]:
-                if i < limit:
+                if i <= limit:
                     entry = {
                         'Username': user['uid'],
                         'Fullname': user['cn'],
