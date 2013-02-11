@@ -105,9 +105,14 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
         app_tmp_folder = install_tmp + '/from_file'
         os.makedirs(app_tmp_folder)
         if ".zip" in app:
-            os.system('cd '+ os.getcwd()  +' && unzip '+ app +' -d '+ app_tmp_folder)
+            extract_result = os.system('cd '+ os.getcwd()  +' && unzip '+ app +' -d '+ app_tmp_folder)
         elif ".tar" in app:
-            os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ app)
+            extract_result = os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ app)
+        else:
+            extract_result = 1
+
+        if extract_result != 0:
+            raise YunoHostError(22, _("Invalid install file"))
 
     else:
         install_from_file = False
@@ -120,10 +125,10 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
         else:
             raise YunoHostError(22, _("App doesn't exists"))
          
-        git_result_code   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
-        git_result_code_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
+        git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
+        git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
 
-        if not git_result_code == git_result_code_2 == 0:
+        if not git_result == git_result_2 == 0:
             raise YunoHostError(22, _("Sources fetching failed"))
 
 
