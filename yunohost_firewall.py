@@ -124,7 +124,6 @@ def firewall_reload(upnp=None):
                 raise YunoHostError(167,_("No upnp devices found"))
         else:
             raise YunoHostError(22,_("Can't connect to the igd device"))
-        igd=True
         # list the redirections :
         i = 0
         for i in (0,100):
@@ -136,7 +135,6 @@ def firewall_reload(upnp=None):
             upnp.deleteportmapping(port,proto);
             i += 1
 
-    print("plop")
     if 22 not in firewall['ipv6']['TCP']:
         update_yml(22,'TCP','a',True)
 
@@ -226,5 +224,5 @@ def add_portmapping(port=None,protocol=None,upnp=None):
     Return
         None
     """
-    upnp.addportmapping(port,protocol,upnp.lanaddr,port,'UPnP IGD Tester port %u' % port, '')
+    upnp.addportmapping(port,protocol,upnp.lanaddr,port,'yunohost firewall : port %u' % port, '')
 
