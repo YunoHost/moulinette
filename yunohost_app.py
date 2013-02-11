@@ -75,3 +75,48 @@ def app_list(offset=None, limit=None):
             }
 
     return list_dict
+
+def app_install(app, domain=None, path=None, label=None, public=False, protected=True):
+    """
+    Install selected app
+
+    Keyword arguments:
+        app -- AppID to install (or filename)
+        domain -- Web domain for the app
+        path -- Subpath of the domain
+        label -- User defined name for the app
+        public -- Allow app public access
+        protected -- App is protected by the SSO
+
+    Returns:
+        Win | Fail
+
+    """
+
+    # TODO: Check if the app is already installed
+
+    # TODO: Check if app is a file or part of the list.json
+
+    # TODO: Fetch git or unzip/untar archive 
+
+    # TODO: Check if exists another instance
+
+    # TODO: Create domain
+
+    # TODO: Install dependencies
+
+    # TODO: Exec install script
+
+    # TODO: Check if MYSQL DB is needed and create it, then init DB if needed
+
+    # TODO: Copy files to the right place
+
+    # TODO: Exec postinstall script
+
+    # TODO: Create appsettings
+
+    # TODO: Configure apache/lemon with NPZE's scripts
+
+
+
+    
