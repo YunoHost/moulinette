@@ -95,9 +95,38 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
 
     # TODO: Check if the app is already installed
 
-    # TODO: Check if app is a file or part of the list.json
+    install_tmp = '/tmp/yunohost/install'
+    try: os.listdir(install_tmp)
+    except OSError: os.makedirs(install_tmp)
 
-    # TODO: Fetch git or unzip/untar archive 
+
+    if "." in app:
+        install_from_file = True
+        app_tmp_folder = install_tmp + '/from_file'
+        os.makedirs(app_tmp_folder)
+        if ".zip" in app:
+            os.system('cd '+ os.getcwd()  +' && unzip '+ app +' -d '+ app_tmp_folder)
+        elif ".tar" in app:
+            os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ app)
+
+    else:
+        install_from_file = False
+        app_tmp_folder = install_tmp +'/'+ app
+        with open('/var/cache/yunohost/apps/list.json') as json_list:
+            app_dict = json.loads(str(json_list.read()))
+
+        if app in app_dict:
+            app_info = app_dict[app]
+        else:
+            raise YunoHostError(22, _("App doesn't exists"))
+         
+        git_result_code   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
+        git_result_code_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
+
+        if not git_result_code == git_result_code_2 == 0:
+            raise YunoHostError(22, _("Sources fetching failed"))
+
+
 
     # TODO: Check if exists another instance
 
@@ -117,6 +146,7 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
 
     # TODO: Configure apache/lemon with NPZE's scripts
 
+    # TODO: Move scripts folder
 
 
     

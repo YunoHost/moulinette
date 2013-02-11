@@ -231,10 +231,8 @@ app:
             arguments:
                 app:
                     help: App to install
-                    ask: "AppID or path to app archive"
                 -d:
                     full: --domain
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -p:
                     full: --path
                 -l:
