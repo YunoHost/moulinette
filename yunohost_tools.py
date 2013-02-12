@@ -93,14 +93,13 @@ def tools_maindomain(old_domain, new_domain):
     config_files = [
         '/etc/postfix/main.cf',
         '/etc/dovecot/dovecot.conf',
-        '/etc/mailname',
         '/etc/ejabberd/ejabberd.cfg',
         '/etc/lemonldap-ng/lemonldap-ng.ini',
         '/etc/hosts',
     ]
 
     config_dir = [
-        '/var/lib/lemonldap-ng/conf',
+        '/var/lib/lemonldap-ng/conf', # TODO: Use lemon perl script instead
         '/etc/apache2/sites-available',
     ]
 
