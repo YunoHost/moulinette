@@ -32,8 +32,8 @@ def domain_list(filter=None, limit=None, offset=None):
         if result and len(result) > (0 + offset) and limit > 0:
             i = 0 + offset
             for domain in result[i:]:
-                if i < limit:
-                    result_dict[str(i)] = domain['virtualdomain']
+                if i <= limit:
+                    result_dict[str(i)] = domain['virtualdomain'][0]
                     i += 1
         else:
             raise YunoHostError(167, _("No domain found"))

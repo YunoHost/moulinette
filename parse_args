@@ -190,11 +190,11 @@ def main():
                 result = args.func(**args_dict)
         else:
             result = args.func(**args_dict)
-    except TypeError, error:
-        if not __debug__ :
-            traceback.print_exc()
-        print(_("Not (yet) implemented function"))
-        return 1
+    #except TypeError, error:
+        #if not __debug__ :
+            #traceback.print_exc()
+        #print(_("Not (yet) implemented function"))
+        #return 1
     except YunoHostError, error:
         display_error(error)
         return error.code

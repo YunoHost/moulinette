@@ -5,6 +5,7 @@ import sys
 import json
 from urllib import urlopen, urlretrieve
 from yunohost import YunoHostError, YunoHostLDAP, win_msg
+from yunohost_domain import domain_list, domain_add
 
 def app_updatelist(url=None):
     """
@@ -25,12 +26,16 @@ def app_updatelist(url=None):
 
     if not url: url = 'http://fapp.yunohost.org/app/list/raw'
 
+    # TODO: Add multiple list support
+
     # Get list
     try: fetch = urlopen(url)
     except IOError: fetch = False
     finally:
         if fetch and (fetch.code == 200): urlretrieve(url, app_path + 'list.json')
         else: raise YunoHostError(1, _("List server connection failed"))
+
+    # TODO: Use system wget in order to have a status bar
 
     win_msg(_("List updated successfully"))
 
@@ -95,6 +100,8 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
 
     # TODO: Check if the app is already installed
 
+    # Fetch | Extract sources
+
     install_tmp = '/tmp/yunohost/install'
     try: os.listdir(install_tmp)
     except OSError: os.makedirs(install_tmp)
@@ -114,6 +121,9 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
         if extract_result != 0:
             raise YunoHostError(22, _("Invalid install file"))
 
+        with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
+            manifest = json.loads(str(json_manifest.read()))
+
     else:
         install_from_file = False
         app_tmp_folder = install_tmp +'/'+ app
@@ -122,6 +132,7 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
 
         if app in app_dict:
             app_info = app_dict[app]
+            manifest = app_info['manifest']
         else:
             raise YunoHostError(22, _("App doesn't exists"))
          
@@ -131,11 +142,15 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
         if not git_result == git_result_2 == 0:
             raise YunoHostError(22, _("Sources fetching failed"))
 
-
-
     # TODO: Check if exists another instance
-
+    
     # TODO: Create domain
+
+    try:
+        domain_list(filter="virtualdomain="+ domain)
+    except YunoHostError:
+        domain_add(domain=[domain])
+            
 
     # TODO: Install dependencies
 
