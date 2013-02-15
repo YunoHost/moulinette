@@ -30,7 +30,7 @@ def tools_ldapinit(domain):
         for rdn, attr_dict in ldap_map['childs'].items():
             yldap.add(rdn, attr_dict)
  
-        domain_add(domain=[domain])
+        domain_add([domain])
 
         admin_dict = {
             'cn': 'admin',

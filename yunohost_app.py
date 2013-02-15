@@ -149,7 +149,7 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
     try:
         domain_list(filter="virtualdomain="+ domain)
     except YunoHostError:
-        domain_add(domain=[domain])
+        domain_add([domain])
             
 
     # TODO: Install dependencies
