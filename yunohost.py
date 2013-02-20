@@ -17,9 +17,9 @@ if not __debug__:
 
 
 def colorize(astr, color):
-    """ 
-    Print with style ;) 
-    
+    """
+    Print with style ;)
+
     Keyword arguments:
         astr    -- String to colorize
         color   -- Name of the color
@@ -32,27 +32,27 @@ def colorize(astr, color):
         'cyan'  : '34',
         'purple': '35'
     }
-    return "\033["+ color_dict[color] +"m\033[1m" + astr + "\033[m" 
+    return "\033["+ color_dict[color] +"m\033[1m" + astr + "\033[m"
 
 def pretty_print_dict(d, depth=0):
     for k,v in sorted(d.items(), key=lambda x: x[0]):
-        k = colorize(k, 'purple')
+        k = colorize(str(k), 'purple')
         if isinstance(v, list) and len(v) == 1:
             v = v[0]
         if isinstance(v, dict):
-            print(("  ") * depth + ("%s: " % k))
+            print(("  ") * depth + ("%s: " % str(k)))
             pretty_print_dict(v, depth+1)
         elif isinstance(v, list):
-            print(("  ") * depth + ("%s: " % k))
+            print(("  ") * depth + ("%s: " % str(k)))
             for value in v:
                 print(("  ") * (depth+1) + "- " +str(value))
         else:
-            print(("  ") * depth + "%s: %s" % (k, str(v)))
+            print(("  ") * depth + "%s: %s" % (str(k), str(v)))
 
 def win_msg(astr):
-    """ 
-    Display a success message if isatty 
-    
+    """
+    Display a success message if isatty
+
     Keyword arguments:
         astr -- Win message to display
 
@@ -64,11 +64,11 @@ def win_msg(astr):
 def str_to_func(astr):
     """
     Call a function from a string name
-    
+
     Keyword arguments:
         astr -- Name of function to call
-    
-    Returns: 
+
+    Returns:
         Function
 
     """
@@ -79,7 +79,7 @@ def str_to_func(astr):
             mod = sys.modules[module]
         else:
             mod = sys.modules['__main__']  # default module
-    
+
         func = getattr(mod, function)
     except (AttributeError, ImportError):
         #raise YunoHostError(168, _('Function is not defined'))
@@ -89,9 +89,9 @@ def str_to_func(astr):
 
 
 def validate(pattern, array):
-    """ 
-    Validate attributes with a pattern 
-    
+    """
+    Validate attributes with a pattern
+
     Keyword arguments:
         pattern -- Regex to match with the strings
         array -- List of strings to check
@@ -110,9 +110,9 @@ def validate(pattern, array):
         return True
 
 def get_required_args(args, required_args, password=False):
-    """ 
+    """
     Input missing values or raise Exception
-    
+
     Keyword arguments:
        args -- Available arguments
        required_args -- Dictionary of required arguments and input phrase
@@ -130,7 +130,7 @@ def get_required_args(args, required_args, password=False):
                 else:
                     raise Exception #FIX
         # Password
-        if 'password' in required_args and password: 
+        if 'password' in required_args and password:
             if not args['password']:
                 if os.isatty(1):
                     args['password'] = getpass.getpass(colorize(required_args['password'] + ': ', 'cyan'))
@@ -161,7 +161,7 @@ def display_error(error):
 class YunoHostError(Exception):
     """
     Custom exception
-    
+
     Keyword arguments:
         code    -- Integer error code
         message -- Error message to display
@@ -208,9 +208,9 @@ class YunoHostLDAP(Singleton):
         return self
 
     def __init__(self, password=False):
-        """ 
-        Connect to LDAP base 
-        
+        """
+        Connect to LDAP base
+
         Initialize to localhost, base yunohost.org, prompt for password
 
         """
@@ -235,9 +235,9 @@ class YunoHostLDAP(Singleton):
             except: pass
 
     def disconnect(self):
-        """ 
-        Unbind from LDAP 
-        
+        """
+        Unbind from LDAP
+
         Returns
             Boolean | YunoHostError
 
@@ -251,9 +251,9 @@ class YunoHostLDAP(Singleton):
 
 
     def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
-        """  
-        Search in LDAP base 
-        
+        """
+        Search in LDAP base
+
         Keyword arguments:
             base    -- Base to search into
             filter  -- LDAP filter
@@ -278,15 +278,15 @@ class YunoHostLDAP(Singleton):
                     if 'dn' in attrs:
                         entry['dn'] = [dn]
                 result_list.append(entry)
-            return result_list       
+            return result_list
         else:
             return False
 
 
     def add(self, rdn, attr_dict):
-        """ 
-        Add LDAP entry 
-        
+        """
+        Add LDAP entry
+
         Keyword arguments:
             rdn         -- DN without domain
             attr_dict   -- Dictionnary of attributes/values to add
@@ -306,9 +306,9 @@ class YunoHostLDAP(Singleton):
             return True
 
     def remove(self, rdn):
-        """ 
-        Remove LDAP entry 
-        
+        """
+        Remove LDAP entry
+
         Keyword arguments:
             rdn         -- DN without domain
 
@@ -326,9 +326,9 @@ class YunoHostLDAP(Singleton):
 
 
     def update(self, rdn, attr_dict, new_rdn=False):
-        """ 
-        Modify LDAP entry 
-        
+        """
+        Modify LDAP entry
+
         Keyword arguments:
             rdn         -- DN without domain
             attr_dict   -- Dictionnary of attributes/values to add
@@ -355,9 +355,9 @@ class YunoHostLDAP(Singleton):
 
 
     def validate_uniqueness(self, value_dict):
-        """ 
-        Check uniqueness of values 
-        
+        """
+        Check uniqueness of values
+
         Keyword arguments:
             value_dict -- Dictionnary of attributes/values to check
 
