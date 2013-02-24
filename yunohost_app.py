@@ -7,37 +7,34 @@ from urllib import urlopen, urlretrieve
 from yunohost import YunoHostError, YunoHostLDAP, win_msg
 from yunohost_domain import domain_list, domain_add
 
-def app_updatelist(url=None):
+def app_fetchlist(url=None, name=None):
     """
     Fetch application list
 
     Keyword arguments:
         url -- Custom list URL
+        name -- Name of the app list
 
     Returns:
         True | YunoHostError
 
     """
-    app_path = '/var/cache/yunohost/apps/'
+    repo_path = '/var/cache/yunohost/repo/'
 
     # Create app path if not exists
-    try: os.listdir(app_path)
-    except OSError: os.makedirs(app_path)
+    try: os.listdir(repo_path)
+    except OSError: os.makedirs(repo_path)
 
-    if not url: url = 'http://fapp.yunohost.org/app/list/raw'
+    if not url:
+        url = 'http://fapp.yunohost.org/app/list/raw'
+        name = "fapp"
+    else:
+        if not name: raise YunoHostError(22, _("You must indicate a name for your custom list"))
 
-    # TODO: Add multiple list support
+    if os.system('wget "'+ url +'" -O "'+ repo_path + name +'.json"') != 0:
+        raise YunoHostError(1, _("List server connection failed"))
 
-    # Get list
-    try: fetch = urlopen(url)
-    except IOError: fetch = False
-    finally:
-        if fetch and (fetch.code == 200): urlretrieve(url, app_path + 'list.json')
-        else: raise YunoHostError(1, _("List server connection failed"))
-
-    # TODO: Use system wget in order to have a status bar
-
-    win_msg(_("List updated successfully"))
+    win_msg(_("List successfully fetched"))
 
 
 def app_list(offset=None, limit=None):
@@ -46,7 +43,7 @@ def app_list(offset=None, limit=None):
 
     Keyword arguments:
         offset -- App to begin with
-        limit -- Number of apps to list 
+        limit -- Number of apps to list
 
     Returns:
         Dict of apps
@@ -60,20 +57,29 @@ def app_list(offset=None, limit=None):
     else: offset = 0
     if limit: limit = int(limit)
     else: limit = 1000
-    with open('/var/cache/yunohost/apps/list.json') as json_list:
-        app_dict = json.loads(str(json_list.read()))
 
+    repo_path = '/var/cache/yunohost/repo/'
+    applists = os.listdir(repo_path)
+    app_dict  = {}
     list_dict = {}
+
+    if not applists: app_fetchlist()
+
+    for applist in applists:
+        if '.json' in applist:
+            with open(repo_path + applist) as json_list:
+                app_dict.update(json.loads(str(json_list.read())))
+
 
     if len(app_dict) > (0 + offset) and limit > 0:
         i = 0 + offset
-        sorted_app_dict = {} 
+        sorted_app_dict = {}
         for sorted_keys in sorted(app_dict.keys())[i:]:
             if i <= limit:
                 sorted_app_dict[sorted_keys] = app_dict[sorted_keys]
                 i += 1
         for app_id, app_info in sorted_app_dict.items():
-            list_dict[app_id] = { 
+            list_dict[app_id] = {
                 'Name': app_info['manifest']['name'],
                 'Version': app_info['manifest']['version'],
                 'Description': app_info['manifest']['description']
@@ -135,7 +141,7 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
             manifest = app_info['manifest']
         else:
             raise YunoHostError(22, _("App doesn't exists"))
-         
+
         git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
         git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
 
@@ -143,16 +149,17 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
             raise YunoHostError(22, _("Sources fetching failed"))
 
     # TODO: Check if exists another instance
-    
-    # TODO: Create domain
 
     try:
         domain_list(filter="virtualdomain="+ domain)
     except YunoHostError:
         domain_add([domain])
-            
+
 
     # TODO: Install dependencies
+
+    for dependency in manifest['dependencies']['debian']:
+        print dependency
 
     # TODO: Exec install script
 
@@ -166,7 +173,7 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
 
     # TODO: Configure apache/lemon with NPZE's scripts
 
-    # TODO: Move scripts folder
+    # TODO: Remove scripts folder
 
 
-    
+

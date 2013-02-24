@@ -208,13 +208,17 @@ app:
     category_help: Manage apps
     actions:
 
-        ### app_updatelist()
-        updatelist:
+        ### app_fetchlist()
+        fetchlist:
             action_help: Fetch application list from app server
             arguments:
                 -u:
                     full: --url
                     help: URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw)
+                -n:
+                    full: --name
+                    help: Name of the list (default fapp)
+                    pattern: '^[a-z0-9_]+$'
 
         ### app_list()
         list:
