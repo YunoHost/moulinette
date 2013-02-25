@@ -4,7 +4,6 @@ import os
 import sys
 import json
 import shutil
-from urllib import urlopen, urlretrieve
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password
 from yunohost_domain import domain_list, domain_add
 
@@ -40,8 +39,23 @@ def app_fetchlist(url=None, name=None):
     win_msg(_("List successfully fetched"))
 
 
-def app_listlist():
-    pass
+def app_listlists():
+    """
+    List fetched lists
+
+    Returns:
+        Dict of lists
+
+    """
+    list_list = []
+    try:
+        for filename in os.listdir(repo_path):
+            if '.json' in filename:
+                list_list.append(filename[:len(filename)-5])
+    except OSError:
+        raise YunoHostError(1, _("No list found"))
+
+    return { 'Lists' : list_list }
 
 
 def app_list(offset=None, limit=None, filter=None, raw=False):

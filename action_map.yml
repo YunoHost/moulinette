@@ -220,6 +220,10 @@ app:
                     help: Name of the list (default fapp)
                     pattern: '^[a-z0-9_]+$'
 
+        ### app_listlists()
+        listlists:
+            action_help: List fetched lists
+
         ### app_list()
         list:
             action_help: List apps
