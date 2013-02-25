@@ -12,9 +12,14 @@ import ldap.modlist as modlist
 import json
 import re
 import getpass
+import random
+import string
 if not __debug__:
     import traceback
 
+def random_password(length=8):
+    char_set = string.ascii_uppercase + string.digits + string.ascii_lowercase
+    return ''.join(random.sample(char_set,length))
 
 def colorize(astr, color):
     """

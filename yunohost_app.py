@@ -3,8 +3,9 @@
 import os
 import sys
 import json
+import shutil
 from urllib import urlopen, urlretrieve
-from yunohost import YunoHostError, YunoHostLDAP, win_msg
+from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password
 from yunohost_domain import domain_list, domain_add
 
 def app_fetchlist(url=None, name=None):
@@ -53,7 +54,6 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
     """
 
     # TODO: List installed applications
-    # TODO: Implement fields to fetch
 
     if offset: offset = int(offset)
     else: offset = 0
@@ -113,72 +113,92 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
     # Fetch | Extract sources
 
-    install_tmp = '/tmp/yunohost/install'
-    try: os.listdir(install_tmp)
-    except OSError: os.makedirs(install_tmp)
+    with YunoHostLDAP() as yldap:
+        install_tmp = '/tmp/yunohost/install'
+        try: os.listdir(install_tmp)
+        except OSError: os.makedirs(install_tmp)
 
 
-    if "." in app:
-        install_from_file = True
-        app_tmp_folder = install_tmp + '/from_file'
-        os.makedirs(app_tmp_folder)
-        if ".zip" in app:
-            extract_result = os.system('cd '+ os.getcwd()  +' && unzip '+ app +' -d '+ app_tmp_folder)
-        elif ".tar" in app:
-            extract_result = os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ app)
+        # Install from file
+        if "." in app:
+            install_from_file = True
+            app_tmp_folder = install_tmp + '/from_file'
+            if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
+            os.makedirs(app_tmp_folder)
+            if ".zip" in app:
+                extract_result = os.system('cd '+ os.getcwd()  +' && unzip '+ app +' -d '+ app_tmp_folder)
+            elif ".tar" in app:
+                extract_result = os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ app)
+            else:
+                extract_result = 1
+
+            if extract_result != 0:
+                raise YunoHostError(22, _("Invalid install file"))
+
+            with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
+                manifest = json.loads(str(json_manifest.read()))
+
+        # Install from git
         else:
-            extract_result = 1
+            install_from_file = False
+            app_tmp_folder = install_tmp +'/'+ app
+            if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
 
-        if extract_result != 0:
-            raise YunoHostError(22, _("Invalid install file"))
+            app_dict = app_list(raw=True)
 
-        with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
-            manifest = json.loads(str(json_manifest.read()))
+            if app in app_dict:
+                app_info = app_dict[app]
+                manifest = app_info['manifest']
+            else:
+                raise YunoHostError(22, _("App doesn't exists"))
 
-    else:
-        install_from_file = False
-        app_tmp_folder = install_tmp +'/'+ app
+            git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
+            git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
 
-        app_dict = app_list(raw=True)
+            if not git_result == git_result_2 == 0:
+                raise YunoHostError(22, _("Sources fetching failed"))
 
-        if app in app_dict:
-            app_info = app_dict[app]
-            manifest = app_info['manifest']
-        else:
-            raise YunoHostError(22, _("App doesn't exists"))
+        # TODO: Check if exists another instance
 
-        git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
-        git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
+        # Handle domain if ain't already created
+        try:
+            domain_list(filter="virtualdomain="+ domain)
+        except YunoHostError:
+            domain_add([domain])
 
-        if not git_result == git_result_2 == 0:
-            raise YunoHostError(22, _("Sources fetching failed"))
+        if ('debian' in manifest['dependencies']) and (len(manifest['dependencies']['debian']) > 0):
+            #os.system('apt-get update')
+            if os.system('apt-get install "'+ '" "'.join(manifest['dependencies']['debian']) +'"') != 0:
+                raise YunoHostError(1, _("Dependency installation failed: ") + dependency)
 
-    # TODO: Check if exists another instance
+        # TODO: Install npm, pip, gem and pear dependencies
 
-    try:
-        domain_list(filter="virtualdomain="+ domain)
-    except YunoHostError:
-        domain_add([domain])
+        if 'webapp' in manifest['yunohost']:
+            if 'db' in manifest['yunohost']['webapp']:
+                db_user     = manifest['yunohost']['uid'] # TODO: app.instance
+                db_user_pwd = random_password()
 
+                # Need MySQL DB ?
+                if 'has_mysql_db' in manifest['yunohost']['webapp']['db'] and ((manifest['yunohost']['webapp']['db']['has_mysql_db'] == 'true') or (manifest['yunohost']['webapp']['db']['has_mysql_db'] == 'yes')):
+                    mysql_root_pwd = open('/etc/yunohost/mysql', 'rb').read().rstrip()
+                    mysql_command = 'mysql -u root -p'+ mysql_root_pwd +' -e "CREATE DATABASE '+ db_user +' ; GRANT ALL PRIVILEGES ON '+ db_user +'.* TO \''+ db_user +'\'@localhost IDENTIFIED BY \''+ db_user_pwd +'\';"'
+                    if os.system(mysql_command) != 0:
+                        raise YunoHostError(1, _("MySQL DB creation failed"))
+                    if 'mysql_init_script' in manifest['yunohost']['webapp']['db']:
+                        if os.system('mysql -u '+ db_user +' -p'+ db_user_pwd +' '+ db_user +' < '+ app_tmp_folder + manifest['yunohost']['webapp']['db']['mysql_init_script'] +' ;') != 0:
+                            raise YunoHostError(1, _("MySQL DB init failed"))
 
-    # TODO: Install dependencies
+                # TODO: PgSQL/MongoDB ?
 
-    for dependency in manifest['dependencies']['debian']:
-        print dependency
+        # TODO: Copy files to the right place
 
-    # TODO: Exec install script
+        # TODO: Exec postinstall script
 
-    # TODO: Check if MYSQL DB is needed and create it, then init DB if needed
+        # TODO: Create appsettings and chmod it
 
-    # TODO: Copy files to the right place
+        # TODO: Configure apache/lemon with NPZE's scripts
 
-    # TODO: Exec postinstall script
-
-    # TODO: Create appsettings
-
-    # TODO: Configure apache/lemon with NPZE's scripts
-
-    # TODO: Remove scripts folder
+        # TODO: Remove scripts folder
 
 
 
