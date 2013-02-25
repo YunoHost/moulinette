@@ -37,13 +37,15 @@ def app_fetchlist(url=None, name=None):
     win_msg(_("List successfully fetched"))
 
 
-def app_list(offset=None, limit=None):
+def app_list(offset=None, limit=None, filter=None, raw=False):
     """
     List available applications
 
     Keyword arguments:
         offset -- App to begin with
         limit -- Number of apps to list
+        filter -- Name filter
+        raw -- Return the full app_dict
 
     Returns:
         Dict of apps
@@ -70,7 +72,6 @@ def app_list(offset=None, limit=None):
             with open(repo_path + applist) as json_list:
                 app_dict.update(json.loads(str(json_list.read())))
 
-
     if len(app_dict) > (0 + offset) and limit > 0:
         i = 0 + offset
         sorted_app_dict = {}
@@ -79,15 +80,19 @@ def app_list(offset=None, limit=None):
                 sorted_app_dict[sorted_keys] = app_dict[sorted_keys]
                 i += 1
         for app_id, app_info in sorted_app_dict.items():
-            list_dict[app_id] = {
-                'Name': app_info['manifest']['name'],
-                'Version': app_info['manifest']['version'],
-                'Description': app_info['manifest']['description']
-            }
+            if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
+                if raw:
+                    list_dict[app_id] = app_info
+                else:
+                    list_dict[app_id] = {
+                        'Name': app_info['manifest']['name'],
+                        'Version': app_info['manifest']['version'],
+                        'Description': app_info['manifest']['description']
+                    }
 
     return list_dict
 
-def app_install(app, domain=None, path=None, label=None, public=False, protected=True):
+def app_install(app, domain, path='/', label=None, public=False, protected=True):
     """
     Install selected app
 
@@ -133,8 +138,8 @@ def app_install(app, domain=None, path=None, label=None, public=False, protected
     else:
         install_from_file = False
         app_tmp_folder = install_tmp +'/'+ app
-        with open('/var/cache/yunohost/apps/list.json') as json_list:
-            app_dict = json.loads(str(json_list.read()))
+
+        app_dict = app_list(raw=True)
 
         if app in app_dict:
             app_info = app_dict[app]

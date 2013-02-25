@@ -230,6 +230,13 @@ app:
                 -o:
                     full: --offset
                     help: Starting number for app fetching
+                -f:
+                    full: --filter
+                    help: Name filter of app_id or app_name
+                -r:
+                    full: --raw
+                    help: Return the full app_dict
+                    action: store_true
 
         ### app_install() TODO: Write help
         install:
@@ -239,6 +246,8 @@ app:
                     help: App to install
                 -d:
                     full: --domain
+                    ask: "App domain"
+                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -p:
                     full: --path
                 -l:
