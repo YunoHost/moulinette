@@ -58,6 +58,22 @@ def app_listlists():
     return { 'Lists' : list_list }
 
 
+def app_removelist(name):
+    """
+    Remove specified application list
+
+    Keyword arguments:
+        name -- Name of the list to remove
+
+    """
+    try:
+        os.remove(repo_path +'/'+ name + '.json')
+    except OSError:
+        raise YunoHostError(22, _("Unknown list"))
+
+    win_msg(_("List successfully removed"))
+
+
 def app_list(offset=None, limit=None, filter=None, raw=False):
     """
     List available applications
