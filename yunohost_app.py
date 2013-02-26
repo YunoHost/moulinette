@@ -180,8 +180,9 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
                 domain_list(filter="virtualdomain="+ domain)
             except YunoHostError:
                 domain_add([domain])
-                _apache_config(domain)
-                _lemon_config(domain)
+
+            _apache_config(domain)
+            _lemon_config(domain)
 
         if 'script_path' in manifest['yunohost']:
             _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
