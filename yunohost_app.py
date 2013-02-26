@@ -8,9 +8,32 @@ import stat
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password
 from yunohost_domain import domain_list, domain_add
 
-repo_path      = '/var/cache/yunohost/repo'
-install_tmp    = '/tmp/yunohost/install'
-app_tmp_folder = install_tmp + '/from_file'
+repo_path        = '/var/cache/yunohost/repo'
+apps_path        = '/usr/share/yunohost/apps'
+install_tmp      = '/tmp/yunohost/install'
+app_tmp_folder   = install_tmp + '/from_file'
+a2_template_path = '/etc/yunohost/apache/templates'
+a2_domains_path  = '/etc/yunohost/apache/domains'
+lemon_tmp_conf   = '/tmp/tmplemonconf'
+
+def app_listlists():
+    """
+    List fetched lists
+
+    Returns:
+        Dict of lists
+
+    """
+    list_list = []
+    try:
+        for filename in os.listdir(repo_path):
+            if '.json' in filename:
+                list_list.append(filename[:len(filename)-5])
+    except OSError:
+        raise YunoHostError(1, _("No list found"))
+
+    return { 'Lists' : list_list }
+
 
 def app_fetchlist(url=None, name=None):
     """
@@ -38,25 +61,6 @@ def app_fetchlist(url=None, name=None):
         raise YunoHostError(1, _("List server connection failed"))
 
     win_msg(_("List successfully fetched"))
-
-
-def app_listlists():
-    """
-    List fetched lists
-
-    Returns:
-        Dict of lists
-
-    """
-    list_list = []
-    try:
-        for filename in os.listdir(repo_path):
-            if '.json' in filename:
-                list_list.append(filename[:len(filename)-5])
-    except OSError:
-        raise YunoHostError(1, _("No list found"))
-
-    return { 'Lists' : list_list }
 
 
 def app_removelist(name):
@@ -157,12 +161,6 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
         # TODO: Check if exists another instance
 
-        # Handle domain if ain't already created
-        try:
-            domain_list(filter="virtualdomain="+ domain)
-        except YunoHostError:
-            domain_add([domain])
-
         script_var_dict = { 'APP_DIR': app_tmp_folder }
 
         if 'dependencies' in manifest: _install_app_dependencies(manifest['dependencies'])
@@ -177,14 +175,29 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
                 _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
 
+            # Handle domain if ain't already created
+            try:
+                domain_list(filter="virtualdomain="+ domain)
+            except YunoHostError:
+                domain_add([domain])
+                _apache_config(domain)
+                _lemon_config(domain)
+
         if 'script_path' in manifest['yunohost']:
             _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
-        # TODO: Copy files to the right place
+        #  Copy files to the right place
+        try: os.listdir(apps_path)
+        except OSError: os.makedirs(apps_path)
+
+        app_final_path = apps_path +'/'+ manifest['yunohost']['uid']
+        # TMP: Remove old application
+        if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
+        os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
+        os.system('chown -R www-data: "'+ app_final_path +'"')
+        shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
         # TODO: Create appsettings and chmod it
-
-        # TODO: Configure apache/lemon with NPZE's scripts
 
         # TODO: Remove scripts folder and /tmp files
 
@@ -333,3 +346,62 @@ def _exec_app_script(step, path, var_dict, app_type):
                 raise YunoHostError(1, _("Script execution failed: ") + script)
 
             break
+
+
+def _apache_config(domain):
+    """
+    Fill Apache configuration templates
+
+    Keyword arguments:
+        domain -- Domain to configure Apache around
+
+    """
+    # TMP: remove old conf
+    if os.path.exists(a2_domains_path +'/'+ domain +'.conf'): os.remove(a2_domains_path +'/'+ domain +'.conf')
+    if os.path.exists(a2_domains_path +'/'+ domain +'.d/'): shutil.rmtree(a2_domains_path +'/'+ domain +'.d/')
+
+    try: os.listdir(a2_domains_path +'/'+ domain +'.d/')
+    except OSError: os.makedirs(a2_domains_path +'/'+ domain +'.d/')
+
+    with open(a2_domains_path +'/'+ domain +'.conf', 'a') as a2_conf:
+        for line in open(a2_template_path +'/template.conf.tmp'):
+            line = line.replace('[domain]',domain)
+            a2_conf.write(line)
+
+    if os.system('service apache2 reload') == 0:
+        win_msg(_("Apache configured"))
+    else:
+        raise YunoHostError(1, _("An error occured during Apache configuration"))
+
+def _lemon_config(domain):
+    """
+    Configure LemonLDAP
+
+    Keyword arguments:
+        domain -- Domain to configure LemonLDAP around
+
+    """
+    if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
+
+    lemon_conf_lines = [
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Auth-User'} = '$uid';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Remote-User'} = '$uid';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Desc'} = '$description';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Email'} = '$uid';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Name'} = '$cn';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Authorization'} = '\"Basic \".encode_base64(\"$uid:$_password\")';",
+       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostMaintenance'} = 0;",
+       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostPort'} = -1;",
+       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostHttps'} = -1;",
+       "$tmp->{'locationRules'}->{'"+ domain +"'}->{'default'} = 'accept';",
+       "$tmp->{'locationRules'}->{'"+ domain +"'}->{'(?#logout)^/logout'} = 'logout_app_sso https://"+ domain +"/';",
+    ]
+
+    with open(lemon_tmp_conf,'a') as lemon_conf:
+        for line in lemon_conf_lines:
+            lemon_conf.write(line + '\n')
+
+    if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
+        win_msg(_("LemonLDAP configured"))
+    else:
+        raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
