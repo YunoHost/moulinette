@@ -11,6 +11,7 @@ from yunohost_domain import domain_list, domain_add
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
+apps_setting_path= '/etc/yunohost/apps/'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
 a2_template_path = '/etc/yunohost/apache/templates'
@@ -148,7 +149,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         Win | Fail
 
     """
-    # TODO: Check if the app is already installed
+    is_webapp = False
 
     with YunoHostLDAP() as yldap:
         try: os.listdir(install_tmp)
@@ -160,15 +161,25 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         else:
             manifest = _fetch_app_from_git(app)
 
-        # TODO: Check if exists another instance
+        if '__' in manifest['yunohost']['uid']:
+            raise YunoHostError(22, _("App uid is invalid"))
 
+        instance_number = _installed_instance_number(manifest['yunohost']['uid']) + 1
+        if instance_number > 1:
+            if not ('multi_instance' in manifest['yunohost'] and (manifest['yunohost']['multi_instance'] == 'yes' or manifest['yunohost']['multi_instance'] == 'true')):
+                raise YunoHostError(1, _("App is already installed"))
+
+        unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
         script_var_dict = { 'APP_DIR': app_tmp_folder }
 
         if 'dependencies' in manifest: _install_app_dependencies(manifest['dependencies'])
 
         if 'webapp' in manifest['yunohost']:
+
+            is_webapp = True
+
             if 'db' in manifest['yunohost']['webapp']:
-                db_user = manifest['yunohost']['uid'] # TODO: app.instance
+                db_user = unique_app_id
                 db_pwd  = random_password()
                 script_var_dict['DB_USER'] = db_user
                 script_var_dict['DB_PWD']  = db_pwd
@@ -176,6 +187,10 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
                 _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
 
+        if 'script_path' in manifest['yunohost']:
+            _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
+
+        if is_webapp:
             # Handle domain if ain't already created
             try:
                 domain_list(filter="virtualdomain="+ domain)
@@ -185,34 +200,55 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
             _apache_config(domain)
             _lemon_config(domain)
 
-        if 'script_path' in manifest['yunohost']:
-            _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
         #  Copy files to the right place
         try: os.listdir(apps_path)
         except OSError: os.makedirs(apps_path)
 
-        app_final_path = apps_path +'/'+ manifest['yunohost']['uid']
+        app_final_path = apps_path +'/'+ unique_app_id
+
         # TMP: Remove old application
         if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
+
         os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
         os.system('chown -R www-data: "'+ app_final_path +'"')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
-        # TODO: Create appsettings and chmod it
+        app_setting_path = apps_setting_path +'/'+ unique_app_id
 
-        #yaml_dict = {
-            #'uid' : manifest['yunohost']['uid'],
-            #'name': manifest['Name'],
-            #'public': public,
-            #'protected': protected,
-            #'domain': domain,
-            #'path': path
-        #}
+        # TMP: Remove old settings
+        if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
+        os.makedirs(app_setting_path)
 
-        #yaml.dump(yaml_dict, f, default_flow_style=False)
+        if is_webapp:
+            yaml_dict = {
+                'uid' : manifest['yunohost']['uid'],
+                'instance' : instance_number,
+                'name': manifest['name'],
+                'public': public,
+                'protected': protected,
+                'domain': domain,
+                'path': path,
+            }
 
-        ## TODO: Remove scripts folder and /tmp files
+            if 'db' in manifest['yunohost']['webapp']:
+                yaml_dict['db_pwd'] = db_pwd
+                yaml_dict['db_user'] = db_user
+            if label: yaml_dict['label'] = label
+            else: yaml_dict['label'] = manifest['name']
+
+            with open(app_setting_path +'/app_setting.yml', 'w') as f:
+                yaml.safe_dump(yaml_dict, f, default_flow_style=False)
+                win_msg(_("App setting file created"))
+
+        if 'script_path' in manifest['yunohost']:
+            os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
+            shutil.rmtree(app_tmp_folder)
+
+        if os.system('chmod 400 -R '+ app_setting_path) == 0:
+            win_msg(_("Installation complete"))
+        else:
+            raise YunoHostError(22, _("Error during permission setting"))
 
 
 def _extract_app_tarball(path):
@@ -381,8 +417,6 @@ def _apache_config(domain):
             line = line.replace('[domain]',domain)
             a2_conf.write(line)
 
-    os.system('cp "'+ a2_template_path + '/fixed.sso.conf" "'+ a2_app_conf_path +'/'+ domain +'.d/"')
-
     if os.system('service apache2 reload') == 0:
         win_msg(_("Apache configured"))
     else:
@@ -420,3 +454,25 @@ def _lemon_config(domain):
         win_msg(_("LemonLDAP configured"))
     else:
         raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
+
+
+def _installed_instance_number(app):
+    """
+    Check if application is installed and return instance number
+
+    Keyword arguments:
+        app -- uid of App to check
+
+    Returns:
+        Number of installed instance
+
+    """
+    number = 0
+    installed_apps = os.listdir(apps_setting_path)
+    for installed_app in installed_apps:
+        if '__' in installed_app:
+            if app == installed_app[:installed_app.index('__')]:
+                if int(installed_app[installed_app.index('__') + 2:]) > number:
+                    number = int(installed_app[installed_app.index('__') + 2:])
+
+    return number

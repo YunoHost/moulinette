@@ -129,12 +129,8 @@ def tools_maindomain(old_domain, new_domain):
         for line in lemon_conf_lines:
             lemon_conf.write(line + '\n')
 
-    with open(lemon_tmp_conf,'a') as lemonscript:
-
-    # remove SSO apache conf dir from old domain conf
-    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.sso.conf')
-    # add SSO apache conf dir to new domain conf
-    os.system('cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf')
+    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.sso.conf') # remove SSO apache conf dir from old domain conf
+    os.system('cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf') # add SSO apache conf dir to new domain conf
 
     os.system('/etc/init.d/hostname.sh')
 

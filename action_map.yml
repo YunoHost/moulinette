@@ -264,12 +264,15 @@ app:
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -p:
                     full: --path
+                    default: "/"
                 -l:
                     full: --label
                 --public:
                     action: store_true
+                    default: false
                 --protected:
                     action: store_true
+                    default: true
 
         ### app_remove() TODO: Write help
         remove:
