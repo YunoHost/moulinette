@@ -13,7 +13,7 @@ apps_path        = '/usr/share/yunohost/apps'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
 a2_template_path = '/etc/yunohost/apache/templates'
-a2_domains_path  = '/etc/yunohost/apache/domains'
+a2_app_conf_path = '/etc/yunohost/apache/domains'
 lemon_tmp_conf   = '/tmp/tmplemonconf'
 
 def app_listlists():
@@ -357,16 +357,18 @@ def _apache_config(domain):
 
     """
     # TMP: remove old conf
-    if os.path.exists(a2_domains_path +'/'+ domain +'.conf'): os.remove(a2_domains_path +'/'+ domain +'.conf')
-    if os.path.exists(a2_domains_path +'/'+ domain +'.d/'): shutil.rmtree(a2_domains_path +'/'+ domain +'.d/')
+    if os.path.exists(a2_app_conf_path +'/'+ domain +'.conf'): os.remove(a2_app_conf_path +'/'+ domain +'.conf')
+    if os.path.exists(a2_app_conf_path +'/'+ domain +'.d/'): shutil.rmtree(a2_app_conf_path +'/'+ domain +'.d/')
 
-    try: os.listdir(a2_domains_path +'/'+ domain +'.d/')
-    except OSError: os.makedirs(a2_domains_path +'/'+ domain +'.d/')
+    try: os.listdir(a2_app_conf_path +'/'+ domain +'.d/')
+    except OSError: os.makedirs(a2_app_conf_path +'/'+ domain +'.d/')
 
-    with open(a2_domains_path +'/'+ domain +'.conf', 'a') as a2_conf:
+    with open(a2_app_conf_path +'/'+ domain +'.conf', 'a') as a2_conf:
         for line in open(a2_template_path +'/template.conf.tmp'):
             line = line.replace('[domain]',domain)
             a2_conf.write(line)
+
+    os.system('cp "'+ a2_template_path + '/fixed.sso.conf" "'+ a2_app_conf_path +'/'+ domain +'.d/"')
 
     if os.system('service apache2 reload') == 0:
         win_msg(_("Apache configured"))
