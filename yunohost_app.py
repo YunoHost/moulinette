@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import shutil
+import stat
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password
 from yunohost_domain import domain_list, domain_add
 
@@ -150,9 +151,9 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
         # Check if install from file or git
         if "." in app:
-            manifest = extract_app_tarball(app)
+            manifest = _extract_app_tarball(app)
         else:
-            manifest = fetch_app_from_git(app)
+            manifest = _fetch_app_from_git(app)
 
         # TODO: Check if exists another instance
 
@@ -162,32 +163,38 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         except YunoHostError:
             domain_add([domain])
 
-        if 'dependencies' in manifest: install_app_dependencies(manifest['dependencies'])
+        script_var_dict = { 'APP_DIR': app_tmp_folder }
+
+        if 'dependencies' in manifest: _install_app_dependencies(manifest['dependencies'])
 
         if 'webapp' in manifest['yunohost']:
             if 'db' in manifest['yunohost']['webapp']:
                 db_user = manifest['yunohost']['uid'] # TODO: app.instance
                 db_pwd  = random_password()
+                script_var_dict['DB_USER'] = db_user
+                script_var_dict['DB_PWD']  = db_pwd
+                script_var_dict['DB_NAME'] = db_user
 
-                init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
+                _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
+
+        if 'script_path' in manifest['yunohost']:
+            _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
         # TODO: Copy files to the right place
-
-        # TODO: Exec postinstall script
 
         # TODO: Create appsettings and chmod it
 
         # TODO: Configure apache/lemon with NPZE's scripts
 
-        # TODO: Remove scripts folder
+        # TODO: Remove scripts folder and /tmp files
 
 
-def extract_app_tarball(app):
+def _extract_app_tarball(path):
     """
     Unzip or untar application tarball in app_tmp_folder
 
     Keyword arguments:
-        app -- Path of the tarball
+        path -- Path of the tarball
 
     Returns:
         Dict manifest
@@ -195,10 +202,10 @@ def extract_app_tarball(app):
     """
     if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
     os.makedirs(app_tmp_folder)
-    if ".zip" in app:
-        extract_result = os.system('cd '+ os.getcwd()  +' && unzip '+ app +' -d '+ app_tmp_folder)
-    elif ".tar" in app:
-        extract_result = os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ app)
+    if ".zip" in path:
+        extract_result = os.system('cd '+ os.getcwd()  +' && unzip '+ path +' -d '+ app_tmp_folder)
+    elif ".tar" in path:
+        extract_result = os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ path)
     else:
         extract_result = 1
 
@@ -208,10 +215,12 @@ def extract_app_tarball(app):
     with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
         manifest = json.loads(str(json_manifest.read()))
 
+    win_msg(_("Tarball extracted"))
+
     return manifest
 
 
-def fetch_app_from_git(app):
+def _fetch_app_from_git(app):
     """
     Unzip or untar application tarball in app_tmp_folder
 
@@ -240,10 +249,12 @@ def fetch_app_from_git(app):
     if not git_result == git_result_2 == 0:
         raise YunoHostError(22, _("Sources fetching failed"))
 
+    win_msg(_("Repository fetched"))
+
     return app_info['manifest']
 
 
-def install_app_dependencies(dep_dict):
+def _install_app_dependencies(dep_dict):
     """
     Install debian, npm, gem, pip and pear dependencies of the app
 
@@ -258,8 +269,10 @@ def install_app_dependencies(dep_dict):
 
     # TODO: Install npm, pip, gem and pear dependencies
 
+    win_msg(_("Dependencies installed"))
 
-def init_app_db(db_user, db_pwd, db_dict):
+
+def _init_app_db(db_user, db_pwd, db_dict):
     """
     Create database and initialize it with optionnal attached script
 
@@ -280,3 +293,43 @@ def init_app_db(db_user, db_pwd, db_dict):
                 raise YunoHostError(1, _("MySQL DB init failed"))
 
     # TODO: PgSQL/MongoDB ?
+
+    win_msg(_("Database initiliazed"))
+
+
+def _exec_app_script(step, path, var_dict, app_type):
+    """
+    Execute step user script
+
+    Keyword arguments:
+        step -- Name of the script to call regarding the current step (e.g. install|upgrade|remove|etc.)
+        path -- Absolute path of the script's directory
+        var_dict -- Dictionnary of environnement variable to pass to the script
+        app_type -- Decides whether to execute as root or as yunohost-app user (e.g. web|privileged|certified)
+
+    """
+    scripts = [ step, step +'.sh', step +'.py' ]
+
+    for script in scripts:
+        script_path = path +'/'+ script
+        if os.path.exists(script_path):
+            st = os.stat(script_path)
+            os.chmod(script_path, st.st_mode | stat.S_IEXEC)
+
+            if app_type == 'privileged' or app_type == 'certified':
+                user = 'root'
+            else:
+                user = 'yunohost-app'
+                os.system('chown -R '+ user +': '+ app_tmp_folder)
+
+            env_vars = ''
+            for key, value in var_dict.items():
+                env_vars = env_vars + key + "='"+ value +"' "
+
+            command = 'su - '+ user +' -c "'+ env_vars +' sh '+ path +'/'+ script +'"'
+            if os.system(command) == 0:
+                win_msg(_("Script executed: ") + script)
+            else:
+                raise YunoHostError(1, _("Script execution failed: ") + script)
+
+            break
