@@ -5,6 +5,7 @@ import sys
 import json
 import shutil
 import stat
+import yaml
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password
 from yunohost_domain import domain_list, domain_add
 
@@ -200,7 +201,18 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
         # TODO: Create appsettings and chmod it
 
-        # TODO: Remove scripts folder and /tmp files
+        #yaml_dict = {
+            #'uid' : manifest['yunohost']['uid'],
+            #'name': manifest['Name'],
+            #'public': public,
+            #'protected': protected,
+            #'domain': domain,
+            #'path': path
+        #}
+
+        #yaml.dump(yaml_dict, f, default_flow_style=False)
+
+        ## TODO: Remove scripts folder and /tmp files
 
 
 def _extract_app_tarball(path):

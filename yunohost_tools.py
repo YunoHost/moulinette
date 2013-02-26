@@ -8,20 +8,20 @@ import getpass
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add
 
-def tools_ldapinit(domain): 
+def tools_ldapinit(domain):
     """
     Initialize YunoHost LDAP scheme
-    
+
     Keyword arguments:
         domain -- Main domain name for initialization
-    
-    Returns: 
+
+    Returns:
         dict
 
     """
     with YunoHostLDAP() as yldap:
 
-        with open('ldap_scheme.yml') as f: 
+        with open('ldap_scheme.yml') as f:
             ldap_map = yaml.load(f)
 
         for rdn, attr_dict in ldap_map['parents'].items():
@@ -29,7 +29,7 @@ def tools_ldapinit(domain):
 
         for rdn, attr_dict in ldap_map['childs'].items():
             yldap.add(rdn, attr_dict)
- 
+
         domain_add([domain])
 
         admin_dict = {
@@ -48,15 +48,15 @@ def tools_ldapinit(domain):
     win_msg(_("LDAP has been successfully initialized"))
 
 
-def tools_adminpw(old_password, new_password): 
+def tools_adminpw(old_password, new_password):
     """
     Change admin password
-    
+
     Keyword arguments:
         old_password
         new_password
-    
-    Returns: 
+
+    Returns:
         dict
 
     """
@@ -72,15 +72,15 @@ def tools_adminpw(old_password, new_password):
         raise YunoHostError(22, _("Invalid password"))
 
 
-def tools_maindomain(old_domain, new_domain): 
+def tools_maindomain(old_domain, new_domain):
     """
     Change admin password
-    
+
     Keyword arguments:
         old_domain
         new_domain
-    
-    Returns: 
+
+    Returns:
         dict
 
     """
@@ -114,8 +114,30 @@ def tools_maindomain(old_domain, new_domain):
             for line in lines:
                 sources.write(re.sub(r''+ old_domain +'', new_domain, line))
 
+    lemon_tmp_conf = '/tmp/tmplemonconf'
+    if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
+
+    lemon_conf_lines = [
+        "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'^/sso/'};", # Remove SSO access rule from old domain
+        "$tmp->{'domain'} = '"+ old_domain +"';", # Replace Lemon domain
+        "$tmp->{'ldapBase'} = 'dc=yunohost,dc=org';", # Set ldap basedn
+        "$tmp->{'portal'} = 'https://"+ new_domain +"/sso/';", # Set SSO url
+        "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'^/sso/'} = 'unprotect';" # Add SSO access rule to new domain
+    ]
+
+    with open(lemon_tmp_conf,'a') as lemon_conf:
+        for line in lemon_conf_lines:
+            lemon_conf.write(line + '\n')
+
+    with open(lemon_tmp_conf,'a') as lemonscript:
+
+    # remove SSO apache conf dir from old domain conf
+    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.sso.conf')
+    # add SSO apache conf dir to new domain conf
+    os.system('cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf')
+
     os.system('/etc/init.d/hostname.sh')
-    
+
     # Regenerate certificate
     tmp = '/usr/share/yunohost/yunohost-config'
     a = os.system('echo "01" > '+ tmp +'/ssl/yunoCA/serial')
@@ -145,12 +167,12 @@ def tools_maindomain(old_domain, new_domain):
 def tools_postinstall(domain, password):
     """
     Post-install configuration
-    
+
     Keyword arguments:
         domain -- Main domain
         password -- New admin password
-    
-    Returns: 
+
+    Returns:
         dict
 
     """
@@ -172,5 +194,5 @@ def tools_postinstall(domain, password):
         tools_adminpw(old_password='yunohost', new_password=password)
 
         os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
-    
+
     win_msg(_("YunoHost has been successfully configured"))
