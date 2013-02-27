@@ -20,7 +20,7 @@ def domain_list(filter=None, limit=None, offset=None):
         Dict
     """
     with YunoHostLDAP() as yldap:
-        result_dict = {}
+        result_list = []
         if offset: offset = int(offset)
         else: offset = 0
         if limit: limit = int(limit)
@@ -28,17 +28,17 @@ def domain_list(filter=None, limit=None, offset=None):
         if not filter: filter = 'virtualdomain=*'
 
         result = yldap.search('ou=domains,dc=yunohost,dc=org', filter, attrs=['virtualdomain'])
-        
+
         if result and len(result) > (0 + offset) and limit > 0:
             i = 0 + offset
             for domain in result[i:]:
                 if i <= limit:
-                    result_dict[str(i)] = domain['virtualdomain'][0]
+                    result_list.append(domain['virtualdomain'][0])
                     i += 1
         else:
             raise YunoHostError(167, _("No domain found"))
 
-        return result_dict
+        return { 'Domains': result_list }
 
 
 def domain_add(domains):
@@ -55,13 +55,13 @@ def domain_add(domains):
         attr_dict = { 'objectClass' : ['mailDomain', 'top'] }
         ip = str(urlopen('http://ip.yunohost.org').read())
         now = datetime.datetime.now()
-        timestamp = str(now.year) + str(now.month) + str(now.day) 
+        timestamp = str(now.year) + str(now.month) + str(now.day)
         result = []
 
         if not isinstance(domains, list):
             domains = [ domains ]
-        
-        for domain in domains: 
+
+        for domain in domains:
             yldap.validate_uniqueness({ 'virtualdomain' : domain })
             attr_dict['virtualdomain'] = domain
 
@@ -107,7 +107,7 @@ def domain_add(domains):
 
         win_msg(_("Domain(s) successfully created"))
 
-        return { 'Domains' : result } 
+        return { 'Domains' : result }
 
 
 def domain_remove(domains):

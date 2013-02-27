@@ -50,7 +50,10 @@ def pretty_print_dict(d, depth=0):
         elif isinstance(v, list):
             print(("  ") * depth + ("%s: " % str(k)))
             for value in v:
-                print(("  ") * (depth+1) + "- " +str(value))
+                if isinstance(value, tuple):
+                    pretty_print_dict({value[0]: value[1]}, depth+1)
+                else:
+                    print(("  ") * (depth+1) + "- " +str(value))
         else:
             print(("  ") * depth + "%s: %s" % (str(k), str(v)))
 

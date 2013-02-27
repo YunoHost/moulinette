@@ -134,12 +134,12 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                 if raw:
                     list_dict[app_id] = app_info
                 else:
-                    list_dict[app_id] = {
-                        'Name': app_info['manifest']['name'],
-                        'Version': app_info['manifest']['version'],
-                        'Description': app_info['manifest']['description'],
-                        'Installed': installed_txt
-                    }
+                    list_dict[app_id] = [
+                        ('Name', app_info['manifest']['name']),
+                        ('Version', app_info['manifest']['version']),
+                        ('Description', app_info['manifest']['description']),
+                        ('Installed', installed_txt)
+                    ]
 
     return list_dict
 
