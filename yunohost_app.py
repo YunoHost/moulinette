@@ -123,13 +123,22 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                 i += 1
         for app_id, app_info in sorted_app_dict.items():
             if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
+                instance_number = _installed_instance_number(app_id)
+                if instance_number > 1:
+                    installed_txt = 'Yes ('+ str(instance_number) +' times)'
+                elif instance_number == 1:
+                    installed_txt = 'Yes'
+                else:
+                    installed_txt = 'No'
+
                 if raw:
                     list_dict[app_id] = app_info
                 else:
                     list_dict[app_id] = {
                         'Name': app_info['manifest']['name'],
                         'Version': app_info['manifest']['version'],
-                        'Description': app_info['manifest']['description']
+                        'Description': app_info['manifest']['description'],
+                        'Installed': installed_txt
                     }
 
     return list_dict
