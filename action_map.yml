@@ -171,7 +171,7 @@ domain:
             arguments:
                 domains:
                     help: Domain name to add
-                    nargs: '*'
+                    nargs: '+'
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 web:
                     help: Auto-configure Apache and LemonLDAP for the domain
@@ -184,8 +184,7 @@ domain:
             arguments:
                 domains:
                     help: Domain(s) to delete
-                    nargs: "*"
-                    ask: "Domain to remove"
+                    nargs: "+"
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### domain_info()
