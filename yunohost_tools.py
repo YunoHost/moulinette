@@ -175,11 +175,11 @@ def tools_postinstall(domain, password):
         else:
             raise YunoHostError(17, _("YunoHost is already installed"))
 
-        # New domain config
-        tools_maindomain(old_domain='yunohost.org', new_domain=domain)
-
         # Initialize YunoHost LDAP base
         tools_ldapinit()
+
+        # New domain config
+        tools_maindomain(old_domain='yunohost.org', new_domain=domain)
 
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)
