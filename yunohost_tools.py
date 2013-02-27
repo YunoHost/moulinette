@@ -145,13 +145,13 @@ def tools_maindomain(old_domain, new_domain):
     h = os.system('cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem')
     i = os.system('cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/')
     j = os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem')
-    l = os.system('echo '+ new_domain +' > /usr/share/yunohost/yunohost-config/others/current_host')
+    k = os.system('echo '+ new_domain +' > /usr/share/yunohost/yunohost-config/others/current_host')
 
     # Restart services
-    m = os.system('service apache2 restart')
-    n = os.system('service postfix restart')
+    l = os.system('service apache2 restart')
+    m = os.system('service postfix restart')
 
-    if a == b == c == d == e == f == g == h == i == j == k == l == m == n == 0:
+    if a == b == c == d == e == f == g == h == i == j == k == l == m == 0:
         win_msg(_("YunoHost main domain has been successfully changed"))
     else:
         raise YunoHostError(17, _("There were a problem during domain changing"))
