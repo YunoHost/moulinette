@@ -7,6 +7,10 @@ import re
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
+a2_template_path = '/etc/yunohost/apache/templates'
+a2_app_conf_path = '/etc/yunohost/apache/domains'
+lemon_tmp_conf   = '/tmp/tmplemonconf'
+
 def domain_list(filter=None, limit=None, offset=None):
     """
     List YunoHost domains
@@ -41,12 +45,13 @@ def domain_list(filter=None, limit=None, offset=None):
         return { 'Domains': result_list }
 
 
-def domain_add(domains):
+def domain_add(domains, web=False):
     """
     Add one or more domains
 
     Keyword argument:
         domains -- List of domains to add
+        web -- Configure Apache and LemonLDAP for the domain too
 
     Returns:
         Dict
@@ -105,6 +110,10 @@ def domain_add(domains):
             else:
                 raise YunoHostError(169, _("An error occured during domain creation"))
 
+            if web:
+                _apache_config(domain)
+                _lemon_config(domain)
+
         win_msg(_("Domain(s) successfully created"))
 
         return { 'Domains' : result }
@@ -152,4 +161,66 @@ def domain_remove(domains):
         win_msg(_("Domain(s) successfully deleted"))
 
         return { 'Domains' : result }
+
+
+def _apache_config(domain):
+    """
+    Fill Apache configuration templates
+
+    Keyword arguments:
+        domain -- Domain to configure Apache around
+
+    """
+    # TMP: remove old conf
+    if os.path.exists(a2_app_conf_path +'/'+ domain +'.conf'): os.remove(a2_app_conf_path +'/'+ domain +'.conf')
+    if os.path.exists(a2_app_conf_path +'/'+ domain +'.d/'): shutil.rmtree(a2_app_conf_path +'/'+ domain +'.d/')
+
+    try: os.listdir(a2_app_conf_path +'/'+ domain +'.d/')
+    except OSError: os.makedirs(a2_app_conf_path +'/'+ domain +'.d/')
+
+    with open(a2_app_conf_path +'/'+ domain +'.conf', 'a') as a2_conf:
+        for line in open(a2_template_path +'/template.conf.tmp'):
+            line = line.replace('[domain]',domain)
+            a2_conf.write(line)
+
+    if os.system('service apache2 reload') == 0:
+        win_msg(_("Apache configured"))
+    else:
+        raise YunoHostError(1, _("An error occured during Apache configuration"))
+
+
+def _lemon_config(domain):
+    """
+    Configure LemonLDAP
+
+    Keyword arguments:
+        domain -- Domain to configure LemonLDAP around
+
+    """
+    if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
+
+    lemon_conf_lines = [
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Auth-User'} = '$uid';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Remote-User'} = '$uid';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Desc'} = '$description';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Email'} = '$uid';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Name'} = '$cn';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Authorization'} = '\"Basic \".encode_base64(\"$uid:$_password\")';",
+       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostMaintenance'} = 0;",
+       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostPort'} = -1;",
+       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostHttps'} = -1;",
+       "$tmp->{'locationRules'}->{'"+ domain +"'}->{'default'} = 'accept';",
+       "$tmp->{'locationRules'}->{'"+ domain +"'}->{'(?#logout)^/logout'} = 'logout_app_sso https://"+ domain +"/';",
+    ]
+
+    with open(lemon_tmp_conf,'a') as lemon_conf:
+        for line in lemon_conf_lines:
+            lemon_conf.write(line + '\n')
+
+    if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
+        win_msg(_("LemonLDAP configured"))
+    else:
+        raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
+
+
 

@@ -8,12 +8,9 @@ import getpass
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add
 
-def tools_ldapinit(domain):
+def tools_ldapinit():
     """
     Initialize YunoHost LDAP scheme
-
-    Keyword arguments:
-        domain -- Main domain name for initialization
 
     Returns:
         dict
@@ -30,7 +27,6 @@ def tools_ldapinit(domain):
         for rdn, attr_dict in ldap_map['childs'].items():
             yldap.add(rdn, attr_dict)
 
-        domain_add([domain])
 
         admin_dict = {
             'cn': 'admin',
@@ -113,6 +109,8 @@ def tools_maindomain(old_domain, new_domain):
             for line in lines:
                 sources.write(re.sub(r''+ old_domain +'', new_domain, line))
 
+    domain_add([domain], web=True)
+
     lemon_tmp_conf = '/tmp/tmplemonconf'
     if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
 
@@ -181,7 +179,7 @@ def tools_postinstall(domain, password):
         tools_maindomain(old_domain='yunohost.org', new_domain=domain)
 
         # Initialize YunoHost LDAP base
-        tools_ldapinit(domain=domain)
+        tools_ldapinit()
 
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)

@@ -172,8 +172,11 @@ domain:
                 domains:
                     help: Domain name to add
                     nargs: '*'
-                    ask: "New domain"
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                web:
+                    help: Auto-configure Apache and LemonLDAP for the domain
+                    action: store_true
+                    default: False
 
         ### domain_remove()
         remove:
@@ -484,11 +487,6 @@ tools:
         ### tools_ldapinit()
         ldapinit:
             action_help: YunoHost LDAP initialization
-            arguments:
-                -d:
-                    full: --domain
-                    help: YunoHost main domain
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### tools_adminpw()
         adminpw:
