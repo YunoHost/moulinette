@@ -109,7 +109,7 @@ def tools_maindomain(old_domain, new_domain):
             for line in lines:
                 sources.write(re.sub(r''+ old_domain +'', new_domain, line))
 
-    domain_add([domain], web=True)
+    domain_add([new_domain], web=True)
 
     lemon_tmp_conf = '/tmp/tmplemonconf'
     if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)

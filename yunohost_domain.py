@@ -67,7 +67,19 @@ def domain_add(domains, web=False):
             domains = [ domains ]
 
         for domain in domains:
-            yldap.validate_uniqueness({ 'virtualdomain' : domain })
+            try:
+                yldap.validate_uniqueness({ 'virtualdomain' : domain })
+            except YunoHostError:
+                if web:
+                    _apache_config(domain)
+                    _lemon_config(domain)
+
+                    win_msg(_("Web config created"))
+                    break
+                else:
+                    raise YunoHostError(17, _("Domain already created"))
+
+
             attr_dict['virtualdomain'] = domain
 
             try:
