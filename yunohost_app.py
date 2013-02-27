@@ -6,6 +6,7 @@ import json
 import shutil
 import stat
 import yaml
+import time
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password
 from yunohost_domain import domain_list, domain_add
 
@@ -224,6 +225,8 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
             yaml_dict = {
                 'uid' : manifest['yunohost']['uid'],
                 'instance' : instance_number,
+                'last_update': manifest['lastUpdate'],
+                'install_time': int(time.time()),
                 'name': manifest['name'],
                 'public': public,
                 'protected': protected,
@@ -276,6 +279,7 @@ def _extract_app_tarball(path):
 
     with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
         manifest = json.loads(str(json_manifest.read()))
+        manifest['lastUpdate'] = int(time.time())
 
     win_msg(_("Tarball extracted"))
 
@@ -302,6 +306,7 @@ def _fetch_app_from_git(app):
 
     if app in app_dict:
         app_info = app_dict[app]
+        app_info['manifest']['lastUpdate'] = app_info['lastUpdate']
     else:
         raise YunoHostError(22, _("App doesn't exists"))
 
