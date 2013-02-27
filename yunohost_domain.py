@@ -116,15 +116,15 @@ def domain_add(domains, web=False):
                 for line in conf_lines:
                         conf.write(line + '\n')
 
+            if web:
+                _apache_config(domain)
+                _lemon_config(domain)
+
             if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
                 result.append(domain)
                 continue
             else:
                 raise YunoHostError(169, _("An error occured during domain creation"))
-
-            if web:
-                _apache_config(domain)
-                _lemon_config(domain)
 
         win_msg(_("Domain(s) successfully created"))
 

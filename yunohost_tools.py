@@ -150,7 +150,7 @@ def tools_maindomain(old_domain, new_domain):
     m = os.system('service postfix restart')
 
     if a == b == c == d == e == f == g == h == i == j == k == l == m == 0:
-        win_msg(_("YunoHost main domain has been successfully changed"))
+        win_msg(_("Main domain has been successfully changed"))
     else:
         raise YunoHostError(17, _("There were a problem during domain changing"))
 
