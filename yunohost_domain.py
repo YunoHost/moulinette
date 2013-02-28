@@ -212,7 +212,7 @@ def _lemon_config(domain):
        "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Auth-User'} = '$uid';",
        "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Remote-User'} = '$uid';",
        "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Desc'} = '$description';",
-       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Email'} = '$uid';",
+       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Email'} = '$mail';",
        "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Name'} = '$cn';",
        "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Authorization'} = '\"Basic \".encode_base64(\"$uid:$_password\")';",
        "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostMaintenance'} = 0;",

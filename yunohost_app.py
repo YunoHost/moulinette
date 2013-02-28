@@ -178,6 +178,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
                 raise YunoHostError(1, _("App is already installed"))
 
         unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
+        app_final_path = apps_path +'/'+ unique_app_id
         script_var_dict = { 'APP_DIR': app_tmp_folder }
 
         if 'dependencies' in manifest: _install_app_dependencies(manifest['dependencies'])
@@ -198,13 +199,40 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         if 'script_path' in manifest['yunohost']:
             _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
-        if is_webapp: domain_add([domain], web=True)
+        if is_webapp:
+            domain_add([domain], web=True)
+            # Customize apache conf
+            a2_conf_lines = [
+                'Alias '+ path +' '+ app_final_path + manifest['launch_path']
+            ]
+
+            if manifest['yunohost']['webapp']['language'] == 'php':
+                a2_conf_lines.extend([
+                    '<IfModule php5_module>',
+                    '    AddType application/x-httpd-php .php',
+                    '    <FilesMatch \.php$>',
+                    '        SetHandler application/x-httpd-php',
+                    '    </FilesMatch>',
+                    '    AddType application/x-httpd-php-source .phps',
+                    '    <IfModule dir_module>',
+                    '        DirectoryIndex index.php index.html',
+                    '    </IfModule>',
+                    '</IfModule>'
+                ])
+
+            a2_conf_file = a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf'
+            if os.path.exists(a2_conf_file): os.remove(a2_conf_file)
+
+            with open(a2_conf_file, 'a') as file:
+                for line in a2_conf_lines:
+                    file.write(line + '\n')
+
+            os.system('service apache2 reload')
 
         #  Copy files to the right place
         try: os.listdir(apps_path)
         except OSError: os.makedirs(apps_path)
 
-        app_final_path = apps_path +'/'+ unique_app_id
 
         # TMP: Remove old application
         if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
@@ -214,20 +242,6 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
         app_setting_path = apps_setting_path +'/'+ unique_app_id
-
-        # Customize apache conf
-        a2_conf_lines = [
-            'Alias '+ path +' '+ app_final_path + manifest['launch_path']
-        ]
-
-        a2_conf_file = a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf'
-        if os.path.exists(a2_conf_file): os.remove(a2_conf_file)
-
-        with open(a2_conf_file, 'a') as file:
-            for line in a2_conf_lines:
-                file.write(line + '\n')
-
-        os.system('service apache2 reload')
 
 
         # TMP: Remove old settings
