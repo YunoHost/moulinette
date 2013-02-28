@@ -13,6 +13,7 @@ from yunohost_domain import domain_list, domain_add
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
 apps_setting_path= '/etc/yunohost/apps/'
+a2_settings_path = '/etc/yunohost/apache/domains/'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
 
@@ -197,14 +198,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         if 'script_path' in manifest['yunohost']:
             _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
-        if is_webapp:
-            # Handle domain if ain't already created
-            try:
-                domain_list(filter="virtualdomain="+ domain)
-            except YunoHostError:
-                domain_add([domain], web=True)
-
-
+        if is_webapp: domain_add([domain], web=True)
 
         #  Copy files to the right place
         try: os.listdir(apps_path)
@@ -220,6 +214,19 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
         app_setting_path = apps_setting_path +'/'+ unique_app_id
+
+        # Customize apache conf
+        a2_conf_lines = [
+            'Alias '+ path +' '+ app_final_path +'/'+ manifest['launch_path']
+        ]
+
+        a2_conf_file = a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf'
+        if os.path.exists(a2_conf_file): os.remove(a2_conf_file)
+
+        with open(a2_conf_file, 'a') as file:
+            for line in a2_conf_lines:
+                file.write(line + '\n')
+
 
         # TMP: Remove old settings
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
