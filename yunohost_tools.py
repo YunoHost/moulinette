@@ -94,7 +94,6 @@ def tools_maindomain(old_domain, new_domain):
     ]
 
     config_dir = [
-        '/var/lib/lemonldap-ng/conf', # TODO: Use lemon perl script instead
         '/etc/apache2/sites-available',
     ]
 
