@@ -113,7 +113,7 @@ def tools_maindomain(old_domain, new_domain):
 
     lemon_conf_lines = [
         "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'^/sso/'};", # Remove SSO access rule from old domain
-        "$tmp->{'domain'} = '"+ old_domain +"';", # Replace Lemon domain
+        "$tmp->{'domain'} = '"+ new_domain +"';", # Replace Lemon domain
         "$tmp->{'ldapBase'} = 'dc=yunohost,dc=org';", # Set ldap basedn
         "$tmp->{'portal'} = 'https://"+ new_domain +"/sso/';", # Set SSO url
         "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'^/sso/'} = 'unprotect';" # Add SSO access rule to new domain
