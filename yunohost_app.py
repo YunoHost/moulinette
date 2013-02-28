@@ -217,7 +217,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
         # Customize apache conf
         a2_conf_lines = [
-            'Alias '+ path +' '+ app_final_path +'/'+ manifest['launch_path']
+            'Alias '+ path +' '+ app_final_path + manifest['launch_path']
         ]
 
         a2_conf_file = a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf'
@@ -257,7 +257,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
         if 'script_path' in manifest['yunohost']:
             os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
-        
+
         shutil.rmtree(app_tmp_folder)
 
         if os.system('chmod 400 -R '+ app_setting_path) == 0:
