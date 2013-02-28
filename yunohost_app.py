@@ -227,6 +227,8 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
             for line in a2_conf_lines:
                 file.write(line + '\n')
 
+        os.system('service apache2 reload')
+
 
         # TMP: Remove old settings
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)

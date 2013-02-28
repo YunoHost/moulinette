@@ -184,14 +184,10 @@ def _apache_config(domain):
         domain -- Domain to configure Apache around
 
     """
-    # TMP: remove old conf
-    if os.path.exists(a2_app_conf_path +'/'+ domain +'.conf'): os.remove(a2_app_conf_path +'/'+ domain +'.conf')
-    if os.path.exists(a2_app_conf_path +'/'+ domain +'.d/'): shutil.rmtree(a2_app_conf_path +'/'+ domain +'.d/')
-
     try: os.listdir(a2_app_conf_path +'/'+ domain +'.d/')
     except OSError: os.makedirs(a2_app_conf_path +'/'+ domain +'.d/')
 
-    with open(a2_app_conf_path +'/'+ domain +'.conf', 'a') as a2_conf:
+    with open(a2_app_conf_path +'/'+ domain +'.conf', 'w') as a2_conf:
         for line in open(a2_template_path +'/template.conf.tmp'):
             line = line.replace('[domain]',domain)
             a2_conf.write(line)
