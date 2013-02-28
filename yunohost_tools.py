@@ -123,33 +123,34 @@ def tools_maindomain(old_domain, new_domain):
         for line in lemon_conf_lines:
             lemon_conf.write(line + '\n')
 
-    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.sso.conf') # remove SSO apache conf dir from old domain conf
-    os.system('cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf') # add SSO apache conf dir to new domain conf
 
-    os.system('/etc/init.d/hostname.sh')
+    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.sso.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
 
-    # Regenerate certificate
     tmp = '/usr/share/yunohost/yunohost-config'
-    a = os.system('echo "01" > '+ tmp +'/ssl/yunoCA/serial')
-    b = os.system('rm '+ tmp +'/ssl/yunoCA/index.txt')
-    c = os.system('touch '+ tmp +'/ssl/yunoCA/index.txt')
-    d = os.system('sed -i "s/' + old_domain + '/' + new_domain + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf')
-    e = os.system('openssl req -x509 -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 3650 -out '+ tmp +'/ssl/yunoCA/ca/cacert.pem -keyout '+ tmp +'/ssl/yunoCA/ca/cakey.pem -nodes -batch')
-    f = os.system('openssl req -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -out '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -keyout '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem -nodes -batch')
-    g = os.system('openssl ca -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -in '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -out '+ tmp +'/ssl/yunoCA/certs/yunohost_crt.pem -batch')
-    h = os.system('cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem')
-    i = os.system('cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/')
-    j = os.system('cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem')
-    k = os.system('echo '+ new_domain +' > /usr/share/yunohost/yunohost-config/others/current_host')
 
-    # Restart services
-    l = os.system('service apache2 restart')
-    m = os.system('service postfix restart')
+    command_list = [
+        'cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf', # add SSO apache conf dir to new domain conf
+        '/etc/init.d/hostname.sh',
+        'echo "01" > '+ tmp +'/ssl/yunoCA/serial',
+        'rm '+ tmp +'/ssl/yunoCA/index.txt',
+        'touch '+ tmp +'/ssl/yunoCA/index.txt',
+        'sed -i "s/' + old_domain + '/' + new_domain + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf',
+        'openssl req -x509 -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 3650 -out '+ tmp +'/ssl/yunoCA/ca/cacert.pem -keyout '+ tmp +'/ssl/yunoCA/ca/cakey.pem -nodes -batch',
+        'openssl req -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -out '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -keyout '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem -nodes -batch',
+        'openssl ca -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -in '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -out '+ tmp +'/ssl/yunoCA/certs/yunohost_crt.pem -batch',
+        'cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
+        'cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/',
+        'cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem',
+        'echo '+ new_domain +' > /usr/share/yunohost/yunohost-config/others/current_host',
+        'service apache2 restart',
+        'service postfix restart'
+    ]
 
-    if a == b == c == d == e == f == g == h == i == j == k == l == m == 0:
-        win_msg(_("Main domain has been successfully changed"))
-    else:
-        raise YunoHostError(17, _("There were a problem during domain changing"))
+    for command in command_list:
+        if os.system(command) != 0:
+            raise YunoHostError(17, _("There were a problem during domain changing"))
+
+    win_msg(_("Main domain has been successfully changed"))
 
 
 def tools_postinstall(domain, password):
