@@ -130,6 +130,7 @@ def tools_maindomain(old_domain, new_domain):
 
     command_list = [
         'cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf', # add SSO apache conf dir to new domain conf
+        '/usr/share/lemonldap-ng/bin/lmYnhMoulinette',
         '/etc/init.d/hostname.sh',
         'echo "01" > '+ tmp +'/ssl/yunoCA/serial',
         'rm '+ tmp +'/ssl/yunoCA/index.txt',
