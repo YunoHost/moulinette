@@ -4,6 +4,7 @@ import os
 import sys
 import datetime
 import re
+import shutil
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 

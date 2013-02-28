@@ -257,7 +257,8 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
         if 'script_path' in manifest['yunohost']:
             os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
-            shutil.rmtree(app_tmp_folder)
+        
+        shutil.rmtree(app_tmp_folder)
 
         if os.system('chmod 400 -R '+ app_setting_path) == 0:
             win_msg(_("Installation complete"))
@@ -425,7 +426,12 @@ def _installed_instance_number(app):
 
     """
     number = 0
-    installed_apps = os.listdir(apps_setting_path)
+    try:
+        installed_apps = os.listdir(apps_setting_path)
+    except OSError:
+        os.makedirs(apps_setting_path)
+        return 0
+
     for installed_app in installed_apps:
         if '__' in installed_app:
             if app == installed_app[:installed_app.index('__')]:
