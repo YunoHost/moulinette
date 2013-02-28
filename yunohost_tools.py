@@ -93,9 +93,7 @@ def tools_maindomain(old_domain, new_domain):
         '/etc/hosts',
     ]
 
-    config_dir = [
-        '/etc/apache2/sites-available',
-    ]
+    config_dir = []
 
     for dir in config_dir:
         for file in os.listdir(dir):
