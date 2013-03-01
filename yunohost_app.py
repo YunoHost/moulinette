@@ -181,6 +181,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         # Define App ID & path                  #
         #########################################
 
+        if path[len(path)-1:] != '/':
+            path = path + '/'
+
         if not lvl(manifest, 'yunohost', 'uid') or '__' in manifest['yunohost']['uid']:
             raise YunoHostError(22, _("App uid is invalid"))
 
@@ -221,8 +224,8 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         #########################################
 
         if lvl(manifest, 'yunohost', 'webapp', 'db'):
-            db_user = unique_app_id
-            db_pwd  = random_password()
+            db_user = random_password(10)
+            db_pwd  = random_password(12)
             script_var_dict['DB_USER'] = db_user
             script_var_dict['DB_PWD']  = db_pwd
             script_var_dict['DB_NAME'] = db_user
