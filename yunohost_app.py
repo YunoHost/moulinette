@@ -158,16 +158,15 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
     """
     # TODO: Virer la règle "default" lemon
-
     # TODO: check path and url_to_(un)protect pattern
-
     # TODO: check if app is installed on this domain/path (or subpath)
 
     with YunoHostLDAP() as yldap:
 
-        ###########################################
-        # Fetch or extract sources                #
-        ###########################################
+
+        ##########################################
+        # Fetch or extract sources               #
+        ##########################################
 
         try: os.listdir(install_tmp)
         except OSError: os.makedirs(install_tmp)
@@ -189,6 +188,20 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         if instance_number > 1:
             if not lvl(manifest, 'yunohost', 'multi_instance') or not is_true(manifest['yunohost']['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
+
+        if domain +'.d' in listdir(a2_settings_path):
+            conf_list = listdir(a2_settings_path +'/'+ domain + '.d')
+            domain_app_list = []
+            for conf in conf_list:
+                if '.app.conf' in conf:
+                    domain_app_list.append(conf[:len(conf)-9]
+
+            for installed_app in domain_app_list:
+                open(apps_setting_path +'/'+ installed_app +'/app_setting.yml') as f:
+                    app_settings = yaml.load(f)
+
+                if app_settings['path'] == path:
+                    raise YunoHostError(1, _("An app is already installed on this location"))
 
         unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
@@ -246,8 +259,6 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             else:
                 raise YunoHostError(22, _("Invalid privacy mode"))
 
-            if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
-
             lemon_conf_lines = [
                "$tmp->{'locationRules'}->{'"+ domain +"'}->{'(?#"+ unique_app_id +"Z)^"+ path +"'} = '"+ lemon_mode +"';"
             ]
@@ -284,12 +295,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
                     '</IfModule>'
                 ])
 
-            a2_conf_file = a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf'
-            if os.path.exists(a2_conf_file): os.remove(a2_conf_file)
-
-            with open(a2_conf_file, 'a') as file:
+            with open(a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf', 'w') as a2_conf:
                 for line in a2_conf_lines:
-                    file.write(line + '\n')
+                    a2_conf.write(line + '\n')
 
 
         #########################################
@@ -308,7 +316,6 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         if lvl(manifest, 'yunohost', 'webapp'):
             os.system('service apache2 reload')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
-
 
 
         #########################################
@@ -457,7 +464,7 @@ def _init_app_db(db_user, db_pwd, db_dict):
     """
     # Need MySQL DB ?
     if lvl(db_dict, 'has_mysql_db') and is_true(db_dict['has_mysql_db']):
-        mysql_root_pwd = open('/etc/yunohost/mysql', 'rb').read().rstrip()
+        mysql_root_pwd = open('/etc/yunohost/mysql').read().rstrip()
         mysql_command = 'mysql -u root -p'+ mysql_root_pwd +' -e "CREATE DATABASE '+ db_user +' ; GRANT ALL PRIVILEGES ON '+ db_user +'.* TO \''+ db_user +'\'@localhost IDENTIFIED BY \''+ db_pwd +'\';"'
         if os.system(mysql_command) != 0:
             raise YunoHostError(1, _("MySQL DB creation failed"))
