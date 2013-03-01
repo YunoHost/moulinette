@@ -7,7 +7,7 @@ import shutil
 import stat
 import yaml
 import time
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password
+from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, lvl, is_true
 from yunohost_domain import domain_list, domain_add
 
 repo_path        = '/var/cache/yunohost/repo'
@@ -169,25 +169,23 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         else:
             manifest = _fetch_app_from_git(app)
 
-        if '__' in manifest['yunohost']['uid']:
+        if not lvl(manifest, 'yunohost', 'uid') or '__' in manifest['yunohost']['uid']:
             raise YunoHostError(22, _("App uid is invalid"))
 
         instance_number = _installed_instance_number(manifest['yunohost']['uid']) + 1
         if instance_number > 1:
-            if not ('multi_instance' in manifest['yunohost'] and (manifest['yunohost']['multi_instance'] == 'yes' or manifest['yunohost']['multi_instance'] == 'true')):
+            if not lvl(manifest, 'yunohost', 'multi_instance') or not is_true(manifest['yunohost']['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
         unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
         script_var_dict = { 'APP_DIR': app_tmp_folder }
 
-        if 'dependencies' in manifest: _install_app_dependencies(manifest['dependencies'])
+        if lvl(manifest, 'dependencies'): _install_app_dependencies(manifest['dependencies'])
 
-        if 'webapp' in manifest['yunohost']:
+        if lvl(manifest, 'yunohost', 'webapp'):
 
-            is_webapp = True
-
-            if 'db' in manifest['yunohost']['webapp']:
+            if lvl(manifest, 'yunohost', 'webapp', 'db'):
                 db_user = unique_app_id
                 db_pwd  = random_password()
                 script_var_dict['DB_USER'] = db_user
@@ -196,17 +194,17 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
                 _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
 
-        if 'script_path' in manifest['yunohost']:
+        if lvl(manifest, 'yunohost', 'script_path'):
             _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
-        if is_webapp:
+        if lvl(manifest, 'yunohost', 'webapp'):
             domain_add([domain], web=True)
             # Customize apache conf
             a2_conf_lines = [
                 'Alias '+ path +' '+ app_final_path + manifest['launch_path']
             ]
 
-            if manifest['yunohost']['webapp']['language'] == 'php':
+            if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
                 a2_conf_lines.extend([
                     '<IfModule php5_module>',
                     '    AddType application/x-httpd-php .php',
@@ -227,15 +225,14 @@ def app_install(app, domain, path='/', label=None, mode='private'):
                 for line in a2_conf_lines:
                     file.write(line + '\n')
 
-            lemon_mode = 'accept'
-
-            if 'access_control' in manifest['yunohost']['webapp']:
-                if mode == 'public' and 'can_be_public' in manifest['yunohost']['webapp']['access_control'] and (manifest['yunohost']['webapp']['access_control']['can_be_public'] == 'yes' or manifest['yunohost']['webapp']['access_control']['can_be_public'] == 'true'):
-                    lemon_mode = 'skip'
-                elif mode == 'protected' and 'can_be_protected' in manifest['yunohost']['webapp']['access_control'] and (manifest['yunohost']['webapp']['access_control']['can_be_protected'] == 'yes' or manifest['yunohost']['webapp']['access_control']['can_be_protected'] == 'true'):
-                    lemon_mode = 'unprotect'
-                else:
-                    raise YunoHostError(22, _("Invalid privacy mode"))
+            if mode == 'private':
+                lemon_mode = 'accept'
+            elif mode == 'protected' and lvl(manifest, 'yunohost', 'webapp', 'access_control', 'can_be_protected') and is_true(manifest['yunohost']['webapp']['access_control']['can_be_protected']):
+                lemon_mode = 'unprotect'
+            elif mode == 'public' and lvl(manifest, 'yunohost', 'webapp', 'access_control', 'can_be_public') and is_true(manifest['yunohost']['webapp']['access_control']['can_be_public']):
+                lemon_mode = 'skip'
+            else:
+                raise YunoHostError(22, _("Invalid privacy mode"))
 
             if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
 
@@ -252,6 +249,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             else:
                 raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
 
+        # TODO: check path and url_to_(un)protect pattern
+
+        # TODO: check if app is installed on this domain/path (or subpath)
 
         #  Copy files to the right place
         try: os.listdir(apps_path)
@@ -285,7 +285,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
                 'path': path,
             }
 
-            if 'db' in manifest['yunohost']['webapp']:
+            if lvl(manifest, 'yunohost', 'webapp', 'db'):
                 yaml_dict['db_pwd'] = db_pwd
                 yaml_dict['db_user'] = db_user
             if label: yaml_dict['label'] = label
@@ -295,7 +295,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
                 yaml.safe_dump(yaml_dict, f, default_flow_style=False)
                 win_msg(_("App setting file created"))
 
-        if 'script_path' in manifest['yunohost']:
+        if lvl(manifest, 'yunohost', 'script_path'):
             os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
 
         shutil.rmtree(app_tmp_folder)
@@ -402,12 +402,12 @@ def _init_app_db(db_user, db_pwd, db_dict):
 
     """
     # Need MySQL DB ?
-    if 'has_mysql_db' in db_dict and ((db_dict['has_mysql_db'] == 'true') or (db_dict['has_mysql_db'] == 'yes')):
+    if lvl(db_dict, 'has_mysql_db') and is_true(db_dict['has_mysql_db']):
         mysql_root_pwd = open('/etc/yunohost/mysql', 'rb').read().rstrip()
         mysql_command = 'mysql -u root -p'+ mysql_root_pwd +' -e "CREATE DATABASE '+ db_user +' ; GRANT ALL PRIVILEGES ON '+ db_user +'.* TO \''+ db_user +'\'@localhost IDENTIFIED BY \''+ db_pwd +'\';"'
         if os.system(mysql_command) != 0:
             raise YunoHostError(1, _("MySQL DB creation failed"))
-        if 'mysql_init_script' in db_dict:
+        if lvl(db_dict, 'mysql_init_script'):
             if os.system('mysql -u '+ db_user +' -p'+ db_pwd +' '+ db_user +' < '+ app_tmp_folder + db_dict['mysql_init_script'] +' ;') != 0:
                 raise YunoHostError(1, _("MySQL DB init failed"))
 

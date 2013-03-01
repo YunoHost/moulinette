@@ -57,6 +57,24 @@ def pretty_print_dict(d, depth=0):
         else:
             print(("  ") * depth + "%s: %s" % (str(k), str(v)))
 
+def lvl(*args):
+    dic = None
+    for arg in args:
+        if dic is None or arg in dic:
+            dic = dic[arg]
+        else:
+            return False
+
+    return True
+
+def is_true(arg):
+    true_list = ['yes', 'Yes', 'true', 'True' ]
+    for string in true_list:
+        if arg == string:
+            return True
+
+    return False
+
 def win_msg(astr):
     """
     Display a success message if isatty
