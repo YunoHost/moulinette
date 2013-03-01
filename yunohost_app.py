@@ -157,17 +157,30 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         Win | Fail
 
     """
-    is_webapp = False
+    # TODO: Virer la règle "default" lemon
+
+    # TODO: check path and url_to_(un)protect pattern
+
+    # TODO: check if app is installed on this domain/path (or subpath)
 
     with YunoHostLDAP() as yldap:
+
+        ###########################################
+        # Fetch or extract sources                #
+        ###########################################
+
         try: os.listdir(install_tmp)
         except OSError: os.makedirs(install_tmp)
 
-        # Check if install from file or git
         if "." in app:
             manifest = _extract_app_tarball(app)
         else:
             manifest = _fetch_app_from_git(app)
+
+
+        #########################################
+        # Define App ID & path                  #
+        #########################################
 
         if not lvl(manifest, 'yunohost', 'uid') or '__' in manifest['yunohost']['uid']:
             raise YunoHostError(22, _("App uid is invalid"))
@@ -181,49 +194,47 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         app_final_path = apps_path +'/'+ unique_app_id
         script_var_dict = { 'APP_DIR': app_tmp_folder }
 
-        if lvl(manifest, 'dependencies'): _install_app_dependencies(manifest['dependencies'])
 
-        if lvl(manifest, 'yunohost', 'webapp'):
+        #########################################
+        # Install dependencies                  #
+        #########################################
 
-            if lvl(manifest, 'yunohost', 'webapp', 'db'):
-                db_user = unique_app_id
-                db_pwd  = random_password()
-                script_var_dict['DB_USER'] = db_user
-                script_var_dict['DB_PWD']  = db_pwd
-                script_var_dict['DB_NAME'] = db_user
+        if lvl(manifest, 'dependencies'):
+            _install_app_dependencies(manifest['dependencies'])
 
-                _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
+
+        #########################################
+        # Create and init DB                    #
+        #########################################
+
+        if lvl(manifest, 'yunohost', 'webapp', 'db'):
+            db_user = unique_app_id
+            db_pwd  = random_password()
+            script_var_dict['DB_USER'] = db_user
+            script_var_dict['DB_PWD']  = db_pwd
+            script_var_dict['DB_NAME'] = db_user
+
+            _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
+
+
+        #########################################
+        # Execute App install script            #
+        #########################################
 
         if lvl(manifest, 'yunohost', 'script_path'):
             _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
+        #########################################
+        # Specifically configure lemon & apache #
+        #########################################
+
         if lvl(manifest, 'yunohost', 'webapp'):
             domain_add([domain], web=True)
-            # Customize apache conf
-            a2_conf_lines = [
-                'Alias '+ path +' '+ app_final_path + manifest['launch_path']
-            ]
 
-            if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
-                a2_conf_lines.extend([
-                    '<IfModule php5_module>',
-                    '    AddType application/x-httpd-php .php',
-                    '    <FilesMatch \.php$>',
-                    '        SetHandler application/x-httpd-php',
-                    '    </FilesMatch>',
-                    '    AddType application/x-httpd-php-source .phps',
-                    '    <IfModule dir_module>',
-                    '        DirectoryIndex index.php index.html',
-                    '    </IfModule>',
-                    '</IfModule>'
-                ])
 
-            a2_conf_file = a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf'
-            if os.path.exists(a2_conf_file): os.remove(a2_conf_file)
-
-            with open(a2_conf_file, 'a') as file:
-                for line in a2_conf_lines:
-                    file.write(line + '\n')
+            #############
+            # LemonLDAP #
+            #############
 
             if mode == 'private':
                 lemon_mode = 'accept'
@@ -249,31 +260,67 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             else:
                 raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
 
-        # TODO: check path and url_to_(un)protect pattern
 
-        # TODO: check if app is installed on this domain/path (or subpath)
+            ##########
+            # Apache #
+            ##########
 
-        #  Copy files to the right place
+            a2_conf_lines = [
+                'Alias '+ path +' '+ app_final_path + manifest['launch_path']
+            ]
+
+            if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
+                a2_conf_lines.extend([
+                    '<IfModule php5_module>',
+                    '    AddType application/x-httpd-php .php',
+                    '    <FilesMatch \.php$>',
+                    '        SetHandler application/x-httpd-php',
+                    '    </FilesMatch>',
+                    '    AddType application/x-httpd-php-source .phps',
+                    '    <IfModule dir_module>',
+                    '        DirectoryIndex index.php index.html',
+                    '    </IfModule>',
+                    '</IfModule>'
+                ])
+
+            a2_conf_file = a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf'
+            if os.path.exists(a2_conf_file): os.remove(a2_conf_file)
+
+            with open(a2_conf_file, 'a') as file:
+                for line in a2_conf_lines:
+                    file.write(line + '\n')
+
+
+        #########################################
+        # Copy files to the right final place   #
+        #########################################
+
         try: os.listdir(apps_path)
         except OSError: os.makedirs(apps_path)
-
 
         # TMP: Remove old application
         if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
 
         os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
         os.system('chown -R www-data: "'+ app_final_path +'"')
-        if is_webapp: os.system('service apache2 reload')
+
+        if lvl(manifest, 'yunohost', 'webapp'):
+            os.system('service apache2 reload')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
-        app_setting_path = apps_setting_path +'/'+ unique_app_id
 
+
+        #########################################
+        # Write App settings                    #
+        #########################################
+
+        app_setting_path = apps_setting_path +'/'+ unique_app_id
 
         # TMP: Remove old settings
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
         os.makedirs(app_setting_path)
 
-        if is_webapp:
+        if lvl(manifest, 'yunohost', 'webapp'):
             yaml_dict = {
                 'uid' : manifest['yunohost']['uid'],
                 'instance' : instance_number,
@@ -300,10 +347,16 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
         shutil.rmtree(app_tmp_folder)
 
-        if os.system('chmod 400 -R '+ app_setting_path) == 0:
-            win_msg(_("Installation complete"))
-        else:
+        if os.system('chmod 400 -R '+ app_setting_path) != 0:
             raise YunoHostError(22, _("Error during permission setting"))
+
+
+        #########################################
+        # So much win                           #
+        #########################################
+
+        win_msg(_("Installation complete"))
+
 
 
 def _extract_app_tarball(path):
