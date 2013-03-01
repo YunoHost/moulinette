@@ -16,6 +16,7 @@ apps_setting_path= '/etc/yunohost/apps/'
 a2_settings_path = '/etc/yunohost/apache/domains/'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
+lemon_tmp_conf   = '/tmp/tmplemonconf'
 
 def app_listlists():
     """
@@ -225,6 +226,31 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             with open(a2_conf_file, 'a') as file:
                 for line in a2_conf_lines:
                     file.write(line + '\n')
+
+            lemon_mode = 'accept'
+
+            if 'access_control' in manifest['yunohost']['webapp']:
+                if mode == 'public' and 'can_be_public' in manifest['yunohost']['webapp']['access_control'] and (manifest['yunohost']['webapp']['access_control']['can_be_public'] == 'yes' or manifest['yunohost']['webapp']['access_control']['can_be_public'] == 'true'):
+                    lemon_mode = 'skip'
+                elif mode == 'protected' and 'can_be_protected' in manifest['yunohost']['webapp']['access_control'] and (manifest['yunohost']['webapp']['access_control']['can_be_protected'] == 'yes' or manifest['yunohost']['webapp']['access_control']['can_be_protected'] == 'true'):
+                    lemon_mode = 'unprotect'
+                else:
+                    raise YunoHostError(22, _("Invalid privacy mode"))
+
+            if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
+
+            lemon_conf_lines = [
+               "$tmp->{'locationRules'}->{'"+ domain +"'}->{'(?#"+ unique_app_id +"Z)^"+ path +"'} = '"+ lemon_mode +"';"
+            ]
+
+            with open(lemon_tmp_conf,'w') as lemon_conf:
+                for line in lemon_conf_lines:
+                    lemon_conf.write(line + '\n')
+
+            if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
+                win_msg(_("LemonLDAP configured"))
+            else:
+                raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
 
 
         #  Copy files to the right place

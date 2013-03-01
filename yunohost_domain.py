@@ -222,7 +222,7 @@ def _lemon_config(domain):
        "$tmp->{'locationRules'}->{'"+ domain +"'}->{'(?#logout)^/logout'} = 'logout_app_sso https://"+ domain +"/';",
     ]
 
-    with open(lemon_tmp_conf,'a') as lemon_conf:
+    with open(lemon_tmp_conf,'w') as lemon_conf:
         for line in lemon_conf_lines:
             lemon_conf.write(line + '\n')
 
