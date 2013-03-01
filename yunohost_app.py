@@ -197,7 +197,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
                     domain_app_list.append(conf[:len(conf)-9])
 
             for installed_app in domain_app_list:
-                with open(apps_setting_path +'/'+ installed_app +'/app_settings.yml') as f:
+                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
                     app_settings = yaml.load(f)
 
                 if app_settings['path'] == path:
