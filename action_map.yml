@@ -267,11 +267,12 @@ app:
                 -p:
                     full: --path
                     default: "/"
+                    pattern: '^\/([a-zA-Z-_\/\.0-9])*$'
                 -l:
                     full: --label
                 -m:
                     full: --mode
-                    help: level of protectness of the app (public|protected|private)
+                    help: level of privacy of the app (public|protected|private)
                     default: 'private'
 
         ### app_remove() TODO: Write help

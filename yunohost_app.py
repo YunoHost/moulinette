@@ -159,7 +159,6 @@ def app_install(app, domain, path='/', label=None, mode='private'):
     """
     # TODO: Virer la règle "default" lemon
     # TODO: check path and url_to_(un)protect pattern
-    # TODO: check if app is installed on this domain/path (or subpath)
 
     with YunoHostLDAP() as yldap:
 
@@ -205,6 +204,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
                 if app_settings['path'] == path:
                     raise YunoHostError(1, _("An app is already installed on this location"))
+
+                if app_settings['path'] in path and app_settings['path'].count('/') < path.count('/'):
+                    raise YunoHostError(1, _("Unable to install app at this location"))
 
         unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
