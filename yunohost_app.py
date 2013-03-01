@@ -141,7 +141,7 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
 
     return list_dict
 
-def app_install(app, domain, path='/', label=None, public=False, protected=True):
+def app_install(app, domain, path='/', label=None, mode='private'):
     """
     Install selected app
 
@@ -150,8 +150,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
         domain -- Web domain for the app
         path -- Subpath of the domain
         label -- User defined name for the app
-        public -- Allow app public access
-        protected -- App is protected by the SSO
+        mode -- public|private|protected
 
     Returns:
         Win | Fail
@@ -227,7 +226,6 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
                 for line in a2_conf_lines:
                     file.write(line + '\n')
 
-            os.system('service apache2 reload')
 
         #  Copy files to the right place
         try: os.listdir(apps_path)
@@ -239,6 +237,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
 
         os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
         os.system('chown -R www-data: "'+ app_final_path +'"')
+        if is_webapp: os.system('service apache2 reload')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
         app_setting_path = apps_setting_path +'/'+ unique_app_id
@@ -255,8 +254,7 @@ def app_install(app, domain, path='/', label=None, public=False, protected=True)
                 'last_update': manifest['lastUpdate'],
                 'install_time': int(time.time()),
                 'name': manifest['name'],
-                'public': public,
-                'protected': protected,
+                'mode': mode,
                 'domain': domain,
                 'path': path,
             }

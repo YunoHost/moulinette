@@ -269,12 +269,10 @@ app:
                     default: "/"
                 -l:
                     full: --label
-                --public:
-                    action: store_true
-                    default: false
-                --protected:
-                    action: store_true
-                    default: true
+                -m:
+                    full: --mode
+                    help: level of protectness of the app (public|protected|private)
+                    default: 'private'
 
         ### app_remove() TODO: Write help
         remove:
