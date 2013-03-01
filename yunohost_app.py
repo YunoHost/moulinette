@@ -224,6 +224,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         if lvl(manifest, 'yunohost', 'script_path'):
             _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
+
         #########################################
         # Specifically configure lemon & apache #
         #########################################
