@@ -189,8 +189,8 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             if not lvl(manifest, 'yunohost', 'multi_instance') or not is_true(manifest['yunohost']['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
-        if domain +'.d' in listdir(a2_settings_path):
-            conf_list = listdir(a2_settings_path +'/'+ domain + '.d')
+        if domain +'.d' in os.listdir(a2_settings_path):
+            conf_list = os.listdir(a2_settings_path +'/'+ domain + '.d')
             domain_app_list = []
             for conf in conf_list:
                 if '.app.conf' in conf:
