@@ -60,7 +60,9 @@ def pretty_print_dict(d, depth=0):
 def lvl(*args):
     dic = None
     for arg in args:
-        if dic is None or arg in dic:
+        if dic is None:
+            dic = arg
+        elif arg in dic:
             dic = dic[arg]
         else:
             return False
