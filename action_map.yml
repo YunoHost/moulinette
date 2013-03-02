@@ -442,7 +442,11 @@ firewall:
         ### firewall_reload()
         reload:
             action_help: Reload  all firewall rules
-
+            arguments:
+                -u:
+                    full: --upnp
+                    help: upnp
+                    action: store_true
         ### firewall_allow()
         allow:
             action_help: Allow connection port/protocol
@@ -458,6 +462,10 @@ firewall:
                 -i:
                     full: --ipv6
                     help: ipv6
+                    action: store_true
+                -u:
+                    full: --upnp
+                    help: upnp
                     action: store_true
 
 
@@ -476,6 +484,10 @@ firewall:
                 -i:
                     full: --ipv6
                     help: ipv6
+                    action: store_true
+                -u:
+                    full: --upnp
+                    help: upnp
                     action: store_true
 
 
