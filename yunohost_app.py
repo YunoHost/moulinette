@@ -14,6 +14,7 @@ repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
 apps_setting_path= '/etc/yunohost/apps/'
 a2_settings_path = '/etc/yunohost/apache/domains/'
+a2_template_path = '/etc/yunohost/apache/templates'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
 lemon_tmp_conf   = '/tmp/tmplemonconf'
@@ -312,7 +313,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             ]
 
             if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
-                for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line)
+                for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line.rstrip())
 
             with open(a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf', 'w') as a2_conf:
                 for line in a2_conf_lines:
