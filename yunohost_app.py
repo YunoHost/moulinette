@@ -164,17 +164,15 @@ def app_map():
                     domain_app_list.append(conf[:len(conf)-9])
 
             for installed_app in domain_app_list:
-                try:
-                    with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
-                        app_settings = yaml.load(f)
+                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
+                    app_settings = yaml.load(f)
 
-                    if int(app_settings['instance']) > 1:
-                        app_name = app_settings['label'] +' ('+ app_settings['uid'] +' n°'+ str(app_settings['instance']) +')'
-                    else:
-                        app_name = app_settings['label'] +' ('+ app_settings['uid'] +')'
-                    result[domain][app_settings['path']] = app_name
-                except IOError:
-                    pass
+                if int(app_settings['instance']) > 1:
+                    app_name = app_settings['label'] +' ('+ app_settings['uid'] +' n°'+ str(app_settings['instance']) +')'
+                else:
+                    app_name = app_settings['label'] +' ('+ app_settings['uid'] +')'
+
+                result[domain][app_settings['path']] = app_name
 
     return result
 
