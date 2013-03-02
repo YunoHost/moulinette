@@ -89,7 +89,8 @@ def domain_add(domains, web=False):
             except YunoHostError:
                 if web:
                     win_msg(_("Web config created"))
-                    return
+                    result.append(domain)
+                    break
                 else:
                     raise YunoHostError(17, _("Domain already created"))
 
