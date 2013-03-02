@@ -312,18 +312,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             ]
 
             if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
-                a2_conf_lines.extend([
-                    '<IfModule php5_module>',
-                    '    AddType application/x-httpd-php .php',
-                    '    <FilesMatch \.php$>',
-                    '        SetHandler application/x-httpd-php',
-                    '    </FilesMatch>',
-                    '    AddType application/x-httpd-php-source .phps',
-                    '    <IfModule dir_module>',
-                    '        DirectoryIndex index.php index.html',
-                    '    </IfModule>',
-                    '</IfModule>'
-                ])
+                for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line)
 
             with open(a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf', 'w') as a2_conf:
                 for line in a2_conf_lines:
