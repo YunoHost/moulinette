@@ -223,10 +223,10 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         try: os.listdir(install_tmp)
         except OSError: os.makedirs(install_tmp)
 
-        if "." in app:
-            manifest = _extract_app_tarball(app)
-        else:
+        if app in app_list(raw=True):
             manifest = _fetch_app_from_git(app)
+        else:
+            manifest = _extract_app_from_file(app)
 
 
         #########################################
@@ -406,12 +406,12 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
 
 
-def _extract_app_tarball(path):
+def _extract_app_from_file(path):
     """
-    Unzip or untar application tarball in app_tmp_folder
+    Unzip or untar application tarball in app_tmp_folder, or copy it from a directory
 
     Keyword arguments:
-        path -- Path of the tarball
+        path -- Path of the tarball or directory
 
     Returns:
         Dict manifest
@@ -419,21 +419,30 @@ def _extract_app_tarball(path):
     """
     if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
     os.makedirs(app_tmp_folder)
+
     if ".zip" in path:
-        extract_result = os.system('cd '+ os.getcwd()  +' && unzip '+ path +' -d '+ app_tmp_folder)
+        extract_result = os.system('cd '+ os.getcwd() +' && unzip '+ path +' -d '+ app_tmp_folder)
     elif ".tar" in path:
-        extract_result = os.system('cd '+ os.getcwd() +' && tar -C '+ app_tmp_folder +' -xf '+ path)
+        extract_result = os.system('cd '+ os.getcwd() +' && tar -xf '+ path +' -C '+ app_tmp_folder)
+    elif (path[:1] == '/' and os.path.exists(path)) or (os.system('cd '+ os.getcwd() +'/'+ path) == 0):
+        shutil.rmtree(app_tmp_folder)
+        if path[len(path)-1:] != '/':
+            path = path + '/'
+        extract_result = os.system('cd '+ os.getcwd() +' && cp -a "'+ path +'" '+ app_tmp_folder)
     else:
         extract_result = 1
 
     if extract_result != 0:
         raise YunoHostError(22, _("Invalid install file"))
 
-    with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
-        manifest = json.loads(str(json_manifest.read()))
-        manifest['lastUpdate'] = int(time.time())
+    try:
+        with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
+            manifest = json.loads(str(json_manifest.read()))
+            manifest['lastUpdate'] = int(time.time())
+    except IOError:
+        raise YunoHostError(1, _("Invalid App file"))
 
-    win_msg(_("Tarball extracted"))
+    win_msg(_("Sources extracted"))
 
     return manifest
 
