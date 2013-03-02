@@ -7,7 +7,7 @@ import shutil
 import stat
 import yaml
 import time
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, lvl, is_true
+from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, lvl, is_true, lemon_configuration
 from yunohost_domain import domain_list, domain_add
 
 repo_path        = '/var/cache/yunohost/repo'
@@ -298,19 +298,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             else:
                 raise YunoHostError(22, _("Invalid privacy mode"))
 
-            lemon_conf_lines = [
-               "$tmp->{'locationRules'}->{'"+ domain +"'}->{'(?#"+ unique_app_id +"Z)^"+ path +"'} = '"+ lemon_mode +"';"
-            ]
-
-            with open(lemon_tmp_conf,'w') as lemon_conf:
-                for line in lemon_conf_lines:
-                    lemon_conf.write(line + '\n')
-
-            if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
-                win_msg(_("LemonLDAP configured"))
-            else:
-                raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
-
+            lemon_configuration({
+                ('locationRules', domain, '(?#'+ unique_app_id +'Z)^'+ path ): lemon_mode
+            })
 
             ##########
             # Apache #

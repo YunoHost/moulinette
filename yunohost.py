@@ -17,6 +17,8 @@ import string
 if not __debug__:
     import traceback
 
+lemon_tmp_conf   = '/tmp/tmplemonconf'
+
 def random_password(length=8):
     char_set = string.ascii_uppercase + string.digits + string.ascii_lowercase
     return ''.join(random.sample(char_set,length))
@@ -184,6 +186,30 @@ def display_error(error):
         print('\n' + colorize(_("Error: "), 'red') + error.message)
     else:
         print(json.dumps({ 'error' : error.message }))
+
+
+def lemon_configuration(conf_dict):
+    conf_lines = []
+    for key, value in conf_dict.items():
+        if value is None: line = "delete $tmp"
+        else: line = "$tmp"
+
+        if not isinstance(key, tuple): key = (key,)
+        for level in key:
+            line = line +"->{'"+ level +"'}"
+
+        if value is None: conf_lines.append(line +';')
+        else: conf_lines.append(line +' = \''+ value +'\';')
+
+
+    with open(lemon_tmp_conf,'w') as lemon_conf:
+        for conf_line in conf_lines:
+            lemon_conf.write(conf_line + '\n')
+
+    if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
+        win_msg(_("LemonLDAP configured"))
+    else:
+        raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
 
 
 class YunoHostError(Exception):

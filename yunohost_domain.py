@@ -6,7 +6,7 @@ import datetime
 import re
 import shutil
 from urllib import urlopen
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args, lemon_configuration
 
 a2_template_path = '/etc/yunohost/apache/templates'
 a2_app_conf_path = '/etc/yunohost/apache/domains'
