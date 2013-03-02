@@ -254,6 +254,10 @@ app:
                     help: Return the full app_dict
                     action: store_true
 
+        ### app_map()
+        map:
+            action_help: List apps by domain
+
         ### app_install() TODO: Write help
         install:
             action_help: Install apps

@@ -142,6 +142,43 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
 
     return list_dict
 
+
+def app_map():
+    """
+    Map of installed apps
+
+    Returns:
+        Dict
+    """
+
+    domains = domain_list()
+    result = {}
+
+    for domain in domains['Domains']:
+        if domain +'.d' in os.listdir(a2_settings_path):
+            conf_list = os.listdir(a2_settings_path +'/'+ domain + '.d')
+            domain_app_list = []
+            result[domain] = {}
+            for conf in conf_list:
+                if '.app.conf' in conf:
+                    domain_app_list.append(conf[:len(conf)-9])
+
+            for installed_app in domain_app_list:
+                try:
+                    with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
+                        app_settings = yaml.load(f)
+
+                    if int(app_settings['instance']) > 1:
+                        app_name = app_settings['label'] +' ('+ app_settings['uid'] +' n°'+ str(app_settings['instance']) +')'
+                    else:
+                        app_name = app_settings['label'] +' ('+ app_settings['uid'] +')'
+                    result[domain][app_settings['path']] = app_name
+                except IOError:
+                    pass
+
+    return result
+
+
 def app_install(app, domain, path='/', label=None, mode='private'):
     """
     Install selected app
@@ -164,6 +201,24 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
 
         ##########################################
+        # Check if App location is available     #
+        ##########################################
+
+        if path[len(path)-1:] != '/':
+            path = path + '/'
+
+        apps_map = app_map()
+
+        if lvl(apps_map, domain, path):
+            raise YunoHostError(1, _("An app is already installed on this location"))
+
+        if lvl(apps_map, domain):
+            for app_path, v in apps_map[domain].items():
+                if app_path in path and app_path.count('/') < path.count('/'):
+                    raise YunoHostError(1, _("Unable to install app at this location"))
+
+
+        ##########################################
         # Fetch or extract sources               #
         ##########################################
 
@@ -180,9 +235,6 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         # Define App ID & path                  #
         #########################################
 
-        if path[len(path)-1:] != '/':
-            path = path + '/'
-
         if not lvl(manifest, 'yunohost', 'uid') or '__' in manifest['yunohost']['uid']:
             raise YunoHostError(22, _("App uid is invalid"))
 
@@ -191,22 +243,6 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             if not lvl(manifest, 'yunohost', 'multi_instance') or not is_true(manifest['yunohost']['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
-        if domain +'.d' in os.listdir(a2_settings_path):
-            conf_list = os.listdir(a2_settings_path +'/'+ domain + '.d')
-            domain_app_list = []
-            for conf in conf_list:
-                if '.app.conf' in conf:
-                    domain_app_list.append(conf[:len(conf)-9])
-
-            for installed_app in domain_app_list:
-                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
-                    app_settings = yaml.load(f)
-
-                if app_settings['path'] == path:
-                    raise YunoHostError(1, _("An app is already installed on this location"))
-
-                if app_settings['path'] in path and app_settings['path'].count('/') < path.count('/'):
-                    raise YunoHostError(1, _("Unable to install app at this location"))
 
         unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
