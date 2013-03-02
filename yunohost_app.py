@@ -307,7 +307,8 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             ##########
 
             a2_conf_lines = [
-                'Alias '+ path +' '+ app_final_path + manifest['launch_path']
+                'Alias '+ path +' '+ app_final_path + manifest['launch_path'],
+                'Alias '+ path[:len(path)-1] +' '+ app_final_path + manifest['launch_path']
             ]
 
             if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':

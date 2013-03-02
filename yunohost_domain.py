@@ -68,15 +68,28 @@ def domain_add(domains, web=False):
             domains = [ domains ]
 
         for domain in domains:
+            if web:
+                lemon_configuration({
+                    ('exportedHeaders', domain, 'Auth-User'): '$uid',
+                    ('exportedHeaders', domain, 'Remote-User'): '$uid',
+                    ('exportedHeaders', domain, 'Desc'): '$description',
+                    ('exportedHeaders', domain, 'Email'): '$mail',
+                    ('exportedHeaders', domain, 'Name'): '$cn',
+                    ('exportedHeaders', domain, 'Authorization'): '"Basic ".encode_base64("$uid:$_password")',
+                    ('vhostOptions', domain, 'vhostMaintenance'): 0,
+                    ('vhostOptions', domain, 'vhostPort'): -1,
+                    ('vhostOptions', domain, 'vhostHttps'): -1,
+                    ('locationRules', domain, 'default'): 'accept',
+                    ('locationRules', domain, '(?#logout)^/logout'): 'logout_app_sso https://'+ domain +'/'
+                })
+                _apache_config(domain)
+
             try:
                 yldap.validate_uniqueness({ 'virtualdomain' : domain })
             except YunoHostError:
                 if web:
-                    _apache_config(domain)
-                    _lemon_config(domain)
-
                     win_msg(_("Web config created"))
-                    break
+                    return
                 else:
                     raise YunoHostError(17, _("Domain already created"))
 
@@ -117,9 +130,6 @@ def domain_add(domains, web=False):
                 for line in conf_lines:
                         conf.write(line + '\n')
 
-            if web:
-                _apache_config(domain)
-                _lemon_config(domain)
 
             if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
                 result.append(domain)
@@ -196,40 +206,4 @@ def _apache_config(domain):
         win_msg(_("Apache configured"))
     else:
         raise YunoHostError(1, _("An error occured during Apache configuration"))
-
-
-def _lemon_config(domain):
-    """
-    Configure LemonLDAP
-
-    Keyword arguments:
-        domain -- Domain to configure LemonLDAP around
-
-    """
-    if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
-
-    lemon_conf_lines = [
-       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Auth-User'} = '$uid';",
-       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Remote-User'} = '$uid';",
-       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Desc'} = '$description';",
-       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Email'} = '$mail';",
-       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Name'} = '$cn';",
-       "$tmp->{'exportedHeaders'}->{'"+ domain +"'}->{'Authorization'} = '\"Basic \".encode_base64(\"$uid:$_password\")';",
-       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostMaintenance'} = 0;",
-       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostPort'} = -1;",
-       "$tmp->{'vhostOptions'}->{'"+ domain +"'}->{'vhostHttps'} = -1;",
-       "$tmp->{'locationRules'}->{'"+ domain +"'}->{'default'} = 'accept';",
-       "$tmp->{'locationRules'}->{'"+ domain +"'}->{'(?#logout)^/logout'} = 'logout_app_sso https://"+ domain +"/';",
-    ]
-
-    with open(lemon_tmp_conf,'w') as lemon_conf:
-        for line in lemon_conf_lines:
-            lemon_conf.write(line + '\n')
-
-    if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
-        win_msg(_("LemonLDAP configured"))
-    else:
-        raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
-
-
 

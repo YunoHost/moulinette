@@ -199,6 +199,7 @@ def lemon_configuration(conf_dict):
             line = line +"->{'"+ level +"'}"
 
         if value is None: conf_lines.append(line +';')
+        elif isinstance(value, int): conf_lines.append(line +' = '+ str(value) +';')
         else: conf_lines.append(line +' = \''+ value +'\';')
 
 
