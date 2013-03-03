@@ -80,7 +80,6 @@ def domain_add(domains, web=False):
                     ('vhostOptions', domain, 'vhostPort'): -1,
                     ('vhostOptions', domain, 'vhostHttps'): -1,
                     ('locationRules', domain, 'default'): 'accept',
-                    ('locationRules', domain, '(?#logout)^/logout'): 'logout_app_sso https://'+ domain +'/'
                 })
                 _apache_config(domain)
 

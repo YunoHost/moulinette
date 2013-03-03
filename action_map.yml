@@ -316,10 +316,10 @@ app:
         removeaccess:
             action_help: Revoke access right to users (everyone by default)
             arguments:
-                app:
+                apps:
                     nargs: "+"
                 -u:
-                    full: --user
+                    full: --users
                     nargs: "+"
 
 
