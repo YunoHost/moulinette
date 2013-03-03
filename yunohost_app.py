@@ -375,6 +375,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
 
         shutil.rmtree(app_tmp_folder)
+        os.remove(app_final_path + '/manifest.webapp')
 
         if os.system('chmod 400 -R '+ app_setting_path) != 0:
             raise YunoHostError(22, _("Error during permission setting"))
