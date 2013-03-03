@@ -386,6 +386,44 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         win_msg(_("Installation complete"))
 
 
+def app_addaccess(apps, users):
+    """
+    Grant access to a private app to a user
+
+    Keyword arguments:
+        apps -- List of app to grant access to
+        users -- Users to grant access for
+
+    """
+    if not isinstance(users, list): users = [users]
+    if not isinstance(apps, list): apps = [apps]
+
+    installed_apps = os.listdir(apps_setting_path)
+
+    lemon_conf_lines = {}
+
+    for installed_app in installed_apps:
+        for app in apps:
+            if '__' not in app:
+                app = app + '__1'
+
+            if app == installed_app:
+                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
+                    app_settings = yaml.load(f)
+
+                if app_settings['mode'] == 'private':
+                    if 'allowed_users' in app_settings:
+                        new_users = app_settings['allowed_users']
+                    else:
+                        new_users = ''
+
+                    for allowed_user in users:
+                        new_users = new_users +' '+ allowed_user
+
+                    lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = '$uid ~~ qw('+ new_users +')'
+
+    lemon_configuration(lemon_conf_lines)
+
 
 def _extract_app_from_file(path):
     """
