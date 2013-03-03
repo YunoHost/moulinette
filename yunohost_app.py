@@ -418,7 +418,13 @@ def app_addaccess(apps, users):
                         new_users = ''
 
                     for allowed_user in users:
-                        new_users = new_users +' '+ allowed_user
+                        if allowed_user not in new_users.split(' '):
+                            new_users = new_users +' '+ allowed_user
+
+                    app_settings['allowed_users'] = new_users
+                    with open(apps_setting_path + installed_app +'/app_settings.yml', 'w') as f:
+                        yaml.safe_dump(app_settings, f, default_flow_style=False)
+                        win_msg(_("App setting file updated"))
 
                     lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = '$uid ~~ qw('+ new_users +')'
 
