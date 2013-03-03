@@ -9,6 +9,7 @@ import yaml
 import time
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, lvl, is_true, lemon_configuration
 from yunohost_domain import domain_list, domain_add
+from yunohost_user import user_info
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
@@ -419,7 +420,10 @@ def app_addaccess(apps, users):
 
                     for allowed_user in users:
                         if allowed_user not in new_users.split(' '):
-                            # TODO: check if user exists
+                            try:
+                                user_info(allowed_user)
+                            except YunoHostError:
+                                continue
                             new_users = new_users +' '+ allowed_user
 
                     app_settings['allowed_users'] = new_users.strip()
