@@ -2,8 +2,11 @@
 
 import os
 import sys
-import miniupnpc
-
+try:
+    import miniupnpc
+except ImportError:
+    sys.stderr.write('Error: Yunohost CLI Require miniupnpc lib\n')
+    sys.exit(1)
 try:
     import yaml
 except ImportError:
@@ -43,7 +46,6 @@ def firewall_allow(protocol=None,port=None,ipv6=None,upnp=False):
         raise YunoHostError(22,_("Port not between 1 and 65535 : ")+str(port))
 
     return firewall_reload(upnp)
-
 
 
 def firewall_disallow(protocol=None,port=None,ipv6=None,upnp=False):
@@ -245,7 +247,7 @@ def add_portmapping(protocol=None,upnp=False,ipv6=None):
         firewall = yaml.load(f)
 
     for i,port in enumerate (firewall[ip][protocol]):
-        os.system ("iptables -A INPUT -p"+ protocol +"-i eth0 --dport "+ str(port) +" -j ACCEPT")
+        os.system ("iptables -A INPUT -p "+ protocol +" -i eth0 --dport "+ str(port) +" -j ACCEPT")
         if upnp:
             upnp.addportmapping(port,protocol,upnp.lanaddr,port,'yunohost firewall : port %u' % port, '')
 
