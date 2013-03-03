@@ -426,7 +426,7 @@ def app_addaccess(apps, users):
                         yaml.safe_dump(app_settings, f, default_flow_style=False)
                         win_msg(_("App setting file updated"))
 
-                    lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = '$uid ~~ qw('+ new_users +')'
+                    lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = 'grep( /^$uid$/, qw('+ new_users +'))'
 
     lemon_configuration(lemon_conf_lines)
 
