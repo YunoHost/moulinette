@@ -2,22 +2,22 @@
 # -*- coding: utf-8 -*-
 
 __credits__ = """
-Copyright (C) 2012 YunoHost
+    Copyright (C) 2012 YunoHost
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Affero General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program; if not, see http://www.gnu.org/licenses
-"""
-__author__ = 'Kload <kload@kload.fr>'
+    You should have received a copy of the GNU Affero General Public License
+    along with this program; if not, see http://www.gnu.org/licenses
+    """
+__author__  = 'Kload <kload@kload.fr>'
 __version__ = '2.0 beta1'
 
 import os
@@ -46,15 +46,15 @@ except ImportError:
 
 def parse_dict(action_map):
     """
-Turn action dictionnary to parser, subparsers and arguments
+    Turn action dictionnary to parser, subparsers and arguments
 
-Keyword arguments:
-action_map -- Multi-level dictionnary of categories/actions/arguments list
+    Keyword arguments:
+        action_map -- Multi-level dictionnary of categories/actions/arguments list
 
-Returns:
-Namespace of args
+    Returns:
+        Namespace of args
 
-"""
+    """
     # Intialize parsers
     parsers = subparsers_category = subparsers_action = {}
     parsers['general'] = argparse.ArgumentParser()
@@ -152,15 +152,15 @@ Namespace of args
 
 def main():
     """
-Main instructions
+    Main instructions
 
-Parse the action_dict and execute the action-specific function,
-then print json or pretty result if executed in a tty :)
+    Parse the action_dict and execute the action-specific function,
+    then print json or pretty result if executed in a tty :)
 
-Returns:
-int -- 0 or error code
+    Returns:
+        int -- 0 or error code
 
-"""
+    """
     if len(sys.argv) < 2:
         sys.argv.append('-h')
 
