@@ -419,14 +419,57 @@ def app_addaccess(apps, users):
 
                     for allowed_user in users:
                         if allowed_user not in new_users.split(' '):
+                            # TODO: check if user exists
                             new_users = new_users +' '+ allowed_user
 
-                    app_settings['allowed_users'] = new_users
+                    app_settings['allowed_users'] = new_users.strip()
                     with open(apps_setting_path + installed_app +'/app_settings.yml', 'w') as f:
                         yaml.safe_dump(app_settings, f, default_flow_style=False)
                         win_msg(_("App setting file updated"))
 
-                    lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = 'grep( /^$uid$/, qw('+ new_users +'))'
+                    lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = 'grep( /^$uid$/, qw('+ new_users.strip() +'))'
+
+    lemon_configuration(lemon_conf_lines)
+
+
+def app_removeaccess(apps, users):
+    """
+    Revoke access to a private app to a user
+
+    Keyword arguments:
+        apps -- List of app to revoke access to
+        users -- Users to revoke access for
+
+    """
+    if not isinstance(users, list): users = [users]
+    if not isinstance(apps, list): apps = [apps]
+
+    installed_apps = os.listdir(apps_setting_path)
+
+    lemon_conf_lines = {}
+
+    for installed_app in installed_apps:
+        for app in apps:
+            new_users = ''
+            if '__' not in app:
+                app = app + '__1'
+
+            if app == installed_app:
+                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
+                    app_settings = yaml.load(f)
+
+                if app_settings['mode'] == 'private':
+                    if 'allowed_users' in app_settings:
+                        for allowed_user in app_settings['allowed_users'].split(' '):
+                            if allowed_user not in users:
+                                new_users = new_users +' '+ allowed_user
+
+                        app_settings['allowed_users'] = new_users.strip()
+                        with open(apps_setting_path + installed_app +'/app_settings.yml', 'w') as f:
+                            yaml.safe_dump(app_settings, f, default_flow_style=False)
+                            win_msg(_("App setting file updated"))
+
+                        lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = 'grep( /^$uid$/, qw('+ new_users.strip() +'))'
 
     lemon_configuration(lemon_conf_lines)
 

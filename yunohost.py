@@ -208,6 +208,7 @@ def lemon_configuration(conf_dict):
             lemon_conf.write(conf_line + '\n')
 
     if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
+        os.system('service apache2 reload')
         win_msg(_("LemonLDAP configured"))
     else:
         raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
