@@ -32,6 +32,9 @@ def firewall_allow(protocol=None,port=None,ipv6=None,upnp=False):
 
     """
     port=int(port)
+    if (upnp):
+        add_portmapping(protocol, upnp, ipv6)
+    
     if port<65536 and port>0:
         if protocol == "Both":
             update_yml(port,'TCP','a',ipv6)
@@ -73,8 +76,6 @@ def firewall_disallow(protocol=None,port=None,ipv6=None,upnp=False):
 
     return firewall_reload(upnp)
 
-
-
 def firewall_list():
     """
     Allow port in iptables
@@ -89,9 +90,6 @@ def firewall_list():
     with open ('firewall.yml') as f:
         firewall = yaml.load(f)
     return firewall
-
-
-
 def firewall_reload(upnp=False):
     '''
     Reload iptables configuration
