@@ -50,7 +50,6 @@ def firewall_allow(protocol=None,port=None,ipv6=None,upnp=False):
 
     return firewall_reload(upnp)
 
-
 def firewall_disallow(protocol=None,port=None,ipv6=None,upnp=False):
     """
     Disallow port in iptables
@@ -90,6 +89,7 @@ def firewall_list():
     with open ('firewall.yml') as f:
         firewall = yaml.load(f)
     return firewall
+
 def firewall_reload(upnp=False):
     '''
     Reload iptables configuration
@@ -155,8 +155,7 @@ def firewall_reload(upnp=False):
 
     win_msg(_("Firewall successfully reloaded"))
 
-    return firewall_list()
-
+    return firewall_list
 
 def update_yml(port=None,protocol=None,mode=None,ipv6=None):
     """
@@ -199,7 +198,6 @@ def update_yml(port=None,protocol=None,mode=None,ipv6=None):
     with open('firewall.yml','w') as f:
         yaml.dump(firewall,f)
 
-
 def add_portmapping(protocol=None,upnp=False,ipv6=None):
     """
 
@@ -221,8 +219,10 @@ def add_portmapping(protocol=None,upnp=False,ipv6=None):
             try:
                 upnp.selectigd()
             except:
+                firewall_reload(False)
                 raise YunoHostError(167,_("No upnp devices found"))
         else:
+            firewall_reload(False)
             raise YunoHostError(22,_("Can't connect to the igd device"))
 
         # list the redirections :
