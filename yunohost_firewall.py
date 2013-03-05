@@ -155,7 +155,7 @@ def firewall_reload(upnp=False):
 
     win_msg(_("Firewall successfully reloaded"))
 
-    return firewall_list
+    return firewall_list()
 
 def update_yml(port=None,protocol=None,mode=None,ipv6=None):
     """
