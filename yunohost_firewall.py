@@ -249,4 +249,4 @@ def add_portmapping(protocol=None,upnp=False,ipv6=None):
         if upnp:
             upnp.addportmapping(port,protocol,upnp.lanaddr,port,'yunohost firewall : port %u' % port, '')
 
-    os.system ("iptables -P INPUT DROP")$ 
+    os.system ("iptables -P INPUT DROP")
