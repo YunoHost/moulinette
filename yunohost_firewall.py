@@ -210,7 +210,7 @@ def add_portmapping(protocol=None,upnp=False,ipv6=None):
     Return
         None
     """
-
+    os.system ("iptables -P INPUT ACCEPT")
     if upnp:
         upnp=miniupnpc.UPnP()
         upnp.discoverdelay=200
@@ -249,3 +249,4 @@ def add_portmapping(protocol=None,upnp=False,ipv6=None):
         if upnp:
             upnp.addportmapping(port,protocol,upnp.lanaddr,port,'yunohost firewall : port %u' % port, '')
 
+    os.system ("iptables -P INPUT DROP")$ 
