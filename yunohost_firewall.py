@@ -217,3 +217,17 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None):
             upnp.addportmapping(port, protocol, upnp.lanaddr, port, 'yunohost firewall : port %u' % port, '')
 
     os.system ("iptables -P INPUT DROP")
+
+def firewall_installupnp():
+    """
+    Add upnp cron
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+    os.system("touch /etc/cron.d/yunohost-firewall")
+    os.system("echo '*/50 * * * * root yunohost firewall reload -u>>/dev/null'>/etc/cron.d/yunohost-firewall")
+
+def firewall_removeupnp():
+    os.system("rm /etc/cron.d/yunohost-firewall")
