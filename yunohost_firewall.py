@@ -128,6 +128,7 @@ def firewall_reload(upnp=False):
 
     os.system ("iptables -P INPUT DROP")
     os.system ("ip6tables -P INPUT DROP")
+    os.system("service fail2ban restart")
 
     win_msg(_("Firewall successfully reloaded"))
 
