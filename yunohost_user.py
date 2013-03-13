@@ -48,8 +48,8 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
             for user in result[i:]:
                 if i <= limit:
                     entry = {
-                        'Username': user['uid'],
-                        'Fullname': user['cn'],
+                        'Username': user['uid'][0],
+                        'Fullname': user['cn'][0],
                         'Mail': user['mail'][0]
                     }
                     if len(user['mail']) > 1:
