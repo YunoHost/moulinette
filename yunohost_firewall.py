@@ -228,6 +228,9 @@ def firewall_installupnp():
     """
     os.system("touch /etc/cron.d/yunohost-firewall")
     os.system("echo '*/50 * * * * root yunohost firewall reload -u>>/dev/null'>/etc/cron.d/yunohost-firewall")
+    win_msg(_("Upnp install"))
+
 
 def firewall_removeupnp():
     os.system("rm /etc/cron.d/yunohost-firewall")
+    win_msg(_("Upnp remove"))

@@ -491,13 +491,13 @@ firewall:
                     action: store_true
 
 
-        ### firewall_upnpinstall()
-        upnpinstall:
+        ### firewall_installupnp()
+        installupnp:
             action_help: Add upnp cron
 
 
-        ### firewall_upnpremove()
-        upnpremove:
+        ### firewall_removeupnp()
+        removeupnp:
             action_help: Remove upnp cron
 #############################
 #           Tools           #
