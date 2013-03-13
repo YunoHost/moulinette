@@ -229,9 +229,13 @@ def firewall_installupnp():
     """
     os.system("touch /etc/cron.d/yunohost-firewall")
     os.system("echo '*/50 * * * * root yunohost firewall reload -u>>/dev/null'>/etc/cron.d/yunohost-firewall")
-    win_msg(_("Upnp install"))
+    win_msg(_("UPNP cron installed"))
 
 
 def firewall_removeupnp():
-    os.system("rm /etc/cron.d/yunohost-firewall")
-    win_msg(_("Upnp remove"))
+    try:
+        os.remove("/etc/cron.d/yunohost-firewall")
+    except:
+        raise YunoHostError(167,_("UPNP cron was not installed!"))
+        
+    win_msg(_("UPNP cron removed"))
