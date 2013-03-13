@@ -175,6 +175,9 @@ def main():
             admin_password = sys.argv[key+1]
             sys.argv.pop(key)
             sys.argv.pop(key)
+        if arg == '--json':
+            json_print = True
+            sys.argv.pop(key)
 
     try:
         args = parse_dict(action_map)
@@ -201,7 +204,7 @@ def main():
     else:
         if result is None:
             pass
-        elif os.isatty(1):
+        elif os.isatty(1) and not json_print:
             pretty_print_dict(result)
         else:
             print(json.dumps(result))
