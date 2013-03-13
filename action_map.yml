@@ -491,6 +491,14 @@ firewall:
                     action: store_true
 
 
+        ### firewall_installupnp()
+        installupnp:
+            action_help: Add upnp cron
+
+
+        ### firewall_removeupnp()
+        removeupnp:
+            action_help: Remove upnp cron
 #############################
 #           Tools           #
 #############################
