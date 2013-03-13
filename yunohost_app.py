@@ -246,7 +246,15 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
         unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
-        script_var_dict = { 'APP_DIR': app_tmp_folder }
+        script_var_dict = { 
+            'APP_DIR': app_tmp_folder,
+            'APP_FINAL_DIR': app_final_path,
+            'APP_ID': unique_app_id
+        }
+        
+        if lvl(manifest, 'yunohost', 'webapp'):
+            script_var_dict['APP_DOMAIN'] = domain
+            script_var_dict['APP_PATH'] = path
 
 
         #########################################
