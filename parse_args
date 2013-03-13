@@ -168,6 +168,7 @@ def main():
         action_map = yaml.load(f)
 
     admin_password_provided = False
+    json_print = False
 
     for key, arg in enumerate(sys.argv):
         if arg == '--admin-password':
