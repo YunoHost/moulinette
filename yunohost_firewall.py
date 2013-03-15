@@ -233,6 +233,14 @@ def firewall_installupnp():
 
 
 def firewall_removeupnp():
+    """
+    Remove upnp cron
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+
     try:
         os.remove("/etc/cron.d/yunohost-firewall")
     except:
@@ -242,6 +250,13 @@ def firewall_removeupnp():
 
 
 def firewall_stop():
+    """
+    Stop firewall
+    Keyword arguments:
+        None
+    Return
+        None
+    """
 
     os.system ("iptables -P INPUT ACCEPT")
     os.system ("iptables -F")
