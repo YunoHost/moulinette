@@ -25,7 +25,7 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
     with YunoHostLDAP() as yldap:
         user_attrs = ['uid', 'mail', 'cn', 'mailalias']
         attrs = []
-        result_dict = {}
+        result_list = []
         if offset: offset = int(offset)
         else: offset = 0
         if limit: limit = int(limit)
@@ -46,7 +46,7 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
         if result and len(result) > (0 + offset) and limit > 0:
             i = 0 + offset
             for user in result[i:]:
-                if i <= limit:
+                if i - offset < limit:
                     entry = {
                         'Username': user['uid'][0],
                         'Fullname': user['cn'][0],
@@ -57,12 +57,12 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
                     if 'mailalias' in user:
                         entry['Mail Aliases'] = user['mailalias']
 
-                    result_dict[str(i)] = entry
+                    result_list.append((str(i), entry))
                     i += 1
         else:
             raise YunoHostError(167, _("No user found"))
 
-    return result_dict
+    return { 'Users' : result_list }
 
 
 def user_create(username, firstname, lastname, mail, password):
