@@ -233,9 +233,37 @@ def firewall_installupnp():
 
 
 def firewall_removeupnp():
+    """
+    Remove upnp cron
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+
     try:
         os.remove("/etc/cron.d/yunohost-firewall")
     except:
         raise YunoHostError(167,_("UPNP cron was not installed!"))
         
     win_msg(_("UPNP cron removed"))
+
+
+def firewall_stop():
+    """
+    Stop firewall
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+
+    os.system ("iptables -P INPUT ACCEPT")
+    os.system ("iptables -F")
+    os.system ("iptables -X")
+    
+    os.system ("ip6tables -P INPUT ACCEPT")
+    os.system ("ip6tables -F")
+    os.system ("ip6tables -X")
+
+    firewall_removeupnp()
