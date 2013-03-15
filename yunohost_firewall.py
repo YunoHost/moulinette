@@ -128,6 +128,7 @@ def firewall_reload(upnp=False):
 
     os.system ("iptables -P INPUT DROP")
     os.system ("ip6tables -P INPUT DROP")
+    os.system("service fail2ban restart")
 
     win_msg(_("Firewall successfully reloaded"))
 
@@ -217,3 +218,52 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None):
             upnp.addportmapping(port, protocol, upnp.lanaddr, port, 'yunohost firewall : port %u' % port, '')
 
     os.system ("iptables -P INPUT DROP")
+
+def firewall_installupnp():
+    """
+    Add upnp cron
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+    os.system("touch /etc/cron.d/yunohost-firewall")
+    os.system("echo '*/50 * * * * root yunohost firewall reload -u>>/dev/null'>/etc/cron.d/yunohost-firewall")
+    win_msg(_("UPNP cron installed"))
+
+
+def firewall_removeupnp():
+    """
+    Remove upnp cron
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+
+    try:
+        os.remove("/etc/cron.d/yunohost-firewall")
+    except:
+        raise YunoHostError(167,_("UPNP cron was not installed!"))
+        
+    win_msg(_("UPNP cron removed"))
+
+
+def firewall_stop():
+    """
+    Stop firewall
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+
+    os.system ("iptables -P INPUT ACCEPT")
+    os.system ("iptables -F")
+    os.system ("iptables -X")
+    
+    os.system ("ip6tables -P INPUT ACCEPT")
+    os.system ("ip6tables -F")
+    os.system ("ip6tables -X")
+
+    firewall_removeupnp()

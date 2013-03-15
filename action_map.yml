@@ -491,6 +491,19 @@ firewall:
                     action: store_true
 
 
+        ### firewall_installupnp()
+        installupnp:
+            action_help: Add upnp cron
+
+
+        ### firewall_removeupnp()
+        removeupnp:
+            action_help: Remove upnp cron
+
+
+        ### firewall_stop()
+        stop:
+            action_help: Stop iptables and ip6tables
 #############################
 #           Tools           #
 #############################
