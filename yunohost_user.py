@@ -57,7 +57,7 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
                     if 'mailalias' in user:
                         entry['Mail Aliases'] = user['mailalias']
 
-                    result_list.append((str(i), entry))
+                    result_list.append(entry)
                     i += 1
         else:
             raise YunoHostError(167, _("No user found"))

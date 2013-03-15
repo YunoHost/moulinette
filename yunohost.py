@@ -52,9 +52,11 @@ def pretty_print_dict(d, depth=0):
             pretty_print_dict(v, depth+1)
         elif isinstance(v, list):
             print(("  ") * depth + ("%s: " % str(k)))
-            for value in v:
+            for key, value in enumerate(v):
                 if isinstance(value, tuple):
                     pretty_print_dict({value[0]: value[1]}, depth+1)
+                elif isinstance(value, dict):
+                    pretty_print_dict({key: value}, depth+1)
                 else:
                     print(("  ") * (depth+1) + "- " +str(value))
         else:
