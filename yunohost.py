@@ -17,6 +17,7 @@ import string
 if not __debug__:
     import traceback
 
+win = []
 lemon_tmp_conf   = '/tmp/tmplemonconf'
 
 def random_password(length=8):
@@ -87,8 +88,12 @@ def win_msg(astr):
         astr -- Win message to display
 
     """
+    global win
     if os.isatty(1):
         print('\n' + colorize(_("Success: "), 'green') + astr + '\n')
+    else:
+        win.append(astr)
+
 
 
 def str_to_func(astr):
@@ -175,17 +180,17 @@ def get_required_args(args, required_args, password=False):
     return args
 
 
-def display_error(error):
+def display_error(error, json_print=False):
     """
     Nice error displaying
 
     """
     if not __debug__ :
         traceback.print_exc()
-    if os.isatty(1):
+    if os.isatty(1) and not json_print:
         print('\n' + colorize(_("Error: "), 'red') + error.message)
     else:
-        print(json.dumps({ 'error' : error.message }))
+        print(json.dumps({ error.code : error.message }))
 
 
 def lemon_configuration(conf_dict):
