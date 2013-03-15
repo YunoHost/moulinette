@@ -239,3 +239,14 @@ def firewall_removeupnp():
         raise YunoHostError(167,_("UPNP cron was not installed!"))
         
     win_msg(_("UPNP cron removed"))
+
+
+def firewall_stop():
+
+    os.system ("iptables -P INPUT ACCEPT")
+    os.system ("iptables -F")
+    os.system ("iptables -X")
+    
+    os.system ("ip6tables -P INPUT ACCEPT")
+    os.system ("ip6tables -F")
+    os.system ("ip6tables -X")
