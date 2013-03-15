@@ -250,3 +250,5 @@ def firewall_stop():
     os.system ("ip6tables -P INPUT ACCEPT")
     os.system ("ip6tables -F")
     os.system ("ip6tables -X")
+
+    firewall_removeupnp()
