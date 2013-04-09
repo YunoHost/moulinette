@@ -268,7 +268,7 @@ def firewall_removeupnp():
     with open('firewall.yml', 'w') as f:
         yaml.dump(firewall, f)
 
-def firewall_checkUPNP():
+def firewall_checkupnp():
     """
     Check if UPNP is installed
     Keyword arguments:
