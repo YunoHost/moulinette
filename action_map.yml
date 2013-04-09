@@ -504,6 +504,11 @@ firewall:
         ### firewall_stop()
         stop:
             action_help: Stop iptables and ip6tables
+
+
+        ### firewalli_checkUPNP()
+        checkUPNP:
+            action_help: check if UPNP is install or not (0 yes 1 no)
 #############################
 #           Tools           #
 #############################

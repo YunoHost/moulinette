@@ -227,9 +227,20 @@ def firewall_installupnp():
     Return
         None
     """
+    
+    with open('firewall.yml', 'r') as f:
+        firewall = yaml.load(f)
+
+    firewall['UPNP']=True;
+
     os.system("touch /etc/cron.d/yunohost-firewall")
     os.system("echo '*/50 * * * * root yunohost firewall reload -u>>/dev/null'>/etc/cron.d/yunohost-firewall")
     win_msg(_("UPNP cron installed"))
+
+    os.system("mv firewall.yml firewall.yml.old")
+
+    with open('firewall.yml', 'w') as f:
+        yaml.dump(firewall, f)
 
 
 def firewall_removeupnp():
@@ -240,14 +251,39 @@ def firewall_removeupnp():
     Return
         None
     """
+    with open('firewall.yml', 'r') as f:
+        firewall = yaml.load(f)
+
+    firewall['UPNP']=False;
 
     try:
         os.remove("/etc/cron.d/yunohost-firewall")
     except:
         raise YunoHostError(167,_("UPNP cron was not installed!"))
-        
+
     win_msg(_("UPNP cron removed"))
 
+    os.system("mv firewall.yml firewall.yml.old")
+
+    with open('firewall.yml', 'w') as f:
+        yaml.dump(firewall, f)
+
+def firewall_checkUPNP():
+    """
+    Check if UPNP is installed
+    Keyword arguments:
+        None
+    Return
+        0 if installed
+        1 if not
+    """
+    with open('firewall.yml', 'r') as f:
+        firewall = yaml.load(f)
+        
+        if firewall['UPNP']:
+            win_msg(_("UPNP is activated"))
+        else:
+            raise YunoHostError(167,_("UPNP not activated!"))
 
 def firewall_stop():
     """
@@ -265,5 +301,6 @@ def firewall_stop():
     os.system ("ip6tables -P INPUT ACCEPT")
     os.system ("ip6tables -F")
     os.system ("ip6tables -X")
+    if(os.path.exists("/etc/cron.d/yunohost-firewall")):
+        firewall_removeupnp()
 
-    firewall_removeupnp()
