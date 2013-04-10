@@ -108,6 +108,7 @@ def firewall_reload(upnp=False):
     os.system ("iptables -P INPUT ACCEPT")
     os.system ("iptables -F")
     os.system ("iptables -X")
+    os.system ("iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT")
 
     if 22 not in firewall['ipv4']['TCP']:
         update_yml(22, 'TCP', 'a', False)
