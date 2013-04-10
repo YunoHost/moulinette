@@ -117,6 +117,7 @@ def firewall_reload(upnp=False):
     os.system ("ip6tables -P INPUT ACCEPT")
     os.system ("ip6tables -F")
     os.system ("ip6tables -X")
+    os.system ("ip6tables -A INPUT -m state --state ESTABLISHED -j ACCEPT")
 
     if 22 not in firewall['ipv6']['TCP']:
         update_yml(22, 'TCP', 'a', False)
