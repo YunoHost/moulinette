@@ -185,7 +185,11 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None):
     Return
         None
     """
-    os.system ("iptables -P INPUT ACCEPT")
+    if ipv6:
+        os.system ("ip6tables -P INPUT ACCEPT")
+    else:
+        os.system ("iptables -P INPUT ACCEPT")
+
     if upnp:
         upnp = miniupnpc.UPnP()
         upnp.discoverdelay = 200
@@ -213,7 +217,10 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None):
         firewall = yaml.load(f)
 
     for i,port in enumerate (firewall[ip][protocol]):
-        os.system ("iptables -A INPUT -p "+ protocol +" -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        if ipv6:
+            os.system ("ip6tables -A INPUT -p "+ protocol +" -i eth0 --dport "+ str(port) +" -j ACCEPT")
+        else:
+            os.system ("iptables -A INPUT -p "+ protocol +" -i eth0 --dport "+ str(port) +" -j ACCEPT")
         if upnp:
             upnp.addportmapping(port, protocol, upnp.lanaddr, port, 'yunohost firewall : port %u' % port, '')
 
