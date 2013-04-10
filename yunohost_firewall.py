@@ -128,6 +128,11 @@ def firewall_reload(upnp=False):
     add_portmapping('TCP', upnp, True);
     add_portmapping('UDP', upnp, True);
 
+    os.system ("iptables -A INPUT -i lo -j ACCEPT")
+    os.system ("iptables -A INPUT -p icmp -j ACCEPT")
+    os.system ("ip6tables -A INPUT -i lo -j ACCEPT")
+    os.system ("ip6tables -A INPUT -p icmp -j ACCEPT")
+
     os.system ("iptables -P INPUT DROP")
     os.system ("ip6tables -P INPUT DROP")
     os.system("service fail2ban restart")
