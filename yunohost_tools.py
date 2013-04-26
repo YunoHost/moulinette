@@ -87,6 +87,7 @@ def tools_maindomain(old_domain, new_domain):
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
 
     config_files = [
+        '/etc/prosody/conf.avail/localhost.cfg.lua',
         '/etc/postfix/main.cf',
         '/etc/dovecot/dovecot.conf',
         '/etc/lemonldap-ng/lemonldap-ng.ini',
