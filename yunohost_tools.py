@@ -81,7 +81,7 @@ def tools_maindomain(old_domain, new_domain):
 
     """
     if not old_domain:
-        with open('/usr/share/yunohost/yunohost-config/others/current_host', 'r') as f:
+        with open('/etc/yunohost/current_host', 'r') as f:
             old_domain = f.readline().rstrip()
 
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
@@ -141,7 +141,7 @@ def tools_maindomain(old_domain, new_domain):
         'cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
         'cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/',
         'cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem',
-        'echo '+ new_domain +' > /usr/share/yunohost/yunohost-config/others/current_host',
+        'echo '+ new_domain +' > /etc/yunohost/current_host',
         'service apache2 restart',
         'service postfix restart'
     ]
