@@ -33,7 +33,7 @@ def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
     """
     port = int(port)
     if (upnp):
-        add_portmapping(protocol, upnp, ipv6)
+        add_portmapping(protocol, upnp, ipv6,'a')
 
     if 0 < port < 65536:
         if protocol == "Both":
@@ -113,30 +113,35 @@ def firewall_reload(upnp=False):
     if 22 not in firewall['ipv4']['TCP']:
         update_yml(22, 'TCP', 'a', False)
 
-
-    os.system ("ip6tables -P INPUT ACCEPT")
-    os.system ("ip6tables -F")
-    os.system ("ip6tables -X")
-    os.system ("ip6tables -A INPUT -m state --state ESTABLISHED -j ACCEPT")
+    if(os.path.exists("/proc/net/if_inet6")):
+        os.system ("ip6tables -P INPUT ACCEPT")
+        os.system ("ip6tables -F")
+        os.system ("ip6tables -X")
+        os.system ("ip6tables -A INPUT -m state --state ESTABLISHED -j ACCEPT")
 
     if 22 not in firewall['ipv6']['TCP']:
         update_yml(22, 'TCP', 'a', False)
 
-
-    add_portmapping('TCP', upnp, False);
-    add_portmapping('UDP', upnp, False);
-    add_portmapping('TCP', upnp, True);
-    add_portmapping('UDP', upnp, True);
+    if upnp:
+        remove_portmapping()
+        
+    add_portmapping('TCP', upnp, False,'r');
+    add_portmapping('UDP', upnp, False,'r');
+    
+    if(os.path.exists("/proc/net/if_inet6")):
+        add_portmapping('TCP', upnp, True,'r');
+        add_portmapping('UDP', upnp, True,'r');
 
     os.system ("iptables -A INPUT -i lo -j ACCEPT")
     os.system ("iptables -A INPUT -p icmp -j ACCEPT")
-    os.system ("ip6tables -A INPUT -i lo -j ACCEPT")
-    os.system ("ip6tables -A INPUT -p icmp -j ACCEPT")
-
     os.system ("iptables -P INPUT DROP")
-    os.system ("ip6tables -P INPUT DROP")
-    os.system("service fail2ban restart")
+    
+    if(os.path.exists("/proc/net/if_inet6")):
+        os.system ("ip6tables -A INPUT -i lo -j ACCEPT")
+        os.system ("ip6tables -A INPUT -p icmp -j ACCEPT")
+        os.system ("ip6tables -P INPUT DROP")
 
+    os.system("service fail2ban restart")
     win_msg(_("Firewall successfully reloaded"))
 
     return firewall_list()
@@ -182,12 +187,14 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None):
         yaml.dump(firewall, f)
 
 
-def add_portmapping(protocol=None, upnp=False, ipv6=None):
+def add_portmapping(protocol=None, upnp=False, ipv6=None,mode=None,):
     """
     Send a port mapping rules to igd device
     Keyword arguments:
         protocol -- Protocol used
-        port -- Port to open
+        upnp -- Boolean upnp
+        ipv6 -- Boolean ipv6
+        mode -- Add a rule (a) or reload all rules (r)
 
     Return
         None
@@ -197,27 +204,9 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None):
     else:
         os.system ("iptables -P INPUT ACCEPT")
 
-    if upnp:
-        upnp = miniupnpc.UPnP()
-        upnp.discoverdelay = 200
-        nbigd = upnp.discover()
-        if nbigd:
-            try:
-                upnp.selectigd()
-            except:
-                firewall_reload(False)
-                raise YunoHostError(167,_("No upnp devices found"))
-        else:
-            firewall_reload(False)
-            raise YunoHostError(22,_("Can't connect to the igd device"))
-
-        # list the redirections :
-        for i in xrange(100):
-            p = upnp.getgenericportmapping(i)
-            if p is None: break
-            upnp.deleteportmapping(p[0], p[1])
-
-
+    if upnp and mode=='a':
+        remove_portmapping()
+        
     if ipv6: ip = 'ipv6'
     else:    ip = 'ipv4'
     with open('firewall.yml', 'r') as f:
@@ -229,10 +218,43 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None):
         else:
             os.system ("iptables -A INPUT -p "+ protocol +" -i eth0 --dport "+ str(port) +" -j ACCEPT")
         if upnp:
-            upnp.addportmapping(port, protocol, upnp.lanaddr, port, 'yunohost firewall : port %u' % port, '')
+            upnpc = miniupnpc.UPnP()
+            upnpc.discoverdelay = 200
+            nbigd = upnpc.discover()
+            if nbigd:
+                upnpc.selectigd()
+                upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %u' % port, '')
 
     os.system ("iptables -P INPUT DROP")
 
+def remove_portmapping():
+    """
+    Remove all portmapping rules in the igd device
+    Keyword arguments:
+        None
+    Return
+        None
+    """
+    upnp = miniupnpc.UPnP()
+    upnp.discoverdelay = 200
+    nbigd = upnp.discover()
+    if nbigd:
+        try:
+            upnp.selectigd()
+        except:
+            firewall_reload(False)
+            raise YunoHostError(167,_("No upnp devices found"))
+    else:
+        firewall_reload(False)
+        raise YunoHostError(22,_("Can't connect to the igd device"))
+
+    # list the redirections :
+    for i in xrange(100):
+        p = upnp.getgenericportmapping(i)
+        if p is None: break
+        upnp.deleteportmapping(p[0], p[1])
+      
+        
 def firewall_installupnp():
     """
     Add upnp cron
