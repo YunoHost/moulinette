@@ -92,6 +92,7 @@ def tools_maindomain(old_domain, new_domain):
         '/etc/dovecot/dovecot.conf',
         '/etc/lemonldap-ng/lemonldap-ng.ini',
         '/etc/hosts',
+        '/usr/share/yunohost/yunohost-config/others/startup',
     ]
 
     config_dir = []
@@ -167,7 +168,7 @@ def tools_postinstall(domain, password):
     """
     with YunoHostLDAP(password='yunohost') as yldap:
         try:
-            with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
+            with open('/etc/yunohost/installed') as f: pass
         except IOError:
             print('Installing YunoHost')
         else:
@@ -182,6 +183,6 @@ def tools_postinstall(domain, password):
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)
 
-        os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
+        os.system('touch /etc/yunohost/installed')
 
     win_msg(_("YunoHost has been successfully configured"))
