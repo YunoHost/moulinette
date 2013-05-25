@@ -300,8 +300,8 @@ def user_info(user_or_mail):
             raise YunoHostError(22, _("Unknown user/mail"))
 
         result_dict = {
-            'Username': user['uid'],
-            'Fullname': user['cn'],
+            'Username': user['uid'][0],
+            'Fullname': user['cn'][0],
             'Mail': user['mail'][0]
         }
 
