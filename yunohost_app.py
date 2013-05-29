@@ -56,8 +56,8 @@ def app_fetchlist(url=None, name=None):
     except OSError: os.makedirs(repo_path)
 
     if not url:
-        url = 'http://fapp.yunohost.org/app/list/raw'
-        name = "fapp"
+        url = 'http://app.yunohost.org/list.json'
+        name = 'yunohost'
     else:
         if not name: raise YunoHostError(22, _("You must indicate a name for your custom list"))
 

@@ -220,7 +220,6 @@ app:
                 -n:
                     full: --name
                     help: Name of the list (default fapp)
-                    pattern: '^[a-z0-9_]+$'
 
         ### app_listlists()
         listlists:
