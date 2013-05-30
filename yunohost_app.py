@@ -573,7 +573,7 @@ def _install_app_dependencies(dep_dict):
     """
     if ('debian' in dep_dict) and (len(dep_dict['debian']) > 0):
         #os.system('apt-get update')
-        if os.system('apt-get install "'+ '" "'.join(dep_dict['debian']) +'"') != 0:
+        if os.system('apt-get install -y "'+ '" "'.join(dep_dict['debian']) +'"') != 0:
             raise YunoHostError(1, _("Dependency installation failed: ") + dependency)
 
     # TODO: Install npm, pip, gem and pear dependencies
