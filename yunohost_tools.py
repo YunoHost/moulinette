@@ -124,12 +124,13 @@ def tools_maindomain(old_domain, new_domain):
             lemon_conf.write(line + '\n')
 
 
-    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.sso.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
+    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.fixed.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
 
     tmp = '/usr/share/yunohost/yunohost-config'
 
     command_list = [
-        'cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf', # add SSO apache conf dir to new domain conf
+        'cp /etc/yunohost/apache/templates/sso.fixed.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/sso.fixed.conf', # add SSO apache conf dir to new domain conf
+        'cp /etc/yunohost/apache/template/admin.fixed.conf /etc/yunohost/apache/domains/' + new_domain + '.d/admin.fixed.conf',
         '/usr/share/lemonldap-ng/bin/lmYnhMoulinette',
         '/etc/init.d/hostname.sh',
         'echo "01" > '+ tmp +'/ssl/yunoCA/serial',
