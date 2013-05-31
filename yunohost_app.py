@@ -56,8 +56,8 @@ def app_fetchlist(url=None, name=None):
     except OSError: os.makedirs(repo_path)
 
     if not url:
-        url = 'http://fapp.yunohost.org/app/list/raw'
-        name = "fapp"
+        url = 'http://app.yunohost.org/list.json'
+        name = 'yunohost'
     else:
         if not name: raise YunoHostError(22, _("You must indicate a name for your custom list"))
 
@@ -316,10 +316,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             # Apache #
             ##########
 
-            a2_conf_lines = [
-                'Alias '+ path +' '+ app_final_path + manifest['launch_path'],
-                'Alias '+ path[:len(path)-1] +' '+ app_final_path + manifest['launch_path']
-            ]
+            a2_conf_lines = [ 'Alias '+ path +' '+ app_final_path + manifest['launch_path'] ]
+            if path != '/':
+                a2_conf_lines.append('Alias '+ path[:len(path)-1] +' '+ app_final_path + manifest['launch_path'])
 
             if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
                 for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line.rstrip())
@@ -573,7 +572,7 @@ def _install_app_dependencies(dep_dict):
     """
     if ('debian' in dep_dict) and (len(dep_dict['debian']) > 0):
         #os.system('apt-get update')
-        if os.system('apt-get install "'+ '" "'.join(dep_dict['debian']) +'"') != 0:
+        if os.system('apt-get install -y "'+ '" "'.join(dep_dict['debian']) +'"') != 0:
             raise YunoHostError(1, _("Dependency installation failed: ") + dependency)
 
     # TODO: Install npm, pip, gem and pear dependencies

@@ -57,9 +57,9 @@ childs:
             - sudoRole
             - top
 
-    cn=www-data,ou=sudo:
-        cn: www-data
-        sudoUser: www-data
+    cn=yunohost-admin,ou=sudo:
+        cn: yunohost-admin
+        sudoUser: yunohost-admin
         sudoHost: ALL
         sudoCommand: /usr/bin/yunohost
         sudoOption: "!authenticate"

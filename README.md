@@ -132,6 +132,7 @@ git checkout -b dev_beudbeud ``
 git rebase origin/dev
 ```
 
+
 Do your modifications, then :
 ```
 git commit -am 'My commit message'

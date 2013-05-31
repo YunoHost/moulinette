@@ -220,7 +220,6 @@ app:
                 -n:
                     full: --name
                     help: Name of the list (default fapp)
-                    pattern: '^[a-z0-9_]+$'
 
         ### app_listlists()
         listlists:
@@ -491,6 +490,24 @@ firewall:
                     action: store_true
 
 
+        ### firewall_installupnp()
+        installupnp:
+            action_help: Add upnp cron
+
+
+        ### firewall_removeupnp()
+        removeupnp:
+            action_help: Remove upnp cron
+
+
+        ### firewall_stop()
+        stop:
+            action_help: Stop iptables and ip6tables
+
+
+        ### firewall_checkupnp()
+        checkupnp:
+            action_help: check if UPNP is install or not (0 yes 1 no)
 #############################
 #           Tools           #
 #############################

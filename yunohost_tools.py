@@ -81,16 +81,18 @@ def tools_maindomain(old_domain, new_domain):
 
     """
     if not old_domain:
-        with open('/usr/share/yunohost/yunohost-config/others/current_host', 'r') as f:
+        with open('/etc/yunohost/current_host', 'r') as f:
             old_domain = f.readline().rstrip()
 
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
 
     config_files = [
+        '/etc/prosody/conf.avail/localhost.cfg.lua',
         '/etc/postfix/main.cf',
         '/etc/dovecot/dovecot.conf',
         '/etc/lemonldap-ng/lemonldap-ng.ini',
         '/etc/hosts',
+        '/usr/share/yunohost/yunohost-config/others/startup',
     ]
 
     config_dir = []
@@ -122,12 +124,13 @@ def tools_maindomain(old_domain, new_domain):
             lemon_conf.write(line + '\n')
 
 
-    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.sso.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
+    os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.fixed.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
 
     tmp = '/usr/share/yunohost/yunohost-config'
 
     command_list = [
-        'cp /etc/yunohost/apache/templates/fixed.sso.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/fixed.sso.conf', # add SSO apache conf dir to new domain conf
+        'cp /etc/yunohost/apache/templates/sso.fixed.conf   /etc/yunohost/apache/domains/' + new_domain + '.d/sso.fixed.conf', # add SSO apache conf dir to new domain conf
+        'cp /etc/yunohost/apache/templates/admin.fixed.conf /etc/yunohost/apache/domains/' + new_domain + '.d/admin.fixed.conf',
         '/usr/share/lemonldap-ng/bin/lmYnhMoulinette',
         '/etc/init.d/hostname.sh',
         'echo "01" > '+ tmp +'/ssl/yunoCA/serial',
@@ -140,7 +143,7 @@ def tools_maindomain(old_domain, new_domain):
         'cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
         'cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/',
         'cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem',
-        'echo '+ new_domain +' > /usr/share/yunohost/yunohost-config/others/current_host',
+        'echo '+ new_domain +' > /etc/yunohost/current_host',
         'service apache2 restart',
         'service postfix restart'
     ]
@@ -166,7 +169,7 @@ def tools_postinstall(domain, password):
     """
     with YunoHostLDAP(password='yunohost') as yldap:
         try:
-            with open('/usr/share/yunohost/yunohost-config/others/installed') as f: pass
+            with open('/etc/yunohost/installed') as f: pass
         except IOError:
             print('Installing YunoHost')
         else:
@@ -181,6 +184,6 @@ def tools_postinstall(domain, password):
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)
 
-        os.system('touch /usr/share/yunohost/yunohost-config/others/installed')
+        os.system('touch /etc/yunohost/installed')
 
     win_msg(_("YunoHost has been successfully configured"))
