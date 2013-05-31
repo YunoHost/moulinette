@@ -105,6 +105,8 @@ def parse_dict(action_map):
 
                         if 'ask' in arg_params:
                             require_input = True
+                            if '-h' in sys.argv or '--help' in sys.argv:
+                                require_input = False
                             if (category != sys.argv[1]) or (action != sys.argv[2]):
                                 require_input = False
                             for name in arg_names:

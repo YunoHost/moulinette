@@ -22,19 +22,19 @@ Specifications
                               [-p PASSWORD]
                               user
     yunohost user info [-h] [-u USER] [-m MAIL]
-    
-    
+
+
 ### Domain
-    
+
     yunohost domain list [-h] [-l LIMIT] [-o OFFSET] [-f FILTER]
     yunohost domain add [-h] [domain [domain ...]]
     yunohost domain remove [-h] [domain [domain ...]]
     yunohost domain info [-h] domain
     yunohost domain renewcert [-h] domain
-    
-    
-### App 
-    
+
+
+### App
+
     yunohost app updatelist [-h] [-u URL]
     yunohost app list [-h] [--fields FIELDS [FIELDS ...]] [-o OFFSET]
                            [-f FILTER] [-l LIMIT]
@@ -49,27 +49,27 @@ Specifications
 
 
 ### Firewall
-    
+
     yunohost firewall list [-h]
     yunohost firewall allow [-h] {UDP,TCP,Both} port name
     yunohost firewall disallow [-h] name
-    
-    
+
+
 ### Monitoring
-    
+
     yunohost monitor info [-h] [-u] [-d] [-p] [-c] [-m] [-i]
     yunohost monitor process [-h] [-e PROCESS] [-d PROCESS]
                                   [--stop PROCESS] [-c PORT] [-i]
                                   [--start PROCESS]
-    
-    
+
+
 ### Tools
-    
+
     yunohost tools postinstall [-h] [-d DOMAIN] [-p PASSWORD]
     yunohost tools maindomain [-h] [-o OLD_DOMAIN] [-n NEW_DOMAIN]
     yunohost tools adminpw [-h] [-o OLD_PASSWORD] [-n NEW_PASSWORD]
     yunohost tools ldapinit [-h] [-d DOMAIN]
-    
+
 
 How to use "as is" ?
 --------------------
@@ -129,14 +129,14 @@ Development is handle with git branches and you have your own (i.e dev_beudbeud)
 ```
 git clone git@dev.yunohost.org:moulinette.git
 git checkout -b dev_beudbeud ``
-git rebase origin/dev 
+git rebase origin/dev
 ```
 
 Do your modifications, then :
 ```
 git commit -am 'My commit message'
 git pull origin dev (merge manually if conflicts)
-git push origin dev_beudbeud 
+git push origin dev_beudbeud
 ```
 
 Then you could ask for a 'merge request' in gitlab.
@@ -146,7 +146,7 @@ Development is handle with forked repos and you have your own (i.e beudbeud/moul
 ```
 git clone https://github.com/beudbeud/moulinette.git ``
 git checkout -b dev
-git rebase origin/dev 
+git rebase origin/dev
 ```
 
 Do your modifications, then:
