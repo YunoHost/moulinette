@@ -118,7 +118,7 @@ def tools_maindomain(old_domain, new_domain):
         "$tmp->{'ldapBase'} = 'dc=yunohost,dc=org';", # Set ldap basedn
         "$tmp->{'portal'} = 'https://"+ new_domain +"/sso/';", # Set SSO url
         "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'(?#0ynh_admin)^/ynh-admin/'} = '$uid eq \"admin\"';",
-        "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'(?#1ynh_user)^/ynh-user/'} = '$uid ne \"admin\"';"
+        "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'(?#0ynh_user)^/ynh-user/'} = '$uid ne \"admin\"';"
     ]
 
     with open(lemon_tmp_conf,'a') as lemon_conf:
