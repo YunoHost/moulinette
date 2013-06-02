@@ -139,6 +139,7 @@ def parse_dict(action_map):
                                 if 'dest' in arg_params: name = arg_params['dest']
                                 elif arg_fullname: name = arg_fullname[2:]
                                 else: name = arg_name
+                                name = name.replace('-', '_')
                                 patterns[name] = arg_params['pattern']
                             del arg_params['pattern']
 
