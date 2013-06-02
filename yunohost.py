@@ -137,6 +137,8 @@ def validate(pattern, array):
         Boolean | YunoHostError
 
     """
+    if array is None:
+        return True
     if isinstance(array, str):
         array = [array]
     for string in array:
