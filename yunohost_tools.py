@@ -123,8 +123,8 @@ def tools_maindomain(old_domain, new_domain):
     
     if old_domain is not 'yunohost.org':
         lemon_conf_lines.extend([
-            "$tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_admin)^/ynh-admin/'} = '';",
-            "$tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_user)^/ynh-user/'} = '';"
+            "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_admin)^/ynh-admin/'};",
+            "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_user)^/ynh-user/'};"
         ])
 
     with open(lemon_tmp_conf,'a') as lemon_conf:
