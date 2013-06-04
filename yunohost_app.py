@@ -238,6 +238,8 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         if not lvl(manifest, 'yunohost', 'uid') or '__' in manifest['yunohost']['uid']:
             raise YunoHostError(22, _("App uid is invalid"))
 
+        is_web = lvl(manifest, 'yunohost', 'webapp')
+
         instance_number = _installed_instance_number(manifest['yunohost']['uid']) + 1
         if instance_number > 1:
             if not lvl(manifest, 'yunohost', 'multi_instance') or not is_true(manifest['yunohost']['multi_instance']):
@@ -246,15 +248,17 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
         unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
-        script_var_dict = { 
+        script_var_dict = {
             'APP_DIR': app_tmp_folder,
             'APP_FINAL_DIR': app_final_path,
             'APP_ID': unique_app_id
         }
-        
-        if lvl(manifest, 'yunohost', 'webapp'):
-            script_var_dict['APP_DOMAIN'] = domain
-            script_var_dict['APP_PATH'] = path
+
+        if is_web:
+            script_var_dict.update({
+                'APP_DOMAIN': domain,
+                'APP_PATH': path
+            })
 
 
         #########################################
@@ -291,7 +295,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         # Specifically configure lemon & apache #
         #########################################
 
-        if lvl(manifest, 'yunohost', 'webapp'):
+        if is_web:
             domain_add([domain], web=True)
 
 
@@ -341,7 +345,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
         os.system('chown -R www-data: "'+ app_final_path +'"')
 
-        if lvl(manifest, 'yunohost', 'webapp'):
+        if is_web:
             os.system('service apache2 reload')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
@@ -356,27 +360,31 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
         os.makedirs(app_setting_path)
 
-        if lvl(manifest, 'yunohost', 'webapp'):
-            yaml_dict = {
-                'uid' : manifest['yunohost']['uid'],
-                'instance' : instance_number,
-                'last_update': manifest['lastUpdate'],
-                'install_time': int(time.time()),
-                'name': manifest['name'],
-                'mode': mode,
+        yaml_dict = {
+            'uid' : manifest['yunohost']['uid'],
+            'instance' : instance_number,
+            'last_update': manifest['lastUpdate'],
+            'install_time': int(time.time()),
+            'name': manifest['name'],
+            'mode': mode,
+        }
+        if is_web:
+            yaml_dict.update({
                 'domain': domain,
                 'path': path,
-            }
+            })
 
             if lvl(manifest, 'yunohost', 'webapp', 'db'):
-                yaml_dict['db_pwd'] = db_pwd
-                yaml_dict['db_user'] = db_user
+                yaml_dict.update({
+                    'db_pwd': db_pwd,
+                    'db_user': db_user
+                })
             if label: yaml_dict['label'] = label
             else: yaml_dict['label'] = manifest['name']
 
-            with open(app_setting_path +'/app_settings.yml', 'w') as f:
-                yaml.safe_dump(yaml_dict, f, default_flow_style=False)
-                win_msg(_("App setting file created"))
+        with open(app_setting_path +'/app_settings.yml', 'w') as f:
+            yaml.safe_dump(yaml_dict, f, default_flow_style=False)
+            win_msg(_("App setting file created"))
 
         if lvl(manifest, 'yunohost', 'script_path'):
             os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
