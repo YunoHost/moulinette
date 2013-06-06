@@ -7,7 +7,6 @@ import shutil
 import stat
 import yaml
 import time
-from pprint import pprint
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, lvl, is_true, lemon_configuration
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
@@ -261,7 +260,6 @@ def app_upgrade(app, instance=[], url=None, file=None):
                 unique_app_id = app_id +'__'+ number
                 if unique_app_id in upgraded_apps:
                     raise YunoHostError(1, _("Conflict, multiple upgrades of the same app: ")+ app_id +' (instance n°'+ number +')')
-                upgraded_apps.append(unique_app_id)
 
                 current_app_dict = app_info(app_id, instance=number, raw=True)
                 new_app_dict     = app_info(app_id, raw=True)
@@ -270,9 +268,7 @@ def app_upgrade(app, instance=[], url=None, file=None):
                     manifest = _extract_app_from_file(file)
                 elif url:
                     manifest = _fetch_app_from_git(url)
-                elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']):
-                #TODO: Timestamp sync issue
-                #elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) or (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time']) or ('update_time' in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
+                elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) or ('update_time' not in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) or ('update_time' in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
                     manifest = _fetch_app_from_git(app_id)
                 else:
                     continue
@@ -360,6 +356,7 @@ def app_upgrade(app, instance=[], url=None, file=None):
                 # So much win                           #
                 #########################################
 
+                upgraded_apps.append(unique_app_id)
                 win_msg(app_id + _(" upgraded successfully"))
 
         if not upgraded_apps:
