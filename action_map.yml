@@ -293,13 +293,31 @@ app:
                 app:
                     help: App(s) to upgrade (default all)
                     nargs: "*"
+                -i:
+                    full: --instance
+                    help: App instance number to upgrade
+                    nargs: "*"
+                -u:
+                    full: --url
+                    help: Git url to fetch for upgrade
+                -f:
+                    full: --file
+                    help: Folder or tarball for upgrade
 
         ### app_info() TODO: Write help
         info:
             action_help: Get app informations
             arguments:
                 app:
-                    help: ""
+                    help: App ID
+                -i:
+                    full: --instance
+                    help: App instance number
+                -r:
+                    full: --raw
+                    help: Return the full app_dict
+                    action: store_true
+
 
         ### app_addaccess() TODO: Write help
         addaccess:

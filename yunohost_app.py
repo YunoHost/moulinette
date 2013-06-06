@@ -7,6 +7,7 @@ import shutil
 import stat
 import yaml
 import time
+from pprint import pprint
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, lvl, is_true, lemon_configuration
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
@@ -145,6 +146,46 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
     return list_dict
 
 
+def app_info(app, instance=None, raw=False):
+    """
+    Fetch informations for selected apps
+
+    Keyword arguments:
+        app -- App ID
+        instance -- Specific number of instance to get info from
+        raw -- Return the full app_dict
+
+    Returns:
+        Dict | Fail
+
+    """
+    try:
+        app_info = app_list(filter=app, limit=1, raw=True)[app]
+    except YunoHostError:
+        app_info = {}
+
+    # If installed
+    instance_number = _installed_instance_number(app)
+    if instance_number > 0 and instance:
+        if int(instance) > instance_number:
+            raise YunoHostError(22, _("Invalid instance number: ")+ instance)
+        unique_app_id = app +'__'+ instance
+        with open(apps_setting_path + unique_app_id+ '/manifest.webapp') as json_manifest:
+            app_info['manifest'] = json.loads(str(json_manifest.read()))
+        with open(apps_setting_path + unique_app_id +'/app_settings.yml') as f:
+            app_info['settings'] = yaml.load(f)
+
+    if raw:
+        return app_info
+    else:
+        return [
+            ('Name', app_info['manifest']['name']),
+            ('Version', app_info['manifest']['version']),
+            ('Description', app_info['manifest']['description']),
+            #TODO: Add more infos
+        ]
+
+
 def app_map():
     """
     Map of installed apps
@@ -177,6 +218,154 @@ def app_map():
                 result[domain][app_settings['path']] = app_name
 
     return result
+
+def app_upgrade(app, instance=[], url=None, file=None):
+    """
+    Upgrade selected apps
+
+    Keyword arguments:
+        app -- List of app_id to upgrade (default all upgradable app)
+        instance -- Specific number(s) of instance(s) to upgrade
+        url -- Git url to fetch before upgrade
+        file -- Folder or tarball for upgrade
+
+    Returns:
+        Win | Fail
+
+    """
+    with YunoHostLDAP() as yldap:
+        try:
+            app_list()
+        except YunoHostError:
+            raise YunoHostError(1, _("No app to upgrade"))
+
+        upgraded_apps = []
+        if not app:
+            unique_app_id_list = os.listdir(apps_setting_path)
+            for unique_app_id in unique_app_id_list:
+                app_id = unique_app_id[:unique_app_id.find('__')]
+                if app_id not in app:
+                    app.append(app_id)
+
+        for app_id in app:
+            instance_number = _installed_instance_number(app_id)
+            if instance_number == 0:
+                raise YunoHostError(1, app_id + _(" is not installed"))
+            elif not instance:
+                instance = range(1, instance_number + 1)
+
+            for number in instance:
+                if int(number) > instance_number:
+                    continue
+                number = str(number)
+                unique_app_id = app_id +'__'+ number
+                if unique_app_id in upgraded_apps:
+                    raise YunoHostError(1, _("Conflict, multiple upgrades of the same app: ")+ app_id +' (instance n°'+ number +')')
+                upgraded_apps.append(unique_app_id)
+
+                current_app_dict = app_info(app_id, instance=number, raw=True)
+                new_app_dict     = app_info(app_id, raw=True)
+
+                if file:
+                    manifest = _extract_app_from_file(file)
+                elif url:
+                    manifest = _fetch_app_from_git(url)
+                elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']):
+                #TODO: Timestamp sync issue
+                #elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) or (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time']) or ('update_time' in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
+                    manifest = _fetch_app_from_git(app_id)
+                else:
+                    continue
+
+                is_web = lvl(manifest, 'yunohost', 'webapp')
+
+                app_final_path = apps_path +'/'+ unique_app_id
+                script_var_dict = {
+                    'APP_DIR': app_tmp_folder,
+                    'APP_FINAL_DIR': app_final_path,
+                    'APP_ID': unique_app_id
+                }
+
+                if is_web:
+                    script_var_dict.update({
+                        'APP_DOMAIN': current_app_dict['settings']['domain'],
+                        'APP_PATH': current_app_dict['settings']['path']
+                    })
+
+
+                #########################################
+                # Install dependencies                  #
+                #########################################
+
+                if lvl(manifest, 'dependencies'):
+                    _install_app_dependencies(manifest['dependencies'])
+
+
+                #########################################
+                # DB Vars                               #
+                #########################################
+
+                if lvl(manifest, 'yunohost', 'webapp', 'db'):
+                    script_var_dict.update({
+                        'DB_USER': current_app_dict['settings']['db_user'],
+                        'DB_PWD': current_app_dict['settings']['db_pwd'],
+                        'DB_NAME': current_app_dict['settings']['db_user']
+                    })
+
+                #########################################
+                # Execute App install script            #
+                #########################################
+
+                if lvl(manifest, 'yunohost', 'script_path'):
+                    _exec_app_script(step='upgrade', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
+
+                #########################################
+                # Copy files to the right final place   #
+                #########################################
+
+                # TMP: Remove old application
+                if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
+
+                os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
+
+                if is_web:
+                    os.system('chown -R www-data: "'+ app_final_path +'"')
+                    os.system('service apache2 reload')
+                shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
+
+
+                #########################################
+                # Write App settings                    #
+                #########################################
+
+                app_setting_path = apps_setting_path +'/'+ unique_app_id
+
+                current_app_dict['settings']['update_time'] = int(time.time())
+
+                with open(app_setting_path +'/app_settings.yml', 'w') as f:
+                    yaml.safe_dump(current_app_dict['settings'], f, default_flow_style=False)
+                    win_msg(_("App setting file updated"))
+
+                if lvl(manifest, 'yunohost', 'script_path'):
+                    os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
+
+                shutil.rmtree(app_tmp_folder)
+                os.system('mv "'+ app_final_path +'/manifest.webapp" '+ app_setting_path)
+
+                if os.system('chmod 400 -R '+ app_setting_path) != 0:
+                    raise YunoHostError(22, _("Error during permission setting"))
+
+
+                #########################################
+                # So much win                           #
+                #########################################
+
+                win_msg(app_id + _(" upgraded successfully"))
+
+        if not upgraded_apps:
+            raise YunoHostError(1, _("No app to upgrade"))
+
+        win_msg(_("Upgrade complete"))
 
 
 def app_install(app, domain, path='/', label=None, mode='private'):
@@ -225,7 +414,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         try: os.listdir(install_tmp)
         except OSError: os.makedirs(install_tmp)
 
-        if app in app_list(raw=True):
+        if app in app_list(raw=True) or ('@' in app) or ('http://' in app) or ('https://' in app):
             manifest = _fetch_app_from_git(app)
         else:
             manifest = _extract_app_from_file(app)
@@ -276,9 +465,11 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         if lvl(manifest, 'yunohost', 'webapp', 'db'):
             db_user = random_password(10)
             db_pwd  = random_password(12)
-            script_var_dict['DB_USER'] = db_user
-            script_var_dict['DB_PWD']  = db_pwd
-            script_var_dict['DB_NAME'] = db_user
+            script_var_dict.update({
+                'DB_USER': db_user,
+                'DB_PWD': db_pwd,
+                'DB_NAME': db_user
+            })
 
             _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
 
@@ -343,9 +534,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
 
         os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
-        os.system('chown -R www-data: "'+ app_final_path +'"')
 
         if is_web:
+            os.system('chown -R www-data: "'+ app_final_path +'"')
             os.system('service apache2 reload')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
@@ -361,11 +552,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         os.makedirs(app_setting_path)
 
         yaml_dict = {
-            'uid' : manifest['yunohost']['uid'],
+            'uid': manifest['yunohost']['uid'],
             'instance' : instance_number,
-            'last_update': manifest['lastUpdate'],
             'install_time': int(time.time()),
-            'name': manifest['name'],
             'mode': mode,
         }
         if is_web:
@@ -390,7 +579,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
 
         shutil.rmtree(app_tmp_folder)
-        os.remove(app_final_path + '/manifest.webapp')
+        os.system('mv "'+ app_final_path +'/manifest.webapp" '+ app_setting_path)
 
         if os.system('chmod 400 -R '+ app_setting_path) != 0:
             raise YunoHostError(22, _("Error during permission setting"))
@@ -540,7 +729,7 @@ def _fetch_app_from_git(app):
     Unzip or untar application tarball in app_tmp_folder
 
     Keyword arguments:
-        app -- Path of the tarball
+        app -- App_id or git repo URL
 
     Returns:
         Dict manifest
@@ -548,26 +737,38 @@ def _fetch_app_from_git(app):
     """
     global app_tmp_folder
 
-    app_tmp_folder = install_tmp +'/'+ app
-    if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
+    if ('@' in app) or ('http://' in app) or ('https://' in app):
+        git_result   = os.system('git clone '+ app +' '+ app_tmp_folder)
+        git_result_2 = 0
+        try:
+            with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
+                manifest = json.loads(str(json_manifest.read()))
+                manifest['lastUpdate'] = int(time.time())
+        except IOError:
+            raise YunoHostError(1, _("Invalid App manifest"))
 
-    app_dict = app_list(raw=True)
-
-    if app in app_dict:
-        app_info = app_dict[app]
-        app_info['manifest']['lastUpdate'] = app_info['lastUpdate']
     else:
-        raise YunoHostError(22, _("App doesn't exists"))
+        app_tmp_folder = install_tmp +'/'+ app
+        if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
 
-    git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
-    git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
+        app_dict = app_list(raw=True)
+
+        if app in app_dict:
+            app_info = app_dict[app]
+            app_info['manifest']['lastUpdate'] = app_info['lastUpdate']
+            manifest = app_info['manifest']
+        else:
+            raise YunoHostError(22, _("App doesn't exists"))
+
+        git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
+        git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
 
     if not git_result == git_result_2 == 0:
         raise YunoHostError(22, _("Sources fetching failed"))
 
     win_msg(_("Repository fetched"))
 
-    return app_info['manifest']
+    return manifest
 
 
 def _install_app_dependencies(dep_dict):
