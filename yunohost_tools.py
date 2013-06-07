@@ -120,7 +120,7 @@ def tools_maindomain(old_domain, new_domain):
         "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'(?#0ynh_admin)^/ynh-admin/'} = '$uid eq \"admin\"';",
         "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'(?#0ynh_user)^/ynh-user/'} = '$uid ne \"admin\"';"
     ]
-    
+
     if old_domain is not 'yunohost.org':
         lemon_conf_lines.extend([
             "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_admin)^/ynh-admin/'};",

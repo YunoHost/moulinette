@@ -124,7 +124,7 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                 i += 1
         for app_id, app_info in sorted_app_dict.items():
             if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
-                instance_number = _installed_instance_number(app_id)
+                instance_number = len(_installed_instance_number(app_id))
                 if instance_number > 1:
                     installed_txt = 'Yes ('+ str(instance_number) +' times)'
                 elif instance_number == 1:
@@ -164,10 +164,8 @@ def app_info(app, instance=None, raw=False):
         app_info = {}
 
     # If installed
-    instance_number = _installed_instance_number(app)
+    instance_number = len(_installed_instance_number(app))
     if instance_number > 0 and instance:
-        if int(instance) > instance_number:
-            raise YunoHostError(22, _("Invalid instance number: ")+ instance)
         unique_app_id = app +'__'+ instance
         with open(apps_setting_path + unique_app_id+ '/manifest.webapp') as json_manifest:
             app_info['manifest'] = json.loads(str(json_manifest.read()))
@@ -185,38 +183,40 @@ def app_info(app, instance=None, raw=False):
         ]
 
 
-def app_map():
+def app_map(app=None, raw=False):
     """
     Map of installed apps
+
+    Keyword arguments:
+        app -- App ID of app to map
+        raw -- Return complete dict
 
     Returns:
         Dict
     """
 
-    domains = domain_list()
     result = {}
 
-    for domain in domains['Domains']:
-        if domain +'.d' in os.listdir(a2_settings_path):
-            conf_list = os.listdir(a2_settings_path +'/'+ domain + '.d')
-            domain_app_list = []
-            result[domain] = {}
-            for conf in conf_list:
-                if '.app.conf' in conf:
-                    domain_app_list.append(conf[:len(conf)-9])
+    for unique_app_id in os.listdir(apps_setting_path):
+        if app and (app != unique_app_id) and (app != unique_app_id[:unique_app_id.find('__')]):
+            continue
 
-            for installed_app in domain_app_list:
-                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
-                    app_settings = yaml.load(f)
+        with open(apps_setting_path + unique_app_id +'/app_settings.yml') as f:
+            app_settings = yaml.load(f)
 
-                if int(app_settings['instance']) > 1:
-                    app_name = app_settings['label'] +' ('+ app_settings['uid'] +' n°'+ str(app_settings['instance']) +')'
-                else:
-                    app_name = app_settings['label'] +' ('+ app_settings['uid'] +')'
-
-                result[domain][app_settings['path']] = app_name
+        if raw:
+            if app_settings['domain'] not in result:
+                result[app_settings['domain']] = {}
+            result[app_settings['domain']][app_settings['path']] = {
+                    'label': app_settings['label'],
+                    'uid': app_settings['uid'],
+                    'instance': app_settings['instance'],
+            }
+        else:
+            result['https://'+app_settings['domain']+app_settings['path']] = app_settings['label']
 
     return result
+
 
 def app_upgrade(app, instance=[], url=None, file=None):
     """
@@ -426,7 +426,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
         is_web = lvl(manifest, 'yunohost', 'webapp')
 
-        instance_number = _installed_instance_number(manifest['yunohost']['uid']) + 1
+        instance_number = _installed_instance_number(manifest['yunohost']['uid'], last=True) + 1
         if instance_number > 1:
             if not lvl(manifest, 'yunohost', 'multi_instance') or not is_true(manifest['yunohost']['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
@@ -587,6 +587,54 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         #########################################
 
         win_msg(_("Installation complete"))
+
+
+def app_remove(app, instance=[]):
+    """
+    Remove app(s)
+
+    Keyword arguments:
+        app -- App ID to remove
+        instance -- List of instances to remove (default all)
+
+    """
+    lemon_conf_lines = {}
+
+    if not instance:
+        instance = _installed_instance_number(app)
+
+    for number in instance:
+        number = str(number)
+        unique_app_id = app +'__'+ number
+        app_final_path = apps_path +'/'+ unique_app_id
+        app_dict = app_info(app, instance=number, raw=True)
+        app_settings = app_dict['settings']
+        manifest = app_dict['manifest']
+        is_web = lvl(manifest, 'yunohost', 'webapp')
+        has_db = lvl(manifest, 'yunohost', 'webapp', 'db')
+
+        if is_web:
+            lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ unique_app_id +'Z)^'+ app_settings['path'] )] = None
+            try:
+                os.remove(a2_settings_path +'/'+ app_settings['domain'] +'.d/'+ unique_app_id +'.app.conf')
+            except OSError:
+                pass
+
+        if has_db:
+            mysql_root_pwd = open('/etc/yunohost/mysql').read().rstrip()
+            mysql_command = 'mysql -u root -p'+ mysql_root_pwd +' -e "REVOKE ALL PRIVILEGES ON '+ app_settings['db_user'] +'.* FROM \''+ app_settings['db_user'] +'\'@localhost ; DROP USER \''+ app_settings['db_user'] +'\'@localhost; DROP DATABASE '+ app_settings['db_user'] +' ;"'
+            os.system(mysql_command)
+
+        try:
+            shutil.rmtree(apps_setting_path +'/'+ unique_app_id)
+            shutil.rmtree(apps_path +'/'+ unique_app_id)
+        except OSError:
+            pass
+
+        win_msg(_("App removed: ")+ unique_app_id)
+
+    if is_web:
+        lemon_configuration(lemon_conf_lines)
 
 
 def app_addaccess(apps, users):
@@ -849,28 +897,40 @@ def _exec_app_script(step, path, var_dict, app_type):
             break
 
 
-def _installed_instance_number(app):
+def _installed_instance_number(app, last=False):
     """
     Check if application is installed and return instance number
 
     Keyword arguments:
         app -- uid of App to check
+        last -- Return only last instance number
 
     Returns:
-        Number of installed instance
+        Number of last installed instance | List or instances
 
     """
-    number = 0
-    try:
-        installed_apps = os.listdir(apps_setting_path)
-    except OSError:
-        os.makedirs(apps_setting_path)
-        return 0
+    if last:
+        number = 0
+        try:
+            installed_apps = os.listdir(apps_setting_path)
+        except OSError:
+            os.makedirs(apps_setting_path)
+            return 0
 
-    for installed_app in installed_apps:
-        if '__' in installed_app:
-            if app == installed_app[:installed_app.index('__')]:
-                if int(installed_app[installed_app.index('__') + 2:]) > number:
-                    number = int(installed_app[installed_app.index('__') + 2:])
+        for installed_app in installed_apps:
+            if '__' in installed_app:
+                if app == installed_app[:installed_app.index('__')]:
+                    if int(installed_app[installed_app.index('__') + 2:]) > number:
+                        number = int(installed_app[installed_app.index('__') + 2:])
 
-    return number
+        return number
+
+    else:
+        instance_number_list = []
+        instances_dict = app_map(app=app, raw=True)
+        for key, domain in instances_dict.items():
+            for key, path in domain.items():
+                instance_number_list.append(path['instance'])
+
+        return sorted(instance_number_list)
+

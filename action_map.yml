@@ -256,6 +256,14 @@ app:
         ### app_map()
         map:
             action_help: List apps by domain
+            arguments:
+                -a:
+                    full: --app
+                    help: Specific app to map
+                -r:
+                    full: --raw
+                    help: Return complete dict
+                    action: store_true
 
         ### app_install() TODO: Write help
         install:
@@ -284,7 +292,10 @@ app:
             arguments:
                 app:
                     help: App(s) to delete
-                    nargs: "+"
+                -i:
+                    full: --instance
+                    help: App instance number to delete
+                    nargs: '*'
 
         ### app_upgrade()
         upgrade:
