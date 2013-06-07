@@ -619,16 +619,14 @@ def app_remove(app, instance=[]):
         }
 
         if lvl(manifest, 'dependencies'):
-            #_remove_app_dependencies(manifest['dependencies'])
+            #TODO: _remove_app_dependencies(manifest['dependencies'])
             pass
 
         if lvl(manifest, 'yunohost', 'script_path'):
             _exec_app_script(step='remove', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
 
         if is_web:
-            if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
-
-            with open(lemon_tmp_conf,'a') as lemon_conf:
+            with open(lemon_tmp_conf, 'w') as lemon_conf:
                 hash = "$tmp->{'locationRules'}->{'"+ app_settings['domain'] +"'}"
                 lemon_conf.write("foreach my $key (keys %{ "+ hash +" }) { delete "+ hash +"{$key} if $key =~ /"+ app_settings['uid'] +"/; }" + '\n')
 
