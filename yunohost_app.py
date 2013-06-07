@@ -613,8 +613,26 @@ def app_remove(app, instance=[]):
         is_web = lvl(manifest, 'yunohost', 'webapp')
         has_db = lvl(manifest, 'yunohost', 'webapp', 'db')
 
+        script_var_dict = {
+            'APP_DIR': apps_path +'/'+ unique_app_id,
+            'APP_ID': unique_app_id
+        }
+
+        if lvl(manifest, 'dependencies'):
+            #_remove_app_dependencies(manifest['dependencies'])
+            pass
+
+        if lvl(manifest, 'yunohost', 'script_path'):
+            _exec_app_script(step='remove', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
+
         if is_web:
-            lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ unique_app_id +'Z)^'+ app_settings['path'] )] = None
+            if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
+
+            with open(lemon_tmp_conf,'a') as lemon_conf:
+                hash = "$tmp->{'locationRules'}->{'"+ app_settings['domain'] +"'}"
+                lemon_conf.write("foreach my $key (keys %{ "+ hash +" }) { delete "+ hash +"{$key} if $key =~ /"+ app_settings['uid'] +"/; }" + '\n')
+
+            os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette')
             try:
                 os.remove(a2_settings_path +'/'+ app_settings['domain'] +'.d/'+ unique_app_id +'.app.conf')
             except OSError:
