@@ -110,9 +110,6 @@ def tools_maindomain(old_domain, new_domain):
 
     domain_add([new_domain], web=True)
 
-    lemon_tmp_conf = '/tmp/tmplemonconf'
-    if os.path.exists(lemon_tmp_conf): os.remove(lemon_tmp_conf)
-
     lemon_conf_lines = [
         "$tmp->{'domain'} = '"+ new_domain +"';", # Replace Lemon domain
         "$tmp->{'ldapBase'} = 'dc=yunohost,dc=org';", # Set ldap basedn
@@ -127,14 +124,14 @@ def tools_maindomain(old_domain, new_domain):
             "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_user)^/ynh-user/'};"
         ])
 
-    with open(lemon_tmp_conf,'a') as lemon_conf:
+    with open('/tmp/tmplemonconf','w') as lemon_conf:
         for line in lemon_conf_lines:
             lemon_conf.write(line + '\n')
 
 
     os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.fixed.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
 
-    tmp = '/usr/share/yunohost/yunohost-config'
+    ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
 
     command_list = [
         'cp /etc/yunohost/apache/templates/sso.fixed.conf   /etc/yunohost/apache/domains/' + new_domain + '.d/sso.fixed.conf', # add SSO apache conf dir to new domain conf
@@ -142,16 +139,16 @@ def tools_maindomain(old_domain, new_domain):
         'cp /etc/yunohost/apache/templates/user.fixed.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/user.fixed.conf',
         '/usr/share/lemonldap-ng/bin/lmYnhMoulinette',
         '/etc/init.d/hostname.sh',
-        'echo "01" > '+ tmp +'/ssl/yunoCA/serial',
-        'rm '+ tmp +'/ssl/yunoCA/index.txt',
-        'touch '+ tmp +'/ssl/yunoCA/index.txt',
-        'sed -i "s/' + old_domain + '/' + new_domain + '/g" '+ tmp +'/ssl/yunoCA/openssl.cnf',
-        'openssl req -x509 -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 3650 -out '+ tmp +'/ssl/yunoCA/ca/cacert.pem -keyout '+ tmp +'/ssl/yunoCA/ca/cakey.pem -nodes -batch',
-        'openssl req -new -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -out '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -keyout '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem -nodes -batch',
-        'openssl ca -config '+ tmp +'/ssl/yunoCA/openssl.cnf -days 730 -in '+ tmp +'/ssl/yunoCA/certs/yunohost_csr.pem -out '+ tmp +'/ssl/yunoCA/certs/yunohost_crt.pem -batch',
-        'cp '+ tmp +'/ssl/yunoCA/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
-        'cp '+ tmp +'/ssl/yunoCA/certs/yunohost_key.pem /etc/ssl/private/',
-        'cp '+ tmp +'/ssl/yunoCA/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem',
+        'echo "01" > '+ ssl_dir +'/serial',
+        'rm '+ ssl_dir +'/index.txt',
+        'touch '+ ssl_dir +'/index.txt',
+        'sed -i "s/' + old_domain + '/' + new_domain + '/g" '+ ssl_dir +'/openssl.cnf',
+        'openssl req -x509 -new -config '+ ssl_dir +'/openssl.cnf -days 3650 -out '+ ssl_dir +'/ca/cacert.pem -keyout '+ ssl_dir +'/ca/cakey.pem -nodes -batch',
+        'openssl req -new -config '+ ssl_dir +'/openssl.cnf -days 730 -out '+ ssl_dir +'/certs/yunohost_csr.pem -keyout '+ ssl_dir +'/certs/yunohost_key.pem -nodes -batch',
+        'openssl ca -config '+ ssl_dir +'/openssl.cnf -days 730 -in '+ ssl_dir +'/certs/yunohost_csr.pem -out '+ ssl_dir +'/certs/yunohost_crt.pem -batch',
+        'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
+        'cp '+ ssl_dir +'/certs/yunohost_key.pem /etc/ssl/private/',
+        'cp '+ ssl_dir +'/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem',
         'echo '+ new_domain +' > /etc/yunohost/current_host',
         'service apache2 restart',
         'service postfix restart'
