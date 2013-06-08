@@ -121,19 +121,19 @@ user:
                     metavar: PASSWORD
                 --add-mailforward:
                     help: Mailforward addresses to add
-                    nargs: "+"
+                    nargs: "*"
                     metavar: MAIL
                 --remove-mailforward:
                     help: Mailforward addresses to remove
-                    nargs: "+"
+                    nargs: "*"
                     metavar: MAIL
                 --add-mailalias:
                     help: Mail aliases to add
-                    nargs: "+"
+                    nargs: "*"
                     metavar: MAIL
                 --remove-mailalias:
                     help: Mail aliases to remove
-                    nargs: "+"
+                    nargs: "*"
                     metavar: MAIL
 
         ### user_info()

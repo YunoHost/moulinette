@@ -104,11 +104,9 @@ def domain_add(domains, web=False):
                  domain +'.      IN   SOA   ns.'+ domain +'. root.'+ domain +'. '+ timestamp +' 10800 3600 604800 38400',
                  domain +'.      IN   NS    ns.'+ domain +'.',
                  domain +'.      IN   A     '+ ip,
-                 domain +'.      IN   MX    5 mail.'+ domain +'.',
+                 domain +'.      IN   MX    5 '+ domain +'.',
                  domain +'.      IN   TXT   "v=spf1 a mx a:'+ domain +' ?all"',
-                 'mail.'+ domain +'. IN   A     '+ ip,
                  'ns.'+ domain +'.   IN   A     '+ ip,
-                 'root.'+ domain +'. IN   A     '+ ip
                 ]
                 with open('/var/lib/bind/' + domain + '.zone', 'w') as zone:
                     for line in zone_lines:

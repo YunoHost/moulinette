@@ -8,6 +8,7 @@ import random
 import string
 import getpass
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+from yunohost_domain import domain_list
 
 def user_list(fields=None, filter=None, limit=None, offset=None):
     """
@@ -23,7 +24,7 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
         Dict
     """
     with YunoHostLDAP() as yldap:
-        user_attrs = ['uid', 'mail', 'cn', 'mailalias']
+        user_attrs = ['uid', 'mail', 'cn', 'maildrop']
         attrs = []
         result_list = []
         if offset: offset = int(offset)
@@ -53,9 +54,9 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
                         'Mail': user['mail'][0]
                     }
                     if len(user['mail']) > 1:
-                        entry['Mail Forward'] = user['mail'][1:]
-                    if 'mailalias' in user:
-                        entry['Mail Aliases'] = user['mailalias']
+                        entry['Mail Aliases'] = user['mail'][1:]
+                    if 'maildrop' in user:
+                        entry['Mail Forward'] = user['maildrop']
 
                     result_list.append(entry)
                     i += 1
@@ -85,15 +86,15 @@ def user_create(username, firstname, lastname, mail, password):
 
         yldap.validate_uniqueness({
             'uid'       : username,
-            'mail'      : mail,
-            'mailalias' : mail
+            'mail'      : mail
         })
 
         # Check if unix user already exists (doesn't work)
         #if not os.system("getent passwd " + username):
         #    raise YunoHostError(17, _("Username not available"))
 
-        #TODO: check if mail belongs to a domain
+        if mail[mail.find('@')+1:] not in domain_list()['Domains']:
+            raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
 
         # Get random UID/GID
         uid_check = gid_check = 0
@@ -117,6 +118,7 @@ def user_create(username, firstname, lastname, mail, password):
             'cn'            : fullname,
             'uid'           : username,
             'mail'          : mail,
+            'maildrop'      : username,
             'userPassword'  : pwd,
             'gidNumber'     : uid,
             'uidNumber'     : uid,
@@ -185,8 +187,9 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
         Dict
     """
     with YunoHostLDAP() as yldap:
-        attrs_to_fetch = ['givenName', 'sn', 'mail', 'mailAlias']
+        attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
         new_attr_dict = {}
+	    domains = domain_list()['Domains']
 
         # Populate user informations
         result = yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)
@@ -213,57 +216,50 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
             new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(change_password), salt)
 
         if mail:
-            yldap.validate_uniqueness({
-                'mail'      : mail,
-                'mailalias' : mail
-            })
+            yldap.validate_uniqueness({ 'mail': mail })
+            if mail[mail.find('@')+1:] not in domains:
+                raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
             del user['mail'][0]
             new_attr_dict['mail'] = [mail] + user['mail']
-
-        if add_mailforward:
-            if not isinstance(add_mailforward, list):
-                add_mailforward = [ add_mailforward ]
-            for mail in add_mailforward:
-                yldap.validate_uniqueness({
-                    'mail'      : mail,
-                    'mailalias' : mail
-                })
-                user['mail'].append(mail)
-            new_attr_dict['mail'] = user['mail']
-
-        if remove_mailforward:
-            if not isinstance(remove_mailforward, list):
-                remove_mailforward = [ remove_mailforward ]
-            for mail in remove_mailforward:
-                if len(user['mail']) > 1 and mail in user['mail'][1:]:
-                    user['mail'].remove(mail)
-                else:
-                    raise YunoHostError(22, _("Invalid mail forward : ") + mail)
-            new_attr_dict['mail'] = user['mail']
 
         if add_mailalias:
             if not isinstance(add_mailalias, list):
                 add_mailalias = [ add_mailalias ]
             for mail in add_mailalias:
-                yldap.validate_uniqueness({
-                    'mail'      : mail,
-                    'mailalias' : mail
-                })
-                if 'mailalias' in user:
-                    user['mailalias'].append(mail)
-                else:
-                    user['mailalias'] = [ mail ]
-            new_attr_dict['mailalias'] = user['mailalias']
+                yldap.validate_uniqueness({ 'mail': mail })
+                if mail[mail.find('@')+1:] not in domains:
+                    raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
+                user['mail'].append(mail)
+            new_attr_dict['mail'] = user['mail']
 
         if remove_mailalias:
             if not isinstance(remove_mailalias, list):
                 remove_mailalias = [ remove_mailalias ]
             for mail in remove_mailalias:
-                if 'mailalias' in user and mail in user['mailalias']:
-                    user['mailalias'].remove(mail)
+                if len(user['mail']) > 1 and mail in user['mail'][1:]:
+                    user['mail'].remove(mail)
                 else:
                     raise YunoHostError(22, _("Invalid mail alias : ") + mail)
-            new_attr_dict['mailalias'] = user['mailalias']
+            new_attr_dict['mail'] = user['mail']
+
+        if add_mailforward:
+            if not isinstance(add_mailforward, list):
+                add_mailforward = [ add_mailforward ]
+            for mail in add_mailforward:
+		if mail in user['maildrop'][1:]:
+		    continue
+                user['maildrop'].append(mail)
+            new_attr_dict['maildrop'] = user['maildrop']
+
+        if remove_mailforward:
+            if not isinstance(remove_mailforward, list):
+                remove_mailforward = [ remove_mailforward ]
+            for mail in remove_mailforward:
+                if len(user['maildrop']) > 1 and mail in user['maildrop'][1:]:
+                    user['maildrop'].remove(mail)
+                else:
+                    raise YunoHostError(22, _("Invalid mail forward : ") + mail)
+            new_attr_dict['maildrop'] = user['maildrop']
 
         if yldap.update('uid=' + username + ',ou=users', new_attr_dict):
            win_msg(_("User successfully updated"))
@@ -285,10 +281,10 @@ def user_info(user_or_mail):
         Dict
     """
     with YunoHostLDAP() as yldap:
-        user_attrs = ['cn', 'mail', 'uid', 'mailAlias']
+        user_attrs = ['cn', 'mail', 'uid', 'maildrop']
 
         if len(user_or_mail.split('@')) is 2:
-            filter = '(|(mail='+ user_or_mail +')(mailalias='+ user_or_mail +'))'
+            filter = 'mail='+ user_or_mail
         else:
             filter = 'uid='+ user_or_mail
 
@@ -306,10 +302,10 @@ def user_info(user_or_mail):
         }
 
         if len(user['mail']) > 1:
-            result_dict['Mail Forward'] = user['mail'][1:]
+            result_dict['Mail Aliases'] = user['mail'][1:]
 
-        if 'mailalias' in user:
-            result_dict['Mail Aliases'] = user['mailalias']
+        if len(user['maildrop']) > 1:
+            result_dict['Mail Forward'] = user['maildrop'][1:]
 
         if result:
             return result_dict
