@@ -68,6 +68,28 @@ def domain_add(domains, web=False):
             domains = [ domains ]
 
         for domain in domains:
+            ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
+            ssl_domain_path  = '/etc/yunohost/certs/'+ domain
+            with open(ssl_dir +'/serial', 'r') as f:
+                serial = f.readline().rstrip()
+            try: os.listdir(ssl_domain_path)
+            except OSError: os.makedirs(ssl_domain_path)
+
+            command_list = [
+                'cp '+ ssl_dir +'/openssl.cnf '+ ssl_domain_path,
+                'sed -i "s/yunohost.org/' + domain + '/g" '+ ssl_domain_path +'/openssl.cnf',
+                'openssl req -new -config '+ ssl_domain_path +'/openssl.cnf -days 3650 -out '+ ssl_dir +'/certs/yunohost_csr.pem -keyout '+ ssl_dir +'/certs/yunohost_key.pem -nodes -batch',
+                'openssl ca -config '+ ssl_domain_path +'/openssl.cnf -days 3650 -in '+ ssl_dir +'/certs/yunohost_csr.pem -out '+ ssl_dir +'/certs/yunohost_crt.pem -batch',
+                'ln -s /etc/ssl/certs/ca-yunohost_crt.pem   '+ ssl_domain_path +'/ca.pem',
+                'cp '+ ssl_dir +'/certs/yunohost_key.pem    '+ ssl_domain_path +'/key.pem',
+                'cp '+ ssl_dir +'/newcerts/'+ serial +'.pem '+ ssl_domain_path +'/crt.pem',
+                'chmod 600 '+ ssl_domain_path +'/key.pem'
+            ]
+
+            for command in command_list:
+                if os.system(command) != 0:
+                    raise YunoHostError(17, _("An error occurred during certificate generation"))
+
             if web:
                 lemon_configuration({
                     ('exportedHeaders', domain, 'Auth-User'): '$uid',
@@ -129,28 +151,6 @@ def domain_add(domains, web=False):
                    conf.write(line + '\n')
 
             os.system('service bind9 reload')
-
-            ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
-            ssl_domain_path  = '/etc/yunohost/certs/'+ domain
-            with open(ssl_dir +'/serial', 'r') as f:
-                serial = f.readline().rstrip()
-            try: os.listdir(ssl_domain_path)
-            except OSError: os.makedirs(ssl_domain_path)
-
-            command_list = [
-                'cp '+ ssl_dir +'/openssl.cnf '+ ssl_domain_path,
-                'sed -i "s/yunohost.org/' + domain + '/g" '+ ssl_domain_path +'/openssl.cnf',
-                'openssl req -new -config '+ ssl_domain_path +'/openssl.cnf -days 3650 -out '+ ssl_dir +'/certs/yunohost_csr.pem -keyout '+ ssl_dir +'/certs/yunohost_key.pem -nodes -batch',
-                'openssl ca -config '+ ssl_domain_path +'/openssl.cnf -days 3650 -in '+ ssl_dir +'/certs/yunohost_csr.pem -out '+ ssl_dir +'/certs/yunohost_crt.pem -batch',
-                'ln -s /etc/ssl/certs/ca-yunohost_crt.pem   '+ ssl_domain_path +'/ca.pem',
-                'cp '+ ssl_dir +'/certs/yunohost_key.pem    '+ ssl_domain_path +'/key.pem',
-                'cp '+ ssl_dir +'/newcerts/'+ serial +'.pem '+ ssl_domain_path +'/crt.pem',
-                'chmod 600 '+ ssl_domain_path +'/key.pem'
-            ]
-
-            for command in command_list:
-                if os.system(command) != 0:
-                    raise YunoHostError(17, _("An error occurred during certificate generation"))
 
             if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
                 result.append(domain)

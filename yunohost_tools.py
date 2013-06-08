@@ -130,6 +130,8 @@ def tools_maindomain(old_domain, new_domain):
             lemon_conf.write(line + '\n')
 
     os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.fixed.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
+    os.system('rm /etc/ssl/private/yunohost_key.pem')
+    os.system('rm /etc/ssl/certs/yunohost_crt.pem')
 
     command_list = [
         'cp /etc/yunohost/apache/templates/sso.fixed.conf   /etc/yunohost/apache/domains/' + new_domain + '.d/sso.fixed.conf', # add SSO apache conf dir to new domain conf
