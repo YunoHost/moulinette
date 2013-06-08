@@ -93,7 +93,7 @@ def user_create(username, firstname, lastname, mail, password):
         #if not os.system("getent passwd " + username):
         #    raise YunoHostError(17, _("Username not available"))
 
-	if mail[mail.find('@')+1:] not in domain_list()['Domains']:
+	    if mail[mail.find('@')+1:] not in domain_list()['Domains']:
             raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
 
         # Get random UID/GID
@@ -189,7 +189,7 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
     with YunoHostLDAP() as yldap:
         attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
         new_attr_dict = {}
-	domains = domain_list()['Domains']
+	    domains = domain_list()['Domains']
 
         # Populate user informations
         result = yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)
@@ -217,7 +217,7 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
 
         if mail:
             yldap.validate_uniqueness({ 'mail': mail })
-	    if mail[mail.find('@')+1:] not in domains:
+	        if mail[mail.find('@')+1:] not in domains:
                 raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
             del user['mail'][0]
             new_attr_dict['mail'] = [mail] + user['mail']
@@ -227,7 +227,7 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
                 add_mailalias = [ add_mailalias ]
             for mail in add_mailalias:
                 yldap.validate_uniqueness({ 'mail': mail })
-	        if mail[mail.find('@')+1:] not in domains:
+	            if mail[mail.find('@')+1:] not in domains:
                     raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
                 user['mail'].append(mail)
             new_attr_dict['mail'] = user['mail']
