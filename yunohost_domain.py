@@ -129,6 +129,9 @@ def domain_add(domains, web=False):
                  domain +'.      IN   MX    5 '+ domain +'.',
                  domain +'.      IN   TXT   "v=spf1 a mx a:'+ domain +' ?all"',
                  'ns.'+ domain +'.   IN   A     '+ ip,
+                 ' _xmpp-client._tcp.'+ domain +'.  IN   SRV   0  5   5222  '+ domain +'.',
+                 ' _xmpp-server._tcp.'+ domain +'.  IN   SRV   0  5   5269  '+ domain +'.',
+                 ' _jabber._tcp.'+ domain +'.       IN   SRV   0  5   5269  '+ domain +'.',
                 ]
                 with open('/var/lib/bind/' + domain + '.zone', 'w') as zone:
                     for line in zone_lines:
