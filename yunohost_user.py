@@ -189,7 +189,7 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
     with YunoHostLDAP() as yldap:
         attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
         new_attr_dict = {}
-	    domains = domain_list()['Domains']
+        domains = domain_list()['Domains']
 
         # Populate user informations
         result = yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)

@@ -80,6 +80,7 @@ def tools_maindomain(old_domain, new_domain):
         dict
 
     """
+
     if not old_domain:
         with open('/etc/yunohost/current_host', 'r') as f:
             old_domain = f.readline().rstrip()
@@ -128,10 +129,7 @@ def tools_maindomain(old_domain, new_domain):
         for line in lemon_conf_lines:
             lemon_conf.write(line + '\n')
 
-
     os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.fixed.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
-
-    ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
 
     command_list = [
         'cp /etc/yunohost/apache/templates/sso.fixed.conf   /etc/yunohost/apache/domains/' + new_domain + '.d/sso.fixed.conf', # add SSO apache conf dir to new domain conf
@@ -139,18 +137,11 @@ def tools_maindomain(old_domain, new_domain):
         'cp /etc/yunohost/apache/templates/user.fixed.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/user.fixed.conf',
         '/usr/share/lemonldap-ng/bin/lmYnhMoulinette',
         '/etc/init.d/hostname.sh',
-        'echo "01" > '+ ssl_dir +'/serial',
-        'rm '+ ssl_dir +'/index.txt',
-        'touch '+ ssl_dir +'/index.txt',
-        'sed -i "s/' + old_domain + '/' + new_domain + '/g" '+ ssl_dir +'/openssl.cnf',
-        'openssl req -x509 -new -config '+ ssl_dir +'/openssl.cnf -days 3650 -out '+ ssl_dir +'/ca/cacert.pem -keyout '+ ssl_dir +'/ca/cakey.pem -nodes -batch',
-        'openssl req -new -config '+ ssl_dir +'/openssl.cnf -days 730 -out '+ ssl_dir +'/certs/yunohost_csr.pem -keyout '+ ssl_dir +'/certs/yunohost_key.pem -nodes -batch',
-        'openssl ca -config '+ ssl_dir +'/openssl.cnf -days 730 -in '+ ssl_dir +'/certs/yunohost_csr.pem -out '+ ssl_dir +'/certs/yunohost_crt.pem -batch',
-        'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
-        'cp '+ ssl_dir +'/certs/yunohost_key.pem /etc/ssl/private/',
-        'cp '+ ssl_dir +'/newcerts/01.pem /etc/ssl/certs/yunohost_crt.pem',
+        'ln -s /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/ssl/private/yunohost_key.pem',
+        'ln -s /etc/yunohost/certs/'+ new_domain +'/crt.pem /etc/ssl/certs/yunohost_crt.pem',
         'echo '+ new_domain +' > /etc/yunohost/current_host',
         'service apache2 restart',
+        'service prosody restart',
         'service postfix restart'
     ]
 
@@ -180,6 +171,30 @@ def tools_postinstall(domain, password):
             print('Installing YunoHost')
         else:
             raise YunoHostError(17, _("YunoHost is already installed"))
+
+        # Create required folders
+        folders_to_create = [
+            '/etc/yunohost/apps',
+            '/etc/yunohost/certs'
+        ]
+
+        for folder in folders_to_create:
+            try: os.listdir(folder)
+            except OSError: os.makedirs(folder)
+
+        # Create SSL CA
+        ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
+        command_list = [
+            'echo "01" > '+ ssl_dir +'/serial',
+            'rm '+ ssl_dir +'/index.txt',
+            'touch '+ ssl_dir +'/index.txt',
+            'openssl req -x509 -new -config '+ ssl_dir +'/openssl.cnf -days 3650 -out '+ ssl_dir +'/ca/cacert.pem -keyout '+ ssl_dir +'/ca/cakey.pem -nodes -batch',
+            'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem'
+        ]
+
+        for command in command_list:
+            if os.system(command) != 0:
+                raise YunoHostError(17, _("There were a problem during CA creation"))
 
         # Initialize YunoHost LDAP base
         tools_ldapinit()
