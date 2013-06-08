@@ -182,6 +182,7 @@ def domain_remove(domains):
         for domain in domains:
             if yldap.remove('virtualdomain=' + domain + ',ou=domains'):
                 try:
+                    shutil.rmtree('/etc/yunohost/certs/'+ domain)
                     os.remove('/var/lib/bind/'+ domain +'.zone')
                 except:
                     pass
