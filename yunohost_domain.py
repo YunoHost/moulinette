@@ -155,6 +155,22 @@ def domain_add(domains, web=False):
 
             os.system('service bind9 reload')
 
+            # XMPP
+            try:
+                with open('/etc/metronome/conf.d/'+ domain +'.cfg.lua') as f: pass
+            except IOError as e:
+                conf_lines = [
+                    'VirtualHost "'+ domain +'"',
+                    '  authentication = "ldap2"',
+                ]
+                with open('/etc/metronome/conf.d/' + domain + '.cfg.lua', 'w') as conf:
+                    for line in conf_lines:
+                        conf.write(line + '\n')
+
+            os.system('mkdir -p /var/lib/metronome/'+ domain.replace('.', '%2e') +'/pep')
+            os.system('chown -R metronome: /var/lib/metronome/')
+            os.system('service metronome reload')
+
             if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
                 result.append(domain)
                 continue
