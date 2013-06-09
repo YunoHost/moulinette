@@ -203,6 +203,8 @@ def domain_remove(domains):
                 try:
                     shutil.rmtree('/etc/yunohost/certs/'+ domain)
                     os.remove('/var/lib/bind/'+ domain +'.zone')
+                    shutil.rmtree('/var/lib/metronome/'+ domain.replace('.', '%2e'))
+                    os.remove('/etc/metronome/conf.d/'+ domain +'.cfg.lua')
                 except:
                     pass
                 with open('/etc/bind/named.conf.local', 'r') as conf:
