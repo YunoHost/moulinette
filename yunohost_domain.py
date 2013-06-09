@@ -68,8 +68,9 @@ def domain_add(domains, web=False):
             domains = [ domains ]
 
         for domain in domains:
-            if domain in domain_list()['Domains']:
-                continue
+            try:
+                if domain in domain_list()['Domains']: continue
+            except YunoHostError: pass
             ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
             ssl_domain_path  = '/etc/yunohost/certs/'+ domain
             with open(ssl_dir +'/serial', 'r') as f:
