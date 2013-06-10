@@ -46,13 +46,14 @@ def domain_list(filter=None, limit=None, offset=None):
         return { 'Domains': result_list }
 
 
-def domain_add(domains, web=False):
+def domain_add(domains, web=False, main=False):
     """
     Add one or more domains
 
     Keyword argument:
         domains -- List of domains to add
         web -- Configure Apache and LemonLDAP for the domain too
+        main -- Is the main domain
 
     Returns:
         Dict
@@ -136,6 +137,12 @@ def domain_add(domains, web=False):
                  '_xmpp-server._tcp.'+ domain +'.  IN   SRV   0  5   5269  '+ domain +'.',
                  '_jabber._tcp.'+ domain +'.       IN   SRV   0  5   5269  '+ domain +'.',
                 ]
+                if main:
+                    zone_lines.extend([
+                        'pubsub.'+ domain +'.   IN   A     '+ ip,
+                        'muc.'+ domain +'.      IN   A     '+ ip,
+                        'vjud.'+ domain +'.     IN   A     '+ ip
+                    ])
                 with open('/var/lib/bind/' + domain + '.zone', 'w') as zone:
                     for line in zone_lines:
                         zone.write(line + '\n')
