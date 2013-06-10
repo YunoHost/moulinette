@@ -89,6 +89,7 @@ def tools_maindomain(old_domain, new_domain):
 
     config_files = [
         '/etc/postfix/main.cf',
+        '/etc/metronome/metronome.cfg.lua',
         '/etc/dovecot/dovecot.conf',
         '/etc/lemonldap-ng/lemonldap-ng.ini',
         '/etc/hosts',
