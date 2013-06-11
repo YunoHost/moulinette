@@ -292,7 +292,6 @@ app:
             arguments:
                 app:
                     help: App(s) to delete
-                    ask: "App ID to remove"
                 -i:
                     full: --instance
                     help: App instance number to delete
