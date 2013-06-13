@@ -187,7 +187,8 @@ def main():
         try:
             with open('/etc/yunohost/installed') as f: pass
         except IOError:
-            raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
+            if sys.argv[1] != 'tools' or sys.argv[2] != 'postinstall':
+                raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
 
         args = parse_dict(action_map)
         args_dict = vars(args).copy()
