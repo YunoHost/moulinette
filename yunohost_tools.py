@@ -144,7 +144,7 @@ def tools_maindomain(old_domain, new_domain):
         'ln -s /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/ssl/private/yunohost_key.pem',
         'ln -s /etc/yunohost/certs/'+ new_domain +'/crt.pem /etc/ssl/certs/yunohost_crt.pem',
         'echo '+ new_domain +' > /etc/yunohost/current_host',
-        'service apache2 restart',
+        'service apache2 reload',
         'service metronome restart',
         'service postfix restart'
     ]

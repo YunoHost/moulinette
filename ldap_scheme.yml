@@ -1,10 +1,4 @@
 parents:
-    ou=sudo:
-        ou: sudo
-        objectClass:
-            - organizationalUnit
-            - top
-
     ou=users:
         ou: users
         objectClass:
@@ -52,16 +46,6 @@ childs:
         sudoUser: admin
         sudoHost: ALL
         sudoCommand: ALL
-        sudoOption: "!authenticate"
-        objectClass:
-            - sudoRole
-            - top
-
-    cn=yunohost-admin,ou=sudo:
-        cn: yunohost-admin
-        sudoUser: yunohost-admin
-        sudoHost: ALL
-        sudoCommand: /usr/bin/yunohost
         sudoOption: "!authenticate"
         objectClass:
             - sudoRole
