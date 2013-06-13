@@ -179,7 +179,8 @@ def tools_postinstall(domain, password):
         # Create required folders
         folders_to_create = [
             '/etc/yunohost/apps',
-            '/etc/yunohost/certs'
+            '/etc/yunohost/certs',
+            '/var/cache/yunohost/repo'
         ]
 
         for folder in folders_to_create:

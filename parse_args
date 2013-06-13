@@ -184,6 +184,11 @@ def main():
             sys.argv.pop(key)
 
     try:
+        try:
+            with open('/etc/yunohost/installed') as f: pass
+        except IOError:
+            raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
+
         args = parse_dict(action_map)
         args_dict = vars(args).copy()
         for key in args_dict.keys():
