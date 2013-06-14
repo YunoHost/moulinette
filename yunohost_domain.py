@@ -179,6 +179,7 @@ def domain_add(domains, web=False, main=False):
 
             os.system('mkdir -p /var/lib/metronome/'+ domain.replace('.', '%2e') +'/pep')
             os.system('chown -R metronome: /var/lib/metronome/')
+            os.system('chown -R metronome: /etc/metronome/conf.d/')
             os.system('service metronome reload')
 
             if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
