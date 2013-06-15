@@ -290,7 +290,7 @@ class YunoHostLDAP(Singleton):
                 except KeyboardInterrupt, EOFError:
                     raise YunoHostError(125, _("Interrupted"))
                 except ldap.INVALID_CREDENTIALS:
-                    pass
+                    print(_('Invalid password... Try again'))
                 else:
                     need_password = False
 
