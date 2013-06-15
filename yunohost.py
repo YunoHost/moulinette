@@ -282,10 +282,17 @@ class YunoHostLDAP(Singleton):
         if password: self.pwd = password
         elif self.pwd: pass
         else:
-            try:
-                self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
-            except KeyboardInterrupt, EOFError:
-                raise YunoHostError(125, _("Interrupted"))
+            need_password = True
+            while need_password:
+                try:
+                    self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
+                    self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
+                except KeyboardInterrupt, EOFError:
+                    raise YunoHostError(125, _("Interrupted"))
+                except ldap.INVALID_CREDENTIALS:
+                    pass
+                else:
+                    need_password = False
 
         self.level = self.level+1
         try:
