@@ -74,9 +74,9 @@ Specifications
 How to use "as is" ?
 --------------------
 
-The executable file is parse_args, for example:
+The executable file is yunohost, for example:
 
-    ./parse_args user create
+    ./yunohost user create
 
 
 Contribute / FAQ
@@ -88,7 +88,7 @@ Contribute / FAQ
 We decided to regroup all YunoHost related operations into a single program called "moulinette". This will allow us to entirely manipulate our YunoHost instances through a wonderful CLI. Additionally the web interface will just have to call the same "moulinette" functions. Magic power inside :p
 
 ### Important files
-* `` parse_args `` File executed on function calling - i.e `` ./parse_args user create ``. Will be renamed `` yunohost `` when packaged.
+* `` yunohost `` File executed on function calling - i.e `` ./yunohost user create ``.
 * `` action_map.yml `` Defines all CLI actions and links arguments.
 * `` yunohost.py `` Contains all YunoHost functions likely to be shared between moulinette files. Also contains service connections classes (erk).
 * `` yunohost_*.py `` Files containing action functions. `` * `` is the category: user, domain, firewall, etc.

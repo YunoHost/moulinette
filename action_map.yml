@@ -466,7 +466,7 @@ firewall:
         ### firewall_list()
         list:
             action_help: List all firewall rules
-        
+
         ### firewall_reload()
         reload:
             action_help: Reload  all firewall rules

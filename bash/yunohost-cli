@@ -1,4 +1,4 @@
 #!/bin/sh
 
 cd /usr/share/pyshared/yunohost-cli/
-python parse_args $@
+python yunohost $@
