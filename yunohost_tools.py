@@ -7,6 +7,7 @@ import re
 import getpass
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add
+from yunohost_dyndns import dyndns_subscribe
 
 def tools_ldapinit():
     """
@@ -156,7 +157,7 @@ def tools_maindomain(old_domain, new_domain):
     win_msg(_("Main domain has been successfully changed"))
 
 
-def tools_postinstall(domain, password):
+def tools_postinstall(domain, password, dyndns=False):
     """
     Post-install configuration
 
@@ -209,6 +210,8 @@ def tools_postinstall(domain, password):
 
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)
+
+        if dyndns: dyndns_subscribe()
 
         os.system('touch /etc/yunohost/installed')
 

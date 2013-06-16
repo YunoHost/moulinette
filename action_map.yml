@@ -537,6 +537,55 @@ firewall:
         ### firewall_checkupnp()
         checkupnp:
             action_help: check if UPNP is install or not (0 yes 1 no)
+
+
+#############################
+#          DynDNS           #
+#############################
+dyndns:
+    category_help: Subscribe and Update DynDNS Hosts
+    actions:
+
+        ### dyndns_subscribe()
+        subscribe:
+            action_help: Subscribe to a DynDNS service
+            arguments:
+                -h:
+                    full: --subscribe-host
+                    help: Dynette HTTP API to subscribe to
+                -d:
+                    full: --domain
+                    help: Full domain to subscribe with
+                -k:
+                    full: --key
+                    help: Public DNS key
+
+        ### dyndns_update()
+        update:
+            action_help: Update IP on DynDNS platform
+            arguments:
+                -h:
+                    full: --dyn-host
+                    help: Dynette DNS server to inform
+                -d:
+                    full: --domain
+                    help: Full domain to subscribe with
+                -k:
+                    full: --key
+                    help: Public DNS key
+                -i:
+                    full: --ip
+                    help: IP address to send
+
+        ### dyndns_installcron()
+        installcron:
+            action_help: Install IP update cron
+
+        ### dyndns_removecron()
+        removecron:
+            action_help: Remove IP update cron
+
+
 #############################
 #           Tools           #
 #############################
@@ -587,3 +636,7 @@ tools:
                     help: YunoHost admin password
                     ask: "New admin password"
                     password: yes
+                --dyndns:
+                    help: Subscribe domain to a DynDNS service
+                    action: store_true
+
