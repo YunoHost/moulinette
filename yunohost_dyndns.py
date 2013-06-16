@@ -3,6 +3,8 @@
 import os
 import sys
 import requests
+import json
+import glob
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
 
 def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None):
@@ -23,23 +25,24 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
             domain = f.readline().rstrip()
 
     if key is None:
-        try:
-            with open('/etc/yunohost/dyndns/01.key') as f:
-                key = f.readline().strip().split(' ')[-1]
-        except IOError:
+        if len(glob.glob('/etc/yunohost/dyndns/*.key')) == 0:
             os.makedirs('/etc/yunohost/dyndns')
-            os.system('cd /etc/yunohost/dyndns && dnssec-keygen -a hmac-md5 -b 128 -n USER '+ domain +' && mv *.key 01.key && *.private 01.private')
-            os.system('chmod 600 /etc/yunohost/dyndns/01.key /etc/yunohost/dyndns/01.private')
-            with open('/etc/yunohost/dyndns/01.key') as f:
-                key = f.readline().strip().split(' ')[-1]
+            os.system('cd /etc/yunohost/dyndns && dnssec-keygen -a hmac-md5 -b 128 -n USER '+ domain)
+            os.system('chmod 600 /etc/yunohost/dyndns/*.key /etc/yunohost/dyndns/*.private')
+
+        key_file = glob.glob('/etc/yunohost/dyndns/*.key')[0]
+        with open(key_file) as f:
+            key = f.readline().strip().split(' ')[-1]
 
     # Verify if domain is available
-    if requests.get('https://'+ subscribe_host +'/test/'+ domain).status_code != 200:
+    if requests.get('http://'+ subscribe_host +'/test/'+ domain).status_code != 200:
         raise YunoHostError(17, _("Domain is already taken"))
 
     # Send subscription
-    if requests.post('https://'+ subscribe_host +'/key/'+ key, data={ 'subdomain': domain }).status_code != 201:
-        raise YunoHostError(1, _("An error occured during DynDNS registration"))
+    r = requests.post('http://'+ subscribe_host +'/key/'+ key, data={ 'subdomain': domain })
+    if r.status_code != 201:
+	error = json.loads(r.text)['error']
+        raise YunoHostError(1, _("An error occured during DynDNS registration: "+ error))
 
     win_msg(_("Subscribed to DynDNS"))
 
@@ -101,19 +104,23 @@ def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=Non
             'send'
         ]
         with open('/etc/yunohost/dyndns/zone', 'w') as zone:
-            for line in zone_lines:
+            for line in lines:
                 zone.write(line + '\n')
 
         with open('/etc/yunohost/dyndns/old_ip', 'w') as f:
             f.write(new_ip)
 
-        if os.system('/usr/bin/nsupdate -k /etc/yunohost/dyndns/01.private /etc/yunohost/dyndns/zone') == 0:
+        if key is None:
+            private_key_file = glob.glob('/etc/yunohost/dyndns/*.private')[0]
+        else:
+            private_key_file = key
+        if os.system('/usr/bin/nsupdate -k '+ private_key_file +' /etc/yunohost/dyndns/zone') == 0:
             win_msg(_("IP successfully updated"))
         else:
             raise YunoHostError(1, _("An error occured during DynDNS update"))
 
 
-def dyndns_installcron()
+def dyndns_installcron():
     """
     Install IP update cron
 
@@ -122,11 +129,11 @@ def dyndns_installcron()
 
     """
     os.system("touch /etc/cron.d/yunohost-dyndns")
-    os.system("echo '*/30 * * * * root yunohost dyndns update -u >>/dev/null' >/etc/cron.d/yunohost-firewall")
+    os.system("echo '*/30 * * * * root yunohost dyndns update -u >>/dev/null' >/etc/cron.d/yunohost-dyndns")
     win_msg(_("DynDNS cron installed"))
 
 
-def dyndns_removecron()
+def dyndns_removecron():
     """
     Remove IP update cron
 
