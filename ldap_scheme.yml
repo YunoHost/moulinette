@@ -40,13 +40,3 @@ childs:
             - posixGroup
             - top
 
-
-    cn=admin,ou=sudo:
-        cn: admin
-        sudoUser: admin
-        sudoHost: ALL
-        sudoCommand: ALL
-        sudoOption: "!authenticate"
-        objectClass:
-            - sudoRole
-            - top
