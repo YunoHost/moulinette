@@ -484,7 +484,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         #########################################
 
         if is_web:
-            domain_add([domain], web=True)
+            domain_add([domain])
 
 
             #############
