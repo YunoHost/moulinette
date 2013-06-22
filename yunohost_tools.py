@@ -110,7 +110,7 @@ def tools_maindomain(old_domain, new_domain):
             for line in lines:
                 sources.write(re.sub(r''+ old_domain +'', new_domain, line))
 
-    domain_add([new_domain], web=True, main=True)
+    domain_add([new_domain], raw=False, main=True)
 
     lemon_conf_lines = [
         "$tmp->{'domain'} = '"+ new_domain +"';", # Replace Lemon domain

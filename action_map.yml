@@ -173,8 +173,8 @@ domain:
                     help: Domain name to add
                     nargs: '+'
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
-                -w:
-                    full: --web
+                -r:
+                    full: --raw
                     help: Auto-configure Apache and LemonLDAP for the domain
                     action: store_true
 

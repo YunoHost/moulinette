@@ -46,13 +46,13 @@ def domain_list(filter=None, limit=None, offset=None):
         return { 'Domains': result_list }
 
 
-def domain_add(domains, web=False, main=False):
+def domain_add(domains, raw=False, main=False):
     """
     Add one or more domains
 
     Keyword argument:
         domains -- List of domains to add
-        web -- Configure Apache and LemonLDAP for the domain too
+        raw -- Do not configure Apache and LemonLDAP for the domain too
         main -- Is the main domain
 
     Returns:
@@ -94,7 +94,7 @@ def domain_add(domains, web=False, main=False):
                 if os.system(command) != 0:
                     raise YunoHostError(17, _("An error occurred during certificate generation"))
 
-            if web:
+            if not raw:
                 lemon_configuration({
                     ('exportedHeaders', domain, 'Auth-User'): '$uid',
                     ('exportedHeaders', domain, 'Remote-User'): '$uid',
@@ -112,7 +112,7 @@ def domain_add(domains, web=False, main=False):
             try:
                 yldap.validate_uniqueness({ 'virtualdomain' : domain })
             except YunoHostError:
-                if web:
+                if not raw:
                     win_msg(_("Web config created"))
                     result.append(domain)
                     break
