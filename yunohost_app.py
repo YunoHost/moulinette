@@ -14,7 +14,7 @@ from yunohost_user import user_info
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
 apps_setting_path= '/etc/yunohost/apps/'
-a2_settings_path = '/etc/yunohost/apache/domains/'
+a2_settings_path = '/etc/yunohost/apache/domains'
 a2_template_path = '/etc/yunohost/apache/templates'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
