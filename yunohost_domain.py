@@ -172,6 +172,15 @@ def domain_add(domains, web=False, main=False):
                 conf_lines = [
                     'VirtualHost "'+ domain +'"',
                     '  authentication = "ldap2"',
+                    '  ldap = {',
+                    '     hostname      = "localhost",',
+                    '     user = {',
+                    '       basedn        = "ou=users,dc=yunohost,dc=org",',
+                    '       filter        = "(&(objectClass=posixAccount)(mail=*@'+ domain +'))",',
+                    '       usernamefield = "mail",',
+                    '       namefield     = "cn",',
+                    '       },',
+                    '  }',
                 ]
                 with open('/etc/metronome/conf.d/' + domain + '.cfg.lua', 'w') as conf:
                     for line in conf_lines:
