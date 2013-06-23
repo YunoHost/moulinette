@@ -195,7 +195,8 @@ def tools_postinstall(domain, password, dyndns=False):
             'rm '+ ssl_dir +'/index.txt',
             'touch '+ ssl_dir +'/index.txt',
             'openssl req -x509 -new -config '+ ssl_dir +'/openssl.cnf -days 3650 -out '+ ssl_dir +'/ca/cacert.pem -keyout '+ ssl_dir +'/ca/cakey.pem -nodes -batch',
-            'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem'
+            'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
+            'update-ca-certificates'
         ]
 
         for command in command_list:
