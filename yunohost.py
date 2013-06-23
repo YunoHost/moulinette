@@ -216,6 +216,7 @@ def lemon_configuration(conf_dict):
         for conf_line in conf_lines:
             lemon_conf.write(conf_line + '\n')
 
+    os.system('chown www-data '+ lemon_tmp_conf)
     if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
         os.system('service apache2 reload')
         win_msg(_("LemonLDAP configured"))
