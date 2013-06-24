@@ -202,9 +202,9 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
         None
     """
     if ipv6:
-        os.system _("ip6tables -P INPUT ACCEPT")
+        os.system("ip6tables -P INPUT ACCEPT")
     else:
-        os.system _("iptables -P INPUT ACCEPT")
+        os.system("iptables -P INPUT ACCEPT")
 
     if upnp and mode == 'a':
         remove_portmapping()
