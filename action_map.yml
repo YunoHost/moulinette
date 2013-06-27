@@ -352,46 +352,19 @@ app:
 
 
 #############################
-#        Repository         #
+#          Backup           #
 #############################
-repo:
-    category_help: Manage app repositories
+backup:
+    category_help: Manage backups
     actions:
 
-        ### repo_list()
-        list:
-            action_help: List repositories
+        ### backup_init()
+        init:
+            action_help: Init Tahoe-LAFS configuration
             arguments:
-                -f:
-                    full: --filter
-                    help: LDAP filter used to search
-                -l:
-                    full: --limit
-                    help: Maximum number of repository fetched
-                -o:
-                    full: --offset
-                    help: Starting number for repository fetching
-
-        ### repo_add()
-        add:
-            action_help: Add app repository
-            arguments:
-                url:
-                    help: URL of the repository
-                -n:
-                    full: --name
-                    help: Unique name of the repository
-
-        ### repo_remove()
-        remove:
-            action_help: Remove repository
-            arguments:
-                repo:
-                    help: Name or URL of the repository
-
-        ### repo_update()
-        update:
-            action_help: Update app list from the repositories
+                --helper:
+                    help: Init as a helper node rather than a "helped" one
+                    action: store_true
 
 
 #############################
