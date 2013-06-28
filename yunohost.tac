@@ -36,7 +36,7 @@ class LDAPHTTPAuth():
             return credentials.username
 
         except Exception as e:
-            raise defer.fail(UnauthorizedLogin("Unable to verify password for "+ credentials.username)) #TODO: Reask for password
+            return defer.fail(UnauthorizedLogin())
 
 
 class SimpleRealm(object):
@@ -52,13 +52,13 @@ class SimpleRealm(object):
             return IResource, self._api, lambda: None
         raise NotImplementedError()
 
-
 action_dict = {}
 
 def http_exec(request):
     global win
     dict = action_dict[request.method+' '+request.path]
-    args = dict['arguments']
+    if 'arguments' in dict: args = dict['arguments']
+    else: args = {}
     for arg, params in args.items():
         sanitized_key = arg.replace('-', '_')
         if sanitized_key is not arg:
@@ -95,9 +95,23 @@ def http_exec(request):
         if win:
             result['win'] = win
             win = []
+        if request.method == 'POST':
+            request.setResponseCode(201, 'Created')
+        elif request.method == 'DELETE':
+            request.setResponseCode(204, 'No Content')
+        else:
+            request.setResponseCode(200, 'OK')
+         
     except YunoHostError, error:
-        result = { "error" : str(error.code) +' : '+ error.message }
+        server_errors = [1, 111, 169]
+        client_errors = [13, 17, 22, 87, 122, 125, 167, 168]
+        if error.code in client_errors:
+            request.setResponseCode(400, 'Bad Request')
+        else:
+            request.setResponseCode(500, 'Internal Server Error')
+            result = { 'error' : error.message }
 
+    request.setHeader('Content-Type', 'application/json')
     return json.dumps(result)
 
 
