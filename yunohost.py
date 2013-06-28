@@ -9,11 +9,15 @@ except ImportError:
     sys.stderr.write('apt-get install python-ldap\n')
     sys.exit(1)
 import ldap.modlist as modlist
+import yaml
 import json
 import re
 import getpass
 import random
 import string
+import argparse
+import gettext
+import getpass
 if not __debug__:
     import traceback
 
@@ -93,8 +97,8 @@ def win_msg(astr):
     global win
     if os.isatty(1):
         print('\n' + colorize(_("Success: "), 'green') + astr + '\n')
-    else:
-        win.append(astr)
+    
+    win.append(astr)
 
 
 
@@ -444,3 +448,112 @@ class YunoHostLDAP(Singleton):
             else:
                 raise YunoHostError(17, _('Attribute already exists') + ' "' + attr + '=' + value + '"')
         return True
+
+
+def parse_dict(action_map):
+    """
+    Turn action dictionnary to parser, subparsers and arguments
+
+    Keyword arguments:
+        action_map -- Multi-level dictionnary of categories/actions/arguments list
+
+    Returns:
+        Namespace of args
+
+    """
+    # Intialize parsers
+    parsers = subparsers_category = subparsers_action = {}
+    parsers['general'] = argparse.ArgumentParser()
+    subparsers = parsers['general'].add_subparsers()
+    new_args = []
+    patterns = {}
+
+    # Add general arguments
+    for arg_name, arg_params in action_map['general_arguments'].items():
+        if 'full' in arg_params:
+             arg_names = [arg_name, arg_params['full']]
+             arg_fullname = arg_params['full']
+             del arg_params['full']
+        else: arg_names = [arg_name]
+        parsers['general'].add_argument(*arg_names, **arg_params)
+
+    del action_map['general_arguments']
+
+    # Split categories into subparsers
+    for category, category_params in action_map.items():
+        if 'category_help' not in category_params: category_params['category_help'] = ''
+        subparsers_category[category] = subparsers.add_parser(category, help=category_params['category_help'])
+        subparsers_action[category] = subparsers_category[category].add_subparsers()
+        # Split actions
+        if 'actions' in category_params:
+            for action, action_params in category_params['actions'].items():
+                if 'action_help' not in action_params: action_params['action_help'] = ''
+                parsers[category + '_' + action] = subparsers_action[category].add_parser(action, help=action_params['action_help'])
+                # Set the action s related function
+                parsers[category + '_' + action].set_defaults(
+                    func=str_to_func('yunohost_' + category + '.'
+                                     + category + '_' + action))
+                # Add arguments
+                if 'arguments' in action_params:
+                    for arg_name, arg_params in action_params['arguments'].items():
+                        arg_fullname = False
+
+                        if 'password' in arg_params:
+                            if arg_params['password']: is_password = True
+                            del arg_params['password']
+                        else: is_password = False
+
+                        if 'full' in arg_params:
+                            arg_names = [arg_name, arg_params['full']]
+                            arg_fullname = arg_params['full']
+                            del arg_params['full']
+                        else: arg_names = [arg_name]
+
+                        if 'ask' in arg_params:
+                            require_input = True
+                            if '-h' in sys.argv or '--help' in sys.argv:
+                                require_input = False
+                            if (category != sys.argv[1]) or (action != sys.argv[2]):
+                                require_input = False
+                            for name in arg_names:
+                                if name in sys.argv[2:]: require_input = False
+
+                            if require_input:
+                                if is_password:
+                                    if os.isatty(1):
+                                        pwd1 = getpass.getpass(colorize(arg_params['ask'] + ': ', 'cyan'))
+                                        pwd2 = getpass.getpass(colorize('Retype ' + arg_params['ask'][0].lower() + arg_params['ask'][1:] + ': ', 'cyan'))
+                                        if pwd1 != pwd2:
+                                            raise YunoHostError(22, _("Passwords don't match"))
+                                            sys.exit(1)
+                                    else:
+                                        raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
+                                    if arg_name[0] == '-': arg_extend = [arg_name, pwd1]
+                                    else: arg_extend = [pwd1]
+                                else:
+                                    if os.isatty(1):
+                                        arg_value = raw_input(colorize(arg_params['ask'] + ': ', 'cyan'))
+                                    else:
+                                        raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
+                                    if arg_name[0] == '-': arg_extend = [arg_name, arg_value]
+                                    else: arg_extend = [arg_value]
+                                new_args.extend(arg_extend)
+                            del arg_params['ask']
+
+                        if 'pattern' in arg_params:
+                            if (category == sys.argv[1]) and (action == sys.argv[2]):
+                                if 'dest' in arg_params: name = arg_params['dest']
+                                elif arg_fullname: name = arg_fullname[2:]
+                                else: name = arg_name
+                                name = name.replace('-', '_')
+                                patterns[name] = arg_params['pattern']
+                            del arg_params['pattern']
+
+                        parsers[category + '_' + action].add_argument(*arg_names, **arg_params)
+
+    args = parsers['general'].parse_args(sys.argv.extend(new_args))
+    args_dict = vars(args)
+    for key, value in patterns.items():
+        validate(value, args_dict[key])
+
+    return args
