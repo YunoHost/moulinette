@@ -25,8 +25,20 @@ def tools_ldapinit():
         for rdn, attr_dict in ldap_map['parents'].items():
             yldap.add(rdn, attr_dict)
 
-        for rdn, attr_dict in ldap_map['childs'].items():
+        for rdn, attr_dict in ldap_map['children'].items():
             yldap.add(rdn, attr_dict)
+
+        try:
+            with open('/etc/yunohost/from_script') as f: pass
+        except IOError:
+            with open('sudo_ldap_scheme.yml') as f:
+                ldap_map = yaml.load(f)
+
+            for rdn, attr_dict in ldap_map['parents'].items():
+                yldap.add(rdn, attr_dict)
+
+            for rdn, attr_dict in ldap_map['children'].items():
+                yldap.add(rdn, attr_dict)
 
 
         admin_dict = {

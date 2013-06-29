@@ -51,6 +51,7 @@ user:
         ### user_list()
         list:
             action_help: List users
+            api: GET /user/list
             arguments:
                --fields:
                     help: fields to fetch
@@ -68,6 +69,7 @@ user:
         ### user_create()
         create:
             action_help: Create user
+            api: POST /user
             arguments:
                 -u:
                     full: --username
@@ -93,6 +95,7 @@ user:
         ### user_delete()
         delete:
             action_help: Delete user
+            api: DELETE /user
             arguments:
                 -u:
                     full: --users
@@ -106,6 +109,7 @@ user:
         ### user_update()
         update:
             action_help: Update user informations
+            api: PUT /user
             arguments:
                 username:
                     help: Username of user to update
@@ -139,6 +143,7 @@ user:
         ### user_info()
         info:
             action_help: Get user informations
+            api: GET /user
             arguments:
                 user-or-mail:
                     help: Username or mail to get informations
@@ -154,6 +159,7 @@ domain:
         ### domain_list()
         list:
             action_help: List domains
+            api: GET /domain/list
             arguments:
                 -f:
                     full: --filter
@@ -168,6 +174,7 @@ domain:
         ### domain_add()
         add:
             action_help: Create a custom domain
+            api: POST /domain
             arguments:
                 domains:
                     help: Domain name to add
@@ -181,6 +188,7 @@ domain:
         ### domain_remove()
         remove:
             action_help: Delete domains
+            api: DELETE /domain
             arguments:
                 domains:
                     help: Domain(s) to delete
@@ -190,18 +198,12 @@ domain:
         ### domain_info()
         info:
             action_help: Get domain informations
+            api: GET /domain
             arguments:
                 domain:
                     help: ""
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
-        ### domain_renewcert()
-        renewcert:
-            action_help: Renew domain certificate
-            arguments:
-                domain:
-                    help: ""
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
 #############################
 #            App            #
@@ -213,6 +215,7 @@ app:
         ### app_fetchlist()
         fetchlist:
             action_help: Fetch application list from app server
+            api: PUT /app/lists
             arguments:
                 -u:
                     full: --url
@@ -224,10 +227,12 @@ app:
         ### app_listlists()
         listlists:
             action_help: List fetched lists
+            api: GET /app/lists
 
         ### app_removelist()
         removelist:
             action_help: Remove list from the repositories
+            api: DELETE /app/lists
             arguments:
                 -n:
                     full: --name
@@ -238,6 +243,7 @@ app:
         ### app_list()
         list:
             action_help: List apps
+            api: GET /app/list
             arguments:
                 -l:
                     full: --limit
@@ -256,6 +262,7 @@ app:
         ### app_map()
         map:
             action_help: List apps by domain
+            api: GET /app/map
             arguments:
                 -a:
                     full: --app
@@ -268,6 +275,7 @@ app:
         ### app_install() TODO: Write help
         install:
             action_help: Install apps
+            api: POST /app
             arguments:
                 app:
                     help: App to install
@@ -289,6 +297,7 @@ app:
         ### app_remove() TODO: Write help
         remove:
             action_help: Remove app
+            api: DELETE /app
             arguments:
                 app:
                     help: App(s) to delete
@@ -300,6 +309,7 @@ app:
         ### app_upgrade()
         upgrade:
             action_help: Upgrade app
+            api: PUT /app
             arguments:
                 app:
                     help: App(s) to upgrade (default all)
@@ -318,6 +328,7 @@ app:
         ### app_info() TODO: Write help
         info:
             action_help: Get app informations
+            api: GET /app
             arguments:
                 app:
                     help: App ID
@@ -333,6 +344,7 @@ app:
         ### app_addaccess() TODO: Write help
         addaccess:
             action_help: Grant access right to users (everyone by default)
+            api: PUT /app/access
             arguments:
                 apps:
                     nargs: "+"
@@ -343,6 +355,7 @@ app:
         ### app_removeaccess() TODO: Write help
         removeaccess:
             action_help: Revoke access right to users (everyone by default)
+            api: DELETE /app/access
             arguments:
                 apps:
                     nargs: "+"
@@ -352,46 +365,20 @@ app:
 
 
 #############################
-#        Repository         #
+#          Backup           #
 #############################
-repo:
-    category_help: Manage app repositories
+backup:
+    category_help: Manage backups
     actions:
 
-        ### repo_list()
-        list:
-            action_help: List repositories
+        ### backup_init()
+        init:
+            action_help: Init Tahoe-LAFS configuration
+            api: POST /backup/init
             arguments:
-                -f:
-                    full: --filter
-                    help: LDAP filter used to search
-                -l:
-                    full: --limit
-                    help: Maximum number of repository fetched
-                -o:
-                    full: --offset
-                    help: Starting number for repository fetching
-
-        ### repo_add()
-        add:
-            action_help: Add app repository
-            arguments:
-                url:
-                    help: URL of the repository
-                -n:
-                    full: --name
-                    help: Unique name of the repository
-
-        ### repo_remove()
-        remove:
-            action_help: Remove repository
-            arguments:
-                repo:
-                    help: Name or URL of the repository
-
-        ### repo_update()
-        update:
-            action_help: Update app list from the repositories
+                --helper:
+                    help: Init as a helper node rather than a "helped" one
+                    action: store_true
 
 
 #############################
@@ -466,10 +453,12 @@ firewall:
         ### firewall_list()
         list:
             action_help: List all firewall rules
+            api: GET /firewall/list
 
         ### firewall_reload()
         reload:
-            action_help: Reload  all firewall rules
+            action_help: Reload all firewall rules
+            api: PUT /firewall/list
             arguments:
                 -u:
                     full: --upnp
@@ -478,6 +467,7 @@ firewall:
         ### firewall_allow()
         allow:
             action_help: Allow connection port/protocol
+            api: POST /firewall/port
             arguments:
                 port:
                     help: Port to open
@@ -500,6 +490,7 @@ firewall:
         ### firewall_disallow()
         disallow:
             action_help: Disallow connection
+            api: DELETE /firewall/port
             arguments:
                 port:
                     help: Port to open
@@ -522,21 +513,25 @@ firewall:
         ### firewall_installupnp()
         installupnp:
             action_help: Add upnp cron
+            api: POST /firewall/upnp
 
 
         ### firewall_removeupnp()
         removeupnp:
             action_help: Remove upnp cron
+            api: DELETE /firewall/upnp
 
 
         ### firewall_stop()
         stop:
             action_help: Stop iptables and ip6tables
+            api: DELETE /firewall
 
 
         ### firewall_checkupnp()
         checkupnp:
             action_help: check if UPNP is install or not (0 yes 1 no)
+            api: GET /firewall/upnp
 
 
 #############################
@@ -549,6 +544,7 @@ dyndns:
         ### dyndns_subscribe()
         subscribe:
             action_help: Subscribe to a DynDNS service
+            api: POST /dyndns
             arguments:
                 --subscribe-host:
                     help: Dynette HTTP API to subscribe to
@@ -563,6 +559,7 @@ dyndns:
         ### dyndns_update()
         update:
             action_help: Update IP on DynDNS platform
+            api: PUT /dyndns
             arguments:
                 --dyn-host:
                     help: Dynette DNS server to inform
@@ -580,10 +577,12 @@ dyndns:
         ### dyndns_installcron()
         installcron:
             action_help: Install IP update cron
+            api: POST /dyndns/cron
 
         ### dyndns_removecron()
         removecron:
             action_help: Remove IP update cron
+            api: DELETE /dyndns/cron
 
 
 #############################
@@ -596,10 +595,12 @@ tools:
         ### tools_ldapinit()
         ldapinit:
             action_help: YunoHost LDAP initialization
+            api: POST /ldap
 
         ### tools_adminpw()
         adminpw:
             action_help: Change admin password
+            api: PUT /adminpw
             arguments:
                 -o:
                     full: --old-password
@@ -613,6 +614,7 @@ tools:
         ### tools_maindomain()
         maindomain:
             action_help: Main domain change tool
+            api: PUT /domain/main
             arguments:
                 -o:
                     full: --old-domain
@@ -625,6 +627,7 @@ tools:
         ### tools_postinstall()
         postinstall:
             action_help: YunoHost post-install
+            api: POST /postinstall
             arguments:
                 -d:
                     full: --domain

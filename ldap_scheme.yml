@@ -23,7 +23,7 @@ parents:
             - organizationalUnit
             - top
 
-childs:
+children:
     cn=admins,ou=groups:
         cn: admins
         gidNumber: "4001"
