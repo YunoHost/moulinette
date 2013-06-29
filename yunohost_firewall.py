@@ -172,7 +172,7 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
         if port not in firewall[ip][protocol]:
             firewall[ip][protocol].append(port)
 
-        else if upnp:
+        elif upnp:
             if port not in firewall[ip]['upnp'][protocol]:
                 firewall[ip]['upnp'][protocol].append(port)
             else:
