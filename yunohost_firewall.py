@@ -31,16 +31,16 @@ def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
 
     """
     port = int(port)
-    if (upnp):
+    if upnp:
         add_portmapping(protocol, upnp, ipv6, 'a')
 
     if 0 < port < 65536:
         if protocol == "Both":
-            update_yml(port, 'TCP', 'a', ipv6)
-            update_yml(port, 'UDP', 'a', ipv6)
+            update_yml(port, 'TCP', 'a', ipv6, upnp)
+            update_yml(port, 'UDP', 'a', ipv6, upnp)
 
         else:
-            update_yml(port, protocol, 'a', ipv6)
+            update_yml(port, protocol, 'a', ipv6, upnp)
 
         win_msg(_("Port successfully openned"))
 
@@ -67,10 +67,10 @@ def firewall_disallow(protocol=None, port=None, ipv6=None, upnp=False):
 
     port = int(port)
     if protocol == "Both":
-        update_yml(port, 'TCP', 'r', ipv6)
-        update_yml(port, 'UDP', 'r', ipv6)
+        update_yml(port, 'TCP', 'r', ipv6, upnp)
+        update_yml(port, 'UDP', 'r', ipv6, upnp)
     else:
-        update_yml(port, protocol, 'r', ipv6)
+        update_yml(port, protocol, 'r', ipv6, upnp)
     win_msg(_("Port successfully closed"))
 
     return firewall_reload(upnp)
@@ -113,7 +113,7 @@ def firewall_reload(upnp=False):
     if 22 not in firewall['ipv4']['TCP']:
         update_yml(22, 'TCP', 'a', False)
 
-    if(os.path.exists("/proc/net/if_inet6")):
+    if os.path.exists("/proc/net/if_inet6"):
         os.system("ip6tables -P INPUT ACCEPT")
         os.system("ip6tables -F")
         os.system("ip6tables -X")
@@ -128,7 +128,7 @@ def firewall_reload(upnp=False):
     add_portmapping('TCP', upnp, False, 'r')
     add_portmapping('UDP', upnp, False, 'r')
 
-    if(os.path.exists("/proc/net/if_inet6")):
+    if os.path.exists("/proc/net/if_inet6"):
         add_portmapping('TCP', upnp, True, 'r')
         add_portmapping('UDP', upnp, True, 'r')
 
@@ -136,7 +136,7 @@ def firewall_reload(upnp=False):
     os.system("iptables -A INPUT -p icmp -j ACCEPT")
     os.system("iptables -P INPUT DROP")
 
-    if(os.path.exists("/proc/net/if_inet6")):
+    if os.path.exists("/proc/net/if_inet6"):
         os.system("ip6tables -A INPUT -i lo -j ACCEPT")
         os.system("ip6tables -A INPUT -p icmp -j ACCEPT")
         os.system("ip6tables -P INPUT DROP")
@@ -147,7 +147,7 @@ def firewall_reload(upnp=False):
     return firewall_list()
 
 
-def update_yml(port=None, protocol=None, mode=None, ipv6=None):
+def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
     """
     Update firewall.yml
     Keyword arguments:
@@ -155,6 +155,7 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None):
         port -- Port to open
         mode -- a=append r=remove
         ipv6 -- Boolean ipv6
+        upnp -- Boolean upnp
 
     Return
         None
@@ -173,14 +174,32 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None):
 
         else:
             raise YunoHostError(22, _("Port already openned :") + str(port))
-
-    else:
-        if port in firewall[ip][protocol]:
-            firewall[ip][protocol].remove(port)
+        if upnp:
+            if port not in firewall[ip]['upnp'][protocol]:
+                firewall[ip]['upnp'][protocol].append(port)
 
         else:
-            raise YunoHostError(22, _("Port already closed :") + str(port))
+            raise YunoHostError(22, _("Port already openned :") + str(port))
 
+    else:
+        if upnp:
+            if port in firewall[ip]['upnp'][protocol]:
+                firewall[ip]['upnp'][protocol].remove(port)
+
+            else:
+                raise YunoHostError(22, _("Upnp redirection already deleted :") + str(port))
+        else:
+            if port in firewall[ip]['upnp'][protocol]:
+                firewall[ip]['upnp'][protocol].remove(port)
+
+            else:
+                raise YunoHostError(22, _("Upnp redirection alreadu deleted :") + str(port))
+
+            if port in firewall[ip][protocol]:
+                firewall[ip][protocol].remove(port)
+
+            else:
+                raise YunoHostError(22, _("Port already closed :") + str(port))
     firewall[ip][protocol].sort()
 
     os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
@@ -222,12 +241,13 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
         else:
             os.system("iptables -A INPUT -p " + protocol + " -i eth0 --dport " + str(port) + " -j ACCEPT")
         if upnp:
-            upnpc = miniupnpc.UPnP()
-            upnpc.discoverdelay = 200
-            nbigd = upnpc.discover()
-            if nbigd:
-                upnpc.selectigd()
-                upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %u' % port, '')
+            if port in firewall[ip]['upnp'][protocol]:
+                upnpc = miniupnpc.UPnP()
+                upnpc.discoverdelay = 200
+                nbigd = upnpc.discover()
+                if nbigd:
+                    upnpc.selectigd()
+                    upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %u' % port, '')
 
     os.system("iptables -P INPUT DROP")
 
@@ -317,8 +337,7 @@ def firewall_checkupnp():
     Keyword arguments:
         None
     Return
-        0 if installed
-        1 if not
+        None
     """
     with open('/etc/yunohost/firewall.yml', 'r') as f:
         firewall = yaml.load(f)
