@@ -172,11 +172,11 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
         if port not in firewall[ip][protocol]:
             firewall[ip][protocol].append(port)
 
-        else:
-            raise YunoHostError(22, _("Port already openned :") + str(port))
-        if upnp:
+        else if upnp:
             if port not in firewall[ip]['upnp'][protocol]:
                 firewall[ip]['upnp'][protocol].append(port)
+            else:
+                raise YunoHostError(22, _("Port already openned :") + str(port))
 
         else:
             raise YunoHostError(22, _("Port already openned :") + str(port))
