@@ -5,16 +5,11 @@ import gettext
 import ldap
 import yaml
 import json
-from twisted.python import log
+from twisted.python.log import ILogObserver, FileLogObserver, startLogging
+from twisted.python.logfile import DailyLogFile
 from twisted.web.server import Site
-from twisted.web.resource import IResource
-from twisted.web.guard import HTTPAuthSessionWrapper, BasicCredentialFactory
-from twisted.internet import reactor, defer
-from twisted.cred.portal import IRealm, Portal
-from twisted.cred.checkers import ICredentialsChecker
-from twisted.cred.credentials import IUsernamePassword
-from twisted.cred.error import UnauthorizedLogin
-from zope.interface import implements
+from twisted.internet import reactor
+from twisted.application import internet,service
 from txrestapi.resource import APIResource
 from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict
 
@@ -23,39 +18,33 @@ if not __debug__:
 
 gettext.install('YunoHost')
 
-class LDAPHTTPAuth():
-    implements (ICredentialsChecker)
-
-    credentialInterfaces = IUsernamePassword,
-
-    def requestAvatarId(self, credentials):
-        try:
-            if credentials.username != "admin":
-                raise YunoHostError(22, _("Invalid username") + ': ' + credentials.username)
-            YunoHostLDAP(password=credentials.password)
-            return credentials.username
-
-        except Exception as e:
-            return defer.fail(UnauthorizedLogin())
-
-
-class SimpleRealm(object):
-    implements(IRealm)
-
-    _api = None
-
-    def __init__(self, api):
-        self._api = api
-
-    def requestAvatar(self, avatarId, mind, *interfaces):
-        if IResource in interfaces:
-            return IResource, self._api, lambda: None
-        raise NotImplementedError()
-
 action_dict = {}
+api = APIResource()
 
 def http_exec(request):
     global win
+
+    request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
+    request.setHeader('Content-Type', 'application/json') # Return JSON anyway
+
+    # Return OK to 'OPTIONS' xhr requests
+    if request.method == 'OPTIONS':
+        request.setResponseCode(200, 'OK')
+        request.setHeader('Access-Control-Allow-Headers', 'Authorization')
+        return ''
+    
+    # Simple HTTP auth
+    else:
+        authorized = request.getUser() == 'admin'
+        try: YunoHostLDAP(password=request.getPassword())
+        except YunoHostError: authorized = False
+
+        if not authorized:
+            request.setResponseCode(401, 'Unauthorized')
+            request.setHeader('Access-Control-Allow-Origin', '*')
+            return 'Unauthorized'
+    
+    # Sanitize arguments        
     dict = action_dict[request.method+' '+request.path]
     if 'arguments' in dict: args = dict['arguments']
     else: args = {}
@@ -76,6 +65,8 @@ def http_exec(request):
             del args[arg]
 
     try:
+
+        # Validate arguments
         validated_args = {}
         for key, value in request.args.items():
            if key in args:
@@ -88,6 +79,8 @@ def http_exec(request):
                validated_args[key] = value
 
         func = str_to_func(dict['function'])
+
+        # Execute requested function
         with YunoHostLDAP(password=request.getPassword()):
             result = func(**validated_args)
         if result is None:
@@ -95,6 +88,8 @@ def http_exec(request):
         if win:
             result['win'] = win
             win = []
+
+        # Build response
         if request.method == 'POST':
             request.setResponseCode(201, 'Created')
         elif request.method == 'DELETE':
@@ -103,6 +98,8 @@ def http_exec(request):
             request.setResponseCode(200, 'OK')
          
     except YunoHostError, error:
+
+        # Set response code with function's raised code
         server_errors = [1, 111, 169]
         client_errors = [13, 17, 22, 87, 122, 125, 167, 168]
         if error.code in client_errors:
@@ -111,15 +108,16 @@ def http_exec(request):
             request.setResponseCode(500, 'Internal Server Error')
             result = { 'error' : error.message }
 
-    request.setHeader('Content-Type', 'application/json')
     return json.dumps(result)
 
 
 def main():
     global action_dict
-    log.startLogging(sys.stdout)
-    api = APIResource()
+    global api
 
+    startLogging(open('/var/log/yunohost.log', 'a+')) # Log actions to API
+
+    # Load & parse yaml file
     with open('action_map.yml') as f:
         action_map = yaml.load(f)
 
@@ -131,25 +129,38 @@ def main():
             if 'api' not in action_params:
                 action_params['api'] = 'GET /'+ category +'/'+ action
             method, path = action_params['api'].split(' ')
+            # Register route
             api.register(method, path, http_exec)
+            api.register('OPTIONS', path, http_exec)
             action_dict[action_params['api']] = {
                 'function': 'yunohost_'+ category +'.'+ category +'_'+ action,
                 'help'    : action_params['help']
             }
             if 'arguments' in action_params: 
                 action_dict[action_params['api']]['arguments'] = action_params['arguments']
+
                 
-    ldap_auth = LDAPHTTPAuth()
-    credentialFactory = BasicCredentialFactory("Restricted Area")
-    resource = HTTPAuthSessionWrapper(Portal(SimpleRealm(api), [ldap_auth]), [credentialFactory])
+    # Register only postinstall action if YunoHost isn't completely set up
     try:
         with open('/etc/yunohost/installed') as f: pass
     except IOError:
-        resource = APIResource()
-        resource.register('POST', '/postinstall', http_exec)
-    reactor.listenTCP(6767, Site(resource, timeout=None))
-    reactor.run()
+        api = APIResource()
+        api.register('POST', '/postinstall', http_exec)
+        api.register('OPTIONS', '/postinstall', http_exec)
+        action_dict['POST /postinstall'] = {
+            'function'  : 'yunohost_tools.tools_postinstall',
+            'help'      : 'Execute post-install',
+            'arguments' : action_map['tools']['postinstall']['arguments']
+        }
 
 
 if __name__ == '__main__':
     main()
+    reactor.listenTCP(80, Site(api, timeout=None))
+    reactor.run()
+else:
+    main()
+    application = service.Application("YunoHost API")
+    logfile = DailyLogFile("yunohost.log", "/var/log")
+    application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
+    internet.TCPServer(6767, Site(api, timeout=None)).setServiceParent(application)
