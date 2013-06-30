@@ -21,7 +21,7 @@ gettext.install('YunoHost')
 action_dict = {}
 api = APIResource()
 
-def http_exec(request):
+def http_exec(request, **kwargs):
     global win
 
     request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
@@ -46,45 +46,56 @@ def http_exec(request):
             request.setHeader('www-authenticate', 'Basic realm="Restricted Area"')
             return 'Unauthorized'
     
+    path = request.path
+    given_args = request.args
+    if kwargs:
+       for k, v in kwargs.iteritems():
+           dynamic_key = path.split('/')[-1]
+           path = path.replace(dynamic_key, '(?P<'+ k +'>[^/]+)')
+           given_args[k] = [v]
+       	   
+    print given_args
     # Sanitize arguments        
-    dict = action_dict[request.method+' '+request.path]
-    if 'arguments' in dict: args = dict['arguments']
-    else: args = {}
-    for arg, params in args.items():
+    dict = action_dict[request.method +' '+ path]
+    if 'arguments' in dict: possible_args = dict['arguments']
+    else: possible_args = {}
+    for arg, params in possible_args.items():
         sanitized_key = arg.replace('-', '_')
         if sanitized_key is not arg:
-            args[sanitized_key] = args[arg]
-            del args[arg]
+            possible_args[sanitized_key] = possible_args[arg]
+            del possible_args[arg]
             arg = sanitized_key
         if arg[0] == '_':
             if 'nargs' not in params:
-                args[arg]['nargs'] = '*'
+                possible_args[arg]['nargs'] = '*'
             if 'full' in params:
                 new_key = params['full'][2:]
             else:
                 new_key = arg[2:]
-	    args[new_key] = args[arg]
-            del args[arg]
+	    possible_args[new_key] = possible_args[arg]
+            del possible_args[arg]
 
     try:
 
         # Validate arguments
         validated_args = {}
-        for key, value in request.args.items():
-           if key in args:
+        for key, value in given_args.items():
+           if key in possible_args:
                # Validate args
-               if 'pattern' in args[key]:
-                   validate(args[key]['pattern'], value)
-               if 'nargs' not in args[key] or ('nargs' != '*' and 'nargs' != '+'):
+               if 'pattern' in possible_args[key]:
+                   validate(possible_args[key]['pattern'], value)
+               if 'nargs' not in possible_args[key] or ('nargs' != '*' and 'nargs' != '+'):
                    value = value[0]
-               if 'choices' in args[key] and value not in args[key]['choices']:
+               if 'choices' in possible_args[key] and value not in possible_args[key]['choices']:
                    raise YunoHostError(22, _('Invalid argument') + ' ' + value)
-               if 'action' in args[key] and args[key]['action'] == 'store_true':
+               if 'action' in possible_args[key] and possible_args[key]['action'] == 'store_true':
                    yes = ['true', 'True', 'yes', 'Yes']
                    value = value in yes 
                validated_args[key] = value
 
         func = str_to_func(dict['function'])
+        if func is None:
+            raise YunoHostError(168, _('Function not yet implemented : ') + dict['function'].split('.')[1])
 
         # Execute requested function
         with YunoHostLDAP(password=request.getPassword()):
@@ -106,13 +117,14 @@ def http_exec(request):
     except YunoHostError, error:
 
         # Set response code with function's raised code
-        server_errors = [1, 111, 169]
-        client_errors = [13, 17, 22, 87, 122, 125, 167, 168]
+        server_errors = [1, 111, 168, 169]
+        client_errors = [13, 17, 22, 87, 122, 125, 167]
         if error.code in client_errors:
             request.setResponseCode(400, 'Bad Request')
         else:
             request.setResponseCode(500, 'Internal Server Error')
-            result = { 'error' : error.message }
+            
+        result = { 'error' : error.message }
 
     return json.dumps(result)
 

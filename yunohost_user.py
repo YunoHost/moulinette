@@ -269,13 +269,12 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
 
 
 
-def user_info(user_or_mail):
+def user_info(username):
     """
     Fetch user informations from LDAP
 
     Keyword argument:
-        username
-        mail
+        username -- Username or mail to get info
 
     Returns:
         Dict
@@ -283,17 +282,17 @@ def user_info(user_or_mail):
     with YunoHostLDAP() as yldap:
         user_attrs = ['cn', 'mail', 'uid', 'maildrop']
 
-        if len(user_or_mail.split('@')) is 2:
-            filter = 'mail='+ user_or_mail
+        if len(username.split('@')) is 2:
+            filter = 'mail='+ username
         else:
-            filter = 'uid='+ user_or_mail
+            filter = 'uid='+ username
 
         result = yldap.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)
 
         if result:
             user = result[0]
         else:
-            raise YunoHostError(22, _("Unknown user/mail"))
+            raise YunoHostError(22, _("Unknown user/mail : ") + username)
 
         result_dict = {
             'Username': user['uid'][0],

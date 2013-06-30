@@ -51,7 +51,7 @@ user:
         ### user_list()
         list:
             action_help: List users
-            api: GET /user/list
+            api: GET /users
             arguments:
                --fields:
                     help: fields to fetch
@@ -69,7 +69,7 @@ user:
         ### user_create()
         create:
             action_help: Create user
-            api: POST /user
+            api: POST /users
             arguments:
                 -u:
                     full: --username
@@ -95,7 +95,7 @@ user:
         ### user_delete()
         delete:
             action_help: Delete user
-            api: DELETE /user
+            api: 'DELETE /users/(?P<users>[^/]+)'
             arguments:
                 -u:
                     full: --users
@@ -109,7 +109,7 @@ user:
         ### user_update()
         update:
             action_help: Update user informations
-            api: PUT /user
+            api: 'PUT /users/(?P<username>[^/]+)'
             arguments:
                 username:
                     help: Username of user to update
@@ -143,9 +143,9 @@ user:
         ### user_info()
         info:
             action_help: Get user informations
-            api: GET /user
+            api: 'GET /users/(?P<username>[^/]+)'
             arguments:
-                user-or-mail:
+                username:
                     help: Username or mail to get informations
 
 
@@ -159,7 +159,7 @@ domain:
         ### domain_list()
         list:
             action_help: List domains
-            api: GET /domain/list
+            api: GET /domains
             arguments:
                 -f:
                     full: --filter
@@ -174,7 +174,7 @@ domain:
         ### domain_add()
         add:
             action_help: Create a custom domain
-            api: POST /domain
+            api: POST /domains
             arguments:
                 domains:
                     help: Domain name to add
@@ -188,7 +188,7 @@ domain:
         ### domain_remove()
         remove:
             action_help: Delete domains
-            api: DELETE /domain
+            api: 'DELETE /domains/(?P<domains>[^/]+)'
             arguments:
                 domains:
                     help: Domain(s) to delete
@@ -198,7 +198,7 @@ domain:
         ### domain_info()
         info:
             action_help: Get domain informations
-            api: GET /domain
+            api: 'GET /domains/(?P<domain>[^/]+)'
             arguments:
                 domain:
                     help: ""
