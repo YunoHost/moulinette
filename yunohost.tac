@@ -36,12 +36,14 @@ def http_exec(request):
     # Simple HTTP auth
     else:
         authorized = request.getUser() == 'admin'
-        try: YunoHostLDAP(password=request.getPassword())
-        except YunoHostError: authorized = False
+        if authorized:
+            try: YunoHostLDAP(password=request.getPassword())
+            except YunoHostError: authorized = False
 
         if not authorized:
             request.setResponseCode(401, 'Unauthorized')
             request.setHeader('Access-Control-Allow-Origin', '*')
+            request.setHeader('www-authenticate', 'Basic realm="Restricted Area"')
             return 'Unauthorized'
     
     # Sanitize arguments        
