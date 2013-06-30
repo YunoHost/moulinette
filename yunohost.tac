@@ -115,8 +115,6 @@ def main():
     global action_dict
     global api
 
-    startLogging(open('/var/log/yunohost.log', 'a+')) # Log actions to API
-
     # Load & parse yaml file
     with open('action_map.yml') as f:
         action_map = yaml.load(f)
@@ -155,12 +153,13 @@ def main():
 
 
 if __name__ == '__main__':
+    startLogging(open('/var/log/yunohost.log', 'a+')) # Log actions to API
     main()
-    reactor.listenTCP(80, Site(api, timeout=None))
+    reactor.listenTCP(6767, Site(api, timeout=None))
     reactor.run()
 else:
-    main()
     application = service.Application("YunoHost API")
     logfile = DailyLogFile("yunohost.log", "/var/log")
     application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
+    main()
     internet.TCPServer(6767, Site(api, timeout=None)).setServiceParent(application)
