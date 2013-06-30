@@ -73,8 +73,12 @@ def http_exec(request):
         for key, value in request.args.items():
            if key in args:
                # Validate args
-               if 'pattern' in args[key]: validate(args[key]['pattern'], value)
-               if 'nargs' not in args[key] or ('nargs' != '*' and 'nargs' != '+'): value = value[0]
+               if 'pattern' in args[key]:
+                   validate(args[key]['pattern'], value)
+               if 'nargs' not in args[key] or ('nargs' != '*' and 'nargs' != '+'):
+                   value = value[0]
+               if 'choices' in args[key] and value not in args[key]['choices']:
+                   raise YunoHostError(22, _('Invalid argument') + ' ' + value)
                if 'action' in args[key] and args[key]['action'] == 'store_true':
                    yes = ['true', 'True', 'yes', 'Yes']
                    value = value in yes 
