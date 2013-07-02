@@ -34,6 +34,7 @@ def main():
     resource_list = base_info
     resources = {}
 
+    del action_map['general_arguments']
     for category, category_params in action_map.items():
         if 'category_help' not in category_params: category_params['category_help'] = ''
         resource_path = '/'+ category
@@ -81,14 +82,15 @@ def main():
                     required = True
                     allowable_values = {}
                     name = arg_name.replace('-', '_')
-                    if name[0] == '_':
+                    if name[0] == '-':
                         required = False
                         if 'nargs' not in arg_params:
                             allow_multiple = False
                         if 'full' in arg_params:
-                            name = arg_params['full'][2:].replace('-', '_')
+                            name = arg_params['full'][2:]
                         else:
-                            name = arg_params[2:].replace('-', '_')
+                            name = arg_params[2:]
+                    name = name.replace('-', '_')
 
                     if name == key_param:
                         param_type = 'path'
@@ -132,17 +134,19 @@ def main():
                 resources[category]['apis'].append({
                     'path': path,
                     'description': action_params['action_help'],
-                    'operations': operation
+                    'operations': [operation]
                 })
 
 
-    for category, api_dict in resources.items():
-        with open(os.getcwd() +'/doc/'+ category +'.json', 'w') as f:
-              json.dump(api_dict, f)
+    #for category, api_dict in resources.items():
+    #    with open(os.getcwd() +'/doc/'+ category +'.json', 'w') as f:
+    #          json.dump(api_dict, f)
 
-    with open(os.getcwd() +'/doc/'+ resources +'.json', 'w') as f:
-        json.dump(resource_list, f)
+    #with open(os.getcwd() +'/doc/resources.json', 'w') as f:
+    #    json.dump(resource_list, f)
+    #
 
+    print resource_list
 
 if __name__ == '__main__':
     sys.exit(main())
