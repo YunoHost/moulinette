@@ -32,7 +32,7 @@ def http_exec(request, **kwargs):
         request.setResponseCode(200, 'OK')
         request.setHeader('Access-Control-Allow-Headers', 'Authorization')
         return ''
-    
+
     # Simple HTTP auth
     else:
         authorized = request.getUser() == 'admin'
@@ -45,7 +45,7 @@ def http_exec(request, **kwargs):
             request.setHeader('Access-Control-Allow-Origin', '*')
             request.setHeader('www-authenticate', 'Basic realm="Restricted Area"')
             return 'Unauthorized'
-    
+
     path = request.path
     given_args = request.args
     if kwargs:
@@ -53,9 +53,9 @@ def http_exec(request, **kwargs):
            dynamic_key = path.split('/')[-1]
            path = path.replace(dynamic_key, '(?P<'+ k +'>[^/]+)')
            given_args[k] = [v]
-       	   
+
     print given_args
-    # Sanitize arguments        
+    # Sanitize arguments
     dict = action_dict[request.method +' '+ path]
     if 'arguments' in dict: possible_args = dict['arguments']
     else: possible_args = {}
@@ -69,10 +69,10 @@ def http_exec(request, **kwargs):
             if 'nargs' not in params:
                 possible_args[arg]['nargs'] = '*'
             if 'full' in params:
-                new_key = params['full'][2:]
+                new_key = params['full'][2:].replace('-', '_')
             else:
-                new_key = arg[2:]
-	    possible_args[new_key] = possible_args[arg]
+                new_key = arg[2:].replace('-', '_')
+	        possible_args[new_key] = possible_args[arg]
             del possible_args[arg]
 
     try:
@@ -90,7 +90,7 @@ def http_exec(request, **kwargs):
                    raise YunoHostError(22, _('Invalid argument') + ' ' + value)
                if 'action' in possible_args[key] and possible_args[key]['action'] == 'store_true':
                    yes = ['true', 'True', 'yes', 'Yes']
-                   value = value in yes 
+                   value = value in yes
                validated_args[key] = value
 
         func = str_to_func(dict['function'])
@@ -113,7 +113,7 @@ def http_exec(request, **kwargs):
             request.setResponseCode(204, 'No Content')
         else:
             request.setResponseCode(200, 'OK')
-         
+
     except YunoHostError, error:
 
         # Set response code with function's raised code
@@ -123,7 +123,7 @@ def http_exec(request, **kwargs):
             request.setResponseCode(400, 'Bad Request')
         else:
             request.setResponseCode(500, 'Internal Server Error')
-            
+
         result = { 'error' : error.message }
 
     return json.dumps(result)
@@ -140,8 +140,8 @@ def main():
     del action_map['general_arguments']
     for category, category_params in action_map.items():
         for action, action_params in category_params['actions'].items():
-            if 'help' not in action_params:
-                action_params['help'] = ''
+            if 'action_help' not in action_params:
+                action_params['action_help'] = ''
             if 'api' not in action_params:
                 action_params['api'] = 'GET /'+ category +'/'+ action
             method, path = action_params['api'].split(' ')
@@ -150,12 +150,12 @@ def main():
             api.register('OPTIONS', path, http_exec)
             action_dict[action_params['api']] = {
                 'function': 'yunohost_'+ category +'.'+ category +'_'+ action,
-                'help'    : action_params['help']
+                'help'    : action_params['action_help']
             }
-            if 'arguments' in action_params: 
+            if 'arguments' in action_params:
                 action_dict[action_params['api']]['arguments'] = action_params['arguments']
 
-                
+
     # Register only postinstall action if YunoHost isn't completely set up
     try:
         with open('/etc/yunohost/installed') as f: pass
