@@ -160,7 +160,7 @@ def favicon(request):
     request.setResponseCode(404, 'Not Found')
     return ''
 
-def main(dev=False):
+def main():
     global action_dict
     global api
 
