@@ -163,6 +163,9 @@ def main():
     global action_dict
     global api
 
+    # Generate API doc
+    os.system('python ./generate_api_doc.py')
+
     # Register API doc service
     api.register('ALL', '/api', api_doc)
 
