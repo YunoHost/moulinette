@@ -18,6 +18,7 @@ if not __debug__:
 
 gettext.install('YunoHost')
 
+dev = False
 action_dict = {}
 api = APIResource()
 
@@ -38,7 +39,7 @@ def http_exec(request, **kwargs):
     else:
         authorized = request.getUser() == 'admin'
         pwd = request.getPassword()
-        if 'api_key' in request.args:
+        if dev and 'api_key' in request.args:
             pwd = request.args['api_key'][0]
             authorized = True
         if authorized:
@@ -55,7 +56,7 @@ def http_exec(request, **kwargs):
     if kwargs:
        for k, v in kwargs.iteritems():
            dynamic_key = path.split('/')[-1]
-           path = path.replace(dynamic_key, '(?P<'+ k +'>[^/]+)')
+           path = path.replace(dynamic_key, '{'+ k +'}')
            given_args[k] = [v]
 
     print given_args
@@ -159,7 +160,7 @@ def favicon(request):
     request.setResponseCode(404, 'Not Found')
     return ''
 
-def main():
+def main(dev=False):
     global action_dict
     global api
 
@@ -213,7 +214,11 @@ def main():
 
 
 if __name__ == '__main__':
-    startLogging(open('/var/log/yunohost.log', 'a+')) # Log actions to API
+    if '--dev' in sys.argv:
+        dev = True
+        startLogging(sys.stdout)
+    else:
+        startLogging(open('/var/log/yunohost.log', 'a+')) # Log actions to file
     main()
     reactor.listenTCP(6767, Site(api, timeout=None))
     reactor.run()
