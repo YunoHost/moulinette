@@ -59,7 +59,6 @@ def main():
                 action_params['api'] = 'GET /'+ category +'/'+ action
 
             method, path = action_params['api'].split(' ')
-            path = path.replace('(?P<', '{').replace('>[^/]+)', '}')
             key_param = ''
             if '{' in path:
                 key_param = path[path.find("{")+1:path.find("}")]

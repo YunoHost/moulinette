@@ -95,7 +95,7 @@ user:
         ### user_delete()
         delete:
             action_help: Delete user
-            api: 'DELETE /users/(?P<users>[^/]+)'
+            api: 'DELETE /users/{users}'
             arguments:
                 -u:
                     full: --users
@@ -109,7 +109,7 @@ user:
         ### user_update()
         update:
             action_help: Update user informations
-            api: 'PUT /users/(?P<username>[^/]+)'
+            api: 'PUT /users/{username}'
             arguments:
                 username:
                     help: Username of user to update
@@ -143,7 +143,7 @@ user:
         ### user_info()
         info:
             action_help: Get user informations
-            api: 'GET /users/(?P<username>[^/]+)'
+            api: 'GET /users/{username}'
             arguments:
                 username:
                     help: Username or mail to get informations
@@ -188,7 +188,7 @@ domain:
         ### domain_remove()
         remove:
             action_help: Delete domains
-            api: 'DELETE /domains/(?P<domains>[^/]+)'
+            api: 'DELETE /domains/{domains}'
             arguments:
                 domains:
                     help: Domain(s) to delete
@@ -198,7 +198,7 @@ domain:
         ### domain_info()
         info:
             action_help: Get domain informations
-            api: 'GET /domains/(?P<domain>[^/]+)'
+            api: 'GET /domains/{domain}'
             arguments:
                 domain:
                     help: ""

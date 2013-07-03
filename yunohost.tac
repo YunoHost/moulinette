@@ -186,6 +186,8 @@ def main():
                 action_params['api'] = 'GET /'+ category +'/'+ action
             method, path = action_params['api'].split(' ')
             # Register route
+            if '{' in path:
+                path = path.replace('{', '(?P<').replace('}', '>[^/]+)')
             api.register(method, path, http_exec)
             api.register('OPTIONS', path, http_exec)
             action_dict[action_params['api']] = {
