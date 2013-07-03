@@ -24,25 +24,30 @@ def main():
     with open('action_map.yml') as f:
         action_map = yaml.load(f)
 
-    base_info = {
+    resource_list = {
         'apiVersion': '0.1',
         'swaggerVersion': '1.1',
         'basePath': 'http://'+ domain + ':6767',
         'apis': []
     }
 
-    resource_list = base_info
     resources = {}
 
     del action_map['general_arguments']
     for category, category_params in action_map.items():
         if 'category_help' not in category_params: category_params['category_help'] = ''
-        resource_path = '/'+ category
+        resource_path = '/api/'+ category
         resource_list['apis'].append({
             'path': resource_path,
             'description': category_params['category_help']
         })
-        resources[category] = base_info
+        resources[category] = {
+            'apiVersion': '0.1',
+            'swaggerVersion': '1.1',
+            'basePath': 'http://'+ domain + ':6767',
+            'apis': []
+        }
+
         resources[category]['resourcePath'] = resource_path
 
         registered_paths = {}
@@ -66,36 +71,28 @@ def main():
             operation = {
                 'httpMethod': method,
                 'nickname': category +'_'+ action,
-                'responseClass': 'container',
                 'summary': action_params['action_help'],
                 'notes': notes,
-                'parameters': [],
                 'errorResponses': []
             }
 
             if 'arguments' in action_params:
+                operation['parameters'] = []
                 for arg_name, arg_params in action_params['arguments'].items():
                     if 'help' not in arg_params:
                         arg_params['help'] = ''
                     param_type = 'query'
                     allow_multiple = False
                     required = True
-                    allowable_values = {}
+                    allowable_values = None
                     name = arg_name.replace('-', '_')
-                    if name[0] == '-':
+                    if name[0] == '_':
                         required = False
-                        if 'nargs' not in arg_params:
-                            allow_multiple = False
                         if 'full' in arg_params:
                             name = arg_params['full'][2:]
                         else:
-                            name = arg_params[2:]
+                            name = name[2:]
                     name = name.replace('-', '_')
-
-                    if name == key_param:
-                        param_type = 'path'
-                        required = True
-                        allow_multiple = False
 
                     if 'nargs' in arg_params:
                         if arg_params['nargs'] == '*':
@@ -104,6 +101,8 @@ def main():
                         if arg_params['nargs'] == '+':
                             allow_multiple = False
                             required = True
+                    else:
+                        allow_multiple = False
                     if 'choices' in arg_params:
                         allowable_values = {
                             'valueType': 'LIST',
@@ -112,18 +111,26 @@ def main():
                     if 'action' in arg_params and arg_params['action'] == 'store_true':
                         allowable_values = {
                             'valueType': 'LIST',
-                            'values': ['true', 'True', 'yes', 'Yes']
+                            'values': ['true', 'false']
                         }
 
-                    operation['parameters'].append({
+                    if name == key_param:
+                        param_type = 'path'
+                        required = True
+                        allow_multiple = False
+
+                    parameters = {
                         'paramType': param_type,
                         'name': name,
                         'description': arg_params['help'],
                         'dataType': 'string',
                         'required': required,
-                        'allowableValues': allowable_values,
                         'allowMultiple': allow_multiple
-                    })
+                    }
+                    if allowable_values is not None:
+                        parameters['allowableValues'] = allowable_values
+
+                    operation['parameters'].append(parameters)
 
 
             if path in registered_paths:
@@ -138,15 +145,13 @@ def main():
                 })
 
 
-    #for category, api_dict in resources.items():
-    #    with open(os.getcwd() +'/doc/'+ category +'.json', 'w') as f:
-    #          json.dump(api_dict, f)
+    for category, api_dict in resources.items():
+        with open(os.getcwd() +'/doc/'+ category +'.json', 'w') as f:
+              json.dump(api_dict, f)
 
-    #with open(os.getcwd() +'/doc/resources.json', 'w') as f:
-    #    json.dump(resource_list, f)
-    #
-
-    print resource_list
+    with open(os.getcwd() +'/doc/resources.json', 'w') as f:
+        json.dump(resource_list, f)
+    
 
 if __name__ == '__main__':
     sys.exit(main())

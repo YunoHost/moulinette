@@ -30,16 +30,20 @@ def http_exec(request, **kwargs):
     # Return OK to 'OPTIONS' xhr requests
     if request.method == 'OPTIONS':
         request.setResponseCode(200, 'OK')
-        request.setHeader('Access-Control-Allow-Headers', 'Authorization')
+        request.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+        request.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         return ''
 
     # Simple HTTP auth
     else:
         authorized = request.getUser() == 'admin'
+        pwd = request.getPassword()
+        if 'api_key' in request.args:
+            pwd = request.args['api_key'][0]
+            authorized = True
         if authorized:
-            try: YunoHostLDAP(password=request.getPassword())
+            try: YunoHostLDAP(password=pwd)
             except YunoHostError: authorized = False
-
         if not authorized:
             request.setResponseCode(401, 'Unauthorized')
             request.setHeader('Access-Control-Allow-Origin', '*')
@@ -69,10 +73,11 @@ def http_exec(request, **kwargs):
             if 'nargs' not in params:
                 possible_args[arg]['nargs'] = '*'
             if 'full' in params:
-                new_key = params['full'][2:].replace('-', '_')
+                new_key = params['full'][2:]
             else:
-                new_key = arg[2:].replace('-', '_')
-	        possible_args[new_key] = possible_args[arg]
+                new_key = arg[2:]
+            new_key = new_key.replace('-', '_')
+	    possible_args[new_key] = possible_args[arg]
             del possible_args[arg]
 
     try:
@@ -128,10 +133,41 @@ def http_exec(request, **kwargs):
 
     return json.dumps(result)
 
+def api_doc(request):
+    request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
+    request.setHeader('Content-Type', 'application/json') # Return JSON anyway
+
+    # Return OK to 'OPTIONS' xhr requests
+    if request.method == 'OPTIONS':
+        request.setResponseCode(200, 'OK')
+        request.setHeader('Access-Control-Allow-Headers', 'Authorization')
+        return ''
+
+    if request.path == '/api':
+        with open('doc/resources.json') as f: 
+            return f.read()
+
+    category = request.path.split('/')[2]
+    try:
+        with open('doc/'+ category +'.json') as f: 
+            return f.read()
+    except IOError:
+        return ''
+    
+def favicon(request):
+    request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
+    request.setResponseCode(404, 'Not Found')
+    return ''
 
 def main():
     global action_dict
     global api
+
+    # Register API doc service
+    api.register('ALL', '/api', api_doc)
+
+    # favicon.ico error
+    api.register('ALL', '/favicon.ico', favicon)
 
     # Load & parse yaml file
     with open('action_map.yml') as f:
@@ -139,6 +175,7 @@ def main():
 
     del action_map['general_arguments']
     for category, category_params in action_map.items():
+        api.register('ALL', '/api/'+ category, api_doc)
         for action, action_params in category_params['actions'].items():
             if 'action_help' not in action_params:
                 action_params['action_help'] = ''
