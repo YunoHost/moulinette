@@ -19,6 +19,7 @@ if not __debug__:
 gettext.install('YunoHost')
 
 dev = False
+installed = True
 action_dict = {}
 api = APIResource()
 
@@ -36,7 +37,7 @@ def http_exec(request, **kwargs):
         return ''
 
     # Simple HTTP auth
-    else:
+    elif installed:
         authorized = request.getUser() == 'admin'
         pwd = request.getPassword()
         if dev and 'api_key' in request.args:
@@ -203,6 +204,7 @@ def main():
     try:
         with open('/etc/yunohost/installed') as f: pass
     except IOError:
+        installed = False
         api = APIResource()
         api.register('POST', '/postinstall', http_exec)
         api.register('OPTIONS', '/postinstall', http_exec)
