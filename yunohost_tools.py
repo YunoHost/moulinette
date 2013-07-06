@@ -39,6 +39,30 @@ def tools_ldapinit():
 
 
     """
+    with YunoHostLDAP() as yldap:
+
+        with open('ldap_scheme.yml') as f:
+            ldap_map = yaml.load(f)
+
+        for rdn, attr_dict in ldap_map['parents'].items():
+            yldap.add(rdn, attr_dict)
+
+        for rdn, attr_dict in ldap_map['children'].items():
+            yldap.add(rdn, attr_dict)
+
+        admin_dict = {
+            'cn': 'admin',
+            'uid': 'admin',
+            'description': 'LDAP Administrator',
+            'gidNumber': '1007',
+            'uidNumber': '1007',
+            'homeDirectory': '/home/admin',
+            'loginShell': '/bin/bash',
+            'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject']
+        }
+
+        yldap.update('cn=admin', admin_dict)
+
     os.system('rm /etc/smbldap-tools/smbldap_bind.conf')
     with open('/etc/smbldap-tools/smbldap_bind.conf', 'w') as f:
         lines = [
@@ -58,32 +82,6 @@ def tools_ldapinit():
     #os.system('smbldap-populate -e /tmp/samba-ldap.ldif')
     os.system('smbldap-populate')
     # TODO: change root domain password
-
-    with YunoHostLDAP() as yldap:
-
-        with open('ldap_scheme.yml') as f:
-            ldap_map = yaml.load(f)
-
-        for rdn, attr_dict in ldap_map['parents'].items():
-            pass
-            #yldap.add(rdn, attr_dict)
-
-        for rdn, attr_dict in ldap_map['children'].items():
-            pass
-            #yldap.add(rdn, attr_dict)
-
-        admin_dict = {
-            'cn': 'admin',
-            'uid': 'admin',
-            'description': 'LDAP Administrator',
-            'gidNumber': '1007',
-            'uidNumber': '1007',
-            'homeDirectory': '/home/admin',
-            'loginShell': '/bin/bash',
-            'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject']
-        }
-
-        #yldap.update('cn=admin', admin_dict)
 
     win_msg(_("LDAP has been successfully initialized"))
 
