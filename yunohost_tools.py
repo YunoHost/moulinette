@@ -176,9 +176,9 @@ def tools_postinstall(domain, password, dyndns=False):
     YunoHost post-install
 
     Keyword argument:
-        password -- YunoHost admin password
         dyndns -- Subscribe domain to a DynDNS service
         domain -- YunoHost main domain
+        password -- YunoHost admin password
 
     """
     with YunoHostLDAP(password='yunohost') as yldap:

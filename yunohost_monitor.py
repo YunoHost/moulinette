@@ -91,12 +91,12 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
     Check System
 
     Keyword argument:
-        public -- Show IP public
-        cpu -- Check CPU
         uptime -- Show Uptime
         disk -- Check Disk
-        ifconfig -- Show Ip and MAC Adress
+        public -- Show IP public
+        cpu -- Check CPU
         memory -- Check Memory
+        ifconfig -- Show Ip and MAC Adress
 
     """
     if memory:
@@ -138,3 +138,27 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
         raise YunoHostError(1, _('No arguments provided'))
 
 def monitor_process(enable=None, disable=None, start=None, stop=None, check=None, info=False):
+    """
+    Check Process
+
+    Keyword argument:
+        enable -- Enable process
+        disable -- Disable process
+        stop -- Stop process
+        check -- Check process
+        info -- Process info
+        start -- Start process
+
+    """
+    if enable:
+        return process_enable(enable)
+    elif disable:
+        return process_disable(disable)
+    elif start:
+        return process_start(start)
+    elif stop:
+        return process_stop(stop)
+    elif check:
+        return process_check(check)
+    elif info:
+        return json.loads(s.getProcessCount()) 

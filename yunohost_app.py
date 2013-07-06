@@ -106,10 +106,10 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
     List apps
 
     Keyword argument:
-        raw -- Return the full app_dict
         limit -- Maximum number of app fetched
         offset -- Starting number for app fetching
         filter -- Name filter of app_id or app_name
+        raw -- Return the full app_dict
 
     """
     # TODO: List installed applications
@@ -165,9 +165,9 @@ def app_info(app, instance=None, raw=False):
     Get app informations
 
     Keyword argument:
+        app -- App ID
         instance -- App instance number
         raw -- Return the full app_dict
-        app -- App ID
 
     """
     try:
@@ -233,10 +233,10 @@ def app_upgrade(app, instance=[], url=None, file=None):
     Upgrade app
 
     Keyword argument:
-        instance -- App instance number to upgrade
         url -- Git url to fetch for upgrade
         app -- App(s) to upgrade (default all)
         file -- Folder or tarball for upgrade
+        instance -- App instance number to upgrade
 
     """
     with YunoHostLDAP() as yldap:
@@ -377,10 +377,10 @@ def app_install(app, domain, path='/', label=None, mode='private'):
     Install apps
 
     Keyword argument:
-        path
         mode -- level of privacy of the app (public|protected|private)
         domain
         app -- App to install
+        path
         label
 
     """
@@ -598,8 +598,8 @@ def app_remove(app, instance=[]):
     Remove app
 
     Keyword argument:
-        instance -- App instance number to delete
         app -- App(s) to delete
+        instance -- App instance number to delete
 
     """
     lemon_conf_lines = {}
@@ -662,8 +662,8 @@ def app_addaccess(apps, users):
     Grant access right to users (everyone by default)
 
     Keyword argument:
-        apps
         users
+        apps
 
     """
     if not isinstance(users, list): users = [users]
@@ -711,8 +711,8 @@ def app_removeaccess(apps, users):
     Revoke access right to users (everyone by default)
 
     Keyword argument:
-        apps
         users
+        apps
 
     """
     if not isinstance(users, list): users = [users]

@@ -72,8 +72,8 @@ def domain_add(domains, raw=False, main=False):
     Create a custom domain
 
     Keyword argument:
-        raw -- Auto-configure Apache and LemonLDAP for the domain
         domains -- Domain name to add
+        raw -- Auto-configure Apache and LemonLDAP for the domain
 
     """
     with YunoHostLDAP() as yldap:

@@ -35,9 +35,9 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
     Subscribe to a DynDNS service
 
     Keyword argument:
-        key -- Public DNS key
-        subscribe_host -- Dynette HTTP API to subscribe to
         domain -- Full domain to subscribe with
+        subscribe_host -- Dynette HTTP API to subscribe to
+        key -- Public DNS key
 
     """
     if domain is None:
@@ -75,9 +75,9 @@ def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=Non
 
     Keyword argument:
         dyn_host -- Dynette DNS server to inform
+        domain -- Full domain to subscribe with
         ip -- IP address to send
         key -- Public DNS key
-        domain -- Full domain to subscribe with
 
     """
     if domain is None:

@@ -45,9 +45,9 @@ def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
     Allow connection port/protocol
 
     Keyword argument:
+        upnp -- upnp
         protocol -- Protocol associated with port
         ipv6 -- ipv6
-        upnp -- upnp
         port -- Port to open
 
     """
@@ -76,9 +76,9 @@ def firewall_disallow(protocol=None, port=None, ipv6=None, upnp=False):
     Disallow connection
 
     Keyword argument:
+        upnp -- upnp
         protocol -- Protocol associated with port
         ipv6 -- ipv6
-        upnp -- upnp
         port -- Port to open
 
     """
