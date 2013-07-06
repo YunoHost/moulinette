@@ -28,6 +28,7 @@ import sys
 import yaml
 import re
 import getpass
+import subprocess
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add
 from yunohost_dyndns import dyndns_subscribe
@@ -38,6 +39,10 @@ def tools_ldapinit():
 
 
     """
+    os.system('smbpasswd -w yunohost')
+    os.system('smbldap-populate -e /tmp/samba-ldap.ldif')
+    # TODO: change root domain password
+
     with YunoHostLDAP() as yldap:
 
         with open('ldap_scheme.yml') as f:
@@ -78,9 +83,24 @@ def tools_adminpw(old_password, new_password):
     if len(new_password) < 4:
         raise YunoHostError(22, _("Password is too short"))
 
-    result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ old_password +'" -a "'+ old_password +'" -s "' + new_password + '"')
+    result  = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ old_password +'" -a "'+ old_password +'" -s "' + new_password + '"')
+    result2 = os.system('smbpasswd -w "'+ new_password + '"')
 
-    if result == 0:
+    os.system('rm /etc/smbldap-tools/smbldap_bind.conf')
+    with open('/etc/smbldap-tools/smbldap_bind.conf', 'w') as f:
+        lines = [
+            'masterDN="cn=admin,dc=yunohost,dc=org"',
+            'slaveDN="cn=admin,dc=yunohost,dc=org"',
+            'masterPw="'+ new_password +'"',
+            'slavePw="'+ new_password +'"'
+        ]
+
+        for line in lines:
+            f.write(line +'\n')
+
+    os.system('chmod 600 /etc/smbldap-tools/smbldap_bind.conf')
+
+    if result == result2 == 0:
         win_msg(_("Admin password has been changed"))
     else:
         raise YunoHostError(22, _("Invalid password"))
@@ -214,6 +234,9 @@ def tools_postinstall(domain, password, dyndns=False):
         for command in command_list:
             if os.system(command) != 0:
                 raise YunoHostError(17, _("There were a problem during CA creation"))
+
+        sid = subprocess.check_output(['net', 'getlocalsid']).strip().split(':')[1][1:]
+        os.system('echo \'SID="'+ sid +'"'\' >> /etc/smbldap-tools/smbldap.conf') 
 
         # Initialize YunoHost LDAP base
         tools_ldapinit()
