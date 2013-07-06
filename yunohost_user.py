@@ -122,12 +122,12 @@ def user_create(username, firstname, lastname, mail, password):
             if yldap.update('uid=' + username + ',ou=users', attr_dict):
                 #TODO: Send a welcome mail to user
                 win_msg(_("User successfully created"))
-                return { _("Fullname") : fullname, _("Username") : username, _("Mail") : mail }
+                return { _("Fullname") : firstname +' '+ lastname, _("Username") : username, _("Mail") : mail }
         else:
             raise YunoHostError(169, _("An error occured during user creation"))
 
 
-def user_delete(users, purge=None):
+def user_delete(users, purge=False):
     """
     Delete user
 
@@ -143,11 +143,14 @@ def user_delete(users, purge=None):
             users = [ users ]
 
         for user in users:
-            if yldap.remove('uid=' + user+ ',ou=users'):
-                if purge:
-                    os.system('rm -rf /home/' + user)
+            delete_command = '/usr/sbin/smbldap-userdel'
+            if purge: 
+                delete_command = delete_command +' -r '+ user
+            else:
+                delete_command = delete_command +' '+ user
+            user_deleted = os.system(delete_command)
+            if user_deleted == 0:
                 result['Users'].append(user)
-                continue
             else:
                 raise YunoHostError(169, _("An error occured during user deletion"))
 
