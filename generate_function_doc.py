@@ -46,8 +46,6 @@ def main():
         with open('yunohost_'+ category +'.py', 'w') as f:
             in_block = False
             for line in lines:
-                if re.search(r'^""" yunohost_'+ category, line):
-                    in_block = True
                 if in_block:
                     if re.search(r'^"""', line):
                         in_block = False
@@ -56,6 +54,9 @@ def main():
                         f.write('"""' +'\n')
                 else:
                     f.write(line)
+
+                if re.search(r'^""" yunohost_'+ category, line):
+                    in_block = True
 
         for action, action_params in category_params['actions'].items():
             if 'action_help' not in action_params:
@@ -94,8 +95,6 @@ def main():
                 in_block = False
                 first_quotes = True
                 for line in lines:
-                    if re.search(r'^def '+ category +'_'+ action, line):
-                        in_block = True
                     if in_block:
                         if re.search(r'^    """', line):
                             if first_quotes:
@@ -106,6 +105,9 @@ def main():
                                     f.write(help_line +'\n')
                     else:
                         f.write(line)
+
+                    if re.search(r'^def '+ category +'_'+ action, line):
+                        in_block = True
 
 
 if __name__ == '__main__':
