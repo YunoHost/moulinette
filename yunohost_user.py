@@ -109,49 +109,20 @@ def user_create(username, firstname, lastname, mail, password):
             'mail'      : mail
         })
 
-        # Check if unix user already exists (doesn't work)
-        #if not os.system("getent passwd " + username):
-        #    raise YunoHostError(17, _("Username not available"))
-
         if mail[mail.find('@')+1:] not in domain_list()['Domains']:
             raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
 
-        # Get random UID/GID
-        uid_check = gid_check = 0
-        while uid_check == 0 and gid_check == 0:
-            uid = str(random.randint(200, 99999))
-            uid_check = os.system("getent passwd " + uid)
-            gid_check = os.system("getent group " + uid)
+        user_added = os.system('/usr/sbin/smbldap-useradd -a -A 1 -m -M "'+ mail +'" -N "'+ firstname +'" -S "'+ lastname +'" -Z "objectclass=mailAccount,maildrop='+ username +'" -p '+ username')
 
-        # Adapt values for LDAP
-        fullname = firstname + ' ' + lastname
-        rdn = 'uid=' + username + ',ou=users'
-        char_set = string.ascii_uppercase + string.digits
-        salt = ''.join(random.sample(char_set,8))
-        salt = '$1$' + salt + '$'
-        pwd = '{CRYPT}' + crypt.crypt(str(password), salt)
-        attr_dict = {
-            'objectClass'   : ['mailAccount', 'inetOrgPerson', 'posixAccount'],
-            'givenName'     : firstname,
-            'sn'            : lastname,
-            'displayName'   : fullname,
-            'cn'            : fullname,
-            'uid'           : username,
-            'mail'          : mail,
-            'maildrop'      : username,
-            'userPassword'  : pwd,
-            'gidNumber'     : uid,
-            'uidNumber'     : uid,
-            'homeDirectory' : '/home/' + username,
-            'loginShell'    : '/bin/false'
-        }
-
-        if yldap.add(rdn, attr_dict):
-            # Create user /home directory by switching user
-            os.system("su - " + username + " -c ''")
-            #TODO: Send a welcome mail to user
-            win_msg(_("User successfully created"))
-            return { _("Fullname") : fullname, _("Username") : username, _("Mail") : mail }
+        if user_added == 0:
+            char_set = string.ascii_uppercase + string.digits
+            salt = ''.join(random.sample(char_set,8))
+            salt = '$1$' + salt + '$'
+            attr_dict = {'userPassword': '{CRYPT}' + crypt.crypt(str(change_password), salt)}
+            if yldap.update('uid=' + username + ',ou=users', attr_dict):
+                #TODO: Send a welcome mail to user
+                win_msg(_("User successfully created"))
+                return { _("Fullname") : fullname, _("Username") : username, _("Mail") : mail }
         else:
             raise YunoHostError(169, _("An error occured during user creation"))
 
