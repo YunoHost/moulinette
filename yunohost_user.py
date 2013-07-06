@@ -112,17 +112,13 @@ def user_create(username, firstname, lastname, mail, password):
         if mail[mail.find('@')+1:] not in domain_list()['Domains']:
             raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
 
-        user_added = os.system('/usr/sbin/smbldap-useradd -a -A 1 -m -M "'+ mail +'" -N "'+ firstname +'" -S "'+ lastname +'" -Z "objectclass=mailAccount,maildrop='+ username +'" -p '+ username)
+        user_added  = os.system('/usr/sbin/smbldap-useradd -a -A 1 -m -M "'+ mail +'" -N "'+ firstname +'" -S "'+ lastname +'" -Z "objectclass=mailAccount,maildrop='+ username +'" -p '+ username)
+        pwd_changed = os.system('echo -e \''+ password +'\n'+ password +'\' | smbldap-passwd '+ username)
 
-        if user_added == 0:
-            char_set = string.ascii_uppercase + string.digits
-            salt = ''.join(random.sample(char_set,8))
-            salt = '$1$' + salt + '$'
-            attr_dict = {'userPassword': '{CRYPT}' + crypt.crypt(str(password), salt)}
-            if yldap.update('uid=' + username + ',ou=users', attr_dict):
-                #TODO: Send a welcome mail to user
-                win_msg(_("User successfully created"))
-                return { _("Fullname") : firstname +' '+ lastname, _("Username") : username, _("Mail") : mail }
+        if user_added == pwd_changed == 0:
+            #TODO: Send a welcome mail to user
+            win_msg(_("User successfully created"))
+            return { _("Fullname") : firstname +' '+ lastname, _("Username") : username, _("Mail") : mail }
         else:
             raise YunoHostError(169, _("An error occured during user creation"))
 
