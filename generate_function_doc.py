@@ -51,7 +51,7 @@ def main():
                         in_block = False
                         f.write('\n')
                         f.write('    '+ category_params['category_help'] +'\n')
-                        f.write('"""')
+                        f.write('"""\n')
                 else:
                     f.write(line)
 
