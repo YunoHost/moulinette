@@ -113,7 +113,7 @@ def user_create(username, firstname, lastname, mail, password):
             raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
 
         user_added  = os.system('/usr/sbin/smbldap-useradd -a -A 1 -m -M "'+ mail +'" -N "'+ firstname +'" -S "'+ lastname +'" -Z "objectclass=mailAccount,maildrop='+ username +'" -p '+ username)
-        pwd_changed = os.system('echo -e \''+ password +'\n'+ password +'\' | smbldap-passwd '+ username)
+        pwd_changed = os.system('echo "'+ password +'\n'+ password +'" | smbldap-passwd '+ username)
 
         if user_added == pwd_changed == 0:
             #TODO: Send a welcome mail to user
