@@ -85,7 +85,8 @@ def process_check(args):
 
 
 def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
-
+    """
+    """
     if memory:
         return json.loads(s.getMem())
 

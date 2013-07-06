@@ -114,7 +114,7 @@ def firewall_list():
     return firewall
 
 def firewall_reload(upnp=False):
-    '''
+    """
     Reload iptables configuration
 
     Keyword arguments:
@@ -122,7 +122,7 @@ def firewall_reload(upnp=False):
 
     Return
         Dict
-    '''
+    """
     with open('firewall.yml', 'r') as f:
         firewall = yaml.load(f)
 
@@ -145,10 +145,10 @@ def firewall_reload(upnp=False):
 
     if upnp:
         remove_portmapping()
-        
+
     add_portmapping('TCP', upnp, False,'r');
     add_portmapping('UDP', upnp, False,'r');
-    
+
     if(os.path.exists("/proc/net/if_inet6")):
         add_portmapping('TCP', upnp, True,'r');
         add_portmapping('UDP', upnp, True,'r');
@@ -156,7 +156,7 @@ def firewall_reload(upnp=False):
     os.system ("iptables -A INPUT -i lo -j ACCEPT")
     os.system ("iptables -A INPUT -p icmp -j ACCEPT")
     os.system ("iptables -P INPUT DROP")
-    
+
     if(os.path.exists("/proc/net/if_inet6")):
         os.system ("ip6tables -A INPUT -i lo -j ACCEPT")
         os.system ("ip6tables -A INPUT -p icmp -j ACCEPT")
@@ -227,7 +227,7 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None,mode=None,):
 
     if upnp and mode=='a':
         remove_portmapping()
-        
+
     if ipv6: ip = 'ipv6'
     else:    ip = 'ipv4'
     with open('firewall.yml', 'r') as f:
@@ -274,8 +274,8 @@ def remove_portmapping():
         p = upnp.getgenericportmapping(i)
         if p is None: break
         upnp.deleteportmapping(p[0], p[1])
-      
-        
+
+
 def firewall_installupnp():
     """
     Add upnp cron
@@ -284,7 +284,7 @@ def firewall_installupnp():
     Return
         None
     """
-    
+
     with open('firewall.yml', 'r') as f:
         firewall = yaml.load(f)
 
@@ -336,7 +336,7 @@ def firewall_checkupnp():
     """
     with open('firewall.yml', 'r') as f:
         firewall = yaml.load(f)
-        
+
         if firewall['UPNP']:
             win_msg(_("UPNP is activated"))
         else:
@@ -354,7 +354,7 @@ def firewall_stop():
     os.system ("iptables -P INPUT ACCEPT")
     os.system ("iptables -F")
     os.system ("iptables -X")
-    
+
     os.system ("ip6tables -P INPUT ACCEPT")
     os.system ("ip6tables -F")
     os.system ("ip6tables -X")
