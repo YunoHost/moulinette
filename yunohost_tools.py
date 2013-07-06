@@ -39,8 +39,24 @@ def tools_ldapinit():
 
 
     """
+    os.system('rm /etc/smbldap-tools/smbldap_bind.conf')
+    with open('/etc/smbldap-tools/smbldap_bind.conf', 'w') as f:
+        lines = [
+            'masterDN="cn=admin,dc=yunohost,dc=org"',
+            'slaveDN="cn=admin,dc=yunohost,dc=org"',
+            'masterPw="yunohost"',
+            'slavePw="yunohost"'
+        ]
+
+        for line in lines:
+            f.write(line +'\n')
+
+    os.system('chmod 600 /etc/smbldap-tools/smbldap_bind.conf')
     os.system('smbpasswd -w yunohost')
-    os.system('smbldap-populate -e /tmp/samba-ldap.ldif')
+    sid = subprocess.check_output(['net', 'getlocalsid']).strip().split(':')[1][1:]
+    os.system('echo \'SID="'+ sid +'"\' >> /etc/smbldap-tools/smbldap.conf') 
+    #os.system('smbldap-populate -e /tmp/samba-ldap.ldif')
+    os.system('smbldap-populate')
     # TODO: change root domain password
 
     with YunoHostLDAP() as yldap:
@@ -49,10 +65,12 @@ def tools_ldapinit():
             ldap_map = yaml.load(f)
 
         for rdn, attr_dict in ldap_map['parents'].items():
-            yldap.add(rdn, attr_dict)
+            pass
+            #yldap.add(rdn, attr_dict)
 
         for rdn, attr_dict in ldap_map['children'].items():
-            yldap.add(rdn, attr_dict)
+            pass
+            #yldap.add(rdn, attr_dict)
 
         admin_dict = {
             'cn': 'admin',
@@ -65,7 +83,7 @@ def tools_ldapinit():
             'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject']
         }
 
-        yldap.update('cn=admin', admin_dict)
+        #yldap.update('cn=admin', admin_dict)
 
     win_msg(_("LDAP has been successfully initialized"))
 
@@ -235,9 +253,6 @@ def tools_postinstall(domain, password, dyndns=False):
             if os.system(command) != 0:
                 raise YunoHostError(17, _("There were a problem during CA creation"))
 
-        sid = subprocess.check_output(['net', 'getlocalsid']).strip().split(':')[1][1:]
-        os.system('echo \'SID="'+ sid +'"'\' >> /etc/smbldap-tools/smbldap.conf') 
-
         # Initialize YunoHost LDAP base
         tools_ldapinit()
 
@@ -250,5 +265,6 @@ def tools_postinstall(domain, password, dyndns=False):
         if dyndns: dyndns_subscribe()
 
         os.system('touch /etc/yunohost/installed')
+        os.system('service samba restart')
 
     win_msg(_("YunoHost has been successfully configured"))
