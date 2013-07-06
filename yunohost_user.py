@@ -112,13 +112,13 @@ def user_create(username, firstname, lastname, mail, password):
         if mail[mail.find('@')+1:] not in domain_list()['Domains']:
             raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
 
-        user_added = os.system('/usr/sbin/smbldap-useradd -a -A 1 -m -M "'+ mail +'" -N "'+ firstname +'" -S "'+ lastname +'" -Z "objectclass=mailAccount,maildrop='+ username +'" -p '+ username')
+        user_added = os.system('/usr/sbin/smbldap-useradd -a -A 1 -m -M "'+ mail +'" -N "'+ firstname +'" -S "'+ lastname +'" -Z "objectclass=mailAccount,maildrop='+ username +'" -p '+ username)
 
         if user_added == 0:
             char_set = string.ascii_uppercase + string.digits
             salt = ''.join(random.sample(char_set,8))
             salt = '$1$' + salt + '$'
-            attr_dict = {'userPassword': '{CRYPT}' + crypt.crypt(str(change_password), salt)}
+            attr_dict = {'userPassword': '{CRYPT}' + crypt.crypt(str(password), salt)}
             if yldap.update('uid=' + username + ',ou=users', attr_dict):
                 #TODO: Send a welcome mail to user
                 win_msg(_("User successfully created"))
@@ -155,7 +155,7 @@ def user_delete(users, purge=None):
     return result
 
 
-def user_update(username, firstname=None, lastname=None, mail=None, change_password=None,
+def user_update(username, firstname=None, lastname=None, mail=None, change_password=None, add_mailforward=None, remove_mailforward=None, add_mailalias=None, remove_mailalias=None):
     """
     Update user informations
 
