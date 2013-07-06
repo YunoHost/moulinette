@@ -40,9 +40,9 @@ def main():
     for category, category_params in action_map.items():
         if 'category_help' not in category_params: category_params['category_help'] = ''
 
-        with open('yunohost_'+ category, 'r') as f:
+        with open('yunohost_'+ category +'.py', 'r') as f:
             lines = f.readlines()
-        with open('yunohost_'+ category, 'w') as f:
+        with open('yunohost_'+ category +'.py', 'w') as f:
             in_block = False
             for line in lines:
                 if re.search(r'^""" yunohost_'+ category, line):
@@ -87,9 +87,9 @@ def main():
             help_lines.append('    """')
             help_lines.append('')
 
-            with open('yunohost_'+ category, 'r') as f:
+            with open('yunohost_'+ category +'.py', 'r') as f:
                 lines = f.readlines()
-            with open('yunohost_'+ category, 'w') as f:
+            with open('yunohost_'+ category +'.py', 'w') as f:
                 in_block = False
                 first_quotes = True
                 for line in lines:
