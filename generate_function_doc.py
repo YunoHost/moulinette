@@ -50,8 +50,8 @@ def main():
                     if re.search(r'^"""', line):
                         in_block = False
                         f.write('\n')
-                        f.write(category_params['category_help'] +'\n')
-                        f.write('"""' +'\n')
+                        f.write('    '+ category_params['category_help'] +'\n')
+                        f.write('"""')
                 else:
                     f.write(line)
 
@@ -86,8 +86,8 @@ def main():
 
                     help_lines.append('        '+ name + help)
 
-            help_lines.append('    """')
             help_lines.append('')
+            help_lines.append('    """')
 
             with open('yunohost_'+ category +'.py', 'r') as f:
                 lines = f.readlines()
