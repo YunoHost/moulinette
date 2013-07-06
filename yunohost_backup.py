@@ -20,6 +20,8 @@
 """
 
 """ yunohost_backup.py
+
+    Manage backups
 """
 import os
 import sys
@@ -32,11 +34,8 @@ def backup_init(helper=False):
     """
     Init Tahoe-LAFS configuration
 
-    Keyword arguments:
-        helper -- Create a helper node rather than a "helped" one
-
-    Returns:
-        Win | Fail
+    Keyword argument:
+        helper -- Init as a helper node rather than a "helped" one
 
     """
     pass

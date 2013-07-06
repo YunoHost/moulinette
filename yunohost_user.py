@@ -20,6 +20,8 @@
 """
 
 """ yunohost_user.py
+
+    Manage users
 """
 import os
 import sys
@@ -33,16 +35,14 @@ from yunohost_domain import domain_list
 
 def user_list(fields=None, filter=None, limit=None, offset=None):
     """
-    List YunoHost users from LDAP
+    List users
 
     Keyword argument:
-        fields -- Fields to fetch
-        filter -- LDAP filter to use
-        limit  -- Number of user to fetch
-        offset -- User number to begin with
+        fields -- fields to fetch
+        limit -- Maximum number of user fetched
+        offset -- Starting number for user fetching
+        filter -- LDAP filter used to search
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         user_attrs = ['uid', 'mail', 'cn', 'maildrop']
@@ -89,16 +89,15 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
 
 def user_create(username, firstname, lastname, mail, password):
     """
-    Add user to LDAP
+    Create user
 
     Keyword argument:
-        username
-        firstname
-        lastname
         password
+        firstname
+        mail -- Main mail address must be unique
+        lastname
+        username -- Must be unique
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         # Validate password length
@@ -159,14 +158,12 @@ def user_create(username, firstname, lastname, mail, password):
 
 def user_delete(users, purge=None):
     """
-    Remove user from LDAP
+    Delete user
 
     Keyword argument:
-        users -- List of users to delete or single user
-        purge -- Whether or not purge /home/user directory
+        users -- Username of users to delete
+        purge
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         result = { 'Users' : [] }
@@ -188,24 +185,20 @@ def user_delete(users, purge=None):
 
 
 def user_update(username, firstname=None, lastname=None, mail=None, change_password=None,
-        add_mailforward=None, remove_mailforward=None,
-        add_mailalias=None, remove_mailalias=None):
     """
     Update user informations
 
     Keyword argument:
-        username -- Username to update
+        remove_mailalias -- Mail aliases to remove
+        change_password -- New password to set
+        username -- Username of user to update
+        remove_mailforward -- Mailforward addresses to remove
+        add_mailforward -- Mailforward addresses to add
         firstname
-        lastname
+        add_mailalias -- Mail aliases to add
         mail
-        change_password -- New password
-        add_mailforward
-        remove_mailforward
-        add_mailalias
-        remove_mailalias
+        lastname
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
@@ -292,13 +285,11 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
 
 def user_info(username):
     """
-    Fetch user informations from LDAP
+    Get user informations
 
     Keyword argument:
-        username -- Username or mail to get info
+        username -- Username or mail to get informations
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         user_attrs = ['cn', 'mail', 'uid', 'maildrop']

@@ -20,6 +20,8 @@
 """
 
 """ yunohost_tools.py
+
+    Specific tools
 """
 import os
 import sys
@@ -32,10 +34,8 @@ from yunohost_dyndns import dyndns_subscribe
 
 def tools_ldapinit():
     """
-    Initialize YunoHost LDAP scheme
+    YunoHost LDAP initialization
 
-    Returns:
-        dict
 
     """
     with YunoHostLDAP() as yldap:
@@ -69,12 +69,9 @@ def tools_adminpw(old_password, new_password):
     """
     Change admin password
 
-    Keyword arguments:
+    Keyword argument:
         old_password
         new_password
-
-    Returns:
-        dict
 
     """
     # Validate password length
@@ -91,14 +88,11 @@ def tools_adminpw(old_password, new_password):
 
 def tools_maindomain(old_domain, new_domain):
     """
-    Change admin password
+    Main domain change tool
 
-    Keyword arguments:
+    Keyword argument:
         old_domain
         new_domain
-
-    Returns:
-        dict
 
     """
 
@@ -179,14 +173,12 @@ def tools_maindomain(old_domain, new_domain):
 
 def tools_postinstall(domain, password, dyndns=False):
     """
-    Post-install configuration
+    YunoHost post-install
 
-    Keyword arguments:
-        domain -- Main domain
-        password -- New admin password
-
-    Returns:
-        dict
+    Keyword argument:
+        password -- YunoHost admin password
+        dyndns -- Subscribe domain to a DynDNS service
+        domain -- YunoHost main domain
 
     """
     with YunoHostLDAP(password='yunohost') as yldap:

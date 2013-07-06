@@ -20,6 +20,8 @@
 """
 
 """ yunohost_dyndns.py
+
+    Subscribe and Update DynDNS Hosts
 """
 import os
 import sys
@@ -32,13 +34,10 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
     """
     Subscribe to a DynDNS service
 
-    Keyword arguments:
+    Keyword argument:
+        key -- Public DNS key
         subscribe_host -- Dynette HTTP API to subscribe to
-        domain         -- Full domain to subscribe with
-        key            -- Public DNS key
-
-    Returns:
-        Win | Fail
+        domain -- Full domain to subscribe with
 
     """
     if domain is None:
@@ -72,16 +71,13 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
 
 def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=None):
     """
-    Update IP on DNS platform
+    Update IP on DynDNS platform
 
-    Keyword arguments:
+    Keyword argument:
         dyn_host -- Dynette DNS server to inform
-        domain   -- Full domain to update
-        key      -- Public DNS key
-        ip       -- IP to send
-
-    Returns:
-        Win | Fail
+        ip -- IP address to send
+        key -- Public DNS key
+        domain -- Full domain to subscribe with
 
     """
     if domain is None:
@@ -145,8 +141,6 @@ def dyndns_installcron():
     """
     Install IP update cron
 
-    Returns:
-        Win
 
     """
     os.system("touch /etc/cron.d/yunohost-dyndns")
@@ -158,8 +152,6 @@ def dyndns_removecron():
     """
     Remove IP update cron
 
-    Returns:
-        Win | Fail
 
     """
     try:

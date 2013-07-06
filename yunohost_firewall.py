@@ -20,6 +20,8 @@
 """
 
 """ yunohost_firewall.py
+
+    Manage firewall rules
 """
 import os
 import sys
@@ -40,16 +42,13 @@ from yunohost import YunoHostError, win_msg
 
 def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
     """
-    Allow port in iptables
+    Allow connection port/protocol
 
-    Keyword arguments:
-        protocol -- Protocol used
+    Keyword argument:
+        protocol -- Protocol associated with port
+        ipv6 -- ipv6
+        upnp -- upnp
         port -- Port to open
-        ipv6 -- Boolean ipv6
-        upnp -- Boolean upnp
-
-    Return
-        Dict
 
     """
     port = int(port)
@@ -74,16 +73,13 @@ def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
 
 def firewall_disallow(protocol=None, port=None, ipv6=None, upnp=False):
     """
-    Disallow port in iptables
+    Disallow connection
 
-    Keyword arguments:
-        protocol -- Protocol used
+    Keyword argument:
+        protocol -- Protocol associated with port
+        ipv6 -- ipv6
+        upnp -- upnp
         port -- Port to open
-        ipv6 -- Boolean ipv6
-        upnp -- Boolan upnp
-
-    Return
-        Dict
 
     """
 
@@ -100,13 +96,8 @@ def firewall_disallow(protocol=None, port=None, ipv6=None, upnp=False):
 
 def firewall_list():
     """
-    Allow port in iptables
+    List all firewall rules
 
-    Keyword arguments:
-        None
-
-    Return
-        Dict
 
     """
     with open ('firewall.yml') as f:
@@ -115,13 +106,11 @@ def firewall_list():
 
 def firewall_reload(upnp=False):
     """
-    Reload iptables configuration
+    Reload all firewall rules
 
-    Keyword arguments:
-        upnp -- Boolean upnp
+    Keyword argument:
+        upnp -- upnp
 
-    Return
-        Dict
     """
     with open('firewall.yml', 'r') as f:
         firewall = yaml.load(f)
@@ -279,10 +268,8 @@ def remove_portmapping():
 def firewall_installupnp():
     """
     Add upnp cron
-    Keyword arguments:
-        None
-    Return
-        None
+
+
     """
 
     with open('firewall.yml', 'r') as f:
@@ -303,10 +290,8 @@ def firewall_installupnp():
 def firewall_removeupnp():
     """
     Remove upnp cron
-    Keyword arguments:
-        None
-    Return
-        None
+
+
     """
     with open('firewall.yml', 'r') as f:
         firewall = yaml.load(f)
@@ -327,12 +312,9 @@ def firewall_removeupnp():
 
 def firewall_checkupnp():
     """
-    Check if UPNP is installed
-    Keyword arguments:
-        None
-    Return
-        0 if installed
-        1 if not
+    check if UPNP is install or not (0 yes 1 no)
+
+
     """
     with open('firewall.yml', 'r') as f:
         firewall = yaml.load(f)
@@ -344,11 +326,9 @@ def firewall_checkupnp():
 
 def firewall_stop():
     """
-    Stop firewall
-    Keyword arguments:
-        None
-    Return
-        None
+    Stop iptables and ip6tables
+
+
     """
 
     os.system ("iptables -P INPUT ACCEPT")

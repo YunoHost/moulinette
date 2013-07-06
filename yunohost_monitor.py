@@ -20,6 +20,8 @@
 """
 
 """ yunohost_monitor.py
+
+    Monitoring functions
 """
 import xmlrpclib
 import json
@@ -86,6 +88,16 @@ def process_check(args):
 
 def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
     """
+    Check System
+
+    Keyword argument:
+        public -- Show IP public
+        cpu -- Check CPU
+        uptime -- Show Uptime
+        disk -- Check Disk
+        ifconfig -- Show Ip and MAC Adress
+        memory -- Check Memory
+
     """
     if memory:
         return json.loads(s.getMem())
@@ -126,15 +138,3 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
         raise YunoHostError(1, _('No arguments provided'))
 
 def monitor_process(enable=None, disable=None, start=None, stop=None, check=None, info=False):
-    if enable:
-        return process_enable(enable)
-    elif disable:
-        return process_disable(disable)
-    elif start:
-        return process_start(start)
-    elif stop:
-        return process_stop(stop)
-    elif check:
-        return process_check(check)
-    elif info:
-        return json.loads(s.getProcessCount())

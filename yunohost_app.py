@@ -20,6 +20,8 @@
 """
 
 """ yunohost_app.py
+
+    Manage apps
 """
 import os
 import sys
@@ -45,8 +47,6 @@ def app_listlists():
     """
     List fetched lists
 
-    Returns:
-        Dict of lists
 
     """
     list_list = []
@@ -62,14 +62,11 @@ def app_listlists():
 
 def app_fetchlist(url=None, name=None):
     """
-    Fetch application list
+    Fetch application list from app server
 
-    Keyword arguments:
-        url -- Custom list URL
-        name -- Name of the app list
-
-    Returns:
-        True | YunoHostError
+    Keyword argument:
+        url -- URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw)
+        name -- Name of the list (default fapp)
 
     """
     # Create app path if not exists
@@ -90,9 +87,9 @@ def app_fetchlist(url=None, name=None):
 
 def app_removelist(name):
     """
-    Remove specified application list
+    Remove list from the repositories
 
-    Keyword arguments:
+    Keyword argument:
         name -- Name of the list to remove
 
     """
@@ -106,16 +103,13 @@ def app_removelist(name):
 
 def app_list(offset=None, limit=None, filter=None, raw=False):
     """
-    List available applications
+    List apps
 
-    Keyword arguments:
-        offset -- App to begin with
-        limit -- Number of apps to list
-        filter -- Name filter
+    Keyword argument:
         raw -- Return the full app_dict
-
-    Returns:
-        Dict of apps
+        limit -- Maximum number of app fetched
+        offset -- Starting number for app fetching
+        filter -- Name filter of app_id or app_name
 
     """
     # TODO: List installed applications
@@ -168,15 +162,12 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
 
 def app_info(app, instance=None, raw=False):
     """
-    Fetch informations for selected apps
+    Get app informations
 
-    Keyword arguments:
-        app -- App ID
-        instance -- Specific number of instance to get info from
+    Keyword argument:
+        instance -- App instance number
         raw -- Return the full app_dict
-
-    Returns:
-        Dict | Fail
+        app -- App ID
 
     """
     try:
@@ -206,14 +197,12 @@ def app_info(app, instance=None, raw=False):
 
 def app_map(app=None, raw=False):
     """
-    Map of installed apps
+    List apps by domain
 
-    Keyword arguments:
-        app -- App ID of app to map
+    Keyword argument:
+        app -- Specific app to map
         raw -- Return complete dict
 
-    Returns:
-        Dict
     """
 
     result = {}
@@ -241,16 +230,13 @@ def app_map(app=None, raw=False):
 
 def app_upgrade(app, instance=[], url=None, file=None):
     """
-    Upgrade selected apps
+    Upgrade app
 
-    Keyword arguments:
-        app -- List of app_id to upgrade (default all upgradable app)
-        instance -- Specific number(s) of instance(s) to upgrade
-        url -- Git url to fetch before upgrade
+    Keyword argument:
+        instance -- App instance number to upgrade
+        url -- Git url to fetch for upgrade
+        app -- App(s) to upgrade (default all)
         file -- Folder or tarball for upgrade
-
-    Returns:
-        Win | Fail
 
     """
     with YunoHostLDAP() as yldap:
@@ -388,17 +374,14 @@ def app_upgrade(app, instance=[], url=None, file=None):
 
 def app_install(app, domain, path='/', label=None, mode='private'):
     """
-    Install selected app
+    Install apps
 
-    Keyword arguments:
-        app -- AppID to install (or filename)
-        domain -- Web domain for the app
-        path -- Subpath of the domain
-        label -- User defined name for the app
-        mode -- public|private|protected
-
-    Returns:
-        Win | Fail
+    Keyword argument:
+        path
+        mode -- level of privacy of the app (public|protected|private)
+        domain
+        app -- App to install
+        label
 
     """
     # TODO: Virer la règle "default" lemon
@@ -612,11 +595,11 @@ def app_install(app, domain, path='/', label=None, mode='private'):
 
 def app_remove(app, instance=[]):
     """
-    Remove app(s)
+    Remove app
 
-    Keyword arguments:
-        app -- App ID to remove
-        instance -- List of instances to remove (default all)
+    Keyword argument:
+        instance -- App instance number to delete
+        app -- App(s) to delete
 
     """
     lemon_conf_lines = {}
@@ -676,11 +659,11 @@ def app_remove(app, instance=[]):
 
 def app_addaccess(apps, users):
     """
-    Grant access to a private app to a user
+    Grant access right to users (everyone by default)
 
-    Keyword arguments:
-        apps -- List of app to grant access to
-        users -- Users to grant access for
+    Keyword argument:
+        apps
+        users
 
     """
     if not isinstance(users, list): users = [users]
@@ -725,11 +708,11 @@ def app_addaccess(apps, users):
 
 def app_removeaccess(apps, users):
     """
-    Revoke access to a private app to a user
+    Revoke access right to users (everyone by default)
 
-    Keyword arguments:
-        apps -- List of app to revoke access to
-        users -- Users to revoke access for
+    Keyword argument:
+        apps
+        users
 
     """
     if not isinstance(users, list): users = [users]

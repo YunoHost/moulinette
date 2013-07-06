@@ -20,6 +20,8 @@
 """
 
 """ yunohost_domain.py
+
+    Manage domains
 """
 import os
 import sys
@@ -35,15 +37,13 @@ lemon_tmp_conf   = '/tmp/tmplemonconf'
 
 def domain_list(filter=None, limit=None, offset=None):
     """
-    List YunoHost domains
+    List domains
 
     Keyword argument:
-        filter -- LDAP filter to search with
-        limit
-        offset
+        limit -- Maximum number of domain fetched
+        offset -- Starting number for domain fetching
+        filter -- LDAP filter used to search
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         result_list = []
@@ -69,15 +69,12 @@ def domain_list(filter=None, limit=None, offset=None):
 
 def domain_add(domains, raw=False, main=False):
     """
-    Add one or more domains
+    Create a custom domain
 
     Keyword argument:
-        domains -- List of domains to add
-        raw -- Do not configure Apache and LemonLDAP for the domain too
-        main -- Is the main domain
+        raw -- Auto-configure Apache and LemonLDAP for the domain
+        domains -- Domain name to add
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         attr_dict = { 'objectClass' : ['mailDomain', 'top'] }
@@ -225,13 +222,11 @@ def domain_add(domains, raw=False, main=False):
 
 def domain_remove(domains):
     """
-    Remove domain from LDAP
+    Delete domains
 
     Keyword argument:
-        domains -- List of domains to remove
+        domains -- Domain(s) to delete
 
-    Returns:
-        Dict
     """
     with YunoHostLDAP() as yldap:
         result = []
