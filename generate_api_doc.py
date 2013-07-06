@@ -166,13 +166,16 @@ def main():
                 })
 
 
+    try: os.listdir(os.getcwd() +'/doc')
+    except OSError: os.makedirs(os.getcwd() +'/doc')
+
     for category, api_dict in resources.items():
         with open(os.getcwd() +'/doc/'+ category +'.json', 'w') as f:
               json.dump(api_dict, f)
 
     with open(os.getcwd() +'/doc/resources.json', 'w') as f:
         json.dump(resource_list, f)
-    
+
 
 if __name__ == '__main__':
     sys.exit(main())
