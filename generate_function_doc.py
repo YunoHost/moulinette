@@ -26,6 +26,7 @@
 import os
 import sys
 import yaml
+import re
 
 def main():
     """
