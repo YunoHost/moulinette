@@ -106,7 +106,7 @@ def main():
                     else:
                         f.write(line)
 
-                    if re.search(r'^def '+ category +'_'+ action, line):
+                    if re.search(r'^def '+ category +'_'+ action +'(', line):
                         in_block = True
 
 
