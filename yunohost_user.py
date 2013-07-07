@@ -194,10 +194,9 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
             new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + lastname
 
         if change_password:
-            char_set = string.ascii_uppercase + string.digits
-            salt = ''.join(random.sample(char_set,8))
-            salt = '$1$' + salt + '$'
-            new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(change_password), salt)
+            pwd_changed = os.system('echo "'+ password +'\n'+ password +'" | smbldap-passwd '+ username)
+            if pwd_changed > 0:
+                raise YunoHostError(169, _("An error occured during password update"))
 
         if mail:
             yldap.validate_uniqueness({ 'mail': mail })
