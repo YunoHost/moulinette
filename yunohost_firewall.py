@@ -181,9 +181,9 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
     if mode == 'a':
         if port not in firewall[ip][protocol]:
             firewall[ip][protocol].append(port)
-            if !ipv6 and upnp:
+            if not ipv6 and upnp:
                 firewall['UPNP']['ports'][protocol].append(port)
-        elif !ipv6 and upnp:
+        elif not ipv6 and upnp:
             if port not in firewall['UPNP']['ports'][protocol]:
                 firewall['UPNP']['ports'][protocol].append(port)
             else:
@@ -193,13 +193,13 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
             raise YunoHostError(22, _("Port already openned :") + str(port))
 
     else:
-        if !ipv6 and upnp:
+        if not ipv6 and upnp:
             if port in firewall['UPNP']['ports'][protocol]:
                 firewall['UPNP']['ports'][protocol].remove(port)
 
             else:
                 raise YunoHostError(22, _("Upnp redirection already deleted :") + str(port))
-        elif !ipv6:
+        elif not ipv6:
             if port in firewall['UPNP']['ports'][protocol]:
                 firewall['UPNP']['ports'][protocol].remove(port)
 
@@ -241,7 +241,7 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
     else:
         os.system("iptables -P INPUT ACCEPT")
 
-    if upnp and !ipv6  and mode == 'a':
+    if upnp and not ipv6  and mode == 'a':
         remove_portmapping()
 
     if ipv6:
@@ -256,7 +256,7 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
             os.system("ip6tables -A INPUT -p " + protocol + " -i eth0 --dport " + str(port) + " -j ACCEPT")
         else:
             os.system("iptables -A INPUT -p " + protocol + " -i eth0 --dport " + str(port) + " -j ACCEPT")
-        if upnp and !ipv6:
+        if upnp and not ipv6:
             if port in firewall['UPNP']['ports'][protocol]:
                 upnpc = miniupnpc.UPnP()
                 upnpc.discoverdelay = 200
