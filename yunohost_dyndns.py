@@ -28,6 +28,7 @@ import sys
 import requests
 import json
 import glob
+import base64
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
 
 def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None):
@@ -59,7 +60,7 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
         raise YunoHostError(17, _("Domain is already taken"))
 
     # Send subscription
-    r = requests.post('http://'+ subscribe_host +'/key/'+ key, data={ 'subdomain': domain })
+    r = requests.post('http://'+ subscribe_host +'/key/'+ base64.b64encode(key), data={ 'subdomain': domain })
     if r.status_code != 201:
         error = json.loads(r.text)['error']
         raise YunoHostError(1, _("An error occured during DynDNS registration: "+ error))
