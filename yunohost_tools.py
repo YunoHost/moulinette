@@ -146,6 +146,7 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         '/etc/lemonldap-ng/lemonldap-ng.ini',
         '/etc/hosts',
         '/usr/share/yunohost/yunohost-config/others/startup',
+        '/home/backup.tahoe/tahoe.cfg'
     ]
 
     config_dir = []
@@ -199,7 +200,8 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         'service apache2 restart',
         'service metronome restart',
         'service postfix restart',
-        'service dovecot restart'
+        'service dovecot restart',
+        'service tahoe-lafs restart'
     ]
 
     for command in command_list:
