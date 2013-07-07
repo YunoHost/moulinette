@@ -181,10 +181,11 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
     if mode == 'a':
         if port not in firewall[ip][protocol]:
             firewall[ip][protocol].append(port)
-
-        elif upnp:
-            if port not in firewall[ip]['upnp'][protocol]:
-                firewall[ip]['upnp'][protocol].append(port)
+            if !ipv6 and upnp:
+                firewall['UPNP']['ports'][protocol].append(port)
+        elif !ipv6 and upnp:
+            if port not in firewall['UPNP']['ports'][protocol]:
+                firewall['UPNP']['ports'][protocol].append(port)
             else:
                 raise YunoHostError(22, _("Port already openned :") + str(port))
 
@@ -192,25 +193,30 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
             raise YunoHostError(22, _("Port already openned :") + str(port))
 
     else:
-        if upnp:
-            if port in firewall[ip]['upnp'][protocol]:
-                firewall[ip]['upnp'][protocol].remove(port)
+        if !ipv6 and upnp:
+            if port in firewall['UPNP']['ports'][protocol]:
+                firewall['UPNP']['ports'][protocol].remove(port)
 
             else:
                 raise YunoHostError(22, _("Upnp redirection already deleted :") + str(port))
-        else:
-            if port in firewall[ip]['upnp'][protocol]:
-                firewall[ip]['upnp'][protocol].remove(port)
-
-            else:
-                raise YunoHostError(22, _("Upnp redirection alreadu deleted :") + str(port))
+        elif !ipv6:
+            if port in firewall['UPNP']['ports'][protocol]:
+                firewall['UPNP']['ports'][protocol].remove(port)
 
             if port in firewall[ip][protocol]:
                 firewall[ip][protocol].remove(port)
 
             else:
                 raise YunoHostError(22, _("Port already closed :") + str(port))
+        else:
+            if port in firewall[ip][protocol]:
+                firewall[ip][protocol].remove(port)
+
+            else:
+                raise YunoHostError(22, _("Port already closed :") + str(port))
+
     firewall[ip][protocol].sort()
+    firewall['UPNP']['ports'][protocol].sort()
 
     os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
 
@@ -235,7 +241,7 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
     else:
         os.system("iptables -P INPUT ACCEPT")
 
-    if upnp and mode == 'a':
+    if upnp and !ipv6  and mode == 'a':
         remove_portmapping()
 
     if ipv6:
@@ -250,8 +256,8 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
             os.system("ip6tables -A INPUT -p " + protocol + " -i eth0 --dport " + str(port) + " -j ACCEPT")
         else:
             os.system("iptables -A INPUT -p " + protocol + " -i eth0 --dport " + str(port) + " -j ACCEPT")
-        if upnp:
-            if port in firewall[ip]['upnp'][protocol]:
+        if upnp and !ipv6:
+            if port in firewall['UPNP']['ports'][protocol]:
                 upnpc = miniupnpc.UPnP()
                 upnpc.discoverdelay = 200
                 nbigd = upnpc.discover()
@@ -301,7 +307,7 @@ def firewall_installupnp():
     with open('/etc/yunohost/firewall.yml', 'r') as f:
         firewall = yaml.load(f)
 
-    firewall['UPNP'] = True
+    firewall['UPNP']['cron'] = True
 
     os.system("touch /etc/cron.d/yunohost-firewall")
     os.system("echo '*/50 * * * * root yunohost firewall reload -u>>/dev/null'>/etc/cron.d/yunohost-firewall")
@@ -322,7 +328,7 @@ def firewall_removeupnp():
     with open('/etc/yunohost/firewall.yml', 'r') as f:
         firewall = yaml.load(f)
 
-    firewall['UPNP'] = False
+    firewall['UPNP']['cron'] = False
 
     try:
         os.remove("/etc/cron.d/yunohost-firewall")
@@ -346,7 +352,7 @@ def firewall_checkupnp():
     with open('/etc/yunohost/firewall.yml', 'r') as f:
         firewall = yaml.load(f)
 
-        if firewall['UPNP']:
+        if firewall['UPNP']['cron']:
             win_msg(_("UPNP is activated"))
         else:
             raise YunoHostError(167, _("UPNP not activated!"))
