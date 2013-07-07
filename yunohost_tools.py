@@ -201,7 +201,8 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         'service metronome restart',
         'service postfix restart',
         'service dovecot restart',
-        'service tahoe-lafs restart'
+        'service tahoe-lafs stop',
+        'service tahoe-lafs start'
     ]
 
     for command in command_list:
