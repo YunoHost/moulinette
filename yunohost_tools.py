@@ -121,7 +121,7 @@ def tools_adminpw(old_password, new_password):
         raise YunoHostError(22, _("Invalid password"))
 
 
-def tools_maindomain(old_domain, new_domain):
+def tools_maindomain(old_domain, new_domain, dyndns=False):
     """
     Main domain change tool
 
@@ -204,6 +204,14 @@ def tools_maindomain(old_domain, new_domain):
         if os.system(command) != 0:
             raise YunoHostError(17, _("There were a problem during domain changing"))
 
+    if dyndns: dyndns_subscribe(domain=new_domain)
+    elif len(new_domain.split('.')) >= 3:
+        r = requests.get('http://dyndns.yunohost.org/domains')
+        dyndomains = json.loads(r.text)
+        dyndomain  = '.'.join(new_domain.split('.')[1:])
+        if dyndomain in dyndomains:
+            dyndns_subscribe(domain=new_domain)
+
     win_msg(_("Main domain has been successfully changed"))
 
 
@@ -255,12 +263,10 @@ def tools_postinstall(domain, password, dyndns=False):
         tools_ldapinit(password)
 
         # New domain config
-        tools_maindomain(old_domain='yunohost.org', new_domain=domain)
+        tools_maindomain(old_domain='yunohost.org', new_domain=domain, dyndns=dyndns)
 
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)
-
-        if dyndns: dyndns_subscribe()
 
         os.system('touch /etc/yunohost/installed')
         os.system('service samba restart')
