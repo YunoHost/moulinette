@@ -5,6 +5,9 @@ import gettext
 import ldap
 import yaml
 import json
+
+sys.path.append('/usr/share/pyshared')
+
 from twisted.python.log import ILogObserver, FileLogObserver, startLogging
 from twisted.python.logfile import DailyLogFile
 from twisted.web.server import Site
