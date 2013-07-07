@@ -62,7 +62,8 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
     # Send subscription
     r = requests.post('http://'+ subscribe_host +'/key/'+ base64.b64encode(key), data={ 'subdomain': domain })
     if r.status_code != 201:
-        error = json.loads(r.text)['error']
+        try:    error = json.loads(r.text)['error']
+        except: error = "Server error"
         raise YunoHostError(1, _("An error occured during DynDNS registration: "+ error))
 
     win_msg(_("Subscribed to DynDNS"))
