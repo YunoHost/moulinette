@@ -30,6 +30,7 @@ import re
 import getpass
 import subprocess
 import requests
+import json
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add
 from yunohost_dyndns import dyndns_subscribe
