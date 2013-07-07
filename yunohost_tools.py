@@ -33,7 +33,7 @@ from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_requir
 from yunohost_domain import domain_add
 from yunohost_dyndns import dyndns_subscribe
 
-def tools_ldapinit():
+def tools_ldapinit(password=None):
     """
     YunoHost LDAP initialization
 
@@ -78,10 +78,9 @@ def tools_ldapinit():
     os.system('chmod 600 /etc/smbldap-tools/smbldap_bind.conf')
     os.system('smbpasswd -w yunohost')
     sid = subprocess.check_output(['net', 'getlocalsid']).strip().split(':')[1][1:]
-    os.system('echo \'SID="'+ sid +'"\' >> /etc/smbldap-tools/smbldap.conf') 
-    #os.system('smbldap-populate -e /tmp/samba-ldap.ldif')
-    os.system('smbldap-populate')
-    # TODO: change root domain password
+    os.system('echo \'SID="'+ sid +'"\' >> /etc/smbldap-tools/smbldap.conf')
+    if password is not None:
+        os.system('echo "'+ password +'\n'+ password +'" | smbldap-populate')
 
     win_msg(_("LDAP has been successfully initialized"))
 
@@ -253,7 +252,7 @@ def tools_postinstall(domain, password, dyndns=False):
                 raise YunoHostError(17, _("There were a problem during CA creation"))
 
         # Initialize YunoHost LDAP base
-        tools_ldapinit()
+        tools_ldapinit(password)
 
         # New domain config
         tools_maindomain(old_domain='yunohost.org', new_domain=domain)
