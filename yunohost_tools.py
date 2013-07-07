@@ -78,7 +78,7 @@ def tools_ldapinit(password=None):
 
     os.system('chmod 600 /etc/smbldap-tools/smbldap_bind.conf')
     os.system('smbpasswd -w yunohost')
-    sid = subprocess.check_output(['net', 'getlocalsid']).strip().split(':')[1][1:]
+    sid = subprocess.check_output(['net', 'getlocalsid', 'YUNOHOST']).strip().split(':')[1][1:]
     os.system('echo \'SID="'+ sid +'"\' >> /etc/smbldap-tools/smbldap.conf')
     if password is not None:
         os.system('echo "'+ password +'\n'+ password +'" | smbldap-populate')
