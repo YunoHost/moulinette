@@ -48,6 +48,7 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
     if key is None:
         if len(glob.glob('/etc/yunohost/dyndns/*.key')) == 0:
             os.makedirs('/etc/yunohost/dyndns')
+            print(_("DNS key is being generated, it may take a while..."))
             os.system('cd /etc/yunohost/dyndns && dnssec-keygen -a hmac-md5 -b 128 -n USER '+ domain)
             os.system('chmod 600 /etc/yunohost/dyndns/*.key /etc/yunohost/dyndns/*.private')
 
@@ -126,15 +127,14 @@ def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=Non
             for line in lines:
                 zone.write(line + '\n')
 
-        with open('/etc/yunohost/dyndns/old_ip', 'w') as f:
-            f.write(new_ip)
-
         if key is None:
             private_key_file = glob.glob('/etc/yunohost/dyndns/*.private')[0]
         else:
             private_key_file = key
         if os.system('/usr/bin/nsupdate -k '+ private_key_file +' /etc/yunohost/dyndns/zone') == 0:
             win_msg(_("IP successfully updated"))
+            with open('/etc/yunohost/dyndns/old_ip', 'w') as f:
+                f.write(new_ip)
         else:
             raise YunoHostError(1, _("An error occured during DynDNS update"))
 
