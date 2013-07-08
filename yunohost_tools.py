@@ -230,16 +230,6 @@ def tools_postinstall(domain, password, dyndns=False):
         password -- YunoHost admin password
 
     """
-    if len(domain.split('.')) >= 3:
-        r = requests.get('http://dyndns.yunohost.org/domains')
-        dyndomains = json.loads(r.text)
-        dyndomain  = '.'.join(new_domain.split('.')[1:])
-        if dyndomain in dyndomains:
-            if requests.get('http://dyndns.yunohost.org/test/'+ domain).status_code == 200:
-                dyndns=True
-            else:
-                raise YunoHostError(17, _("Domain is already taken"))
-
     with YunoHostLDAP(password='yunohost') as yldap:
         try:
             with open('/etc/yunohost/installed') as f: pass
@@ -247,6 +237,16 @@ def tools_postinstall(domain, password, dyndns=False):
             print('Installing YunoHost')
         else:
             raise YunoHostError(17, _("YunoHost is already installed"))
+
+        if len(domain.split('.')) >= 3:
+            r = requests.get('http://dyndns.yunohost.org/domains')
+            dyndomains = json.loads(r.text)
+            dyndomain  = '.'.join(domain.split('.')[1:])
+            if dyndomain in dyndomains:
+                if requests.get('http://dyndns.yunohost.org/test/'+ domain).status_code == 200:
+                    dyndns=True
+                else:
+                    raise YunoHostError(17, _("Domain is already taken"))
 
         # Create required folders
         folders_to_create = [
