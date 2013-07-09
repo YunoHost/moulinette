@@ -516,8 +516,12 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             if path != '/':
                 a2_conf_lines.append('Alias '+ path[:len(path)-1] +' '+ app_final_path + manifest['launch_path'])
 
+            a2_conf_lines.append('<Directory '+ app_final_path +'>')
+
             if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
                 for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line.rstrip())
+
+            a2_conf_lines.append('</Directory>')
 
             with open(a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf', 'w') as a2_conf:
                 for line in a2_conf_lines:
