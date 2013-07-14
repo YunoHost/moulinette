@@ -253,9 +253,9 @@ def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
 
     for i, port in enumerate(firewall[ip][protocol]):
         if ipv6:
-            os.system("ip6tables -A INPUT -p " + protocol + " -i eth0 --dport " + str(port) + " -j ACCEPT")
+            os.system("ip6tables -A INPUT -p " + protocol + " --dport " + str(port) + " -j ACCEPT")
         else:
-            os.system("iptables -A INPUT -p " + protocol + " -i eth0 --dport " + str(port) + " -j ACCEPT")
+            os.system("iptables -A INPUT -p " + protocol + " --dport " + str(port) + " -j ACCEPT")
         if upnp and not ipv6:
             if port in firewall['UPNP']['ports'][protocol]:
                 upnpc = miniupnpc.UPnP()
