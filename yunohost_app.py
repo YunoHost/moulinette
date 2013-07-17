@@ -512,7 +512,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             # Apache #
             ##########
             if lvl(manifest,'yunohost','webapp','custom_apache_conf'):
-                os.system('mv '+app_tmp_folder+'/'+manifest['yunohost']['webapp']['custom_apache_conf']+' '++a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf')
+                os.system('mv '+app_tmp_folder+'/'+manifest['yunohost']['webapp']['custom_apache_conf']+' '+a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf')
             else:
                 a2_conf_lines = [ 'Alias '+ path +' '+ app_final_path + manifest['launch_path'] ]
                 if path != '/':
