@@ -332,7 +332,7 @@ def app_upgrade(app, instance=[], url=None, file=None):
                 os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
 
                 if is_web:
-                    if app_type != 'privileged' and app_type != 'certified':
+                    if manifest['type'] != 'privileged' and manifest['type'] != 'certified':
                         os.system('chown -R www-data: "'+ app_final_path +'"')
                     os.system('service apache2 reload')
                 shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
@@ -545,7 +545,7 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
 
         if is_web:
-            if app_type != 'privileged' and app_type != 'certified':
+            if manifest['type'] != 'privileged' and manifest['type'] != 'certified':
                 os.system('chown -R www-data: "'+ app_final_path +'"')
             os.system('service apache2 reload')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
