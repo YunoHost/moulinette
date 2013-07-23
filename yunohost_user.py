@@ -194,7 +194,7 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
             new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + lastname
 
         if change_password:
-            pwd_changed = os.system('echo "'+ password +'\n'+ password +'" | smbldap-passwd '+ username)
+            pwd_changed = os.system('echo "'+ change_password +'\n'+ change_password +'" | smbldap-passwd '+ username)
             if pwd_changed > 0:
                 raise YunoHostError(169, _("An error occured during password update"))
 
