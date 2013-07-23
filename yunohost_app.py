@@ -221,6 +221,7 @@ def app_map(app=None, raw=False):
                     'label': app_settings['label'],
                     'uid': app_settings['uid'],
                     'instance': app_settings['instance'],
+                    'mode': app_settings['mode'],
             }
         else:
             result['https://'+app_settings['domain']+app_settings['path']] = app_settings['label']
@@ -407,6 +408,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             for app_path, v in apps_map[domain].items():
                 if app_path in path and app_path.count('/') < path.count('/'):
                     raise YunoHostError(1, _("Unable to install app at this location"))
+
+        if path != '/' and lvl(manifest, 'yunohost', 'webapp', 'domain_root_only') and is_true(manifest['yunohost']['domain_root_only']):
+            raise YunoHostError(1, _("App must be installed to domain root"))
 
 
         ##########################################
