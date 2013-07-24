@@ -72,10 +72,11 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
                     entry = {
                         'Username': user['uid'][0],
                         'Fullname': user['cn'][0],
-                        'Mail': user['mail'][0]
                     }
-                    if len(user['mail']) > 1:
-                        entry['Mail Aliases'] = user['mail'][1:]
+                    if 'mail' in user.keys():
+                        entry['Mail'] = user['mail'][0]
+                        if len(user['mail']) > 1:
+                            entry['Mail Aliases'] = user['mail'][1:]
                     if 'maildrop' in user:
                         entry['Mail Forward'] = user['maildrop']
 
