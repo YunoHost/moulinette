@@ -72,10 +72,11 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
                     entry = {
                         'Username': user['uid'][0],
                         'Fullname': user['cn'][0],
-                        'Mail': user['mail'][0]
                     }
-                    if len(user['mail']) > 1:
-                        entry['Mail Aliases'] = user['mail'][1:]
+                    if 'mail' in user.keys():
+                        entry['Mail'] = user['mail'][0]
+                        if len(user['mail']) > 1:
+                            entry['Mail Aliases'] = user['mail'][1:]
                     if 'maildrop' in user:
                         entry['Mail Forward'] = user['maildrop']
 
@@ -194,7 +195,7 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
             new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + lastname
 
         if change_password:
-            pwd_changed = os.system('echo "'+ password +'\n'+ password +'" | smbldap-passwd '+ username)
+            pwd_changed = os.system('echo "'+ change_password +'\n'+ change_password +'" | smbldap-passwd '+ username)
             if pwd_changed > 0:
                 raise YunoHostError(169, _("An error occured during password update"))
 

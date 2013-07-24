@@ -221,6 +221,7 @@ def app_map(app=None, raw=False):
                     'label': app_settings['label'],
                     'uid': app_settings['uid'],
                     'instance': app_settings['instance'],
+                    'mode': app_settings['mode'],
             }
         else:
             result['https://'+app_settings['domain']+app_settings['path']] = app_settings['label']
@@ -327,12 +328,13 @@ def app_upgrade(app, instance=[], url=None, file=None):
                 #########################################
 
                 # TMP: Remove old application
-                if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
+                # if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
 
                 os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
 
                 if is_web:
-                    os.system('chown -R www-data: "'+ app_final_path +'"')
+                    if manifest['type'] != 'privileged' and manifest['type'] != 'certified':
+                        os.system('chown -R www-data: "'+ app_final_path +'"')
                     os.system('service apache2 reload')
                 shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
@@ -406,6 +408,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             for app_path, v in apps_map[domain].items():
                 if app_path in path and app_path.count('/') < path.count('/'):
                     raise YunoHostError(1, _("Unable to install app at this location"))
+
+        if path != '/' and lvl(manifest, 'yunohost', 'webapp', 'domain_root_only') and is_true(manifest['yunohost']['domain_root_only']):
+            raise YunoHostError(1, _("App must be installed to domain root"))
 
 
         ##########################################
@@ -511,21 +516,24 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             ##########
             # Apache #
             ##########
+			
+            if lvl(manifest,'yunohost','webapp','custom_apache_conf'):
+                os.system('mv '+app_tmp_folder+'/'+manifest['yunohost']['webapp']['custom_apache_conf']+' '+a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf')
+            else:
+                a2_conf_lines = [ 'Alias '+ path +' '+ app_final_path + manifest['launch_path'] ]
+                if path != '/':
+                    a2_conf_lines.append('Alias '+ path[:len(path)-1] +' '+ app_final_path + manifest['launch_path'])
 
-            a2_conf_lines = [ 'Alias '+ path +' '+ app_final_path + manifest['launch_path'] ]
-            if path != '/':
-                a2_conf_lines.append('Alias '+ path[:len(path)-1] +' '+ app_final_path + manifest['launch_path'])
+                a2_conf_lines.append('<Directory '+ app_final_path +'>')
 
-            a2_conf_lines.append('<Directory '+ app_final_path +'>')
+                if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
+                    for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line.rstrip())
 
-            if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
-                for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line.rstrip())
+                a2_conf_lines.append('</Directory>')
 
-            a2_conf_lines.append('</Directory>')
-
-            with open(a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf', 'w') as a2_conf:
-                for line in a2_conf_lines:
-                    a2_conf.write(line + '\n')
+                with open(a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf', 'w') as a2_conf:
+                    for line in a2_conf_lines:
+                        a2_conf.write(line + '\n')		
 
 
         #########################################
@@ -536,12 +544,13 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         except OSError: os.makedirs(apps_path)
 
         # TMP: Remove old application
-        if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
+        # if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
 
         os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
 
         if is_web:
-            os.system('chown -R www-data: "'+ app_final_path +'"')
+            if manifest['type'] != 'privileged' and manifest['type'] != 'certified':
+                os.system('chown -R www-data: "'+ app_final_path +'"')
             os.system('service apache2 reload')
         shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
 
