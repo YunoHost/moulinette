@@ -146,7 +146,7 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         '/etc/lemonldap-ng/lemonldap-ng.ini',
         '/etc/hosts',
         '/usr/share/yunohost/yunohost-config/others/startup',
-        '/home/backup.tahoe/tahoe.cfg'
+        '/home/yunohost.backup/tahoe/tahoe.cfg'
     ]
 
     config_dir = []
@@ -252,7 +252,9 @@ def tools_postinstall(domain, password, dyndns=False):
         folders_to_create = [
             '/etc/yunohost/apps',
             '/etc/yunohost/certs',
-            '/var/cache/yunohost/repo'
+            '/var/cache/yunohost/repo',
+            '/home/yunohost.samba',
+            '/home/yunohost.app'
         ]
 
         for folder in folders_to_create:
