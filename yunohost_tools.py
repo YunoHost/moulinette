@@ -145,7 +145,6 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         '/etc/metronome/metronome.cfg.lua',
         '/etc/dovecot/dovecot.conf',
         '/etc/lemonldap-ng/lemonldap-ng.ini',
-        '/etc/hosts',
         '/usr/share/yunohost/yunohost-config/others/startup',
         '/home/yunohost.backup/tahoe/tahoe.cfg'
     ]
@@ -192,7 +191,6 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         'cp /etc/yunohost/apache/templates/admin.fixed.conf /etc/yunohost/apache/domains/' + new_domain + '.d/admin.fixed.conf',
         'cp /etc/yunohost/apache/templates/user.fixed.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/user.fixed.conf',
         '/usr/share/lemonldap-ng/bin/lmYnhMoulinette',
-        '/etc/init.d/hostname.sh',
         'cp    /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/metronome/certs/yunohost_key.pem',
         'chown metronome: /etc/metronome/certs/yunohost_key.pem',
         'ln -s /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/ssl/private/yunohost_key.pem',

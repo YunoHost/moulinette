@@ -409,9 +409,6 @@ def app_install(app, domain, path='/', label=None, mode='private'):
                 if app_path in path and app_path.count('/') < path.count('/'):
                     raise YunoHostError(1, _("Unable to install app at this location"))
 
-        if path != '/' and lvl(manifest, 'yunohost', 'webapp', 'domain_root_only') and is_true(manifest['yunohost']['domain_root_only']):
-            raise YunoHostError(1, _("App must be installed to domain root"))
-
 
         ##########################################
         # Fetch or extract sources               #
@@ -424,6 +421,9 @@ def app_install(app, domain, path='/', label=None, mode='private'):
             manifest = _fetch_app_from_git(app)
         else:
             manifest = _extract_app_from_file(app)
+
+        if path != '/' and lvl(manifest, 'yunohost', 'webapp', 'domain_root_only') and is_true(manifest['yunohost']['domain_root_only']):
+            raise YunoHostError(1, _("App must be installed to domain root"))
 
 
         #########################################
