@@ -38,4 +38,14 @@ def backup_init(helper=False):
         helper -- Init as a helper node rather than a "helped" one
 
     """
-    pass
+    tahoe_cfg_dir = '/usr/share/yunohost/yunohost-config/backup'
+    if helper:
+        configure_cmd = '/configure_tahoe.sh helper'
+    else:
+        configure_cmd = '/configure_tahoe.sh'
+
+    os.system('tahoe create-client /home/yunohost.backup/tahoe')
+    os.system('/bin/bash '+ tahoe_cfg_dir + configure_cmd)
+    os.system('cp '+ tahoe_cfg_dir +'/tahoe.cfg /home/yunohost.backup/tahoe/')
+    os.system('update-rc.d tahoe-lafs defaults')
+    os.system('service tahoe-lafs restart')

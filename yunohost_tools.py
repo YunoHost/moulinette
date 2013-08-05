@@ -34,6 +34,7 @@ import json
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add
 from yunohost_dyndns import dyndns_subscribe
+from yunohost_backup import backup_init
 
 def tools_ldapinit(password=None):
     """
@@ -286,6 +287,9 @@ def tools_postinstall(domain, password, dyndns=False):
 
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)
+
+        # Initialize backup system
+        backup_init()
 
         os.system('touch /etc/yunohost/installed')
         os.system('service samba restart')
