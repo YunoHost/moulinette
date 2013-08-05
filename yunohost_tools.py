@@ -202,8 +202,7 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         'service metronome restart',
         'service postfix restart',
         'service dovecot restart',
-        'service tahoe-lafs stop',
-        'service tahoe-lafs start'
+        'service amavis restart'
     ]
 
     for command in command_list:
@@ -217,6 +216,9 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         dyndomain  = '.'.join(new_domain.split('.')[1:])
         if dyndomain in dyndomains:
             dyndns_subscribe(domain=new_domain)
+
+    # Initialize backup system
+    backup_init()
 
     win_msg(_("Main domain has been successfully changed"))
 
@@ -255,6 +257,7 @@ def tools_postinstall(domain, password, dyndns=False):
             '/etc/yunohost/certs',
             '/var/cache/yunohost/repo',
             '/home/yunohost.samba',
+            '/home/yunohost.backup',
             '/home/yunohost.app'
         ]
 
@@ -287,9 +290,6 @@ def tools_postinstall(domain, password, dyndns=False):
 
         # Change LDAP admin password
         tools_adminpw(old_password='yunohost', new_password=password)
-
-        # Initialize backup system
-        backup_init()
 
         os.system('touch /etc/yunohost/installed')
         os.system('service samba restart')
