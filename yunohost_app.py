@@ -132,13 +132,13 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
 
     if len(app_dict) > (0 + offset) and limit > 0:
         sorted_app_dict = {}
-        for sorted_keys in sorted(app_dict.keys())[i:]:
+        for sorted_keys in sorted(app_dict.keys())[offset:]:
             sorted_app_dict[sorted_keys] = app_dict[sorted_keys]
 
         i = 0
         for app_id, app_info in sorted_app_dict.items():
             if i < limit:
-        	    if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
+                if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
                     instance_number = len(_installed_instance_number(app_id))
                     if instance_number > 1:
                         installed_txt = 'Yes ('+ str(instance_number) +' times)'
@@ -147,18 +147,18 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                     else:
                         installed_txt = 'No'
 
-                if raw:
-                    list_dict[app_id] = app_info
-                else:
-                    list_dict[app_id] = [
-                        ('Name', app_info['manifest']['name']),
-                        ('Version', app_info['manifest']['version']),
-                        ('Description', app_info['manifest']['description']),
-                        ('Installed', installed_txt)
-                    ]
-                i += 1
+                    if raw:
+                        list_dict[app_id] = app_info
+                    else:
+                        list_dict[app_id] = [
+                            ('Name', app_info['manifest']['name']),
+                            ('Version', app_info['manifest']['version']),
+                            ('Description', app_info['manifest']['description']),
+                            ('Installed', installed_txt)
+                        ]
+                    i += 1
             else:
-                break
+               break
 
     return list_dict
 
