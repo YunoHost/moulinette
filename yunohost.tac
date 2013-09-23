@@ -14,7 +14,7 @@ from twisted.web.server import Site, http
 from twisted.internet import reactor
 from twisted.application import internet,service
 from txrestapi.resource import APIResource
-from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict
+from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict, reset_win_messages
 
 if not __debug__:
     import traceback
@@ -27,7 +27,6 @@ action_dict = {}
 api = APIResource()
 
 def http_exec(request, **kwargs):
-    global win
 
     request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
     request.setHeader('Content-Type', 'application/json') # Return JSON anyway
@@ -115,9 +114,9 @@ def http_exec(request, **kwargs):
             result = func(**validated_args)
         if result is None:
             result = {}
-        if win:
+        if len(win) > 0:
             result['win'] = win
-            win = []
+            reset_win_messages()
 
         # Build response
         if request.method == 'POST':

@@ -124,6 +124,16 @@ def win_msg(astr):
 
 
 
+def reset_win_messages():
+    """
+    Empty the win array
+
+    """
+    global win
+
+    win = []
+
+
 def str_to_func(astr):
     """
     Call a function from a string name
