@@ -120,18 +120,8 @@ def win_msg(astr):
     if os.isatty(1):
         print('\n' + colorize(_("Success: "), 'green') + astr + '\n')
     
+    del win[:]
     win.append(astr)
-
-
-
-def reset_win_messages():
-    """
-    Empty the win array
-
-    """
-    global win
-
-    win = []
 
 
 def str_to_func(astr):

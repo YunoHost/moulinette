@@ -14,7 +14,7 @@ from twisted.web.server import Site, http
 from twisted.internet import reactor
 from twisted.application import internet,service
 from txrestapi.resource import APIResource
-from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict, reset_win_messages
+from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict
 
 if not __debug__:
     import traceback
@@ -116,7 +116,6 @@ def http_exec(request, **kwargs):
             result = {}
         if len(win) > 0:
             result['win'] = win
-            reset_win_messages()
 
         # Build response
         if request.method == 'POST':
