@@ -69,16 +69,14 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
             i = 0 + offset
             for user in result[i:]:
                 if i - offset < limit:
+                    if user['uid'][0] == 'root' or user['uid'][0] == 'nobody':
+                        continue
                     entry = {
                         'Username': user['uid'][0],
                         'Fullname': user['cn'][0],
                     }
                     if 'mail' in user.keys():
                         entry['Mail'] = user['mail'][0]
-                        if len(user['mail']) > 1:
-                            entry['Mail Aliases'] = user['mail'][1:]
-                    if 'maildrop' in user:
-                        entry['Mail Forward'] = user['maildrop']
 
                     result_list.append(entry)
                     i += 1
