@@ -120,7 +120,6 @@ def win_msg(astr):
     if os.isatty(1):
         print('\n' + colorize(_("Success: "), 'green') + astr + '\n')
     
-    del win[:]
     win.append(astr)
 
 

@@ -15,6 +15,7 @@ from twisted.internet import reactor
 from twisted.application import internet,service
 from txrestapi.resource import APIResource
 from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict
+import yunohost
 
 if not __debug__:
     import traceback
@@ -65,7 +66,7 @@ def http_exec(request, **kwargs):
            path = path.replace(dynamic_key, '{'+ k +'}')
            given_args[k] = [v]
 
-    msg(given_args)
+    #msg(given_args)
     # Sanitize arguments
     dict = action_dict[request.method +' '+ path]
     if 'arguments' in dict: possible_args = dict['arguments']
@@ -114,8 +115,9 @@ def http_exec(request, **kwargs):
             result = func(**validated_args)
         if result is None:
             result = {}
-        if len(win) > 0:
-            result['win'] = win
+        if len(yunohost.win) > 0:
+            result['win'] = yunohost.win
+            yunohost.win = []
 
         # Build response
         if request.method == 'POST':
