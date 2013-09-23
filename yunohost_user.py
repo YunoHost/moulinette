@@ -260,7 +260,7 @@ def user_info(username):
 
     """
     with YunoHostLDAP() as yldap:
-        user_attrs = ['cn', 'mail', 'uid', 'maildrop']
+        user_attrs = ['cn', 'mail', 'uid', 'maildrop', 'givenName', 'sn']
 
         if len(username.split('@')) is 2:
             filter = 'mail='+ username
@@ -277,6 +277,8 @@ def user_info(username):
         result_dict = {
             'Username': user['uid'][0],
             'Fullname': user['cn'][0],
+            'Firstname': user['givenName'][0],
+            'Lastname': user['sn'][0],
             'Mail': user['mail'][0]
         }
 

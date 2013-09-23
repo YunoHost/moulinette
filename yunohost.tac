@@ -8,9 +8,9 @@ import json
 
 sys.path.append('/usr/share/pyshared')
 
-from twisted.python.log import ILogObserver, FileLogObserver, startLogging
+from twisted.python.log import ILogObserver, FileLogObserver, startLogging, msg
 from twisted.python.logfile import DailyLogFile
-from twisted.web.server import Site
+from twisted.web.server import Site, http
 from twisted.internet import reactor
 from twisted.application import internet,service
 from txrestapi.resource import APIResource
@@ -56,14 +56,17 @@ def http_exec(request, **kwargs):
             return 'Unauthorized'
 
     path = request.path
-    given_args = request.args
+    if request.method == 'PUT':
+        given_args = http.parse_qs(request.content.read(), 1)
+    else:
+        given_args = request.args
     if kwargs:
        for k, v in kwargs.iteritems():
            dynamic_key = path.split('/')[-1]
            path = path.replace(dynamic_key, '{'+ k +'}')
            given_args[k] = [v]
 
-    print given_args
+    msg(given_args)
     # Sanitize arguments
     dict = action_dict[request.method +' '+ path]
     if 'arguments' in dict: possible_args = dict['arguments']
