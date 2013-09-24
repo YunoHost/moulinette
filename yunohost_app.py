@@ -121,7 +121,10 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
 
     applists = os.listdir(repo_path)
     app_dict  = {}
-    list_dict = {}
+    if raw:
+        list_dict = {}
+    else:
+        list_dict=[]
 
     if not applists: app_fetchlist()
 
@@ -144,22 +147,27 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                         installed_txt = 'Yes ('+ str(instance_number) +' times)'
                     elif instance_number == 1:
                         installed_txt = 'Yes'
+                        installed = True
                     else:
                         installed_txt = 'No'
+                        installed = False
 
                     if raw:
+                        app_info['installed'] = installed
                         list_dict[app_id] = app_info
                     else:
-                        list_dict[app_id] = [
-                            ('Name', app_info['manifest']['name']),
-                            ('Version', app_info['manifest']['version']),
-                            ('Description', app_info['manifest']['description']),
-                            ('Installed', installed_txt)
-                        ]
+                        list_dict.append({
+                            'ID': app_id,
+                            'Name': app_info['manifest']['name'],
+                            'Version': app_info['manifest']['version'],
+                            'Description': app_info['manifest']['description'],
+                            'Installed': installed_txt
+                        })
                     i += 1
             else:
                break
-
+    if not raw:
+        list_dict = { 'Apps': list_dict }
     return list_dict
 
 
