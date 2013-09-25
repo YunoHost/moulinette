@@ -167,9 +167,15 @@ def favicon(request):
     request.setResponseCode(404, 'Not Found')
     return ''
 
+def is_installed(request):
+    request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
+    request.setResponseCode(200, 'OK')
+    return json.dumps({ 'installed': installed })
+
 def main():
     global action_dict
     global api
+    global installed
 
     # Generate API doc
     os.system('python ./generate_api_doc.py')
@@ -180,38 +186,11 @@ def main():
     # favicon.ico error
     api.register('ALL', '/favicon.ico', favicon)
 
-    # Load & parse yaml file
-    with open('action_map.yml') as f:
-        action_map = yaml.load(f)
-
-    del action_map['general_arguments']
-    for category, category_params in action_map.items():
-        api.register('ALL', '/api/'+ category, api_doc)
-        for action, action_params in category_params['actions'].items():
-            if 'action_help' not in action_params:
-                action_params['action_help'] = ''
-            if 'api' not in action_params:
-                action_params['api'] = 'GET /'+ category +'/'+ action
-            method, path = action_params['api'].split(' ')
-            # Register route
-            if '{' in path:
-                path = path.replace('{', '(?P<').replace('}', '>[^/]+)')
-            api.register(method, path, http_exec)
-            api.register('OPTIONS', path, http_exec)
-            action_dict[action_params['api']] = {
-                'function': 'yunohost_'+ category +'.'+ category +'_'+ action,
-                'help'    : action_params['action_help']
-            }
-            if 'arguments' in action_params:
-                action_dict[action_params['api']]['arguments'] = action_params['arguments']
-
-
     # Register only postinstall action if YunoHost isn't completely set up
     try:
         with open('/etc/yunohost/installed') as f: pass
     except IOError:
         installed = False
-        api = APIResource()
         api.register('POST', '/postinstall', http_exec)
         api.register('OPTIONS', '/postinstall', http_exec)
         action_dict['POST /postinstall'] = {
@@ -219,6 +198,34 @@ def main():
             'help'      : 'Execute post-install',
             'arguments' : action_map['tools']['postinstall']['arguments']
         }
+    else:
+        # Load & parse yaml file
+        with open('action_map.yml') as f:
+            action_map = yaml.load(f)
+
+        del action_map['general_arguments']
+        for category, category_params in action_map.items():
+            api.register('ALL', '/api/'+ category, api_doc)
+            for action, action_params in category_params['actions'].items():
+                if 'action_help' not in action_params:
+                    action_params['action_help'] = ''
+                if 'api' not in action_params:
+                    action_params['api'] = 'GET /'+ category +'/'+ action
+                method, path = action_params['api'].split(' ')
+                # Register route
+                if '{' in path:
+                    path = path.replace('{', '(?P<').replace('}', '>[^/]+)')
+                api.register(method, path, http_exec)
+                api.register('OPTIONS', path, http_exec)
+                action_dict[action_params['api']] = {
+                    'function': 'yunohost_'+ category +'.'+ category +'_'+ action,
+                    'help'    : action_params['action_help']
+                }
+                if 'arguments' in action_params:
+                    action_dict[action_params['api']]['arguments'] = action_params['arguments']
+
+    api.register('ALL', '/installed', is_installed)
+
 
 
 if __name__ == '__main__':
