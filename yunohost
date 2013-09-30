@@ -55,7 +55,6 @@ def main():
         int -- 0 or error code
 
     """
-    reset_win_messages()
 
     if len(sys.argv) < 2:
         sys.argv.append('-h')
