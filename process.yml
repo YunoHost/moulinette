@@ -1,0 +1,4 @@
+glances:
+   command: service
+tahoe-lafs:
+   command: ps aux | grep tahoe |grep -v grep
