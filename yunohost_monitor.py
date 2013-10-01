@@ -29,6 +29,17 @@ import psutil
 from urllib import urlopen
 from datetime import datetime, timedelta
 from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
+import os
+import sys
+try:
+    import yaml
+except ImportError:
+    sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
+    sys.stderr.write('apt-get install python-yaml\n')
+    sys.exit(1)
+import json
+if not __debug__:
+        import traceback
 
 s = xmlrpclib.ServerProxy('http://127.0.0.1:61209')
 
@@ -73,17 +84,21 @@ def process_stop(args):
     else:
         raise YunoHostError(1, 'Stop : ' + args.title() + " " + _("failure"))
 
+
 def process_check(args):
-    ip = public()['Public IP']
-    output = os.system('/usr/lib/nagios/plugins/check_tcp -H localhost -p' + args  + ' > /dev/null')
-    if output == 0:
-        output = os.system('/usr/lib/nagios/plugins/check_tcp -H ' + ip + ' -p' + args  + ' > /dev/null')
-        if output == 0:
-            return { 'Port' : args + " " + _("is open") }
+    with open('process.yml', 'r') as f:
+        process = yaml.load(f)
+    
+    for i in process:
+        cmd = process[i]['command']
+        if cmd == 'service':
+                status = os.system("service " + i + " status")
         else:
-            return { 'Warning' : args + " " + _("is closed in your box") }
-    else:
-        raise YunoHostError(1, args + " " + _("is closed") )
+                status = os.system(cmd)
+    	if status == 0:
+        	return { i + " " + _("is up") }
+    	else:
+        	raise YunoHostError(1, i + " " + _("is down") )
 
 
 def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
@@ -137,7 +152,7 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
     else:
         raise YunoHostError(1, _('No arguments provided'))
 
-def monitor_process(enable=None, disable=None, start=None, stop=None, check=None, info=False):
+def monitor_process(enable=None, disable=None, start=None, stop=None, check=False, info=False):
     """
     Check Process
 

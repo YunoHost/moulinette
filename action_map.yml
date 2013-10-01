@@ -436,7 +436,7 @@ monitor:
                 -c:
                     full: --check
                     help: Check process
-                    metavar: PORT
+                    action: store_true
                 -i:
                     full: --info
                     help: Process info
