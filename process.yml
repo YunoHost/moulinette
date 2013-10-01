@@ -1,4 +1,4 @@
 glances:
-   command: service
+   status: service
 tahoe-lafs:
-   command: ps aux | grep tahoe |grep -v grep
+   status: ps aux | grep tahoe |grep -v grep

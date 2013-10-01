@@ -84,22 +84,23 @@ def process_stop(args):
     else:
         raise YunoHostError(1, 'Stop : ' + args.title() + " " + _("failure"))
 
-
 def process_check(args):
     with open('process.yml', 'r') as f:
-        process = yaml.load(f)
+        processes = yaml.load(f)
     
-    for i in process:
-        cmd = process[i]['command']
-        if cmd == 'service':
-                status = os.system("service " + i + " status")
+    result = {}
+    for process, commands in processes.items():
+        if commands['status'] == 'service':
+            cmd = "service " + process + " status"
         else:
-                status = os.system(cmd)
-    	if status == 0:
-        	return { i + " " + _("is up") }
-    	else:
-        	raise YunoHostError(1, i + " " + _("is down") )
+            cmd = commands['status']
 
+        if os.system(cmd + " > /dev/null 2>&1") == 0:
+            result.update({ process : _('Running') })
+        else:
+            result.update({ process : _('Down') })
+
+    return { 'Status' : result }
 
 def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
     """
