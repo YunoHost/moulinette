@@ -113,7 +113,7 @@ def process_check(args):
 
     return { 'Status' : result }
 
-def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
+def monitor_info(memory=False, swap=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
     """
     Check System
 
@@ -123,11 +123,15 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
         public -- Show IP public
         cpu -- Check CPU
         memory -- Check Memory
+	swap -- Check Swap
         ifconfig -- Show Ip and MAC Adress
 
     """
     if memory:
         return json.loads(s.getMem())
+
+    if swap:
+       return json.loads(s.getMemSwap())
 
     elif cpu:
         return json.loads(s.getLoad())
