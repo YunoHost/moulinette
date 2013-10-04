@@ -38,10 +38,21 @@ except ImportError:
     sys.stderr.write('apt-get install python-yaml\n')
     sys.exit(1)
 import json
+import socket
+import fcntl
+import struct
 if not __debug__:
         import traceback
 
 s = xmlrpclib.ServerProxy('http://127.0.0.1:61209')
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
 def bytes2human(n):
     symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
@@ -126,8 +137,13 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
         result = {}
         for k, fs in enumerate(json.loads(s.getNetwork())):
             interface = fs['interface_name']
-            del fs['interface_name']
-            result[interface] = fs
+	    if interface != "lo":
+	        ip = get_ip_address(str(interface))
+                del fs['interface_name']
+                result[ip] = fs
+	    else:
+		del fs['interface_name']
+                result[interface] = fs
         return result
 
     elif disk:
