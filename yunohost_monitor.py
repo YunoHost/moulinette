@@ -42,7 +42,7 @@ import socket
 import fcntl
 import struct
 if not __debug__:
-        import traceback
+    import traceback
 
 s = xmlrpclib.ServerProxy('http://127.0.0.1:61209')
 
@@ -143,7 +143,7 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
             else:
                 del fs['interface_name']
                 result[interface] = fs
-            return result
+        return result
 
     elif disk:
         result = {}
