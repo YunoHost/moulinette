@@ -133,18 +133,17 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
         return json.loads(s.getLoad())
 
     elif ifconfig:
-        # TODO: c'est pas ifconfig ça ;)
-        result = {}
-        for k, fs in enumerate(json.loads(s.getNetwork())):
-		interface = fs['interface_name']
-	    if interface != "lo":
-			ip = get_ip_address(str(interface))
-			del fs['interface_name']
-			result[ip] = fs
-		else:
-			del fs['interface_name']
-			result[interface] = fs
-        return result
+		result = {}
+		for k, fs in enumerate(json.loads(s.getNetwork())):
+			interface = fs['interface_name']
+			if interface != "lo":
+				ip = get_ip_address(str(interface))
+				del fs['interface_name']
+				result[ip] = fs
+			else:
+				del fs['interface_name']
+				result[interface] = fs
+		return result
 
     elif disk:
         result = {}
