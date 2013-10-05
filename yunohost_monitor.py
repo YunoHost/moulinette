@@ -98,7 +98,7 @@ def process_stop(args):
 def process_check(args):
     with open('process.yml', 'r') as f:
         processes = yaml.load(f)
-    
+
     result = {}
     for process, commands in processes.items():
         if commands['status'] == 'service':
@@ -123,7 +123,7 @@ def monitor_info(memory=False, swap=False, cpu=False, disk=False, ifconfig=False
         public -- Show IP public
         cpu -- Check CPU
         memory -- Check Memory
-	swap -- Check Swap
+        swap -- Check Swap
         ifconfig -- Show Ip and MAC Adress
 
     """
@@ -196,4 +196,4 @@ def monitor_process(enable=None, disable=None, start=None, stop=None, check=Fals
     elif check:
         return process_check(check)
     elif info:
-        return json.loads(s.getProcessCount()) 
+        return json.loads(s.getProcessCount())
