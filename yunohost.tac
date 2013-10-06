@@ -186,6 +186,10 @@ def main():
     # favicon.ico error
     api.register('ALL', '/favicon.ico', favicon)
 
+    # Load & parse yaml file
+    with open('action_map.yml') as f:
+        action_map = yaml.load(f)
+
     # Register only postinstall action if YunoHost isn't completely set up
     try:
         with open('/etc/yunohost/installed') as f: pass
@@ -196,13 +200,9 @@ def main():
         action_dict['POST /postinstall'] = {
             'function'  : 'yunohost_tools.tools_postinstall',
             'help'      : 'Execute post-install',
-            'arguments' : action_map['tools']['postinstall']['arguments']
+            'arguments' : action_map['tools']['actions']['postinstall']['arguments']
         }
     else:
-        # Load & parse yaml file
-        with open('action_map.yml') as f:
-            action_map = yaml.load(f)
-
         del action_map['general_arguments']
         for category, category_params in action_map.items():
             api.register('ALL', '/api/'+ category, api_doc)
