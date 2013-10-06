@@ -28,6 +28,7 @@ action_dict = {}
 api = APIResource()
 
 def http_exec(request, **kwargs):
+    global installed
 
     request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
     request.setHeader('Content-Type', 'application/json') # Return JSON anyway
@@ -122,6 +123,8 @@ def http_exec(request, **kwargs):
         # Build response
         if request.method == 'POST':
             request.setResponseCode(201, 'Created')
+            if not installed:
+                installed = True
         elif request.method == 'DELETE':
             request.setResponseCode(204, 'No Content')
         else:

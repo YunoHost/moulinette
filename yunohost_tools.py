@@ -261,6 +261,10 @@ def tools_postinstall(domain, password, dyndns=False):
             try: os.listdir(folder)
             except OSError: os.makedirs(folder)
 
+        # Set hostname to avoid amavis bug
+        if os.system('hostname -d') != 0:
+            os.system('hostname yunohost.yunohost.org')
+
         # Create SSL CA
         ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
         command_list = [
