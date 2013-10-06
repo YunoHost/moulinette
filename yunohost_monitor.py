@@ -29,8 +29,30 @@ import psutil
 from urllib import urlopen
 from datetime import datetime, timedelta
 from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
+import os
+import sys
+try:
+    import yaml
+except ImportError:
+    sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
+    sys.stderr.write('apt-get install python-yaml\n')
+    sys.exit(1)
+import json
+import socket
+import fcntl
+import struct
+if not __debug__:
+    import traceback
 
 s = xmlrpclib.ServerProxy('http://127.0.0.1:61209')
+
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
 def bytes2human(n):
     symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
@@ -74,19 +96,24 @@ def process_stop(args):
         raise YunoHostError(1, 'Stop : ' + args.title() + " " + _("failure"))
 
 def process_check(args):
-    ip = public()['Public IP']
-    output = os.system('/usr/lib/nagios/plugins/check_tcp -H localhost -p' + args  + ' > /dev/null')
-    if output == 0:
-        output = os.system('/usr/lib/nagios/plugins/check_tcp -H ' + ip + ' -p' + args  + ' > /dev/null')
-        if output == 0:
-            return { 'Port' : args + " " + _("is open") }
+    with open('process.yml', 'r') as f:
+        processes = yaml.load(f)
+
+    result = {}
+    for process, commands in processes.items():
+        if commands['status'] == 'service':
+            cmd = "service " + process + " status"
         else:
-            return { 'Warning' : args + " " + _("is closed in your box") }
-    else:
-        raise YunoHostError(1, args + " " + _("is closed") )
+            cmd = commands['status']
 
+        if os.system(cmd + " > /dev/null 2>&1") == 0:
+            result.update({ process : _('Running') })
+        else:
+            result.update({ process : _('Down') })
 
-def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
+    return { 'Status' : result }
+
+def monitor_info(memory=False, swap=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
     """
     Check System
 
@@ -96,22 +123,30 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
         public -- Show IP public
         cpu -- Check CPU
         memory -- Check Memory
+        swap -- Check Swap
         ifconfig -- Show Ip and MAC Adress
 
     """
     if memory:
         return json.loads(s.getMem())
 
+    if swap:
+       return json.loads(s.getMemSwap())
+
     elif cpu:
         return json.loads(s.getLoad())
 
     elif ifconfig:
-        # TODO: c'est pas ifconfig ça ;)
         result = {}
         for k, fs in enumerate(json.loads(s.getNetwork())):
             interface = fs['interface_name']
-            del fs['interface_name']
-            result[interface] = fs
+            if interface != "lo":
+                ip = get_ip_address(str(interface))
+                del fs['interface_name']
+                result[ip] = fs
+            else:
+                del fs['interface_name']
+                result[interface] = fs
         return result
 
     elif disk:
@@ -137,7 +172,7 @@ def monitor_info(memory=False, cpu=False, disk=False, ifconfig=False, uptime=Fal
     else:
         raise YunoHostError(1, _('No arguments provided'))
 
-def monitor_process(enable=None, disable=None, start=None, stop=None, check=None, info=False):
+def monitor_process(enable=None, disable=None, start=None, stop=None, check=False, info=False):
     """
     Check Process
 
@@ -161,4 +196,4 @@ def monitor_process(enable=None, disable=None, start=None, stop=None, check=None
     elif check:
         return process_check(check)
     elif info:
-        return json.loads(s.getProcessCount()) 
+        return json.loads(s.getProcessCount())
