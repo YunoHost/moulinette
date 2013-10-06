@@ -1,0 +1,22 @@
+apache2:
+   status: service
+bind9:
+   status: service
+dovecot:
+   status: service
+postfix:
+   status: service
+mysql:
+   status: service
+glances:
+   status: service
+tahoe-lafs:
+   status: ps aux | grep tahoe |grep -v grep
+ssh:
+   status: service
+metronome:
+   status: metronomectl status
+samba:
+   status: service
+slapd:
+   status: service
