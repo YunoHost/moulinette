@@ -11,7 +11,7 @@ sys.path.append('/usr/share/pyshared')
 from twisted.python.log import ILogObserver, FileLogObserver, startLogging, msg
 from twisted.python.logfile import DailyLogFile
 from twisted.web.server import Site, http
-from twisted.internet import reactor
+from twisted.internet import reactor, ssl
 from twisted.application import internet,service
 from txrestapi.resource import APIResource
 from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict
@@ -24,6 +24,8 @@ gettext.install('YunoHost')
 
 dev = False
 installed = True
+ssl_key = '/usr/share/yunohost/yunohost-config/ssl/yunoCA/certs/yunohost_key.pem'
+ssl_crt = '/usr/share/yunohost/yunohost-config/ssl/yunoCA/newcerts/02.pem'
 action_dict = {}
 api = APIResource()
 
@@ -238,11 +240,14 @@ if __name__ == '__main__':
     else:
         startLogging(open('/var/log/yunohost.log', 'a+')) # Log actions to file
     main()
-    reactor.listenTCP(6767, Site(api, timeout=None))
+    if '--dev' in sys.argv:
+        reactor.listenTCP(6767, Site(api, timeout=None))
+    else:
+        reactor.listenSSL(6767, Site(api, timeout=None), ssl.DefaultOpenSSLContextFactory(ssl_key, ssl_crt))
     reactor.run()
 else:
     application = service.Application("YunoHost API")
     logfile = DailyLogFile("yunohost.log", "/var/log")
     application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
     main()
-    internet.TCPServer(6767, Site(api, timeout=None)).setServiceParent(application)
+    internet.SSLServer(6767, Site(api, timeout=None), ssl.DefaultOpenSSLContextFactory(ssl_key, ssl_crt)).setServiceParent(application)
