@@ -65,8 +65,8 @@ def app_fetchlist(url=None, name=None):
     Fetch application list from app server
 
     Keyword argument:
-        url -- URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw)
-        name -- Name of the list (default fapp)
+        url -- URL of remote JSON list (default http://app.yunohost.org/list.json)
+        name -- Name of the list (default yunohost)
 
     """
     # Create app path if not exists
@@ -159,7 +159,6 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                         list_dict.append({
                             'ID': app_id,
                             'Name': app_info['manifest']['name'],
-                            'Version': app_info['manifest']['version'],
                             'Description': app_info['manifest']['description'],
                             'Installed': installed_txt
                         })
@@ -190,7 +189,7 @@ def app_info(app, instance=None, raw=False):
     instance_number = len(_installed_instance_number(app))
     if instance_number > 0 and instance:
         unique_app_id = app +'__'+ instance
-        with open(apps_setting_path + unique_app_id+ '/manifest.webapp') as json_manifest:
+        with open(apps_setting_path + unique_app_id+ '/manifest.json') as json_manifest:
             app_info['manifest'] = json.loads(str(json_manifest.read()))
         with open(apps_setting_path + unique_app_id +'/app_settings.yml') as f:
             app_info['settings'] = yaml.load(f)
@@ -231,8 +230,7 @@ def app_map(app=None, raw=False):
             result[app_settings['domain']][app_settings['path']] = {
                     'label': app_settings['label'],
                     'uid': app_settings['uid'],
-                    'instance': app_settings['instance'],
-                    'mode': app_settings['mode'],
+                    'instance': app_settings['instance']
             }
         else:
             result['https://'+app_settings['domain']+app_settings['path']] = app_settings['label']
@@ -292,62 +290,20 @@ def app_upgrade(app, instance=[], url=None, file=None):
                 else:
                     continue
 
-                is_web = lvl(manifest, 'yunohost', 'webapp')
-
                 app_final_path = apps_path +'/'+ unique_app_id
                 script_var_dict = {
-                    'APP_DIR': app_tmp_folder,
-                    'APP_FINAL_DIR': app_final_path,
-                    'APP_ID': unique_app_id
+                    'SCRIPT_DIR': app_tmp_folder,
+                    'APP_DIR': app_final_path,
+                    'APP_ID': unique_app_id,
+                    'APP_INSTANCE': number
                 }
 
-                if is_web:
-                    script_var_dict.update({
-                        'APP_DOMAIN': current_app_dict['settings']['domain'],
-                        'APP_PATH': current_app_dict['settings']['path']
-                    })
-
-
-                #########################################
-                # Install dependencies                  #
-                #########################################
-
-                if lvl(manifest, 'dependencies'):
-                    _install_app_dependencies(manifest['dependencies'])
-
-
-                #########################################
-                # DB Vars                               #
-                #########################################
-
-                if lvl(manifest, 'yunohost', 'webapp', 'db'):
-                    script_var_dict.update({
-                        'DB_USER': current_app_dict['settings']['db_user'],
-                        'DB_PWD': current_app_dict['settings']['db_pwd'],
-                        'DB_NAME': current_app_dict['settings']['db_user']
-                    })
 
                 #########################################
                 # Execute App install script            #
                 #########################################
 
-                if lvl(manifest, 'yunohost', 'script_path'):
-                    _exec_app_script(step='upgrade', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
-
-                #########################################
-                # Copy files to the right final place   #
-                #########################################
-
-                # TMP: Remove old application
-                # if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
-
-                os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
-
-                if is_web:
-                    if manifest['type'] != 'privileged' and manifest['type'] != 'certified':
-                        os.system('chown -R www-data: "'+ app_final_path +'"')
-                    os.system('service apache2 reload')
-                shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
+                _exec_app_script(step='upgrade', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
 
 
                 #########################################
@@ -362,15 +318,7 @@ def app_upgrade(app, instance=[], url=None, file=None):
                     yaml.safe_dump(current_app_dict['settings'], f, default_flow_style=False)
                     win_msg(_("App setting file updated"))
 
-                if lvl(manifest, 'yunohost', 'script_path'):
-                    os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
-
-                shutil.rmtree(app_tmp_folder)
-                os.system('mv "'+ app_final_path +'/manifest.webapp" '+ app_setting_path)
-
-                if os.system('chmod 400 -R '+ app_setting_path) != 0:
-                    raise YunoHostError(22, _("Error during permission setting"))
-
+                os.system('mv "'+ app_final_path +'/manifest.json" "'+ app_final_path +'/scripts" '+ app_setting_path)
 
                 #########################################
                 # So much win                           #
@@ -385,40 +333,20 @@ def app_upgrade(app, instance=[], url=None, file=None):
         win_msg(_("Upgrade complete"))
 
 
-def app_install(app, domain, path='/', label=None, mode='private'):
+def app_install(app, label=None):
     """
     Install apps
 
     Keyword argument:
-        mode -- level of privacy of the app (public|protected|private)
-        domain
-        app -- App to install
-        path
+        app -- App ID to install
         label
 
     """
-    # TODO: Virer la règle "default" lemon
-    # TODO: check path and url_to_(un)protect pattern
+    #TODO: Create tool for lemon
+    #TODO: Create tool for apache (check path availability & stuff)
+    #TODO: Create tool for MySQL DB ?
 
     with YunoHostLDAP() as yldap:
-
-
-        ##########################################
-        # Check if App location is available     #
-        ##########################################
-
-        if path[len(path)-1:] != '/':
-            path = path + '/'
-
-        apps_map = app_map()
-
-        if lvl(apps_map, domain, path):
-            raise YunoHostError(1, _("An app is already installed on this location"))
-
-        if lvl(apps_map, domain):
-            for app_path, v in apps_map[domain].items():
-                if app_path in path and app_path.count('/') < path.count('/'):
-                    raise YunoHostError(1, _("Unable to install app at this location"))
 
 
         ##########################################
@@ -433,137 +361,34 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         else:
             manifest = _extract_app_from_file(app)
 
-        if path != '/' and lvl(manifest, 'yunohost', 'webapp', 'domain_root_only') and is_true(manifest['yunohost']['domain_root_only']):
-            raise YunoHostError(1, _("App must be installed to domain root"))
-
 
         #########################################
         # Define App ID & path                  #
         #########################################
 
-        if not lvl(manifest, 'yunohost', 'uid') or '__' in manifest['yunohost']['uid']:
+        if not lvl(manifest, 'uid') or '__' in manifest['uid']:
             raise YunoHostError(22, _("App uid is invalid"))
-
-        is_web = lvl(manifest, 'yunohost', 'webapp')
 
         instance_number = _installed_instance_number(manifest['yunohost']['uid'], last=True) + 1
         if instance_number > 1:
-            if not lvl(manifest, 'yunohost', 'multi_instance') or not is_true(manifest['yunohost']['multi_instance']):
+            if not lvl(manifest, 'multi_instance') or not is_true(manifest['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
 
-        unique_app_id = manifest['yunohost']['uid'] +'__'+ str(instance_number)
+        unique_app_id = manifest['uid'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
         script_var_dict = {
-            'APP_DIR': app_tmp_folder,
-            'APP_FINAL_DIR': app_final_path,
+            'SCRIPT_DIR': app_tmp_folder,
+            'APP_DIR': app_final_path,
             'APP_ID': unique_app_id
         }
-
-        if is_web:
-            script_var_dict.update({
-                'APP_DOMAIN': domain,
-                'APP_PATH': path
-            })
-
-
-        #########################################
-        # Install dependencies                  #
-        #########################################
-
-        if lvl(manifest, 'dependencies'):
-            _install_app_dependencies(manifest['dependencies'])
-
-
-        #########################################
-        # Create and init DB                    #
-        #########################################
-
-        if lvl(manifest, 'yunohost', 'webapp', 'db'):
-            db_user = random_password(10)
-            db_pwd  = random_password(12)
-            script_var_dict.update({
-                'DB_USER': db_user,
-                'DB_PWD': db_pwd,
-                'DB_NAME': db_user
-            })
-
-            _init_app_db(db_user, db_pwd, manifest['yunohost']['webapp']['db'])
 
 
         #########################################
         # Execute App install script            #
         #########################################
 
-        if lvl(manifest, 'yunohost', 'script_path'):
-            _exec_app_script(step='install', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
-
-
-        #########################################
-        # Specifically configure lemon & apache #
-        #########################################
-
-        if is_web:
-            domain_add([domain])
-
-
-            #############
-            # LemonLDAP #
-            #############
-
-            if mode == 'private':
-                lemon_mode = 'accept'
-            elif mode == 'protected' and lvl(manifest, 'yunohost', 'webapp', 'access_control', 'can_be_protected') and is_true(manifest['yunohost']['webapp']['access_control']['can_be_protected']):
-                lemon_mode = 'unprotect'
-            elif mode == 'public' and lvl(manifest, 'yunohost', 'webapp', 'access_control', 'can_be_public') and is_true(manifest['yunohost']['webapp']['access_control']['can_be_public']):
-                lemon_mode = 'skip'
-            else:
-                raise YunoHostError(22, _("Invalid privacy mode"))
-
-            lemon_configuration({
-                ('locationRules', domain, '(?#'+ unique_app_id +'Z)^'+ path ): lemon_mode
-            })
-
-            ##########
-            # Apache #
-            ##########
-			
-            if lvl(manifest,'yunohost','webapp','custom_apache_conf'):
-                os.system('mv '+app_tmp_folder+'/'+manifest['yunohost']['webapp']['custom_apache_conf']+' '+a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf')
-            else:
-                a2_conf_lines = [ 'Alias '+ path +' '+ app_final_path + manifest['launch_path'] ]
-                if path != '/':
-                    a2_conf_lines.append('Alias '+ path[:len(path)-1] +' '+ app_final_path + manifest['launch_path'])
-
-                a2_conf_lines.append('<Directory '+ app_final_path +'>')
-
-                if lvl(manifest, 'yunohost', 'webapp', 'language') and manifest['yunohost']['webapp']['language'] == 'php':
-                    for line in open(a2_template_path +'/php.conf'): a2_conf_lines.append(line.rstrip())
-
-                a2_conf_lines.append('</Directory>')
-
-                with open(a2_settings_path +'/'+ domain +'.d/'+ unique_app_id +'.app.conf', 'w') as a2_conf:
-                    for line in a2_conf_lines:
-                        a2_conf.write(line + '\n')		
-
-
-        #########################################
-        # Copy files to the right final place   #
-        #########################################
-
-        try: os.listdir(apps_path)
-        except OSError: os.makedirs(apps_path)
-
-        # TMP: Remove old application
-        # if os.path.exists(app_final_path): shutil.rmtree(app_final_path)
-
-        os.system('cp -a "'+ app_tmp_folder +'" "'+ app_final_path +'"')
-
-        if is_web:
-            if manifest['type'] != 'privileged' and manifest['type'] != 'certified':
-                os.system('chown -R www-data: "'+ app_final_path +'"')
-            os.system('service apache2 reload')
-        shutil.rmtree(app_final_path + manifest['yunohost']['script_path'])
+        _exec_app_script(step='install', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
 
 
         #########################################
@@ -579,35 +404,17 @@ def app_install(app, domain, path='/', label=None, mode='private'):
         yaml_dict = {
             'uid': manifest['yunohost']['uid'],
             'instance' : instance_number,
-            'install_time': int(time.time()),
-            'mode': mode,
+            'install_time': int(time.time())
         }
-        if is_web:
-            yaml_dict.update({
-                'domain': domain,
-                'path': path,
-            })
 
-            if lvl(manifest, 'yunohost', 'webapp', 'db'):
-                yaml_dict.update({
-                    'db_pwd': db_pwd,
-                    'db_user': db_user
-                })
-            if label: yaml_dict['label'] = label
-            else: yaml_dict['label'] = manifest['name']
+        if label: yaml_dict['label'] = label
+        else: yaml_dict['label'] = manifest['name']
 
         with open(app_setting_path +'/app_settings.yml', 'w') as f:
             yaml.safe_dump(yaml_dict, f, default_flow_style=False)
             win_msg(_("App setting file created"))
 
-        if lvl(manifest, 'yunohost', 'script_path'):
-            os.system('cp -a "'+ app_tmp_folder +'/'+ manifest['yunohost']['script_path'] +'" '+ app_setting_path)
-
-        shutil.rmtree(app_tmp_folder)
-        os.system('mv "'+ app_final_path +'/manifest.webapp" '+ app_setting_path)
-
-        if os.system('chmod 400 -R '+ app_setting_path) != 0:
-            raise YunoHostError(22, _("Error during permission setting"))
+        os.system('mv "'+ app_final_path +'/manifest.json" "'+ app_final_path +'/scripts" '+ app_setting_path)
 
 
         #########################################
@@ -638,47 +445,15 @@ def app_remove(app, instance=[]):
         app_dict = app_info(app, instance=number, raw=True)
         app_settings = app_dict['settings']
         manifest = app_dict['manifest']
-        is_web = lvl(manifest, 'yunohost', 'webapp')
-        has_db = lvl(manifest, 'yunohost', 'webapp', 'db')
 
         script_var_dict = {
             'APP_DIR': apps_path +'/'+ unique_app_id,
             'APP_ID': unique_app_id
         }
 
-        if lvl(manifest, 'dependencies'):
-            #TODO: _remove_app_dependencies(manifest['dependencies'])
-            pass
-
-        if lvl(manifest, 'yunohost', 'script_path'):
-            _exec_app_script(step='remove', path=app_tmp_folder +'/'+ manifest['yunohost']['script_path'], var_dict=script_var_dict, app_type=manifest['type'])
-
-        if is_web:
-            with open(lemon_tmp_conf, 'w') as lemon_conf:
-                hash = "$tmp->{'locationRules'}->{'"+ app_settings['domain'] +"'}"
-                lemon_conf.write("foreach my $key (keys %{ "+ hash +" }) { delete "+ hash +"{$key} if $key =~ /"+ app_settings['uid'] +"/; }" + '\n')
-
-            os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette')
-            try:
-                os.remove(a2_settings_path +'/'+ app_settings['domain'] +'.d/'+ unique_app_id +'.app.conf')
-            except OSError:
-                pass
-
-        if has_db:
-            mysql_root_pwd = open('/etc/yunohost/mysql').read().rstrip()
-            mysql_command = 'mysql -u root -p'+ mysql_root_pwd +' -e "REVOKE ALL PRIVILEGES ON '+ app_settings['db_user'] +'.* FROM \''+ app_settings['db_user'] +'\'@localhost ; DROP USER \''+ app_settings['db_user'] +'\'@localhost; DROP DATABASE '+ app_settings['db_user'] +' ;"'
-            os.system(mysql_command)
-
-        try:
-            shutil.rmtree(apps_setting_path +'/'+ unique_app_id)
-            shutil.rmtree(apps_path +'/'+ unique_app_id)
-        except OSError:
-            pass
+        _exec_app_script(step='remove', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
 
         win_msg(_("App removed: ")+ unique_app_id)
-
-    if is_web:
-        lemon_configuration(lemon_conf_lines)
 
 
 def app_addaccess(apps, users):
@@ -690,6 +465,7 @@ def app_addaccess(apps, users):
         apps
 
     """
+    #TODO: fix that
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
@@ -739,6 +515,7 @@ def app_removeaccess(apps, users):
         apps
 
     """
+    #TODO: fix that
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
@@ -802,7 +579,7 @@ def _extract_app_from_file(path):
         raise YunoHostError(22, _("Invalid install file"))
 
     try:
-        with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
+        with open(app_tmp_folder + '/manifest.json') as json_manifest:
             manifest = json.loads(str(json_manifest.read()))
             manifest['lastUpdate'] = int(time.time())
     except IOError:
@@ -830,7 +607,7 @@ def _fetch_app_from_git(app):
         git_result   = os.system('git clone '+ app +' '+ app_tmp_folder)
         git_result_2 = 0
         try:
-            with open(app_tmp_folder + '/manifest.webapp') as json_manifest:
+            with open(app_tmp_folder + '/manifest.json') as json_manifest:
                 manifest = json.loads(str(json_manifest.read()))
                 manifest['lastUpdate'] = int(time.time())
         except IOError:
@@ -860,50 +637,7 @@ def _fetch_app_from_git(app):
     return manifest
 
 
-def _install_app_dependencies(dep_dict):
-    """
-    Install debian, npm, gem, pip and pear dependencies of the app
-
-    Keyword arguments:
-        dep_dict -- Dict of dependencies from the manifest
-
-    """
-    if ('debian' in dep_dict) and (len(dep_dict['debian']) > 0):
-        #os.system('apt-get update')
-        if os.system('apt-get install -y "'+ '" "'.join(dep_dict['debian']) +'"') != 0:
-            raise YunoHostError(1, _("Dependency installation failed: ") + dependency)
-
-    # TODO: Install npm, pip, gem and pear dependencies
-
-    win_msg(_("Dependencies installed"))
-
-
-def _init_app_db(db_user, db_pwd, db_dict):
-    """
-    Create database and initialize it with optionnal attached script
-
-    Keyword arguments:
-        db_user -- Name of the DB user (also used as database name)
-        db_pwd -- Password for the user
-        db_dict -- Dict of DB parameters from the manifest
-
-    """
-    # Need MySQL DB ?
-    if lvl(db_dict, 'has_mysql_db') and is_true(db_dict['has_mysql_db']):
-        mysql_root_pwd = open('/etc/yunohost/mysql').read().rstrip()
-        mysql_command = 'mysql -u root -p'+ mysql_root_pwd +' -e "CREATE DATABASE '+ db_user +' ; GRANT ALL PRIVILEGES ON '+ db_user +'.* TO \''+ db_user +'\'@localhost IDENTIFIED BY \''+ db_pwd +'\';"'
-        if os.system(mysql_command) != 0:
-            raise YunoHostError(1, _("MySQL DB creation failed"))
-        if lvl(db_dict, 'mysql_init_script'):
-            if os.system('mysql -u '+ db_user +' -p'+ db_pwd +' '+ db_user +' < '+ app_tmp_folder + db_dict['mysql_init_script'] +' ;') != 0:
-                raise YunoHostError(1, _("MySQL DB init failed"))
-
-    # TODO: PgSQL/MongoDB ?
-
-    win_msg(_("Database initiliazed"))
-
-
-def _exec_app_script(step, path, var_dict, app_type):
+def _exec_app_script(step, path, var_dict, parameters):
     """
     Execute step user script
 
@@ -911,7 +645,7 @@ def _exec_app_script(step, path, var_dict, app_type):
         step -- Name of the script to call regarding the current step (e.g. install|upgrade|remove|etc.)
         path -- Absolute path of the script's directory
         var_dict -- Dictionnary of environnement variable to pass to the script
-        app_type -- Decides whether to execute as root or as yunohost-app user (e.g. web|privileged|certified)
+        parameters -- Parameters to pass to the script
 
     """
     scripts = [ step, step +'.sh', step +'.py' ]
@@ -922,11 +656,8 @@ def _exec_app_script(step, path, var_dict, app_type):
             st = os.stat(script_path)
             os.chmod(script_path, st.st_mode | stat.S_IEXEC)
 
-            if app_type == 'privileged' or app_type == 'certified':
-                user = 'root'
-            else:
-                user = 'yunohost-app'
-                os.system('chown -R '+ user +': '+ app_tmp_folder)
+            user = 'yunohost'
+            os.system('chown -R '+ user +': '+ app_tmp_folder)
 
             env_vars = ''
             for key, value in var_dict.items():
