@@ -259,6 +259,17 @@ app:
                     help: Return the full app_dict
                     action: store_true
 
+        ### app_info()
+        info:
+            action_help: Get app info
+            api: GET /app/{app}
+            arguments:
+                app:
+                    help: Specific app ID
+                -r:
+                    full: --raw
+                    help: Return the full app_dict
+
         ### app_map()
         map:
             action_help: List apps by domain
@@ -301,10 +312,6 @@ app:
             arguments:
                 app:
                     help: App(s) to upgrade (default all)
-                    nargs: "*"
-                -i:
-                    full: --instance
-                    help: App instance number to upgrade
                     nargs: "*"
                 -u:
                     full: --url

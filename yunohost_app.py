@@ -142,15 +142,7 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
         for app_id, app_info in sorted_app_dict.items():
             if i < limit:
                 if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
-                    instance_number = len(_installed_instance_number(app_id))
-                    if instance_number > 1:
-                        installed_txt = 'Yes ('+ str(instance_number) +' times)'
-                    elif instance_number == 1:
-                        installed_txt = 'Yes'
-                        installed = True
-                    else:
-                        installed_txt = 'No'
-                        installed = False
+                    installed = _is_installed(app_id)
 
                     if raw:
                         app_info['installed'] = installed
@@ -160,7 +152,7 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                             'ID': app_id,
                             'Name': app_info['manifest']['name'],
                             'Description': app_info['manifest']['description'],
-                            'Installed': installed_txt
+                            'Installed': installed
                         })
                     i += 1
             else:
@@ -170,13 +162,12 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
     return list_dict
 
 
-def app_info(app, instance=None, raw=False):
+def app_info(app, raw=False):
     """
     Get app informations
 
     Keyword argument:
         app -- App ID
-        instance -- App instance number
         raw -- Return the full app_dict
 
     """
@@ -184,15 +175,6 @@ def app_info(app, instance=None, raw=False):
         app_info = app_list(filter=app, limit=1, raw=True)[app]
     except YunoHostError:
         app_info = {}
-
-    # If installed
-    instance_number = len(_installed_instance_number(app))
-    if instance_number > 0 and instance:
-        unique_app_id = app +'__'+ instance
-        with open(apps_setting_path + unique_app_id+ '/manifest.json') as json_manifest:
-            app_info['manifest'] = json.loads(str(json_manifest.read()))
-        with open(apps_setting_path + unique_app_id +'/app_settings.yml') as f:
-            app_info['settings'] = yaml.load(f)
 
     if raw:
         return app_info
@@ -217,19 +199,22 @@ def app_map(app=None, raw=False):
 
     result = {}
 
-    for unique_app_id in os.listdir(apps_setting_path):
-        if app and (app != unique_app_id) and (app != unique_app_id[:unique_app_id.find('__')]):
+    for app_id in os.listdir(apps_setting_path):
+        if app and (app != app_id):
             continue
 
-        with open(apps_setting_path + unique_app_id +'/app_settings.yml') as f:
+        with open(apps_setting_path + app_id +'/settings.yml') as f:
             app_settings = yaml.load(f)
+
+        if 'domain' not in app_settings:
+            continue
 
         if raw:
             if app_settings['domain'] not in result:
                 result[app_settings['domain']] = {}
             result[app_settings['domain']][app_settings['path']] = {
                     'label': app_settings['label'],
-                    'uid': app_settings['uid'],
+                    'id': app_settings['id'],
                     'instance': app_settings['instance']
             }
         else:
@@ -238,7 +223,7 @@ def app_map(app=None, raw=False):
     return result
 
 
-def app_upgrade(app, instance=[], url=None, file=None):
+def app_upgrade(app, url=None, file=None):
     """
     Upgrade app
 
@@ -246,7 +231,6 @@ def app_upgrade(app, instance=[], url=None, file=None):
         url -- Git url to fetch for upgrade
         app -- App(s) to upgrade (default all)
         file -- Folder or tarball for upgrade
-        instance -- App instance number to upgrade
 
     """
     with YunoHostLDAP() as yldap:
@@ -314,7 +298,7 @@ def app_upgrade(app, instance=[], url=None, file=None):
 
                 current_app_dict['settings']['update_time'] = int(time.time())
 
-                with open(app_setting_path +'/app_settings.yml', 'w') as f:
+                with open(app_setting_path +'/settings.yml', 'w') as f:
                     yaml.safe_dump(current_app_dict['settings'], f, default_flow_style=False)
                     win_msg(_("App setting file updated"))
 
@@ -366,16 +350,16 @@ def app_install(app, label=None):
         # Define App ID & path                  #
         #########################################
 
-        if not lvl(manifest, 'uid') or '__' in manifest['uid']:
-            raise YunoHostError(22, _("App uid is invalid"))
+        if not lvl(manifest, 'id') or '__' in manifest['uid']:
+            raise YunoHostError(22, _("App id is invalid"))
 
-        instance_number = _installed_instance_number(manifest['yunohost']['uid'], last=True) + 1
+        instance_number = _installed_instance_number(manifest['yunohost']['id'], last=True) + 1
         if instance_number > 1:
             if not lvl(manifest, 'multi_instance') or not is_true(manifest['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
 
-        unique_app_id = manifest['uid'] +'__'+ str(instance_number)
+        unique_app_id = manifest['id'] +'__'+ str(instance_number)
         app_final_path = apps_path +'/'+ unique_app_id
         script_var_dict = {
             'SCRIPT_DIR': app_tmp_folder,
@@ -402,7 +386,7 @@ def app_install(app, label=None):
         os.makedirs(app_setting_path)
 
         yaml_dict = {
-            'uid': manifest['yunohost']['uid'],
+            'id': manifest['yunohost']['uid'],
             'instance' : instance_number,
             'install_time': int(time.time())
         }
@@ -410,7 +394,7 @@ def app_install(app, label=None):
         if label: yaml_dict['label'] = label
         else: yaml_dict['label'] = manifest['name']
 
-        with open(app_setting_path +'/app_settings.yml', 'w') as f:
+        with open(app_setting_path +'/settings.yml', 'w') as f:
             yaml.safe_dump(yaml_dict, f, default_flow_style=False)
             win_msg(_("App setting file created"))
 
@@ -479,7 +463,7 @@ def app_addaccess(apps, users):
                 app = app + '__1'
 
             if app == installed_app:
-                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
+                with open(apps_setting_path + installed_app +'/settings.yml') as f:
                     app_settings = yaml.load(f)
 
                 if app_settings['mode'] == 'private':
@@ -497,7 +481,7 @@ def app_addaccess(apps, users):
                             new_users = new_users +' '+ allowed_user
 
                     app_settings['allowed_users'] = new_users.strip()
-                    with open(apps_setting_path + installed_app +'/app_settings.yml', 'w') as f:
+                    with open(apps_setting_path + installed_app +'/settings.yml', 'w') as f:
                         yaml.safe_dump(app_settings, f, default_flow_style=False)
                         win_msg(_("App setting file updated"))
 
@@ -530,7 +514,7 @@ def app_removeaccess(apps, users):
                 app = app + '__1'
 
             if app == installed_app:
-                with open(apps_setting_path + installed_app +'/app_settings.yml') as f:
+                with open(apps_setting_path + installed_app +'/settings.yml') as f:
                     app_settings = yaml.load(f)
 
                 if app_settings['mode'] == 'private':
@@ -540,7 +524,7 @@ def app_removeaccess(apps, users):
                                 new_users = new_users +' '+ allowed_user
 
                         app_settings['allowed_users'] = new_users.strip()
-                        with open(apps_setting_path + installed_app +'/app_settings.yml', 'w') as f:
+                        with open(apps_setting_path + installed_app +'/settings.yml', 'w') as f:
                             yaml.safe_dump(app_settings, f, default_flow_style=False)
                             win_msg(_("App setting file updated"))
 
@@ -677,7 +661,7 @@ def _installed_instance_number(app, last=False):
     Check if application is installed and return instance number
 
     Keyword arguments:
-        app -- uid of App to check
+        app -- id of App to check
         last -- Return only last instance number
 
     Returns:
