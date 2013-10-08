@@ -240,76 +240,60 @@ def app_upgrade(app, url=None, file=None):
             raise YunoHostError(1, _("No app to upgrade"))
 
         upgraded_apps = []
+
+        # If no app is specified, upgrade all apps
         if not app:
-            unique_app_id_list = os.listdir(apps_setting_path)
-            for unique_app_id in unique_app_id_list:
-                app_id = unique_app_id[:unique_app_id.find('__')]
-                if app_id not in app:
-                    app.append(app_id)
+            app = os.listdir(apps_setting_path)
 
         for app_id in app:
-            instance_number = _installed_instance_number(app_id)
-            if instance_number == 0:
+            installed = _is_installed(app_id)
+            if not installed:
                 raise YunoHostError(1, app_id + _(" is not installed"))
-            elif not instance:
-                instance = range(1, instance_number + 1)
 
-            for number in instance:
-                if int(number) > instance_number:
-                    continue
-                number = str(number)
-                unique_app_id = app_id +'__'+ number
-                if unique_app_id in upgraded_apps:
-                    raise YunoHostError(1, _("Conflict, multiple upgrades of the same app: ")+ app_id +' (instance n°'+ number +')')
+            if app_id in upgraded_apps:
+                raise YunoHostError(1, _("Conflict, multiple upgrades of the same app: ")+ app_id +' (instance n°'+ number +')')
 
-                current_app_dict = app_info(app_id, instance=number, raw=True)
-                new_app_dict     = app_info(app_id, raw=True)
+            #TODO: fix that (and check for instance number)
+            current_app_dict = app_info(app_id, instance=number, raw=True)
+            new_app_dict     = app_info(app_id, raw=True)
 
-                if file:
-                    manifest = _extract_app_from_file(file)
-                elif url:
-                    manifest = _fetch_app_from_git(url)
-                elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) or ('update_time' not in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) or ('update_time' in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
-                    manifest = _fetch_app_from_git(app_id)
-                else:
-                    continue
-
-                app_final_path = apps_path +'/'+ unique_app_id
-                script_var_dict = {
-                    'SCRIPT_DIR': app_tmp_folder,
-                    'APP_DIR': app_final_path,
-                    'APP_ID': unique_app_id,
-                    'APP_INSTANCE': number
-                }
+            if file:
+                manifest = _extract_app_from_file(file)
+            elif url:
+                manifest = _fetch_app_from_git(url)
+            elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) or ('update_time' not in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) or ('update_time' in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
+                manifest = _fetch_app_from_git(app_id)
+            else:
+                continue
 
 
-                #########################################
-                # Execute App install script            #
-                #########################################
+            #########################################
+            # Execute App upgrade script            #
+            #########################################
 
-                _exec_app_script(step='upgrade', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
+            _exec_app_script(step='upgrade', path=app_tmp_folder +'/scripts', var_dict={}, parameters=manifest['parameters'])
 
 
-                #########################################
-                # Write App settings                    #
-                #########################################
+            #########################################
+            # Write App settings                    #
+            #########################################
 
-                app_setting_path = apps_setting_path +'/'+ unique_app_id
+            app_setting_path = apps_setting_path +'/'+ app_id
 
-                current_app_dict['settings']['update_time'] = int(time.time())
+            current_app_dict['settings']['update_time'] = int(time.time())
 
-                with open(app_setting_path +'/settings.yml', 'w') as f:
-                    yaml.safe_dump(current_app_dict['settings'], f, default_flow_style=False)
-                    win_msg(_("App setting file updated"))
+            with open(app_setting_path +'/settings.yml', 'w') as f:
+                yaml.safe_dump(current_app_dict['settings'], f, default_flow_style=False)
+                win_msg(_("App setting file updated"))
 
-                os.system('mv "'+ app_final_path +'/manifest.json" "'+ app_final_path +'/scripts" '+ app_setting_path)
+            os.system('mv "'+ app_tmp_folder +'/*" '+ app_setting_path)
 
-                #########################################
-                # So much win                           #
-                #########################################
+            #########################################
+            # So much win                           #
+            #########################################
 
-                upgraded_apps.append(unique_app_id)
-                win_msg(app_id + _(" upgraded successfully"))
+            upgraded_apps.append(unique_app_id)
+            win_msg(app_id + _(" upgraded successfully"))
 
         if not upgraded_apps:
             raise YunoHostError(1, _("No app to upgrade"))
