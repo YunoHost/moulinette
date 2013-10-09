@@ -142,6 +142,7 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
         for app_id, app_info in sorted_app_dict.items():
             if i < limit:
                 if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
+                    #TODO: make _is_installed
                     installed = _is_installed(app_id)
 
                     if raw:
@@ -267,17 +268,12 @@ def app_upgrade(app, url=None, file=None):
                 continue
 
 
-            #########################################
-            # Execute App upgrade script            #
-            #########################################
-
+            # Execute App upgrade script
+            #TODO: display fail messages from script
             _exec_app_script(step='upgrade', path=app_tmp_folder +'/scripts', var_dict={}, parameters=manifest['parameters'])
 
 
-            #########################################
-            # Write App settings                    #
-            #########################################
-
+            # Write App settings
             app_setting_path = apps_setting_path +'/'+ app_id
 
             current_app_dict['settings']['update_time'] = int(time.time())
@@ -288,11 +284,8 @@ def app_upgrade(app, url=None, file=None):
 
             os.system('mv "'+ app_tmp_folder +'/*" '+ app_setting_path)
 
-            #########################################
-            # So much win                           #
-            #########################################
-
-            upgraded_apps.append(unique_app_id)
+            # So much win
+            upgraded_apps.append(app_id)
             win_msg(app_id + _(" upgraded successfully"))
 
         if not upgraded_apps:
@@ -317,10 +310,7 @@ def app_install(app, label=None):
     with YunoHostLDAP() as yldap:
 
 
-        ##########################################
-        # Fetch or extract sources               #
-        ##########################################
-
+        # Fetch or extract sources
         try: os.listdir(install_tmp)
         except OSError: os.makedirs(install_tmp)
 
@@ -329,99 +319,84 @@ def app_install(app, label=None):
         else:
             manifest = _extract_app_from_file(app)
 
-
-        #########################################
-        # Define App ID & path                  #
-        #########################################
-
-        if not lvl(manifest, 'id') or '__' in manifest['uid']:
+        # Check ID
+        if 'id' not in manifest or '__' in manifest['id']:
             raise YunoHostError(22, _("App id is invalid"))
 
-        instance_number = _installed_instance_number(manifest['yunohost']['id'], last=True) + 1
-        if instance_number > 1:
-            if not lvl(manifest, 'multi_instance') or not is_true(manifest['multi_instance']):
+        app_id = manifest['id']
+
+        # Check if app can be forked
+        instance_number = _installed_instance_number(app_id, last=True) + 1
+        if fork and instance_number > 1 :
+            if 'multi_instance' not in manifest or not is_true(manifest['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
+            forked_app_id = app_id + '__' + instance_number
 
-        unique_app_id = manifest['id'] +'__'+ str(instance_number)
-        app_final_path = apps_path +'/'+ unique_app_id
-        script_var_dict = {
-            'SCRIPT_DIR': app_tmp_folder,
-            'APP_DIR': app_final_path,
-            'APP_ID': unique_app_id
-        }
+            # Replace app_id with the new one in scripts
+            for file in os.listdir(app_tmp_folder +'/scripts'):
+                #TODO: add hooks directory to the list
+                #TODO: do it with sed ?
+                with open(file, "r") as sources:
+                    lines = sources.readlines()
+                with open(file, "w") as sources:
+                    for line in lines:
+                        sources.write(re.sub(r''+ app_id +'', app_id_forked, line))
 
+            # Change app_id for the rest of the process
+            app_id = app_id_forked
 
-        #########################################
-        # Execute App install script            #
-        #########################################
+        # Prepare App settings
+        app_setting_path = apps_setting_path +'/'+ app_id
 
-        _exec_app_script(step='install', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
-
-
-        #########################################
-        # Write App settings                    #
-        #########################################
-
-        app_setting_path = apps_setting_path +'/'+ unique_app_id
-
-        # TMP: Remove old settings
+        #TMP: Remove old settings
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
         os.makedirs(app_setting_path)
 
         yaml_dict = {
-            'id': manifest['yunohost']['uid'],
-            'instance' : instance_number,
+            'id': app_id,
             'install_time': int(time.time())
         }
 
         if label: yaml_dict['label'] = label
         else: yaml_dict['label'] = manifest['name']
 
+        # Write App settings
         with open(app_setting_path +'/settings.yml', 'w') as f:
             yaml.safe_dump(yaml_dict, f, default_flow_style=False)
             win_msg(_("App setting file created"))
 
         os.system('mv "'+ app_final_path +'/manifest.json" "'+ app_final_path +'/scripts" '+ app_setting_path)
 
-
-        #########################################
-        # So much win                           #
-        #########################################
+        # Execute App install script
+        if _exec_app_script(step='install', path=app_tmp_folder +'/scripts', var_dict={}, parameters=manifest['parameters']) != 0:
+            #TODO: display script fail messages
+            shutil.rmtree(app_setting_path)
 
         win_msg(_("Installation complete"))
 
 
-def app_remove(app, instance=[]):
+def app_remove(app):
     """
     Remove app
 
     Keyword argument:
         app -- App(s) to delete
-        instance -- App instance number to delete
 
     """
-    lemon_conf_lines = {}
 
-    if not instance:
-        instance = _installed_instance_number(app)
+    if not _is_installed(app):
+        raise YunoHostError(22, _("App is not installed"))
 
-    for number in instance:
-        number = str(number)
-        unique_app_id = app +'__'+ number
-        app_final_path = apps_path +'/'+ unique_app_id
-        app_dict = app_info(app, instance=number, raw=True)
-        app_settings = app_dict['settings']
-        manifest = app_dict['manifest']
+    app_final_path = apps_path +'/'+ app
+    app_dict = app_info(app, raw=True)
+    app_settings = app_dict['settings']
+    manifest = app_dict['manifest']
 
-        script_var_dict = {
-            'APP_DIR': apps_path +'/'+ unique_app_id,
-            'APP_ID': unique_app_id
-        }
+    #TODO: display fail messages from script
+    _exec_app_script(step='remove', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
 
-        _exec_app_script(step='remove', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
-
-        win_msg(_("App removed: ")+ unique_app_id)
+    win_msg(_("App removed: ")+ app)
 
 
 def app_addaccess(apps, users):
@@ -437,41 +412,36 @@ def app_addaccess(apps, users):
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
-    installed_apps = os.listdir(apps_setting_path)
+    for app in apps:
+        if not _is_installed(app):
+            raise YunoHostError(22, _("App is not installed"))
 
-    lemon_conf_lines = {}
+        with open(apps_setting_path + app +'/settings.yml') as f:
+            app_settings = yaml.load(f)
 
-    for installed_app in installed_apps:
-        for app in apps:
-            if '__' not in app:
-                app = app + '__1'
+        if 'mode' in app_settings and app_settings['mode'] == 'private':
+            if 'allowed_users' in app_settings:
+                new_users = app_settings['allowed_users']
+            else:
+                new_users = ''
 
-            if app == installed_app:
-                with open(apps_setting_path + installed_app +'/settings.yml') as f:
-                    app_settings = yaml.load(f)
+            for allowed_user in users:
+                if allowed_user not in new_users.split(' '):
+                    try:
+                        user_info(allowed_user)
+                    except YunoHostError:
+                        continue
+                    new_users = new_users +' '+ allowed_user
 
-                if app_settings['mode'] == 'private':
-                    if 'allowed_users' in app_settings:
-                        new_users = app_settings['allowed_users']
-                    else:
-                        new_users = ''
+            app_settings['allowed_users'] = new_users.strip()
+            with open(apps_setting_path + app +'/settings.yml', 'w') as f:
+                yaml.safe_dump(app_settings, f, default_flow_style=False)
+                win_msg(_("App setting file updated"))
 
-                    for allowed_user in users:
-                        if allowed_user not in new_users.split(' '):
-                            try:
-                                user_info(allowed_user)
-                            except YunoHostError:
-                                continue
-                            new_users = new_users +' '+ allowed_user
+            #TODO: create lemon tool
+            tools_lemon(id=app, access='grant', url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
 
-                    app_settings['allowed_users'] = new_users.strip()
-                    with open(apps_setting_path + installed_app +'/settings.yml', 'w') as f:
-                        yaml.safe_dump(app_settings, f, default_flow_style=False)
-                        win_msg(_("App setting file updated"))
-
-                    lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = 'grep( /^$uid$/, qw('+ new_users.strip() +'))'
-
-    lemon_configuration(lemon_conf_lines)
+    tools_lemon(apply=True)
 
 
 def app_removeaccess(apps, users):
@@ -487,34 +457,29 @@ def app_removeaccess(apps, users):
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
-    installed_apps = os.listdir(apps_setting_path)
+    for app in apps:
+        new_users = ''
 
-    lemon_conf_lines = {}
+        if not _is_installed(app):
+            raise YunoHostError(22, _("App is not installed"))
 
-    for installed_app in installed_apps:
-        for app in apps:
-            new_users = ''
-            if '__' not in app:
-                app = app + '__1'
+        with open(apps_setting_path + app +'/settings.yml') as f:
+            app_settings = yaml.load(f)
 
-            if app == installed_app:
-                with open(apps_setting_path + installed_app +'/settings.yml') as f:
-                    app_settings = yaml.load(f)
+        if 'mode' in app_settings and app_settings['mode'] == 'private':
+            if 'allowed_users' in app_settings:
+                for allowed_user in app_settings['allowed_users'].split(' '):
+                    if allowed_user not in users:
+                        new_users = new_users +' '+ allowed_user
 
-                if app_settings['mode'] == 'private':
-                    if 'allowed_users' in app_settings:
-                        for allowed_user in app_settings['allowed_users'].split(' '):
-                            if allowed_user not in users:
-                                new_users = new_users +' '+ allowed_user
+                app_settings['allowed_users'] = new_users.strip()
+                with open(apps_setting_path + app +'/settings.yml', 'w') as f:
+                    yaml.safe_dump(app_settings, f, default_flow_style=False)
+                    win_msg(_("App setting file updated"))
 
-                        app_settings['allowed_users'] = new_users.strip()
-                        with open(apps_setting_path + installed_app +'/settings.yml', 'w') as f:
-                            yaml.safe_dump(app_settings, f, default_flow_style=False)
-                            win_msg(_("App setting file updated"))
+                tools_lemon(id=app, access='grant', url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
 
-                        lemon_conf_lines[('locationRules', app_settings['domain'], '(?#'+ installed_app +'Z)^'+ app_settings['path'] )] = 'grep( /^$uid$/, qw('+ new_users.strip() +'))'
-
-    lemon_configuration(lemon_conf_lines)
+    tools_lemon(apply=True)
 
 
 def _extract_app_from_file(path):
@@ -665,6 +630,9 @@ def _installed_instance_number(app, last=False):
                 if app == installed_app[:installed_app.index('__')]:
                     if int(installed_app[installed_app.index('__') + 2:]) > number:
                         number = int(installed_app[installed_app.index('__') + 2:])
+            else:
+                if _is_installed(app):
+                    number = 1
 
         return number
 
@@ -676,4 +644,30 @@ def _installed_instance_number(app, last=False):
                 instance_number_list.append(path['instance'])
 
         return sorted(instance_number_list)
+
+
+def _is_installed(app):
+    """
+    Check if application is installed
+
+    Keyword arguments:
+        app -- id of App to check
+
+    Returns:
+        Boolean
+
+    """
+    try:
+        installed_apps = os.listdir(apps_setting_path)
+    except OSError:
+        os.makedirs(apps_setting_path)
+        return False
+
+    for installed_app in installed_apps:
+        if app == installed_app:
+            return True
+        else:
+            continue
+
+    return False
 

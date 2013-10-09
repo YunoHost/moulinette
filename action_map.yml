@@ -300,10 +300,6 @@ app:
             arguments:
                 app:
                     help: App(s) to delete
-                -i:
-                    full: --instance
-                    help: App instance number to delete
-                    nargs: '*'
 
         ### app_upgrade()
         upgrade:
