@@ -30,9 +30,10 @@ import shutil
 import stat
 import yaml
 import time
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, lemon_configuration
+from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
+from yunohost_tools import tools_lemonrule
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
@@ -438,7 +439,7 @@ def app_addaccess(apps, users):
                 win_msg(_("App setting file updated"))
 
             #TODO: create lemon tool
-            tools_lemon(id=app, access='grant', url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
+            tools_lemonrule(url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
 
     tools_lemon(apply=True)
 
@@ -476,7 +477,7 @@ def app_removeaccess(apps, users):
                     yaml.safe_dump(app_settings, f, default_flow_style=False)
                     win_msg(_("App setting file updated"))
 
-                tools_lemon(id=app, access='grant', url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
+                tools_lemonrule(url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
 
     tools_lemon(apply=True)
 

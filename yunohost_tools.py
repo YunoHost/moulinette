@@ -166,23 +166,21 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
 
     domain_add([new_domain], raw=False, main=True)
 
-    lemon_conf_lines = [
-        "$tmp->{'domain'} = '"+ new_domain +"';", # Replace Lemon domain
-        "$tmp->{'ldapBase'} = 'dc=yunohost,dc=org';", # Set ldap basedn
-        "$tmp->{'portal'} = 'https://"+ new_domain +"/sso/';", # Set SSO url
-        "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'(?#0ynh_admin)^/ynh-admin/'} = '$uid eq \"admin\"';",
-        "$tmp->{'locationRules'}->{'"+ new_domain +"'}->{'(?#0ynh_user)^/ynh-user/'} = '$uid ne \"admin\"';"
+    lemonrules = [
+        ('domain', new_domain), # Replace Lemon domain
+        ('ldapBase', 'dc=yunohost,dc=org'), # Set ldap basedn
+        ('portal', 'https://'+ new_domain +'/sso/'), # Set SSO url
+        (url=new_domain+'/ynh-admin/', value='$uid eq "admin"'),
+        (url=new_domain+'/ynh-user/',  value='$uid ne "admin"')
     ]
 
-    if old_domain is not 'yunohost.org':
-        lemon_conf_lines.extend([
-            "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_admin)^/ynh-admin/'};",
-            "delete $tmp->{'locationRules'}->{'"+ old_domain +"'}->{'(?#0ynh_user)^/ynh-user/'};"
+    if old_domain is 'yunohost.org':
+        lemonrules.extend([
+            (url=old_domain+'/ynh-admin/', delete=True),
+            (url=old_domain+'/ynh-user/',  delete=True)
         ])
 
-    with open('/tmp/tmplemonconf','w') as lemon_conf:
-        for line in lemon_conf_lines:
-            lemon_conf.write(line + '\n')
+    for lemonrule in lemonrules: tools_lemonrule(*lemonrule)
 
     os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.fixed.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
     os.system('rm /etc/ssl/private/yunohost_key.pem')
@@ -193,6 +191,7 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         'cp /etc/yunohost/apache/templates/admin.fixed.conf /etc/yunohost/apache/domains/' + new_domain + '.d/admin.fixed.conf',
         'cp /etc/yunohost/apache/templates/user.fixed.conf  /etc/yunohost/apache/domains/' + new_domain + '.d/user.fixed.conf',
         '/usr/share/lemonldap-ng/bin/lmYnhMoulinette',
+        'echo "" > /tmp/tmplemonconf',
         'cp    /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/metronome/certs/yunohost_key.pem',
         'chown metronome: /etc/metronome/certs/yunohost_key.pem',
         'ln -s /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/ssl/private/yunohost_key.pem',
@@ -302,7 +301,7 @@ def tools_postinstall(domain, password, dyndns=False):
     win_msg(_("YunoHost has been successfully configured"))
 
 
-def tools_lemonrule(id=None, url=None, key=None, value=None, priority=None, delete=False, apply=False):
+def tools_lemonrule(key=None, value=None, url=None, priority=None, delete=False, apply=False):
     """
 
     """
@@ -312,7 +311,7 @@ def tools_lemonrule(id=None, url=None, key=None, value=None, priority=None, dele
     else: line = "$tmp"
 
     # locationRule formatter
-    if url is not None and id is not None:
+    if url is not None:
         # Remove potential "http://" or "https://"
         if '://' in url:
             url = url[url.index('://') + 3:]
@@ -329,9 +328,9 @@ def tools_lemonrule(id=None, url=None, key=None, value=None, priority=None, dele
 
         line = line +"->{'locationRules'}->{'"+ domain +"'}"
         if priority is not None:
-            line = line +"->{'(?#"+ priority + id +")^"+ path +"'}"
+            line = line +"->{'(?#"+ priority + domain +")^"+ path +"'}"
         else:
-            line = line +"->{'(?#"+ id +"Z)^"+ path +"'}"
+            line = line +"->{'(?#"+ domain +"Z)^"+ path +"'}"
 
     # Free key formatter from tuple
     elif key is not None:

@@ -210,33 +210,6 @@ def display_error(error, json_print=False):
         print(json.dumps({ error.code : error.message }))
 
 
-def lemon_configuration(conf_dict):
-    conf_lines = []
-    for key, value in conf_dict.items():
-        if value is None: line = "delete $tmp"
-        else: line = "$tmp"
-
-        if not isinstance(key, tuple): key = (key,)
-        for level in key:
-            line = line +"->{'"+ level +"'}"
-
-        if value is None: conf_lines.append(line +';')
-        elif isinstance(value, int): conf_lines.append(line +' = '+ str(value) +';')
-        else: conf_lines.append(line +' = \''+ value +'\';')
-
-
-    with open(lemon_tmp_conf,'w') as lemon_conf:
-        for conf_line in conf_lines:
-            lemon_conf.write(conf_line + '\n')
-
-    os.system('chown www-data '+ lemon_tmp_conf)
-    if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
-        os.system('service apache2 reload')
-        win_msg(_("LemonLDAP configured"))
-    else:
-        raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
-
-
 class YunoHostError(Exception):
     """
     Custom exception

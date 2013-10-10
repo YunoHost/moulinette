@@ -643,15 +643,15 @@ tools:
             action_help: Add/remove LemonLDAP location rule
             api: PUT /lemonrule
             arguments:
-                -i:
-                    full: --id
-                    help: ID to attribute to the rule
-                -u:
-                    full: --url
-                    help: URL to apply to the rule
+                -k:
+                    full: --key
+                    help: Key of the rule to write to the configuration file (tuple)
                 -v:
                     full: --value
                     help: Value of the rule to write to the configuration file
+                -u:
+                    full: --url
+                    help: URL of the rule
                 -p:
                     full: --priority
                     help: Priority of the rule
@@ -661,6 +661,6 @@ tools:
                     action: store_true
                 -a:
                     full: --apply
-                    help: Apply the LemonLDAP configuration by reloading Apache
+                    help: Apply the LemonLDAP configuration and reload Apache
                     action: store_true
 
