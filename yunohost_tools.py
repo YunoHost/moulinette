@@ -339,15 +339,17 @@ def tools_lemonrule(id=None, url=None, key=None, value=None, priority=None, dele
         for level in key:
             line = line +"->{'"+ level +"'}"
 
-    # Append value
-    if value is None: conf_lines.append(line +';')
-    elif isinstance(value, int): conf_lines.append(line +' = '+ str(value) +';')
-    else: conf_lines.append(line +' = \''+ value +'\';')
+    if line != '$tmp':
+        if value is None:
+            line = line +';'
+        elif isinstance(value, int):
+            line = line +' = '+ str(value) +';'
+        else:
+            line = line +' = \''+ value +'\';'
 
-    # Write configuration
-    with open(lemon_tmp_conf,'a+') as lemon_conf:
-        for conf_line in conf_lines:
-            lemon_conf.write(conf_line + '\n')
+        # Write configuration
+        with open(lemon_tmp_conf,'a+') as lemon_conf:
+            lemon_conf.write(line + '\n')
 
     # Apply & reload configuration
     if apply:
@@ -358,6 +360,6 @@ def tools_lemonrule(id=None, url=None, key=None, value=None, priority=None, dele
         else:
             raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
 
-        os.system("echo '' > lemon_tmp_conf")
+        os.system("echo '' > "+ lemon_tmp_conf)
 
 
