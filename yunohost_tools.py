@@ -347,7 +347,7 @@ def tools_lemonrule(id=None, url=None, key=None, value=None, priority=None, dele
     # Write configuration
     with open(lemon_tmp_conf,'a+') as lemon_conf:
         for conf_line in conf_lines:
-            lemon_conf.write(conf_line)
+            lemon_conf.write(conf_line + '\n')
 
     # Apply & reload configuration
     if apply:
