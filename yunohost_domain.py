@@ -124,9 +124,10 @@ def domain_add(domains, raw=False, main=False):
                     (('vhostOptions', domain, 'vhostMaintenance'), 0),
                     (('vhostOptions', domain, 'vhostPort'), -1),
                     (('vhostOptions', domain, 'vhostHttps'), -1),
-                    (('locationRules', domain, 'default'), 'accept', apply=True)
+                    (('locationRules', domain, 'default'), 'accept')
                 ]
                 for lemonrule in lemonrules: tools_lemonrule(*lemonrule)
+                tools_lemonrule(apply=True)
                 _apache_config(domain)
 
             try:

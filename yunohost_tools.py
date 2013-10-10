@@ -166,21 +166,15 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
 
     domain_add([new_domain], raw=False, main=True)
 
-    lemonrules = [
-        ('domain', new_domain), # Replace Lemon domain
-        ('ldapBase', 'dc=yunohost,dc=org'), # Set ldap basedn
-        ('portal', 'https://'+ new_domain +'/sso/'), # Set SSO url
-        (url=new_domain+'/ynh-admin/', value='$uid eq "admin"'),
-        (url=new_domain+'/ynh-user/',  value='$uid ne "admin"')
-    ]
+    tools_lemonrule('domain', new_domain) # Replace Lemon domain
+    tools_lemonrule('ldapBase', 'dc=yunohost,dc=org') # Set ldap basedn
+    tools_lemonrule('portal', 'https://'+ new_domain +'/sso/') # Set SSO url
+    tools_lemonrule(url=new_domain+'/ynh-admin/', value='$uid eq "admin"')
+    tools_lemonrule(url=new_domain+'/ynh-user/',  value='$uid ne "admin"')
 
     if old_domain is 'yunohost.org':
-        lemonrules.extend([
-            (url=old_domain+'/ynh-admin/', delete=True),
-            (url=old_domain+'/ynh-user/',  delete=True)
-        ])
-
-    for lemonrule in lemonrules: tools_lemonrule(*lemonrule)
+        tools_lemonrule(url=old_domain+'/ynh-admin/', delete=True)
+        tools_lemonrule(url=old_domain+'/ynh-user/',  delete=True)
 
     os.system('rm /etc/yunohost/apache/domains/' + old_domain + '.d/*.fixed.conf') # remove SSO apache conf dir from old domain conf (fail if postinstall)
     os.system('rm /etc/ssl/private/yunohost_key.pem')
