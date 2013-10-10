@@ -36,6 +36,8 @@ from yunohost_domain import domain_add
 from yunohost_dyndns import dyndns_subscribe
 from yunohost_backup import backup_init
 
+lemon_tmp_conf   = '/tmp/tmplemonconf'
+
 def tools_ldapinit(password=None):
     """
     YunoHost LDAP initialization
@@ -298,3 +300,64 @@ def tools_postinstall(domain, password, dyndns=False):
         os.system('service samba restart')
 
     win_msg(_("YunoHost has been successfully configured"))
+
+
+def tools_lemonrule(id=None, url=None, key=None, value=None, priority=None, delete=False, apply=False):
+    """
+
+    """
+    conf_lines = []
+
+    if delete: line = "delete $tmp"
+    else: line = "$tmp"
+
+    # locationRule formatter
+    if url is not None and id is not None:
+        # Remove potential "http://" or "https://"
+        if '://' in url:
+            url = url[url.index('://') + 3:]
+
+        # Split domain and path properly
+        if '/' in url:
+            domain = url[:url.index('/')]
+            path = url[url.index('/'):]
+            if path[-1:] is not '/':
+                path = path +'/'
+        else:
+            domain = url
+            path = '/'
+
+        line = line +"->{'locationRules'}->{'"+ domain +"'}"
+        if priority is not None:
+            line = line +"->{'(?#"+ priority + id +")^"+ path +"'}"
+        else:
+            line = line +"->{'(?#"+ id +"Z)^"+ path +"'}"
+
+    # Free key formatter from tuple
+    elif key is not None:
+        if not isinstance(key, tuple): key = (key,)
+        for level in key:
+            line = line +"->{'"+ level +"'}"
+
+    # Append value
+    if value is None: conf_lines.append(line +';')
+    elif isinstance(value, int): conf_lines.append(line +' = '+ str(value) +';')
+    else: conf_lines.append(line +' = \''+ value +'\';')
+
+    # Write configuration
+    with open(lemon_tmp_conf,'a+') as lemon_conf:
+        for conf_line in conf_lines:
+            lemon_conf.write(conf_line)
+
+    # Apply & reload configuration
+    if apply:
+        os.system('chown www-data '+ lemon_tmp_conf)
+        if os.system('/usr/share/lemonldap-ng/bin/lmYnhMoulinette') == 0:
+            os.system('service apache2 reload')
+            win_msg(_("LemonLDAP configured"))
+        else:
+            raise YunoHostError(1, _("An error occured during LemonLDAP configuration"))
+
+        os.system("echo '' > lemon_tmp_conf")
+
+

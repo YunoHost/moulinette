@@ -117,7 +117,7 @@ def domain_add(domains, raw=False, main=False):
                     ('exportedHeaders', domain, 'Auth-User'): '$uid',
                     ('exportedHeaders', domain, 'Remote-User'): '$uid',
                     ('exportedHeaders', domain, 'Desc'): '$description',
-                    ('exportedHeaders', domain, 'Email'): '$mail',
+                    ('exportedHeaders', domain, 'Email'): "(ref($mail) eq 'ARRAY' ? $mail[0] : $mail)",
                     ('exportedHeaders', domain, 'Name'): '$cn',
                     ('exportedHeaders', domain, 'Authorization'): '"Basic ".encode_base64("$uid:$_password")',
                     ('vhostOptions', domain, 'vhostMaintenance'): 0,

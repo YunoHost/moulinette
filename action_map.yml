@@ -638,3 +638,29 @@ tools:
                     help: Subscribe domain to a DynDNS service
                     action: store_true
 
+        ### tools_lemonrule()
+        lemonrule:
+            action_help: Add/remove LemonLDAP location rule
+            api: PUT /lemonrule
+            arguments:
+                -i:
+                    full: --id
+                    help: ID to attribute to the rule
+                -u:
+                    full: --url
+                    help: URL to apply to the rule
+                -v:
+                    full: --value
+                    help: Value of the rule to write to the configuration file
+                -p:
+                    full: --priority
+                    help: Priority of the rule
+                -d:
+                    full: --delete
+                    help: Delete the rule
+                    action: store_true
+                -a:
+                    full: --apply
+                    help: Apply the LemonLDAP configuration by reloading Apache
+                    action: store_true
+

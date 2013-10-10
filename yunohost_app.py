@@ -30,7 +30,7 @@ import shutil
 import stat
 import yaml
 import time
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, lvl, is_true, lemon_configuration
+from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, lemon_configuration
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
 
@@ -41,7 +41,6 @@ a2_settings_path = '/etc/yunohost/apache/domains'
 a2_template_path = '/etc/yunohost/apache/templates'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
-lemon_tmp_conf   = '/tmp/tmplemonconf'
 
 def app_listlists():
     """
