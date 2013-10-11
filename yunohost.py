@@ -44,7 +44,6 @@ if not __debug__:
     import traceback
 
 win = []
-lemon_tmp_conf   = '/tmp/tmplemonconf'
 
 def random_password(length=8):
     char_set = string.ascii_uppercase + string.digits + string.ascii_lowercase

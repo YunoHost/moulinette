@@ -34,7 +34,6 @@ from yunohost_tools import tools_lemonrule
 
 a2_template_path = '/etc/yunohost/apache/templates'
 a2_app_conf_path = '/etc/yunohost/apache/domains'
-lemon_tmp_conf   = '/tmp/tmplemonconf'
 
 def domain_list(filter=None, limit=None, offset=None):
     """
@@ -74,7 +73,7 @@ def domain_add(domains, raw=False, main=False):
 
     Keyword argument:
         domains -- Domain name to add
-        raw -- Auto-configure Apache and LemonLDAP for the domain
+        raw -- Do not configure Apache and LemonLDAP for the domain
 
     """
     with YunoHostLDAP() as yldap:
@@ -126,7 +125,8 @@ def domain_add(domains, raw=False, main=False):
                     (('vhostOptions', domain, 'vhostHttps'), -1),
                     (('locationRules', domain, 'default'), 'accept')
                 ]
-                for lemonrule in lemonrules: tools_lemonrule(*lemonrule)
+                for lemonrule in lemonrules:
+                    tools_lemonrule(*lemonrule)
                 tools_lemonrule(apply=True)
                 _apache_config(domain)
 
