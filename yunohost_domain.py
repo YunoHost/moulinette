@@ -30,6 +30,7 @@ import re
 import shutil
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+from yunohost_tools import tools_ssowatconf
 
 
 def domain_list(filter=None, limit=None, offset=None):
@@ -195,6 +196,9 @@ def domain_add(domains, main=False):
                 continue
             else:
                 raise YunoHostError(169, _("An error occured during domain creation"))
+
+
+        tools_ssowatconf()
 
         win_msg(_("Domain(s) successfully created"))
 
