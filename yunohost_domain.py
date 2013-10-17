@@ -30,7 +30,6 @@ import re
 import shutil
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
-from yunohost_tools import tools_lemonrule
 
 a2_template_path = '/etc/yunohost/apache/templates'
 a2_app_conf_path = '/etc/yunohost/apache/domains'
@@ -111,24 +110,6 @@ def domain_add(domains, raw=False, main=False):
             for command in command_list:
                 if os.system(command) != 0:
                     raise YunoHostError(17, _("An error occurred during certificate generation"))
-
-            if not raw:
-                lemonrules = [
-                    (('exportedHeaders', domain, 'Auth-User'), '$uid'),
-                    (('exportedHeaders', domain, 'Remote-User'), '$uid'),
-                    (('exportedHeaders', domain, 'Desc'), '$description'),
-                    (('exportedHeaders', domain, 'Email'), "(ref($mail) eq 'ARRAY' ? $mail[0] : $mail)"),
-                    (('exportedHeaders', domain, 'Name'), '$cn'),
-                    (('exportedHeaders', domain, 'Authorization'), '"Basic ".encode_base64("$uid:$_password")'),
-                    (('vhostOptions', domain, 'vhostMaintenance'), 0),
-                    (('vhostOptions', domain, 'vhostPort'), -1),
-                    (('vhostOptions', domain, 'vhostHttps'), -1),
-                    (('locationRules', domain, 'default'), 'accept')
-                ]
-                for lemonrule in lemonrules:
-                    tools_lemonrule(*lemonrule)
-                tools_lemonrule(apply=True)
-                _apache_config(domain)
 
             try:
                 yldap.validate_uniqueness({ 'virtualdomain' : domain })
@@ -266,26 +247,3 @@ def domain_remove(domains):
         win_msg(_("Domain(s) successfully deleted"))
 
         return { 'Domains' : result }
-
-
-def _apache_config(domain):
-    """
-    Fill Apache configuration templates
-
-    Keyword arguments:
-        domain -- Domain to configure Apache around
-
-    """
-    try: os.listdir(a2_app_conf_path +'/'+ domain +'.d/')
-    except OSError: os.makedirs(a2_app_conf_path +'/'+ domain +'.d/')
-
-    with open(a2_app_conf_path +'/'+ domain +'.conf', 'w') as a2_conf:
-        for line in open(a2_template_path +'/template.conf.tmp'):
-            line = line.replace('[domain]',domain)
-            a2_conf.write(line)
-
-    if os.system('service apache2 reload') == 0:
-        win_msg(_("Apache configured"))
-    else:
-        raise YunoHostError(1, _("An error occured during Apache configuration"))
-

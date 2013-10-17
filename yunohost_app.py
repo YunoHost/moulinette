@@ -33,13 +33,10 @@ import time
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
-from yunohost_tools import tools_lemonrule
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
 apps_setting_path= '/etc/yunohost/apps/'
-a2_settings_path = '/etc/yunohost/apache/domains'
-a2_template_path = '/etc/yunohost/apache/templates'
 install_tmp      = '/tmp/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
 
@@ -303,8 +300,8 @@ def app_install(app, label=None):
         label
 
     """
-    #TODO: Create tool for lemon
-    #TODO: Create tool for apache (check path availability & stuff)
+    #TODO: Create tool for ssowat
+    #TODO: Create tool for nginx (check path availability & stuff)
     #TODO: Create tool for MySQL DB ?
 
     with YunoHostLDAP() as yldap:
@@ -408,7 +405,7 @@ def app_addaccess(apps, users):
         apps
 
     """
-    #TODO: fix that
+    #TODO: Adapt to SSOwat
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
@@ -426,22 +423,19 @@ def app_addaccess(apps, users):
                 new_users = ''
 
             for allowed_user in users:
-                if allowed_user not in new_users.split(' '):
+                if allowed_user not in new_users.split(','):
                     try:
                         user_info(allowed_user)
                     except YunoHostError:
                         continue
-                    new_users = new_users +' '+ allowed_user
+                    new_users = new_users +','+ allowed_user
 
             app_settings['allowed_users'] = new_users.strip()
             with open(apps_setting_path + app +'/settings.yml', 'w') as f:
                 yaml.safe_dump(app_settings, f, default_flow_style=False)
                 win_msg(_("App setting file updated"))
 
-            #TODO: create lemon tool
-            tools_lemonrule(url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
-
-    tools_lemon(apply=True)
+    #TODO: Regenerate SSOwat conf
 
 
 def app_removeaccess(apps, users):
@@ -453,7 +447,7 @@ def app_removeaccess(apps, users):
         apps
 
     """
-    #TODO: fix that
+    #TODO: Remove access
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
@@ -468,18 +462,16 @@ def app_removeaccess(apps, users):
 
         if 'mode' in app_settings and app_settings['mode'] == 'private':
             if 'allowed_users' in app_settings:
-                for allowed_user in app_settings['allowed_users'].split(' '):
+                for allowed_user in app_settings['allowed_users'].split(','):
                     if allowed_user not in users:
-                        new_users = new_users +' '+ allowed_user
+                        new_users = new_users +','+ allowed_user
 
                 app_settings['allowed_users'] = new_users.strip()
                 with open(apps_setting_path + app +'/settings.yml', 'w') as f:
                     yaml.safe_dump(app_settings, f, default_flow_style=False)
                     win_msg(_("App setting file updated"))
 
-                tools_lemonrule(url=app_settings['domain']+app_settings['path'], value='grep( /^$uid$/, qw('+ new_users.strip() +'))')
-
-    tools_lemon(apply=True)
+    #TODO: Regenerate SSOwat conf
 
 
 def _extract_app_from_file(path):
