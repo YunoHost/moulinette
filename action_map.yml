@@ -637,3 +637,13 @@ tools:
                 --dyndns:
                     help: Subscribe domain to a DynDNS service
                     action: store_true
+
+        ### tools_ssowatconf()
+        ssowatconf:
+            action_help: Regenerate SSOwat configuration file
+            api: PUT /ssowatconf
+            arguments:
+                -r:
+                    full: --returns
+                    help: Return boolean
+                    action: store_true

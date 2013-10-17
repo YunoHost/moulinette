@@ -32,7 +32,7 @@ import subprocess
 import requests
 import json
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
-from yunohost_domain import domain_add
+from yunohost_domain import domain_add, domain_list
 from yunohost_dyndns import dyndns_subscribe
 from yunohost_backup import backup_init
 
@@ -278,3 +278,42 @@ def tools_postinstall(domain, password, dyndns=False):
         os.system('service samba restart')
 
     win_msg(_("YunoHost has been successfully configured"))
+
+
+
+def tools_ssowatconf(returns=False):
+    """
+    Regenerate SSOwat conf from YunoHost settings
+
+    Keyword argument:
+        Returns
+    """
+
+    with open('/etc/yunohost/current_host', 'r') as f:
+        main_domain = f.readline().rstrip()
+    
+    domains = domain_list()['Domains']
+
+    conf_dict = {
+        'portal_domain': main_domain,
+        'portal_path': '/sso/',
+        'portal_port': '443',
+        'portal_scheme': 'https',
+        'additional_headers': {
+            'Auth-User': 'uid',
+            'Remote-User': 'uid',
+            'Name': 'cn',
+            'Email': 'mail'
+        },
+        'domains': domains,
+        'skipped_urls': [],
+        'unprotected_urls': []
+    }
+
+    with open('/etc/ssowat/conf.json', 'wb') as f:
+        json.dump(conf_dict, f)
+
+    win_msg(_('SSOwat configuration generated'))
+        
+    if returns:
+        return True
