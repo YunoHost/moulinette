@@ -101,7 +101,8 @@ def domain_add(domains, main=False):
                 'ln -s /etc/ssl/certs/ca-yunohost_crt.pem   '+ ssl_domain_path +'/ca.pem',
                 'cp '+ ssl_dir +'/certs/yunohost_key.pem    '+ ssl_domain_path +'/key.pem',
                 'cp '+ ssl_dir +'/newcerts/'+ serial +'.pem '+ ssl_domain_path +'/crt.pem',
-                'chmod 600 '+ ssl_domain_path +'/key.pem'
+                'chmod 640 '+ ssl_domain_path +'/key.pem',
+                'chown root:metronome '+ ssl_domain_path +'/key.pem'
             ]
 
             for command in command_list:
@@ -165,6 +166,10 @@ def domain_add(domains, main=False):
             except IOError as e:
                 conf_lines = [
                     'VirtualHost "'+ domain +'"',
+                    '  ssl = {',
+                    '        key = "'+ ssl_domain_path +'/key.pem";',
+                    '        certificate = "'+ ssl_domain_path +'/crt.pem";',
+                    '  }',
                     '  authentication = "ldap2"',
                     '  ldap = {',
                     '     hostname      = "localhost",',
