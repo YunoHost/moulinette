@@ -180,10 +180,6 @@ domain:
                     help: Domain name to add
                     nargs: '+'
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
-                -r:
-                    full: --raw
-                    help: Auto-configure Apache and LemonLDAP for the domain
-                    action: store_true
 
         ### domain_remove()
         remove:
@@ -204,6 +200,15 @@ domain:
                     help: ""
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
+        ### domain_ssowatconf()
+        ssowatconf:
+            action_help: Regenerate SSOwat configuration file
+            api: PUT /ssowatconf
+            arguments:
+                -r:
+                    full: --returns
+                    help: Return boolean
+                    action: store_true
 
 #############################
 #            App            #
@@ -638,12 +643,3 @@ tools:
                     help: Subscribe domain to a DynDNS service
                     action: store_true
 
-        ### tools_ssowatconf()
-        ssowatconf:
-            action_help: Regenerate SSOwat configuration file
-            api: PUT /ssowatconf
-            arguments:
-                -r:
-                    full: --returns
-                    help: Return boolean
-                    action: store_true

@@ -28,9 +28,9 @@ import sys
 import datetime
 import re
 import shutil
+import json
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
-from yunohost_tools import tools_ssowatconf
 
 
 def domain_list(filter=None, limit=None, offset=None):
@@ -198,7 +198,7 @@ def domain_add(domains, main=False):
                 raise YunoHostError(169, _("An error occured during domain creation"))
 
 
-        tools_ssowatconf()
+        domain_ssowatconf()
 
         win_msg(_("Domain(s) successfully created"))
 
@@ -245,6 +245,46 @@ def domain_remove(domains):
             else:
                 raise YunoHostError(169, _("An error occured during domain deletion"))
 
+        domain_ssowatconf()
+
         win_msg(_("Domain(s) successfully deleted"))
 
         return { 'Domains' : result }
+
+
+def domain_ssowatconf(returns=False):
+    """
+    Regenerate SSOwat conf from YunoHost settings
+
+    Keyword argument:
+        Returns
+    """
+
+    with open('/etc/yunohost/current_host', 'r') as f:
+        main_domain = f.readline().rstrip()
+    
+    domains = domain_list()['Domains']
+
+    conf_dict = {
+        'portal_domain': main_domain,
+        'portal_path': '/sso/',
+        'portal_port': '443',
+        'portal_scheme': 'https',
+        'additional_headers': {
+            'Auth-User': 'uid',
+            'Remote-User': 'uid',
+            'Name': 'cn',
+            'Email': 'mail'
+        },
+        'domains': domains,
+        'skipped_urls': [],
+        'unprotected_urls': []
+    }
+
+    with open('/etc/ssowat/conf.json', 'wb') as f:
+        json.dump(conf_dict, f)
+
+    win_msg(_('SSOwat configuration generated'))
+        
+    if returns:
+        return True
