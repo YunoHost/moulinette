@@ -31,8 +31,6 @@ import shutil
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
-a2_template_path = '/etc/yunohost/apache/templates'
-a2_app_conf_path = '/etc/yunohost/apache/domains'
 
 def domain_list(filter=None, limit=None, offset=None):
     """
@@ -66,13 +64,12 @@ def domain_list(filter=None, limit=None, offset=None):
         return { 'Domains': result_list }
 
 
-def domain_add(domains, raw=False, main=False):
+def domain_add(domains, main=False):
     """
     Create a custom domain
 
     Keyword argument:
         domains -- Domain name to add
-        raw -- Do not configure Apache and LemonLDAP for the domain
 
     """
     with YunoHostLDAP() as yldap:
@@ -114,12 +111,7 @@ def domain_add(domains, raw=False, main=False):
             try:
                 yldap.validate_uniqueness({ 'virtualdomain' : domain })
             except YunoHostError:
-                if not raw:
-                    win_msg(_("Web config created"))
-                    result.append(domain)
-                    break
-                else:
-                    raise YunoHostError(17, _("Domain already created"))
+                raise YunoHostError(17, _("Domain already created"))
 
 
             attr_dict['virtualdomain'] = domain

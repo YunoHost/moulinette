@@ -162,7 +162,7 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
             for line in lines:
                 sources.write(re.sub(r''+ old_domain +'', new_domain, line))
 
-    domain_add([new_domain], raw=False, main=True)
+    domain_add([new_domain], main=True)
 
     # TODO: Generate SSOwat conf
 
