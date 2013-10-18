@@ -191,6 +191,13 @@ def domain_add(domains, main=False):
             os.system('chown -R metronome: /etc/metronome/conf.d/')
             os.system('service metronome restart')
 
+
+            # Nginx
+            os.system('cp /usr/share/yunohost/yunohost-config/nginx/template.conf /etc/nginx/conf.d/'+ domain +'.conf')
+            os.system('mkdir /etc/nginx/conf.d/'+ domain +'.d/')
+            os.system('sed -i s/yunohost.org/'+ domain +'/g /etc/nginx/conf.d/'+ domain +'.conf')
+            os.system('service nginx reload')
+
             if yldap.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
                 result.append(domain)
                 continue
@@ -267,7 +274,7 @@ def domain_ssowatconf():
 
     conf_dict = {
         'portal_domain': main_domain,
-        'portal_path': '/sso/',
+        'portal_path': '/ynhsso/',
         'portal_port': '443',
         'portal_scheme': 'https',
         'additional_headers': {
@@ -277,7 +284,7 @@ def domain_ssowatconf():
             'Email': 'mail'
         },
         'domains': domains,
-        'skipped_urls': [],
+        'skipped_urls': ['https://'+ main_domain +'/ynhadmin'],
         'unprotected_urls': []
     }
 
