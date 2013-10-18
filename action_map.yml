@@ -204,11 +204,7 @@ domain:
         ssowatconf:
             action_help: Regenerate SSOwat configuration file
             api: PUT /ssowatconf
-            arguments:
-                -r:
-                    full: --returns
-                    help: Return boolean
-                    action: store_true
+
 
 #############################
 #            App            #
@@ -643,3 +639,47 @@ tools:
                     help: Subscribe domain to a DynDNS service
                     action: store_true
 
+
+#############################
+#           Hook            #
+#############################
+hook:
+    category_help: Manage hooks
+    actions:
+
+        ### hook_add()
+        add:
+            action_help: Store hook script to filsystem
+            api: PUT /hook
+            arguments:
+                action:
+                    help: Action folder to store into
+                file:
+                    help: Script to check
+
+        ### hook_callback()
+        callback:
+            action_help: Execute all scripts binded to an action
+            api: GET /hooks
+            arguments:
+                action:
+                    help: Action name
+
+        ### hook_check()
+        check:
+            action_help: Parse the script file and get arguments
+            api: GET /hook/check
+            arguments:
+                file:
+                    help: Script to check
+
+        ### hook_exec()
+        exec:
+            action_help: Execute hook from a file with arguments
+            api: GET /hook
+            arguments:
+                file:
+                    help: Script to execute
+                -a:
+                    full: --args
+                    help: Arguments to pass to the script

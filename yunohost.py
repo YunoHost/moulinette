@@ -179,7 +179,7 @@ def get_required_args(args, required_args, password=False):
                 if os.isatty(1):
                     args[arg] = raw_input(colorize(phrase + ': ', 'cyan'))
                 else:
-                    raise Exception #FIX
+                    raise Exception #TODO: fix
         # Password
         if 'password' in required_args and password:
             if not args['password']:

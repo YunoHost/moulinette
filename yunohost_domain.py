@@ -252,12 +252,12 @@ def domain_remove(domains):
         return { 'Domains' : result }
 
 
-def domain_ssowatconf(returns=False):
+def domain_ssowatconf():
     """
     Regenerate SSOwat conf from YunoHost settings
 
     Keyword argument:
-        Returns
+
     """
 
     with open('/etc/yunohost/current_host', 'r') as f:
@@ -285,6 +285,3 @@ def domain_ssowatconf(returns=False):
         json.dump(conf_dict, f)
 
     win_msg(_('SSOwat configuration generated'))
-        
-    if returns:
-        return True
