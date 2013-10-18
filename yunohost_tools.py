@@ -170,8 +170,6 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
     os.system('rm /etc/ssl/certs/yunohost_crt.pem')
 
     command_list = [
-        'cp    /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/metronome/certs/yunohost_key.pem',
-        'chown metronome: /etc/metronome/certs/yunohost_key.pem',
         'ln -s /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/ssl/private/yunohost_key.pem',
         'ln -s /etc/yunohost/certs/'+ new_domain +'/crt.pem /etc/ssl/certs/yunohost_crt.pem',
         'echo '+ new_domain +' > /etc/yunohost/current_host',
