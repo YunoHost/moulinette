@@ -272,7 +272,7 @@ def app_upgrade(app, url=None, file=None):
                 #TODO: display fail messages from script
                 pass
             else:
-                app_setting(app_id, 'update_time', int(time.time())
+                app_setting(app_id, 'update_time', int(time.time()))
 
             # Move scripts and manifest to the right place
             os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
@@ -318,7 +318,7 @@ def app_install(app, label=None):
 
         # Check if app can be forked
         instance_number = _installed_instance_number(app_id, last=True) + 1
-        if fork and instance_number > 1 :
+        if instance_number > 1 :
             if 'multi_instance' not in manifest or not is_true(manifest['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
@@ -343,8 +343,8 @@ def app_install(app, label=None):
         #TMP: Remove old settings
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
         os.makedirs(app_setting_path)
-
         os.system('touch '+ app_setting_path +'/settings.yml')
+
         app_setting(app_id, 'id', app_id)
         app_setting(app_id, 'install_time', int(time.time()))
 
@@ -379,6 +379,8 @@ def app_remove(app):
     #TODO: display fail messages from script
     if hook_exec(apps_setting_path +'/'+ app + '/scripts/remove') != 0:
         pass
+
+    if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
 
     win_msg(_("App removed: ")+ app)
 
@@ -470,6 +472,8 @@ def app_setting(app, key, value=None):
     with open(settings_file) as f:
         app_settings = yaml.load(f)
 
+    if app_settings is None:
+        app_settings = {}
     if value is not None:
         if value == '' and key in app_settings:
             del app_settings[key]
