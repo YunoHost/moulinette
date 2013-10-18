@@ -332,6 +332,18 @@ app:
                     help: Return the full app_dict
                     action: store_true
 
+        ### app_setting()
+        addaccess:
+            action_help: Set ou get an app setting value
+            api: GET /app/{app}/setting
+            arguments:
+                app:
+                    help: App ID
+                key:
+                    help: Key to get/set
+                -v:
+                    full: --value
+                    help: Value to set
 
         ### app_addaccess() TODO: Write help
         addaccess:

@@ -24,8 +24,8 @@ gettext.install('YunoHost')
 
 dev = False
 installed = True
-ssl_key = '/usr/share/yunohost/yunohost-config/ssl/yunoCA/certs/yunohost_key.pem'
-ssl_crt = '/usr/share/yunohost/yunohost-config/ssl/yunoCA/newcerts/02.pem'
+ssl_key = '/etc/ssl/private/yunohost_key.pem'
+ssl_crt = '/etc/ssl/certs/yunohost_crt.pem'
 action_dict = {}
 api = APIResource()
 

@@ -33,6 +33,7 @@ import time
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
+from yunohost_hook import hook_exec
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
@@ -249,7 +250,7 @@ def app_upgrade(app, url=None, file=None):
                 raise YunoHostError(1, app_id + _(" is not installed"))
 
             if app_id in upgraded_apps:
-                raise YunoHostError(1, _("Conflict, multiple upgrades of the same app: ")+ app_id +' (instance n°'+ number +')')
+                continue
 
             #TODO: fix that (and check for instance number)
             current_app_dict = app_info(app_id, instance=number, raw=True)
@@ -264,22 +265,17 @@ def app_upgrade(app, url=None, file=None):
             else:
                 continue
 
-
-            # Execute App upgrade script
-            #TODO: display fail messages from script
-            _exec_app_script(step='upgrade', path=app_tmp_folder +'/scripts', var_dict={}, parameters=manifest['parameters'])
-
-
-            # Write App settings
             app_setting_path = apps_setting_path +'/'+ app_id
 
-            current_app_dict['settings']['update_time'] = int(time.time())
+            # Execute App upgrade script
+            if hook_exec(app_setting_path+ '/scripts/upgrade') != 0:
+                #TODO: display fail messages from script
+                pass
+            else:
+                app_setting(app_id, 'update_time', int(time.time())
 
-            with open(app_setting_path +'/settings.yml', 'w') as f:
-                yaml.safe_dump(current_app_dict['settings'], f, default_flow_style=False)
-                win_msg(_("App setting file updated"))
-
-            os.system('mv "'+ app_tmp_folder +'/*" '+ app_setting_path)
+            # Move scripts and manifest to the right place
+            os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
 
             # So much win
             upgraded_apps.append(app_id)
@@ -302,10 +298,8 @@ def app_install(app, label=None):
     """
     #TODO: Create tool for ssowat
     #TODO: Create tool for nginx (check path availability & stuff)
-    #TODO: Create tool for MySQL DB ?
 
     with YunoHostLDAP() as yldap:
-
 
         # Fetch or extract sources
         try: os.listdir(install_tmp)
@@ -350,23 +344,20 @@ def app_install(app, label=None):
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
         os.makedirs(app_setting_path)
 
-        yaml_dict = {
-            'id': app_id,
-            'install_time': int(time.time())
-        }
+        os.system('touch '+ app_setting_path +'/settings.yml')
+        app_setting(app_id, 'id', app_id)
+        app_setting(app_id, 'install_time', int(time.time()))
 
-        if label: yaml_dict['label'] = label
-        else: yaml_dict['label'] = manifest['name']
+        if label:
+            app_setting(app_id, 'label', label)
+        else:
+            app_setting(app_id, 'label', manifest['name'])
 
-        # Write App settings
-        with open(app_setting_path +'/settings.yml', 'w') as f:
-            yaml.safe_dump(yaml_dict, f, default_flow_style=False)
-            win_msg(_("App setting file created"))
-
-        os.system('mv "'+ app_final_path +'/manifest.json" "'+ app_final_path +'/scripts" '+ app_setting_path)
+        # Move scripts and manifest to the right place
+        os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
 
         # Execute App install script
-        if _exec_app_script(step='install', path=app_tmp_folder +'/scripts', var_dict={}, parameters=manifest['parameters']) != 0:
+        if hook_exec(app_setting_path+ '/scripts/install') != 0:
             #TODO: display script fail messages
             shutil.rmtree(app_setting_path)
 
@@ -385,13 +376,9 @@ def app_remove(app):
     if not _is_installed(app):
         raise YunoHostError(22, _("App is not installed"))
 
-    app_final_path = apps_path +'/'+ app
-    app_dict = app_info(app, raw=True)
-    app_settings = app_dict['settings']
-    manifest = app_dict['manifest']
-
     #TODO: display fail messages from script
-    _exec_app_script(step='remove', path=app_tmp_folder +'/scripts', var_dict=script_var_dict, parameters=manifest['parameters'])
+    if hook_exec(apps_setting_path +'/'+ app + '/scripts/remove') != 0:
+        pass
 
     win_msg(_("App removed: ")+ app)
 
@@ -473,6 +460,29 @@ def app_removeaccess(apps, users):
 
     #TODO: Regenerate SSOwat conf
 
+
+def app_setting(app, key, value=None):
+    """
+
+    """
+    settings_file = apps_setting_path + app +'/settings.yml'
+
+    with open(settings_file) as f:
+        app_settings = yaml.load(f)
+
+    if value is not None:
+        if value == '' and key in app_settings:
+            del app_settings[key]
+        else:
+            app_settings[key] = value
+    elif key in app_settings:
+        return app_settings[key]
+
+    with open(settings_file, 'w') as f:
+        yaml.safe_dump(app_settings, f, default_flow_style=False)
+    
+    return True
+        
 
 def _extract_app_from_file(path):
     """
@@ -560,41 +570,6 @@ def _fetch_app_from_git(app):
     win_msg(_("Repository fetched"))
 
     return manifest
-
-
-def _exec_app_script(step, path, var_dict, parameters):
-    """
-    Execute step user script
-
-    Keyword arguments:
-        step -- Name of the script to call regarding the current step (e.g. install|upgrade|remove|etc.)
-        path -- Absolute path of the script's directory
-        var_dict -- Dictionnary of environnement variable to pass to the script
-        parameters -- Parameters to pass to the script
-
-    """
-    scripts = [ step, step +'.sh', step +'.py' ]
-
-    for script in scripts:
-        script_path = path +'/'+ script
-        if os.path.exists(script_path):
-            st = os.stat(script_path)
-            os.chmod(script_path, st.st_mode | stat.S_IEXEC)
-
-            user = 'yunohost'
-            os.system('chown -R '+ user +': '+ app_tmp_folder)
-
-            env_vars = ''
-            for key, value in var_dict.items():
-                env_vars = env_vars + key + "='"+ value +"' "
-
-            command = 'su - '+ user +' -c "'+ env_vars +' sh '+ path +'/'+ script +'"'
-            if os.system(command) == 0:
-                win_msg(_("Script executed: ") + script)
-            else:
-                raise YunoHostError(1, _("Script execution failed: ") + script)
-
-            break
 
 
 def _installed_instance_number(app, last=False):

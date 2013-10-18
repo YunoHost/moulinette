@@ -54,11 +54,12 @@ def hook_callback(action):
         action -- Action name
 
     """
-    try: os.listdir(hook_folder + action)
-    except OSError: os.makedirs(hook_folder + action)
+    with YunoHostLDAP() as yldap:
+        try: os.listdir(hook_folder + action)
+        except OSError: os.makedirs(hook_folder + action)
 
-    for hook in os.listdir(hook_folder + action):
-        hook_exec(file=hook_folder + action +'/'+ hook)
+        for hook in os.listdir(hook_folder + action):
+            hook_exec(file=hook_folder + action +'/'+ hook)
 
 
 def hook_check(file):
@@ -116,4 +117,4 @@ def hook_exec(file, args=None):
                 else:
                     raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
 
-        os.system('su - admin -c "bash \\"'+ file +'\\" '+ ' '.join(arg_list) +'"')
+        return os.system('su - admin -c "bash \\"'+ file +'\\" '+ ' '.join(arg_list) +'"') #TODO: Allow python script
