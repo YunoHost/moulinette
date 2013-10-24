@@ -103,7 +103,6 @@ def main():
             with YunoHostLDAP(password=admin_password):
                 result = args.func(**args_dict)
         elif os.isatty(1) and write_ldap:
-            print('meh')
             admin_password = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
             with YunoHostLDAP(password=admin_password):
                 try:
