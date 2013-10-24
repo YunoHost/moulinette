@@ -64,7 +64,7 @@ def main():
 
     admin_password_provided = False
     json_print = False
-    no_ldap = False
+    write_ldap = True
 
     for key, arg in enumerate(sys.argv):
         if arg == '--admin-password':
@@ -72,11 +72,9 @@ def main():
             admin_password = sys.argv[key+1]
             sys.argv.pop(key)
             sys.argv.pop(key)
-
         if arg == '--no-ldap':
-            no_ldap = True
+            write_ldap = False
             sys.argv.pop(key)
-                
         if arg == '--json':
             json_print = True
             sys.argv.pop(key)
@@ -104,7 +102,8 @@ def main():
         if admin_password_provided:
             with YunoHostLDAP(password=admin_password):
                 result = args.func(**args_dict)
-        elif os.isatty(1) and not no_ldap:
+        elif os.isatty(1) and write_ldap:
+            print('meh')
             admin_password = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
             with YunoHostLDAP(password=admin_password):
                 try:
@@ -125,7 +124,8 @@ def main():
                         os.remove('/etc/yunohost/passwd')
                         os.remove('/var/run/yunohost.pid')
         else:
-            result = args.func(**args_dict)
+            with YunoHostLDAP(anonymous=True):
+                result = args.func(**args_dict)
     #except TypeError, error:
         #if not __debug__ :
             #traceback.print_exc()

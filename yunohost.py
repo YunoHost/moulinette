@@ -251,6 +251,7 @@ class Singleton(object):
 class YunoHostLDAP(Singleton):
     """ Specific LDAP functions for YunoHost """
     pwd = False
+    connected = False
     conn = ldap.initialize('ldap://localhost:389')
     base = 'dc=yunohost,dc=org'
     level = 0
@@ -258,33 +259,42 @@ class YunoHostLDAP(Singleton):
     def __enter__(self):
         return self
 
-    def __init__(self, password=False):
+    def __init__(self, password=False, anonymous=False):
         """
         Connect to LDAP base
 
         Initialize to localhost, base yunohost.org, prompt for password
 
         """
-        if password: self.pwd = password
-        elif self.pwd: pass
+        if anonymous:
+           self.conn.simple_bind_s()
+           self.connected = True
+        elif self.connected:
+           pass
         else:
-            need_password = True
-            while need_password:
-                try:
-                    self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
-                    self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
-                except KeyboardInterrupt, EOFError:
-                    raise YunoHostError(125, _("Interrupted"))
-                except ldap.INVALID_CREDENTIALS:
-                    print(_('Invalid password... Try again'))
-                else:
-                    need_password = False
+            if password:
+                self.pwd = password
+            elif self.pwd:
+                pass
+            else:
+                need_password = True
+                while need_password:
+                    try:
+                        self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
+                        self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
+                    except KeyboardInterrupt, EOFError:
+                        raise YunoHostError(125, _("Interrupted"))
+                    except ldap.INVALID_CREDENTIALS:
+                        print(_('Invalid password... Try again'))
+                    else:
+                        need_password = False
 
-        self.level = self.level+1
-        try:
-            self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
-        except ldap.INVALID_CREDENTIALS:
-            raise YunoHostError(13, _('Invalid credentials'))
+            self.level = self.level+1
+            try:
+                self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
+                self.connected = True
+            except ldap.INVALID_CREDENTIALS:
+                raise YunoHostError(13, _('Invalid credentials'))
 
     def __exit__(self, type, value, traceback):
         self.level = self.level-1
