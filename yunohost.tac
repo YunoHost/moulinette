@@ -115,7 +115,23 @@ def http_exec(request, **kwargs):
 
         # Execute requested function
         with YunoHostLDAP(password=request.getPassword()):
-            result = func(**validated_args)
+            try:
+                with open('/var/run/yunohost.pid', 'r'):
+                    raise YunoHostError(1, _("A YunoHost command is already running"))
+            exceOError:
+                with open('/var/run/yunohost.pid', 'w') as f:
+                    f.write('ldap')
+                    os.system('chmod 400 /var/run/yunohost.pid')
+                with open('/etc/yunohost/passwd', 'w') as f:
+                    f.write(admin_password)
+                    os.system('chmod 400 /etc/yunohost/passwd')
+                try:
+                    result = func(**validated_args)
+                except KeyboardInterrupt, EOFError:
+                    raise YunoHostError(125, _("Interrupted"))
+                finally:
+                    os.remove('/etc/yunohost/passwd')
+                    os.remove('/var/run/yunohost.pid')
         if result is None:
             result = {}
         if len(yunohost.win) > 0:
