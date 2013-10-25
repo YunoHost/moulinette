@@ -117,4 +117,8 @@ def hook_exec(file, args=None):
                 else:
                     raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
 
-        return os.system('su - admin -c "bash \\"'+ file +'\\" '+ ' '.join(arg_list) +'"') #TODO: Allow python script
+        file_path = "./"
+        if "/" in file and file[0:2] != file_path:
+            file_path = os.path.dirname(file)
+            file = file.replace(file_path +"/", "")
+        return os.system('su - admin -c "cd \\"'+ file_path +'\\" && bash \\"'+ file +'\\" '+ ' '.join(arg_list) +'"') #TODO: Allow python script

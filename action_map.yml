@@ -333,7 +333,7 @@ app:
                     action: store_true
 
         ### app_setting()
-        addaccess:
+        setting:
             action_help: Set ou get an app setting value
             api: GET /app/{app}/setting
             arguments:

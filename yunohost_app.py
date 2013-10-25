@@ -352,15 +352,19 @@ def app_install(app, label=None):
         else:
             app_setting(app_id, 'label', manifest['name'])
 
-        # Move scripts and manifest to the right place
-        os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
-
+        os.system('chown -R admin: '+ app_tmp_folder)
         # Execute App install script
-        if hook_exec(app_setting_path+ '/scripts/install') != 0:
+        if hook_exec(app_tmp_folder + '/scripts/install') == 0:
+            # Move scripts and manifest to the right place
+            os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
+            shutil.rmtree(app_tmp_folder)
+            os.system('chmod -R 400 '+ app_setting_path)
+            os.system('chown -R root: '+ app_setting_path)
+            win_msg(_("Installation complete"))
+        else:
             #TODO: display script fail messages
             shutil.rmtree(app_setting_path)
-
-        win_msg(_("Installation complete"))
+            raise YunoHostError(1, _("Installation failed"))
 
 
 def app_remove(app):
@@ -375,8 +379,10 @@ def app_remove(app):
     if not _is_installed(app):
         raise YunoHostError(22, _("App is not installed"))
 
+    app_setting_path = apps_setting_path + app
+
     #TODO: display fail messages from script
-    if hook_exec(apps_setting_path +'/'+ app + '/scripts/remove') != 0:
+    if hook_exec(app_setting_path + '/scripts/remove') != 0:
         pass
 
     if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
@@ -483,9 +489,8 @@ def app_setting(app, key, value=None):
 
     with open(settings_file, 'w') as f:
         yaml.safe_dump(app_settings, f, default_flow_style=False)
-    
-    return True
         
+
 
 def _extract_app_from_file(path, remove=False):
     """
