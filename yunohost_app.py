@@ -296,7 +296,6 @@ def app_install(app, label=None):
         label
 
     """
-    #TODO: Create tool for ssowat
     #TODO: Create tool for nginx (check path availability & stuff)
 
     with YunoHostLDAP() as yldap:
@@ -488,12 +487,13 @@ def app_setting(app, key, value=None):
     return True
         
 
-def _extract_app_from_file(path):
+def _extract_app_from_file(path, remove=False):
     """
     Unzip or untar application tarball in app_tmp_folder, or copy it from a directory
 
     Keyword arguments:
         path -- Path of the tarball or directory
+        remove -- Remove the tarball after extraction
 
     Returns:
         Dict manifest
@@ -504,8 +504,10 @@ def _extract_app_from_file(path):
 
     if ".zip" in path:
         extract_result = os.system('cd '+ os.getcwd() +' && unzip '+ path +' -d '+ app_tmp_folder)
+        if remove: os.remove(path)
     elif ".tar" in path:
         extract_result = os.system('cd '+ os.getcwd() +' && tar -xf '+ path +' -C '+ app_tmp_folder)
+        if remove: os.remove(path)
     elif (path[:1] == '/' and os.path.exists(path)) or (os.system('cd '+ os.getcwd() +'/'+ path) == 0):
         shutil.rmtree(app_tmp_folder)
         if path[len(path)-1:] != '/':
@@ -553,9 +555,6 @@ def _fetch_app_from_git(app):
             raise YunoHostError(1, _("Invalid App manifest"))
 
     else:
-        app_tmp_folder = install_tmp +'/'+ app
-        if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
-
         app_dict = app_list(raw=True)
 
         if app in app_dict:
@@ -565,6 +564,17 @@ def _fetch_app_from_git(app):
         else:
             raise YunoHostError(22, _("App doesn't exists"))
 
+        if "github.com" in app_info['git']['url']:
+            url = app_info['git']['url'].replace("git@github.com:", "https://github.com/")
+            if ".git" in url[-4:]: url = url[:-4]
+            if "/" in url [-1:]: url = url[:-1]
+            url = url + "/archive/"+ str(app_info['git']['revision']) + ".zip"
+            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip"') == 0:
+                return _extract_app_from_file(app_tmp_folder +'.zip', remove=True)
+                
+        app_tmp_folder = install_tmp +'/'+ app
+        if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
+            
         git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
         git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
 
