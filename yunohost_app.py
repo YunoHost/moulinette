@@ -30,6 +30,7 @@ import shutil
 import stat
 import yaml
 import time
+import re
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
@@ -321,17 +322,18 @@ def app_install(app, label=None):
             if 'multi_instance' not in manifest or not is_true(manifest['multi_instance']):
                 raise YunoHostError(1, _("App is already installed"))
 
-            forked_app_id = app_id + '__' + instance_number
+            app_id_forked = app_id + '__' + str(instance_number)
 
             # Replace app_id with the new one in scripts
             for file in os.listdir(app_tmp_folder +'/scripts'):
                 #TODO: add hooks directory to the list
                 #TODO: do it with sed ?
-                with open(file, "r") as sources:
-                    lines = sources.readlines()
-                with open(file, "w") as sources:
-                    for line in lines:
-                        sources.write(re.sub(r''+ app_id +'', app_id_forked, line))
+                if file[:1] != '.':
+                    with open(app_tmp_folder +'/scripts/'+ file, "r") as sources:
+                        lines = sources.readlines()
+                    with open(app_tmp_folder +'/scripts/'+ file, "w") as sources:
+                        for line in lines:
+                            sources.write(re.sub(r''+ app_id +'', app_id_forked, line))
 
             # Change app_id for the rest of the process
             app_id = app_id_forked
