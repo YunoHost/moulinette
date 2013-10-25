@@ -614,13 +614,12 @@ def _installed_instance_number(app, last=False):
             return 0
 
         for installed_app in installed_apps:
-            if '__' in installed_app:
+            if number == 0 and app == installed_app:
+                number = 1
+            elif '__' in installed_app:
                 if app == installed_app[:installed_app.index('__')]:
                     if int(installed_app[installed_app.index('__') + 2:]) > number:
                         number = int(installed_app[installed_app.index('__') + 2:])
-            else:
-                if _is_installed(app):
-                    number = 1
 
         return number
 
