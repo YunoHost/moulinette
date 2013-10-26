@@ -244,8 +244,9 @@ def tools_postinstall(domain, password, dyndns=False):
             os.system('hostname yunohost.yunohost.org')
             
         # Samba sh*t fix
-        os.system('net setlocalsid $(ldapsearch -x -b "dc=yunohost,dc=org" -LLL "(objectclass=sambaDomain)" | grep SID | awk \'{print $2}\')')
-        os.system('smbpasswd -w yunohost')
+        if os.system('net getlocalsid') != 0:
+            os.system('apt-get install --reinstall -y -qq samba yunohost-config-samba')
+            os.system('smbpasswd -w yunohost')
 
         # Create SSL CA
         ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
