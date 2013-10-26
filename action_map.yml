@@ -345,6 +345,34 @@ app:
                     full: --value
                     help: Value to set
 
+        ### app_checkurl()
+        checkurl:
+            action_help: Check availability of a web path
+            api: GET /app/checkurl
+            arguments:
+                url:
+                    help: Url to check
+                -a:
+                    full: --app
+                    help: Write domain & path to app settings for further checks
+
+        ### app_initdb()
+        initdb:
+            action_help: Create database and initialize it with optionnal attached script
+            api: POST /app/initdb
+            arguments:
+                user:
+                    help: Name of the DB user
+                -p:
+                    full: --password
+                    help: Password of the DB (generated unless set)
+                -d:
+                    full: --db
+                    help: DB name (user unless set)
+                -s:
+                    full: --sql
+                    help: Initial SQL file
+                
         ### app_addaccess() TODO: Write help
         addaccess:
             action_help: Grant access right to users (everyone by default)

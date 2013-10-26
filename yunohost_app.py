@@ -31,7 +31,7 @@ import stat
 import yaml
 import time
 import re
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true
+from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
 from yunohost_hook import hook_exec
@@ -214,11 +214,10 @@ def app_map(app=None, raw=False):
                 result[app_settings['domain']] = {}
             result[app_settings['domain']][app_settings['path']] = {
                     'label': app_settings['label'],
-                    'id': app_settings['id'],
-                    'instance': app_settings['instance']
+                    'id': app_settings['id']
             }
         else:
-            result['https://'+app_settings['domain']+app_settings['path']] = app_settings['label']
+            result[app_settings['domain']+app_settings['path']] = app_settings['label']
 
     return result
 
@@ -362,6 +361,7 @@ def app_install(app, label=None):
             shutil.rmtree(app_tmp_folder)
             os.system('chmod -R 400 '+ app_setting_path)
             os.system('chown -R root: '+ app_setting_path)
+            os.system('chown -R admin: '+ app_setting_path +'/scripts')
             win_msg(_("Installation complete"))
         else:
             #TODO: display script fail messages
@@ -476,22 +476,96 @@ def app_setting(app, key, value=None):
     """
     settings_file = apps_setting_path + app +'/settings.yml'
 
-    with open(settings_file) as f:
-        app_settings = yaml.load(f)
+    try:
+        with open(settings_file) as f:
+            app_settings = yaml.load(f)
+    except IOError:
+        # Do not fail if setting file is not there
+        pass
 
-    if app_settings is None:
-        app_settings = {}
-    if value is not None:
+    if value is None:
+        # Get the value
+        if app_settings is not None and key in app_settings:
+            print(app_settings[key])
+    else:
+        # Set the value
+        if app_settings is None:
+            app_settings = {}
         if value == '' and key in app_settings:
             del app_settings[key]
         else:
             app_settings[key] = value
-    elif key in app_settings:
-        return app_settings[key]
 
-    with open(settings_file, 'w') as f:
-        yaml.safe_dump(app_settings, f, default_flow_style=False)
+        with open(settings_file, 'w') as f:
+            yaml.safe_dump(app_settings, f, default_flow_style=False)
         
+
+def app_checkurl(url, app=None):
+    """
+
+    """
+    if "https://" == url[:8]:
+        url = url[8:]
+    elif "http://" == url[:7]:
+        url = url[7:]
+    
+    if url[-1:] != '/':
+        url = url + '/'
+
+    domain = url[:url.index('/')]
+    path = url[url.index('/'):]
+
+    if path[-1:] != '/':
+        path = path + '/'
+
+    apps_map = app_map(raw=True)
+    validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', domain)
+
+    if domain not in domain_list()['Domains']:
+        raise YunoHostError(22, _("Domain doesn't exists"))
+
+    if domain in apps_map:
+        if path in apps_map[domain]:
+            raise YunoHostError(1, _("An app is already installed on this location"))
+        for app_path, v in apps_map[domain].items():
+            if app_path in path and app_path.count('/') < path.count('/'):
+                raise YunoHostError(1, _("Unable to install app at this location"))
+
+    if app is not None:
+        app_setting(app, 'domain', value=domain)
+        app_setting(app, 'path', value=path)
+
+
+def app_initdb(user, password=None, db=None, sql=None):
+    """
+    Create database and initialize it with optionnal attached script
+    
+    Keyword arguments:
+    user -- Name of the DB user
+    password -- Password for the user
+    db -- Database name (optionnal)
+    sql -- Initial SQL file
+    
+    """
+    if db is None:
+        db = user
+
+    return_pwd = False
+    if password is None:
+        password = random_password(12)
+        return_pwd = True
+        print(password)
+
+    mysql_root_pwd = open('/etc/yunohost/mysql').read().rstrip()
+    mysql_command = 'mysql -u root -p'+ mysql_root_pwd +' -e "CREATE DATABASE '+ db +' ; GRANT ALL PRIVILEGES ON '+ db +'.* TO \''+ user +'\'@localhost IDENTIFIED BY \''+ password +'\';"'
+    if os.system(mysql_command) != 0:
+        raise YunoHostError(1, _("MySQL DB creation failed"))
+    if sql is not None:
+        if os.system('mysql -u '+ user +' -p'+ password +' '+ db +' < '+ sql) != 0:
+            raise YunoHostError(1, _("MySQL DB init failed"))
+
+    if not return_pwd:
+        win_msg(_("Database initiliazed"))
 
 
 def _extract_app_from_file(path, remove=False):
@@ -506,6 +580,8 @@ def _extract_app_from_file(path, remove=False):
         Dict manifest
 
     """
+    global app_tmp_folder
+
     if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
     os.makedirs(app_tmp_folder)
 
@@ -527,6 +603,9 @@ def _extract_app_from_file(path, remove=False):
         raise YunoHostError(22, _("Invalid install file"))
 
     try:
+        if len(os.listdir(app_tmp_folder)) == 1:
+            for folder in os.listdir(app_tmp_folder):
+                app_tmp_folder = app_tmp_folder +'/'+ folder
         with open(app_tmp_folder + '/manifest.json') as json_manifest:
             manifest = json.loads(str(json_manifest.read()))
             manifest['lastUpdate'] = int(time.time())
@@ -552,6 +631,14 @@ def _fetch_app_from_git(app):
     global app_tmp_folder
 
     if ('@' in app) or ('http://' in app) or ('https://' in app):
+        if "github.com" in app:
+            url = app.replace("git@github.com:", "https://github.com/")
+            if ".git" in url[-4:]: url = url[:-4]
+            if "/" in url [-1:]: url = url[:-1]
+            url = url + "/archive/master.zip"
+            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip"') == 0:
+                return _extract_app_from_file(app_tmp_folder +'.zip', remove=True)
+
         git_result   = os.system('git clone '+ app +' '+ app_tmp_folder)
         git_result_2 = 0
         try:
