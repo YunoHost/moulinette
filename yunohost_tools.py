@@ -242,6 +242,10 @@ def tools_postinstall(domain, password, dyndns=False):
         # Set hostname to avoid amavis bug
         if os.system('hostname -d') != 0:
             os.system('hostname yunohost.yunohost.org')
+            
+        # Samba sh*t fix
+        os.system('net setlocalsid $(ldapsearch -x -b "dc=yunohost,dc=org" -LLL "(objectclass=sambaDomain)" | grep SID | awk \'{print $2}\')')
+        os.system('smbpasswd -w yunohost')
 
         # Create SSL CA
         ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
