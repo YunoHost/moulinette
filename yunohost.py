@@ -288,13 +288,14 @@ class YunoHostLDAP(Singleton):
                         print(_('Invalid password... Try again'))
                     else:
                         need_password = False
-
-            self.level = self.level+1
+            
             try:
                 self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
                 self.connected = True
             except ldap.INVALID_CREDENTIALS:
                 raise YunoHostError(13, _('Invalid credentials'))
+
+        self.level = self.level+1
 
     def __exit__(self, type, value, traceback):
         self.level = self.level-1
