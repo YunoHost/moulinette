@@ -207,63 +207,64 @@ def tools_postinstall(domain, password, dyndns=False):
         password -- YunoHost admin password
 
     """
+    try:
+        with open('/etc/yunohost/installed') as f: pass
+    except IOError:
+        print('Installing YunoHost')
+    else:
+        raise YunoHostError(17, _("YunoHost is already installed"))
+
+    if len(domain.split('.')) >= 3:
+        r = requests.get('http://dyndns.yunohost.org/domains')
+        dyndomains = json.loads(r.text)
+        dyndomain  = '.'.join(domain.split('.')[1:])
+        if dyndomain in dyndomains:
+            if requests.get('http://dyndns.yunohost.org/test/'+ domain).status_code == 200:
+                dyndns=True
+            else:
+                raise YunoHostError(17, _("Domain is already taken"))
+
+    # Create required folders
+    folders_to_create = [
+        '/etc/yunohost/apps',
+        '/etc/yunohost/certs',
+        '/var/cache/yunohost/repo',
+        '/home/yunohost.samba',
+        '/home/yunohost.backup',
+        '/home/yunohost.app'
+    ]
+
+    for folder in folders_to_create:
+        try: os.listdir(folder)
+        except OSError: os.makedirs(folder)
+
+    # Set hostname to avoid amavis bug
+    if os.system('hostname -d') != 0:
+        os.system('hostname yunohost.yunohost.org')
+        
+    # Samba sh*t fix
+    if os.system('net getlocalsid > /dev/null') != 0:
+        os.system('apt-get install --reinstall -y -qq samba yunohost-config-samba')
+        os.system('smbpasswd -w yunohost')
+
+    # Create SSL CA
+    ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
+    command_list = [
+        'echo "01" > '+ ssl_dir +'/serial',
+        'rm '+ ssl_dir +'/index.txt',
+        'touch '+ ssl_dir +'/index.txt',
+        'cp '+ ssl_dir +'/openssl.cnf '+ ssl_dir +'/openssl.ca.cnf ',
+        'sed -i "s/yunohost.org/'+ domain +'/g" '+ ssl_dir +'/openssl.ca.cnf ',
+        'openssl req -x509 -new -config '+ ssl_dir +'/openssl.ca.cnf -days 3650 -out '+ ssl_dir +'/ca/cacert.pem -keyout '+ ssl_dir +'/ca/cakey.pem -nodes -batch',
+        'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
+        'update-ca-certificates'
+    ]
+
+    for command in command_list:
+        if os.system(command) != 0:
+            raise YunoHostError(17, _("There were a problem during CA creation"))
+
     with YunoHostLDAP(password='yunohost') as yldap:
-        try:
-            with open('/etc/yunohost/installed') as f: pass
-        except IOError:
-            print('Installing YunoHost')
-        else:
-            raise YunoHostError(17, _("YunoHost is already installed"))
-
-        if len(domain.split('.')) >= 3:
-            r = requests.get('http://dyndns.yunohost.org/domains')
-            dyndomains = json.loads(r.text)
-            dyndomain  = '.'.join(domain.split('.')[1:])
-            if dyndomain in dyndomains:
-                if requests.get('http://dyndns.yunohost.org/test/'+ domain).status_code == 200:
-                    dyndns=True
-                else:
-                    raise YunoHostError(17, _("Domain is already taken"))
-
-        # Create required folders
-        folders_to_create = [
-            '/etc/yunohost/apps',
-            '/etc/yunohost/certs',
-            '/var/cache/yunohost/repo',
-            '/home/yunohost.samba',
-            '/home/yunohost.backup',
-            '/home/yunohost.app'
-        ]
-
-        for folder in folders_to_create:
-            try: os.listdir(folder)
-            except OSError: os.makedirs(folder)
-
-        # Set hostname to avoid amavis bug
-        if os.system('hostname -d') != 0:
-            os.system('hostname yunohost.yunohost.org')
-            
-        # Samba sh*t fix
-        if os.system('net getlocalsid') != 0:
-            os.system('apt-get install --reinstall -y -qq samba yunohost-config-samba')
-            os.system('smbpasswd -w yunohost')
-
-        # Create SSL CA
-        ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
-        command_list = [
-            'echo "01" > '+ ssl_dir +'/serial',
-            'rm '+ ssl_dir +'/index.txt',
-            'touch '+ ssl_dir +'/index.txt',
-            'cp '+ ssl_dir +'/openssl.cnf '+ ssl_dir +'/openssl.ca.cnf ',
-            'sed -i "s/yunohost.org/'+ domain +'/g" '+ ssl_dir +'/openssl.ca.cnf ',
-            'openssl req -x509 -new -config '+ ssl_dir +'/openssl.ca.cnf -days 3650 -out '+ ssl_dir +'/ca/cacert.pem -keyout '+ ssl_dir +'/ca/cakey.pem -nodes -batch',
-            'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
-            'update-ca-certificates'
-        ]
-
-        for command in command_list:
-            if os.system(command) != 0:
-                raise YunoHostError(17, _("There were a problem during CA creation"))
 
         # Initialize YunoHost LDAP base
         tools_ldapinit(password)

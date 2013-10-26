@@ -83,8 +83,7 @@ def main():
         try:
             with open('/etc/yunohost/installed') as f: pass
         except IOError:
-            admin_password_provided = True
-            admin_password = "yunohost"
+            postinstall = True
             if len(sys.argv) < 3 or sys.argv[1] != 'tools' or sys.argv[2] != 'postinstall':
                 raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
 
@@ -101,7 +100,9 @@ def main():
                 admin_password = f.read()
                 admin_password_provided = True
         except IOError: pass
-        if admin_password_provided:
+        if postinstall:
+            result = args.func(**args_dict)
+        elif admin_password_provided:
             with YunoHostLDAP(password=admin_password):
                 result = args.func(**args_dict)
         elif os.isatty(1) and write_ldap:
