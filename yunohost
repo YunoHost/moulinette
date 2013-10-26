@@ -65,6 +65,7 @@ def main():
     admin_password_provided = False
     json_print = False
     write_ldap = True
+    postinstall = False
 
     for key, arg in enumerate(sys.argv):
         if arg == '--admin-password':
