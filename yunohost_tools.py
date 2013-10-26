@@ -243,7 +243,7 @@ def tools_postinstall(domain, password, dyndns=False):
         os.system('hostname yunohost.yunohost.org')
         
     # Samba sh*t fix
-    if os.system('net getlocalsid > /dev/null') != 0:
+    if os.system('net getlocalsid > /dev/null 2>&1') != 0:
         os.system('apt-get install --reinstall -y -qq samba yunohost-config-samba')
         os.system('smbpasswd -w yunohost')
 
