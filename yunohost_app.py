@@ -33,7 +33,7 @@ import time
 import re
 import socket
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
-from yunohost_domain import domain_list, domain_add
+from yunohost_domain import domain_list, domain_add, domain_ssowatconf
 from yunohost_user import user_info
 from yunohost_hook import hook_exec
 
@@ -180,12 +180,11 @@ def app_info(app, raw=False):
     if raw:
         return app_info
     else:
-        return [
-            ('Name', app_info['manifest']['name']),
-            ('Version', app_info['manifest']['version']),
-            ('Description', app_info['manifest']['description']),
+        return {
+            'Name': app_info['manifest']['name'],
+            'Description': app_info['manifest']['description']['en'],
             #TODO: Add more infos
-        ]
+        }
 
 
 def app_map(app=None, raw=False):
@@ -413,7 +412,11 @@ def app_addaccess(apps, users):
         with open(apps_setting_path + app +'/settings.yml') as f:
             app_settings = yaml.load(f)
 
-        if 'mode' in app_settings and app_settings['mode'] == 'private':
+        if 'mode' not in app_settings:
+            app_setting(app, 'mode', 'private')
+            app_settings['mode'] = 'private'
+
+        if app_settings['mode'] == 'private':
             if 'allowed_users' in app_settings:
                 new_users = app_settings['allowed_users']
             else:
@@ -425,14 +428,14 @@ def app_addaccess(apps, users):
                         user_info(allowed_user)
                     except YunoHostError:
                         continue
-                    new_users = new_users +','+ allowed_user
+                    if new_users == '':
+                        new_users = allowed_user
+                    else:
+                        new_users = new_users +','+ allowed_user
 
-            app_settings['allowed_users'] = new_users.strip()
-            with open(apps_setting_path + app +'/settings.yml', 'w') as f:
-                yaml.safe_dump(app_settings, f, default_flow_style=False)
-                win_msg(_("App setting file updated"))
+            app_setting(app, 'allowed_users', new_users.strip())
 
-    #TODO: Regenerate SSOwat conf
+    domain_ssowatconf()
 
 
 def app_removeaccess(apps, users):
@@ -461,14 +464,14 @@ def app_removeaccess(apps, users):
             if 'allowed_users' in app_settings:
                 for allowed_user in app_settings['allowed_users'].split(','):
                     if allowed_user not in users:
-                        new_users = new_users +','+ allowed_user
+                        if new_users == '':
+                            new_users = allowed_user
+                        else:
+                            new_users = new_users +','+ allowed_user
 
-                app_settings['allowed_users'] = new_users.strip()
-                with open(apps_setting_path + app +'/settings.yml', 'w') as f:
-                    yaml.safe_dump(app_settings, f, default_flow_style=False)
-                    win_msg(_("App setting file updated"))
+                app_setting(app, 'allowed_users', new_users.strip())
 
-    #TODO: Regenerate SSOwat conf
+    domain_ssowatconf()
 
 
 def app_setting(app, key, value=None):

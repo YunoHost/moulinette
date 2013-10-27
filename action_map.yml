@@ -270,6 +270,7 @@ app:
                 -r:
                     full: --raw
                     help: Return the full app_dict
+                    action: store_true
 
         ### app_map()
         map:
@@ -316,21 +317,6 @@ app:
                 -f:
                     full: --file
                     help: Folder or tarball for upgrade
-
-        ### app_info() TODO: Write help
-        info:
-            action_help: Get app informations
-            api: GET /app
-            arguments:
-                app:
-                    help: App ID
-                -i:
-                    full: --instance
-                    help: App instance number
-                -r:
-                    full: --raw
-                    help: Return the full app_dict
-                    action: store_true
 
         ### app_setting()
         setting:
