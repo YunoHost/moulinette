@@ -31,6 +31,7 @@ import stat
 import yaml
 import time
 import re
+import socket
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info
@@ -499,6 +500,22 @@ def app_setting(app, key, value=None):
         with open(settings_file, 'w') as f:
             yaml.safe_dump(app_settings, f, default_flow_style=False)
         
+
+def app_checkport(port):
+    """
+
+    """
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        s.connect(("localhost", int(port)))
+        s.close()
+    except socket.error:
+        win_msg(_("Port available: ")+ str(port))
+    else:
+        raise YunoHostError(22, _("Port not available"))
+
+
 
 def app_checkurl(url, app=None):
     """
