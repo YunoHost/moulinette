@@ -31,6 +31,7 @@ import shutil
 import json
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+#from yunohost_app import app_list, app_info, app_map
 
 
 def domain_list(filter=None, limit=None, offset=None):
@@ -272,6 +273,28 @@ def domain_ssowatconf():
     
     domains = domain_list()['Domains']
 
+    #apps = {}
+    #for app, v in app_list(raw=True):
+    #    app_settings = app_info(raw=True, app=app)['settings']
+    #    if 'domain' in app_settings:
+    #        if 'path' not in app_settings:
+    #            app_settings['path'] = '/'
+    #        if 'mode' not in app_settings:
+    #            app_settings['mode'] = 'private'
+    #        if 'allowed_users' not in app_settings:
+    #            app_settings['allowed_users'] = ''
+
+    #    apps[app] = {
+    #        'domain': app_settings['domain'],
+    #        'path': app_settings['path'],
+    #        'mode': app_settings['mode'],
+    #        'allowed_users': app_settings['allowed_users']
+    #    }
+
+    #users = {}
+    #for user, v in user_list()['Users']:
+    #    users[user] = app_map(user=user)
+
     conf_dict = {
         'portal_domain': main_domain,
         'portal_path': '/ynhsso/',
@@ -285,7 +308,9 @@ def domain_ssowatconf():
         },
         'domains': domains,
         'skipped_urls': ['https://'+ main_domain +'/ynhadmin'],
-        'unprotected_urls': []
+        'unprotected_urls': [],
+    #    'apps': apps,
+    #    'users': users
     }
 
     with open('/etc/ssowat/conf.json', 'wb') as f:

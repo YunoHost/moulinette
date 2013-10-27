@@ -284,6 +284,11 @@ app:
                     full: --raw
                     help: Return complete dict
                     action: store_true
+                -u:
+                    full: --user
+                    help: Allowed app map for a user
+                    pattern: '^[a-z0-9_]+$'
+                    
 
         ### app_install() TODO: Write help
         install:

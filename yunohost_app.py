@@ -126,12 +126,24 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
     else:
         list_dict=[]
 
-    if not applists: app_fetchlist()
+    if not applists:
+        app_fetchlist()
+        applists = os.listdir(repo_path)
 
     for applist in applists:
         if '.json' in applist:
             with open(repo_path +'/'+ applist) as json_list:
                 app_dict.update(json.loads(str(json_list.read())))
+
+    for app in os.listdir(apps_setting_path):
+        if app not in app_dict:
+            # Look for forks
+            if '__' in app:
+                original_app = app[:app.index('__')]
+                if original_app in app_dict:
+                    app_dict[app] = app_dict[original_app]
+                    continue
+            app_dict[app] = { 'orphan': True }
 
     if len(app_dict) > (0 + offset) and limit > 0:
         sorted_app_dict = {}
@@ -142,7 +154,6 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
         for app_id, app_info in sorted_app_dict.items():
             if i < limit:
                 if (filter and ((filter in app_id) or (filter in app_info['manifest']['name']))) or not filter:
-                    #TODO: make _is_installed
                     installed = _is_installed(app_id)
 
                     if raw:
@@ -173,9 +184,12 @@ def app_info(app, raw=False):
 
     """
     try:
-        app_info = app_list(filter=app, limit=1, raw=True)[app]
+        app_info = app_list(filter=app, raw=True)[app]
     except YunoHostError:
         app_info = {}
+
+    with open(apps_setting_path + app +'/settings.yml') as f:
+        app_info['settings'] = yaml.load(f)
 
     if raw:
         return app_info
@@ -187,13 +201,14 @@ def app_info(app, raw=False):
         }
 
 
-def app_map(app=None, raw=False):
+def app_map(app=None, raw=False, user=None):
     """
     List apps by domain
 
     Keyword argument:
         app -- Specific app to map
         raw -- Return complete dict
+        user -- Only accessible app for user
 
     """
 
@@ -202,6 +217,12 @@ def app_map(app=None, raw=False):
     for app_id in os.listdir(apps_setting_path):
         if app and (app != app_id):
             continue
+
+        if user is not None:
+            app_dict = app_info(app=app_id, raw=True)
+            if ('mode' not in app_dict['settings']) or ('mode' in app_dict['settings'] and app_dict['settings']['mode'] == 'private'):
+                if 'allowed_users' in app_dict['settings'] and user not in app_dict['settings']['allowed_users'].split(','):
+                    continue
 
         with open(apps_setting_path + app_id +'/settings.yml') as f:
             app_settings = yaml.load(f)
