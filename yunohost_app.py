@@ -33,8 +33,8 @@ import time
 import re
 import socket
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
-from yunohost_domain import domain_list, domain_add, domain_ssowatconf
-from yunohost_user import user_info
+from yunohost_domain import domain_list, domain_add
+from yunohost_user import user_info, user_list
 from yunohost_hook import hook_exec
 
 repo_path        = '/var/cache/yunohost/repo'
@@ -456,7 +456,7 @@ def app_addaccess(apps, users):
 
             app_setting(app, 'allowed_users', new_users.strip())
 
-    domain_ssowatconf()
+    app_ssowatconf()
 
 
 def app_removeaccess(apps, users):
@@ -492,7 +492,7 @@ def app_removeaccess(apps, users):
 
                 app_setting(app, 'allowed_users', new_users.strip())
 
-    domain_ssowatconf()
+    app_ssowatconf()
 
 
 def app_setting(app, key, value=None):
@@ -607,6 +607,65 @@ def app_initdb(user, password=None, db=None, sql=None):
 
     if not return_pwd:
         win_msg(_("Database initiliazed"))
+
+
+def app_ssowatconf():
+    """
+    Regenerate SSOwat conf from YunoHost settings
+
+    Keyword argument:
+
+    """
+
+    with open('/etc/yunohost/current_host', 'r') as f:
+        main_domain = f.readline().rstrip()
+    
+    domains = domain_list()['Domains']
+
+    apps = {}
+    for app, v in app_list(raw=True).items():
+        app_settings = app_info(raw=True, app=app)['settings']
+        if 'domain' in app_settings:
+            if 'path' not in app_settings:
+                app_settings['path'] = '/'
+            if 'mode' not in app_settings:
+                app_settings['mode'] = 'private'
+            if 'allowed_users' not in app_settings:
+                app_settings['allowed_users'] = ''
+
+        apps[app] = {
+            'domain': app_settings['domain'],
+            'path': app_settings['path'],
+            'mode': app_settings['mode'],
+            'allowed_users': app_settings['allowed_users']
+        }
+
+    users = {}
+    for user in user_list()['Users']:
+        users[user['Username']] = app_map(user=user['Username'])
+
+    conf_dict = {
+        'portal_domain': main_domain,
+        'portal_path': '/ynhsso/',
+        'portal_port': '443',
+        'portal_scheme': 'https',
+        'additional_headers': {
+            'Auth-User': 'uid',
+            'Remote-User': 'uid',
+            'Name': 'cn',
+            'Email': 'mail'
+        },
+        'domains': domains,
+        'skipped_urls': ['https://'+ main_domain +'/ynhadmin'],
+        'unprotected_urls': [],
+        'apps': apps,
+        'users': users
+    }
+
+    with open('/etc/ssowat/conf.json', 'wb') as f:
+        json.dump(conf_dict, f)
+
+    win_msg(_('SSOwat configuration generated'))
 
 
 def _extract_app_from_file(path, remove=False):

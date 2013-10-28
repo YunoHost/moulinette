@@ -200,11 +200,6 @@ domain:
                     help: ""
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
-        ### domain_ssowatconf()
-        ssowatconf:
-            action_help: Regenerate SSOwat configuration file
-            api: PUT /ssowatconf
-
 
 #############################
 #            App            #
@@ -372,6 +367,11 @@ app:
                 -s:
                     full: --sql
                     help: Initial SQL file
+
+        ### app_ssowatconf()
+        ssowatconf:
+            action_help: Regenerate SSOwat configuration file
+            api: PUT /ssowatconf
                 
         ### app_addaccess() TODO: Write help
         addaccess:
