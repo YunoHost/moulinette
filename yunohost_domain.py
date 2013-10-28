@@ -205,7 +205,7 @@ def domain_add(domains, main=False):
                 raise YunoHostError(169, _("An error occured during domain creation"))
 
 
-        os.system('yunohost app ssowatconf')
+        os.system('yunohost app ssowatconf > /dev/null 2>&1')
 
         win_msg(_("Domain(s) successfully created"))
 
@@ -252,7 +252,7 @@ def domain_remove(domains):
             else:
                 raise YunoHostError(169, _("An error occured during domain deletion"))
 
-        os.system('yunohost app ssowatconf')
+        os.system('yunohost app ssowatconf > /dev/null 2>&1')
 
         win_msg(_("Domain(s) successfully deleted"))
 

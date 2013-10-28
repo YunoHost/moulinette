@@ -185,20 +185,21 @@ def app_info(app, raw=False):
     """
     try:
         app_info = app_list(filter=app, raw=True)[app]
-    except YunoHostError:
+    except:
         app_info = {}
 
-    with open(apps_setting_path + app +'/settings.yml') as f:
-        app_info['settings'] = yaml.load(f)
+    if _is_installed(app):
+        with open(apps_setting_path + app +'/settings.yml') as f:
+            app_info['settings'] = yaml.load(f)
 
-    if raw:
-        return app_info
-    else:
-        return {
-            'Name': app_info['manifest']['name'],
-            'Description': app_info['manifest']['description']['en'],
-            #TODO: Add more infos
-        }
+        if raw:
+            return app_info
+        else:
+            return {
+                'Name': app_info['manifest']['name'],
+                'Description': app_info['manifest']['description']['en'],
+                #TODO: Add more infos
+            }
 
 
 def app_map(app=None, raw=False, user=None):
@@ -264,6 +265,8 @@ def app_upgrade(app, url=None, file=None):
         # If no app is specified, upgrade all apps
         if not app:
             app = os.listdir(apps_setting_path)
+        elif not isinstance(app, list):
+            app = [ app ]
 
         for app_id in app:
             installed = _is_installed(app_id)
@@ -273,9 +276,13 @@ def app_upgrade(app, url=None, file=None):
             if app_id in upgraded_apps:
                 continue
 
-            #TODO: fix that (and check for instance number)
-            current_app_dict = app_info(app_id, instance=number, raw=True)
-            new_app_dict     = app_info(app_id, raw=True)
+            if '__' in app_id:
+                original_app_id = app_id[:app_id.index('__')]
+            else:
+                original_app_id = app_id
+
+            current_app_dict = app_info(app_id,  raw=True)
+            new_app_dict     = app_info(original_app_id, raw=True)
 
             if file:
                 manifest = _extract_app_from_file(file)
@@ -288,8 +295,20 @@ def app_upgrade(app, url=None, file=None):
 
             app_setting_path = apps_setting_path +'/'+ app_id
 
+            if original_app_id != app_id:
+                # Replace original_app_id with the forked one in scripts
+                for file in os.listdir(app_tmp_folder +'/scripts'):
+                    #TODO: add hooks directory to the list
+                    #TODO: do it with sed ?
+                    if file[:1] != '.':
+                        with open(app_tmp_folder +'/scripts/'+ file, "r") as sources:
+                            lines = sources.readlines()
+                        with open(app_tmp_folder +'/scripts/'+ file, "w") as sources:
+                            for line in lines:
+                                sources.write(re.sub(r''+ original_app_id +'', app_id, line))
+
             # Execute App upgrade script
-            if hook_exec(app_setting_path+ '/scripts/upgrade') != 0:
+            if hook_exec(app_tmp_folder +'/scripts/upgrade') != 0:
                 #TODO: display fail messages from script
                 pass
             else:
