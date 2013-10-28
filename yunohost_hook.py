@@ -67,27 +67,21 @@ def hook_check(file):
     Parse the script file and get arguments
 
     Keyword argument:
-        file -- Script to check
+        file -- File to check
 
     """
+    try:
+        with open(file[:file.index('scripts/install')] + 'manifest.json') as f:
+            manifest = json.loads(str(f.read()))
+    except:
+        raise YunoHostError(22, _("Invalid app package"))
 
-    with open(file, 'r') as conf:
-        script_lines = conf.readlines()
-
-    in_block = False
-    json_string = ""
-    for line in script_lines:
-        if re.search(r'^#### json"', line):
-            in_block = True
-        if in_block and re.search(r'^####', line):
-            in_block = False
-        elif re.search(r'^##[^#;]', line):
-            json_string = json_string + line[2:]
-
-    if json_string == "":
-        return {}
+    action = file[file.index('scripts/') + 8:]
+    if action in manifest["arguments"]:
+        return manifest["arguments"][action]
     else:
-        return json.loads(json_string)['arguments']
+        return {}
+
 
 def hook_exec(file, args=None):
     """

@@ -712,7 +712,7 @@ hook:
             api: GET /hook/check
             arguments:
                 file:
-                    help: Script to check
+                    help: File to check
 
         ### hook_exec()
         exec:

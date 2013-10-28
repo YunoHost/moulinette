@@ -652,12 +652,12 @@ def app_ssowatconf():
             if 'allowed_users' not in app_settings:
                 app_settings['allowed_users'] = ''
 
-        apps[app] = {
-            'domain': app_settings['domain'],
-            'path': app_settings['path'],
-            'mode': app_settings['mode'],
-            'allowed_users': app_settings['allowed_users']
-        }
+            apps[app] = {
+                'domain': app_settings['domain'],
+                'path': app_settings['path'],
+                'mode': app_settings['mode'],
+                'allowed_users': app_settings['allowed_users']
+            }
 
     users = {}
     for user in user_list()['Users']:
