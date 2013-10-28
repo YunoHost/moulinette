@@ -642,7 +642,7 @@ def app_ssowatconf():
     domains = domain_list()['Domains']
 
     apps = {}
-    for app, v in app_list(raw=True).items():
+    for app in os.listdir(apps_setting_path):
         app_settings = app_info(raw=True, app=app)['settings']
         if 'domain' in app_settings:
             if 'path' not in app_settings:
