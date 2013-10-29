@@ -525,7 +525,7 @@ def app_setting(app, key, value=None):
             app_settings = yaml.load(f)
     except IOError:
         # Do not fail if setting file is not there
-        pass
+        app_settings = {}
 
     if value is None:
         # Get the value
