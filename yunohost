@@ -138,9 +138,7 @@ def main():
         display_error(error, json_print)
         return error.code
     else:
-        if json_print or not os.isatty(1):
-            if result is None:
-                result = {}
+        if json_print or not os.isatty(1) and result is not None:
             if len(win) > 0:
                 result['success'] = win
             print(json.dumps(result))
