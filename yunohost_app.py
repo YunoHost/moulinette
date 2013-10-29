@@ -422,6 +422,8 @@ def app_remove(app):
         raise YunoHostError(22, _("App is not installed"))
 
     app_setting_path = apps_setting_path + app
+    os.system('chown -R admin: '+ app_setting_path +'/scripts')
+    os.system('chmod -R 700 '+ app_setting_path +'/scripts')
 
     #TODO: display fail messages from script
     if hook_exec(app_setting_path + '/scripts/remove') != 0:
