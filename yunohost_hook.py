@@ -71,7 +71,7 @@ def hook_check(file):
 
     """
     try:
-        with open(file[:file.index('scripts/install')] + 'manifest.json') as f:
+        with open(file[:file.index('scripts/')] + 'manifest.json') as f:
             manifest = json.loads(str(f.read()))
     except:
         raise YunoHostError(22, _("Invalid app package"))
