@@ -543,7 +543,7 @@ def app_setting(app, key, value=None):
 
         with open(settings_file, 'w') as f:
             yaml.safe_dump(app_settings, f, default_flow_style=False)
-        
+
 
 def app_checkport(port):
     """
@@ -569,7 +569,7 @@ def app_checkurl(url, app=None):
         url = url[8:]
     elif "http://" == url[:7]:
         url = url[7:]
-    
+
     if url[-1:] != '/':
         url = url + '/'
 
@@ -600,13 +600,13 @@ def app_checkurl(url, app=None):
 def app_initdb(user, password=None, db=None, sql=None):
     """
     Create database and initialize it with optionnal attached script
-    
+
     Keyword arguments:
     user -- Name of the DB user
     password -- Password for the user
     db -- Database name (optionnal)
     sql -- Initial SQL file
-    
+
     """
     if db is None:
         db = user
@@ -639,26 +639,8 @@ def app_ssowatconf():
 
     with open('/etc/yunohost/current_host', 'r') as f:
         main_domain = f.readline().rstrip()
-    
+
     domains = domain_list()['Domains']
-
-    apps = {}
-    for app in os.listdir(apps_setting_path):
-        app_settings = app_info(raw=True, app=app)['settings']
-        if 'domain' in app_settings:
-            if 'path' not in app_settings:
-                app_settings['path'] = '/'
-            if 'mode' not in app_settings:
-                app_settings['mode'] = 'private'
-            if 'allowed_users' not in app_settings:
-                app_settings['allowed_users'] = ''
-
-            apps[app] = {
-                'domain': app_settings['domain'],
-                'path': app_settings['path'],
-                'mode': app_settings['mode'],
-                'allowed_users': app_settings['allowed_users']
-            }
 
     users = {}
     for user in user_list()['Users']:
@@ -676,9 +658,8 @@ def app_ssowatconf():
             'Email': 'mail'
         },
         'domains': domains,
-        'skipped_urls': ['https://'+ main_domain +'/ynhadmin'],
+        'skipped_urls': [main_domain +'/ynhadmin'],
         'unprotected_urls': [],
-        'apps': apps,
         'users': users
     }
 
@@ -785,10 +766,10 @@ def _fetch_app_from_git(app):
             url = url + "/archive/"+ str(app_info['git']['revision']) + ".zip"
             if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip"') == 0:
                 return _extract_app_from_file(app_tmp_folder +'.zip', remove=True)
-                
+
         app_tmp_folder = install_tmp +'/'+ app
         if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
-            
+
         git_result   = os.system('git clone '+ app_info['git']['url'] +' -b '+ app_info['git']['branch'] +' '+ app_tmp_folder)
         git_result_2 = os.system('cd '+ app_tmp_folder +' && git reset --hard '+ str(app_info['git']['revision']))
 
