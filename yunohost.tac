@@ -11,7 +11,7 @@ sys.path.append('/usr/share/pyshared')
 from twisted.python.log import ILogObserver, FileLogObserver, startLogging, msg
 from twisted.python.logfile import DailyLogFile
 from twisted.web.server import Site, http
-from twisted.internet import reactor, ssl
+from twisted.internet import reactor
 from twisted.application import internet,service
 from txrestapi.resource import APIResource
 from yunohost import YunoHostError, YunoHostLDAP, str_to_func, colorize, pretty_print_dict, display_error, validate, win, parse_dict
@@ -24,8 +24,6 @@ gettext.install('YunoHost')
 
 dev = False
 installed = True
-ssl_key = '/etc/ssl/private/yunohost_key.pem'
-ssl_crt = '/etc/ssl/certs/yunohost_crt.pem'
 action_dict = {}
 api = APIResource()
 
@@ -173,16 +171,16 @@ def api_doc(request):
         return ''
 
     if request.path == '/api':
-        with open('doc/resources.json') as f: 
+        with open('doc/resources.json') as f:
             return f.read()
 
     category = request.path.split('/')[2]
     try:
-        with open('doc/'+ category +'.json') as f: 
+        with open('doc/'+ category +'.json') as f:
             return f.read()
     except IOError:
         return ''
-    
+
 def favicon(request):
     request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
     request.setResponseCode(404, 'Not Found')
@@ -256,14 +254,11 @@ if __name__ == '__main__':
     else:
         startLogging(open('/var/log/yunohost.log', 'a+')) # Log actions to file
     main()
-    if '--dev' in sys.argv:
-        reactor.listenTCP(6767, Site(api, timeout=None))
-    else:
-        reactor.listenSSL(6767, Site(api, timeout=None), ssl.DefaultOpenSSLContextFactory(ssl_key, ssl_crt))
+    reactor.listenTCP(6787, Site(api, timeout=None))
     reactor.run()
 else:
     application = service.Application("YunoHost API")
     logfile = DailyLogFile("yunohost.log", "/var/log")
     application.setComponent(ILogObserver, FileLogObserver(logfile).emit)
     main()
-    internet.SSLServer(6767, Site(api, timeout=None), ssl.DefaultOpenSSLContextFactory(ssl_key, ssl_crt)).setServiceParent(application)
+    internet.TCPServer(6787, Site(api, timeout=None)).setServiceParent(application)
