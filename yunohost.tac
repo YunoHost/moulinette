@@ -118,12 +118,12 @@ def http_exec(request, **kwargs):
             try:
                 with open('/var/run/yunohost.pid', 'r'):
                     raise YunoHostError(1, _("A YunoHost command is already running"))
-            exceOError:
+            except IOError:
                 with open('/var/run/yunohost.pid', 'w') as f:
                     f.write('ldap')
                     os.system('chmod 400 /var/run/yunohost.pid')
                 with open('/etc/yunohost/passwd', 'w') as f:
-                    f.write(admin_password)
+                    f.write(request.getPassword())
                     os.system('chmod 400 /etc/yunohost/passwd')
                 try:
                     result = func(**validated_args)
