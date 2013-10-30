@@ -127,7 +127,7 @@ def domain_add(domains, main=False):
                  domain +'.      IN   NS    ns.'+ domain +'.',
                  domain +'.      IN   A     '+ ip,
                  domain +'.      IN   MX    5 '+ domain +'.',
-                 domain +'.      IN   TXT   "v=spf1 a mx a:'+ domain +' ?all"',
+                 domain +'.      IN   TXT   "v=spf1 mx a -all"',
                  'ns.'+ domain +'.   IN   A     '+ ip,
                  '_xmpp-client._tcp.'+ domain +'.  IN   SRV   0  5   5222  '+ domain +'.',
                  '_xmpp-server._tcp.'+ domain +'.  IN   SRV   0  5   5269  '+ domain +'.',

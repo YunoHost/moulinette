@@ -114,7 +114,7 @@ def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=Non
             'update delete _xmpp-server._tcp.'+ domain +'. SRV',
             'update add '+ domain +'. 1800 A '+ new_ip,
             'update add '+ domain +'. 14400 MX 5 '+ domain +'.',
-            'update add '+ domain +'. 14400 TXT "v=spf1 a mx a:'+ domain +'. ?all"',
+            'update add '+ domain +'. 14400 TXT "v=spf1 a mx -all"',
             'update add pubsub.'+ domain +'. 1800 A '+ new_ip,
             'update add muc.'+ domain +'. 1800 A '+ new_ip,
             'update add vjud.'+ domain +'. 1800 A '+ new_ip,

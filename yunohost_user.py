@@ -115,6 +115,7 @@ def user_create(username, firstname, lastname, mail, password):
         pwd_changed = os.system('echo "'+ password +'\n'+ password +'" | smbldap-passwd '+ username)
 
         if user_added == pwd_changed == 0:
+            os.system('yunohost app ssowatconf > /dev/null 2>&1')
             #TODO: Send a welcome mail to user
             win_msg(_("User successfully created"))
             return { _("Fullname") : firstname +' '+ lastname, _("Username") : username, _("Mail") : mail }
@@ -139,7 +140,7 @@ def user_delete(users, purge=False):
 
         for user in users:
             delete_command = '/usr/sbin/smbldap-userdel'
-            if purge: 
+            if purge:
                 delete_command = delete_command +' -r '+ user
             else:
                 delete_command = delete_command +' '+ user
@@ -149,6 +150,7 @@ def user_delete(users, purge=False):
             else:
                 raise YunoHostError(169, _("An error occured during user deletion"))
 
+        os.system('yunohost app ssowatconf > /dev/null 2>&1')
         win_msg(_("User(s) successfully deleted"))
     return result
 
