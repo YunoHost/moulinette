@@ -38,10 +38,10 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
     List users
 
     Keyword argument:
-        fields -- fields to fetch
-        offset -- Starting number for user fetching
         filter -- LDAP filter used to search
+        offset -- Starting number for user fetching
         limit -- Maximum number of user fetched
+        fields -- fields to fetch
 
     """
     with YunoHostLDAP() as yldap:
@@ -91,11 +91,11 @@ def user_create(username, firstname, lastname, mail, password):
     Create user
 
     Keyword argument:
-        username -- Must be unique
-        lastname
         firstname
-        password
+        lastname
+        username -- Must be unique
         mail -- Main mail address must be unique
+        password
 
     """
     with YunoHostLDAP() as yldap:
@@ -160,15 +160,15 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
     Update user informations
 
     Keyword argument:
-        username -- Username of user to update
+        lastname
+        mail
         firstname
         add_mailalias -- Mail aliases to add
-        mail
-        lastname
+        remove_mailforward -- Mailforward addresses to remove
+        username -- Username of user to update
+        add_mailforward -- Mailforward addresses to add
         change_password -- New password to set
         remove_mailalias -- Mail aliases to remove
-        add_mailforward -- Mailforward addresses to add
-        remove_mailforward -- Mailforward addresses to remove
 
     """
     with YunoHostLDAP() as yldap:

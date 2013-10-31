@@ -118,13 +118,13 @@ def monitor_info(memory=False, swap=False, cpu=False, disk=False, ifconfig=False
     Check System
 
     Keyword argument:
-        uptime -- Show Uptime
+        memory -- Check Memory
+        ifconfig -- Show Ip and MAC Adress
         disk -- Check Disk
+        uptime -- Show Uptime
+        swap -- Check Swap
         public -- Show IP public
         cpu -- Check CPU
-        memory -- Check Memory
-        swap -- Check Swap
-        ifconfig -- Show Ip and MAC Adress
 
     """
     if memory:
@@ -177,12 +177,12 @@ def monitor_process(enable=None, disable=None, start=None, stop=None, check=Fals
     Check Process
 
     Keyword argument:
-        enable -- Enable process
-        disable -- Disable process
-        stop -- Stop process
-        check -- Check process
         info -- Process info
+        disable -- Disable process
+        enable -- Enable process
         start -- Start process
+        check -- Check process
+        stop -- Stop process
 
     """
     if enable:

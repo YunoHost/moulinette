@@ -65,8 +65,8 @@ def app_fetchlist(url=None, name=None):
     Fetch application list from app server
 
     Keyword argument:
-        url -- URL of remote JSON list (default http://app.yunohost.org/list.json)
-        name -- Name of the list (default yunohost)
+        name -- Name of the list (default fapp)
+        url -- URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw)
 
     """
     # Create app path if not exists
@@ -110,9 +110,9 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
     List apps
 
     Keyword argument:
-        limit -- Maximum number of app fetched
-        offset -- Starting number for app fetching
         filter -- Name filter of app_id or app_name
+        offset -- Starting number for app fetching
+        limit -- Maximum number of app fetched
         raw -- Return the full app_dict
 
     """
@@ -180,10 +180,10 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
 
 def app_info(app, raw=False):
     """
-    Get app informations
+    Get app info
 
     Keyword argument:
-        app -- App ID
+        app -- Specific app ID
         raw -- Return the full app_dict
 
     """
@@ -211,9 +211,9 @@ def app_map(app=None, raw=False, user=None):
     List apps by domain
 
     Keyword argument:
-        app -- Specific app to map
+        user -- Allowed app map for a user
         raw -- Return complete dict
-        user -- Only accessible app for user
+        app -- Specific app to map
 
     """
 
@@ -253,9 +253,9 @@ def app_upgrade(app, url=None, file=None):
     Upgrade app
 
     Keyword argument:
-        url -- Git url to fetch for upgrade
-        app -- App(s) to upgrade (default all)
         file -- Folder or tarball for upgrade
+        app -- App(s) to upgrade (default all)
+        url -- Git url to fetch for upgrade
 
     """
     with YunoHostLDAP() as yldap:
@@ -336,8 +336,8 @@ def app_install(app, label=None):
     Install apps
 
     Keyword argument:
-        app -- App ID to install
         label
+        app -- App to install
 
     """
     #TODO: Create tool for nginx (check path availability & stuff)
@@ -521,6 +521,12 @@ def app_removeaccess(apps, users):
 
 def app_setting(app, key, value=None):
     """
+    Set ou get an app setting value
+
+    Keyword argument:
+        value -- Value to set
+        app -- App ID
+        key -- Key to get/set
 
     """
     settings_file = apps_setting_path + app +'/settings.yml'
@@ -551,6 +557,10 @@ def app_setting(app, key, value=None):
 
 def app_checkport(port):
     """
+    Check availability of a local port
+
+    Keyword argument:
+        port -- Port to check
 
     """
     try:
@@ -567,6 +577,11 @@ def app_checkport(port):
 
 def app_checkurl(url, app=None):
     """
+    Check availability of a web path
+
+    Keyword argument:
+        url -- Url to check
+        app -- Write domain & path to app settings for further checks
 
     """
     if "https://" == url[:8]:
@@ -605,11 +620,11 @@ def app_initdb(user, password=None, db=None, sql=None):
     """
     Create database and initialize it with optionnal attached script
 
-    Keyword arguments:
-    user -- Name of the DB user
-    password -- Password for the user
-    db -- Database name (optionnal)
-    sql -- Initial SQL file
+    Keyword argument:
+        db -- DB name (user unless set)
+        user -- Name of the DB user
+        password -- Password of the DB (generated unless set)
+        sql -- Initial SQL file
 
     """
     if db is None:
@@ -635,9 +650,8 @@ def app_initdb(user, password=None, db=None, sql=None):
 
 def app_ssowatconf():
     """
-    Regenerate SSOwat conf from YunoHost settings
+    Regenerate SSOwat configuration file
 
-    Keyword argument:
 
     """
 

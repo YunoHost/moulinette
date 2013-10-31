@@ -95,8 +95,8 @@ def tools_adminpw(old_password, new_password):
     Change admin password
 
     Keyword argument:
-        old_password
         new_password
+        old_password
 
     """
     # Validate password length
@@ -131,8 +131,8 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
     Main domain change tool
 
     Keyword argument:
-        old_domain
         new_domain
+        old_domain
 
     """
 
@@ -203,8 +203,8 @@ def tools_postinstall(domain, password, dyndns=False):
     YunoHost post-install
 
     Keyword argument:
-        dyndns -- Subscribe domain to a DynDNS service
         domain -- YunoHost main domain
+        dyndns -- Subscribe domain to a DynDNS service
         password -- YunoHost admin password
 
     """

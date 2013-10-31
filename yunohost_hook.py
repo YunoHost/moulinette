@@ -33,11 +33,11 @@ hook_folder = '/user/share/yunohost/hooks/'
 
 def hook_add(action, file):
     """
-    Store hook script to fs
+    Store hook script to filsystem
 
     Keyword argument:
+        file -- Script to check
         action -- Action folder to store into
-        file -- Script file to store
 
     """
     try: os.listdir(hook_folder + action)

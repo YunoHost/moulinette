@@ -38,9 +38,9 @@ def domain_list(filter=None, limit=None, offset=None):
     List domains
 
     Keyword argument:
-        limit -- Maximum number of domain fetched
-        offset -- Starting number for domain fetching
         filter -- LDAP filter used to search
+        offset -- Starting number for domain fetching
+        limit -- Maximum number of domain fetched
 
     """
     with YunoHostLDAP() as yldap:
