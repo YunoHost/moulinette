@@ -31,6 +31,7 @@ import getpass
 import subprocess
 import requests
 import json
+import time
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add, domain_list
 from yunohost_dyndns import dyndns_subscribe
@@ -193,7 +194,8 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         dyndomain  = '.'.join(new_domain.split('.')[1:])
         if dyndomain in dyndomains:
             dyndns_subscribe(domain=new_domain)
-            os.system('yunohost dyndns update | at now + 2 minutes')
+            time.sleep(120)
+            os.system('yunohost dyndns update')
 
     win_msg(_("Main domain has been successfully changed"))
 
