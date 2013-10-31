@@ -242,7 +242,7 @@ def tools_postinstall(domain, password, dyndns=False):
     # Set hostname to avoid amavis bug
     if os.system('hostname -d') != 0:
         os.system('hostname yunohost.yunohost.org')
-        
+
     # Samba sh*t fix
     if os.system('net getlocalsid > /dev/null 2>&1') != 0:
         os.system('apt-get install --reinstall -y -qq samba yunohost-config-samba')
@@ -284,6 +284,7 @@ def tools_postinstall(domain, password, dyndns=False):
 
         os.system('touch /etc/yunohost/installed')
         os.system('service samba restart')
+        os.system('service yunohost-api restart')
 
     win_msg(_("YunoHost has been successfully configured"))
 
