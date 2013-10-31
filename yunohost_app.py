@@ -73,14 +73,17 @@ def app_fetchlist(url=None, name=None):
     try: os.listdir(repo_path)
     except OSError: os.makedirs(repo_path)
 
-    if not url:
+    if url is None:
         url = 'http://app.yunohost.org/list.json'
         name = 'yunohost'
     else:
-        if not name: raise YunoHostError(22, _("You must indicate a name for your custom list"))
+        if name is None: raise YunoHostError(22, _("You must indicate a name for your custom list"))
 
     if os.system('wget "'+ url +'" -O "'+ repo_path +'/'+ name +'.json"') != 0:
         raise YunoHostError(1, _("List server connection failed"))
+
+    os.system("touch /etc/cron.d/yunohost-applist-"+ name)
+    os.system("echo '00 00 * * * root yunohost app fetchlist -u "+ url +" -n "+ name +" --no-ldap >> /dev/null' >/etc/cron.d/yunohost-applist-"+ name)
 
     win_msg(_("List successfully fetched"))
 
@@ -95,6 +98,7 @@ def app_removelist(name):
     """
     try:
         os.remove(repo_path +'/'+ name + '.json')
+        os.remove("/etc/cron.d/yunohost-applist-"+ name)
     except OSError:
         raise YunoHostError(22, _("Unknown list"))
 

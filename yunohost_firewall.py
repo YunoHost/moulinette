@@ -310,7 +310,7 @@ def firewall_installupnp():
     firewall['UPNP']['cron'] = True
 
     os.system("touch /etc/cron.d/yunohost-firewall")
-    os.system("echo '*/50 * * * * root yunohost firewall reload -u>>/dev/null'>/etc/cron.d/yunohost-firewall")
+    os.system("echo '*/50 * * * * root yunohost firewall reload -u --no-ldap >>/dev/null'>/etc/cron.d/yunohost-firewall")
     win_msg(_("UPNP cron installed"))
 
     os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
