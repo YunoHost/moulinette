@@ -51,10 +51,12 @@ def tools_ldapinit(password=None):
             ldap_map = yaml.load(f)
 
         for rdn, attr_dict in ldap_map['parents'].items():
-            yldap.add(rdn, attr_dict)
+            try: yldap.add(rdn, attr_dict)
+            except: pass
 
         for rdn, attr_dict in ldap_map['children'].items():
-            yldap.add(rdn, attr_dict)
+            try: yldap.add(rdn, attr_dict)
+            except: pass
 
         admin_dict = {
             'cn': 'admin',
