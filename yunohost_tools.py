@@ -184,8 +184,8 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
     try:
         with open('/etc/yunohost/light') as f: pass
     except IOError:
-        commant_list.append('service amavis restart')
-        commant_list.append('service tahoe-lafs restart')
+        command_list.append('service amavis restart')
+        command_list.append('service tahoe-lafs restart')
 
     for command in command_list:
         if os.system(command) != 0:
@@ -252,7 +252,7 @@ def tools_postinstall(domain, password, dyndns=False):
     # Activate "full" mode if RAM >= 512MB
     for L in open("/proc/meminfo"):
         if "MemTotal" in L:
-            if int(L.split(" ")[-2]) < 500000 or !requests.get('http://ip.yunohost.org/'):
+            if int(L.split(" ")[-2]) < 500000 or not requests.get('http://ip.yunohost.org/'):
                 os.system('touch /etc/yunohost/light')
             else:
                 os.system('service dspam stop')
