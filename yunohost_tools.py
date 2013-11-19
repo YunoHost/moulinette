@@ -166,8 +166,6 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
 
     domain_add([new_domain], main=True)
 
-    # TODO: Generate SSOwat conf
-
     os.system('rm /etc/ssl/private/yunohost_key.pem')
     os.system('rm /etc/ssl/certs/yunohost_crt.pem')
 
@@ -178,10 +176,14 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         'service nginx restart',
         'service metronome restart',
         'service postfix restart',
-        'service dovecot restart',
-        'service amavis restart',
-        'service tahoe-lafs restart'
+        'service dovecot restart'
     ]
+
+    try:
+        with open('/etc/yunohost/light') as f: pass
+    except IOError:
+        commant_list.append('service amavis restart')
+        commant_list.append('service tahoe-lafs restart')
 
     for command in command_list:
         if os.system(command) != 0:
@@ -244,6 +246,17 @@ def tools_postinstall(domain, password, dyndns=False):
     # Set hostname to avoid amavis bug
     if os.system('hostname -d') != 0:
         os.system('hostname yunohost.yunohost.org')
+
+    # Activate "full" mode if RAM >= 512MB
+    for L in open("/proc/meminfo"):
+        if "MemTotal" in L:
+            if int(L.split(" ")[-2]) < 500000 or !requests.get('http://ip.yunohost.org/'):
+                os.system('touch /etc/yunohost/light')
+            else:
+                os.system('service dspam stop')
+                os.system('apt-get install -y -qq samba yunohost-config-amavis')
+                os.system('service amavis start')
+                os.system('apt-get install --reinstall -y -qq yunohost-config-postfix yunohost-config-dovecot')
 
     # Samba sh*t fix
     if os.system('net getlocalsid > /dev/null 2>&1') != 0:
