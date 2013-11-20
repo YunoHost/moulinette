@@ -112,24 +112,23 @@ def http_exec(request, **kwargs):
             raise YunoHostError(168, _('Function not yet implemented : ') + dict['function'].split('.')[1])
 
         # Execute requested function
-        with YunoHostLDAP(password=request.getPassword()):
+        try:
+            with open('/var/run/yunohost.pid', 'r'):
+                raise YunoHostError(1, _("A YunoHost command is already running"))
+        except IOError:
+            with open('/var/run/yunohost.pid', 'w') as f:
+                f.write('ldap')
+                os.system('chmod 400 /var/run/yunohost.pid')
+            with open('/etc/yunohost/passwd', 'w') as f:
+                f.write(request.getPassword())
+                os.system('chmod 400 /etc/yunohost/passwd')
             try:
-                with open('/var/run/yunohost.pid', 'r'):
-                    raise YunoHostError(1, _("A YunoHost command is already running"))
-            except IOError:
-                with open('/var/run/yunohost.pid', 'w') as f:
-                    f.write('ldap')
-                    os.system('chmod 400 /var/run/yunohost.pid')
-                with open('/etc/yunohost/passwd', 'w') as f:
-                    f.write(request.getPassword())
-                    os.system('chmod 400 /etc/yunohost/passwd')
-                try:
-                    result = func(**validated_args)
-                except KeyboardInterrupt, EOFError:
-                    raise YunoHostError(125, _("Interrupted"))
-                finally:
-                    os.remove('/etc/yunohost/passwd')
-                    os.remove('/var/run/yunohost.pid')
+                result = func(**validated_args)
+            except KeyboardInterrupt, EOFError:
+                raise YunoHostError(125, _("Interrupted"))
+            finally:
+                os.remove('/etc/yunohost/passwd')
+                os.remove('/var/run/yunohost.pid')
         if result is None:
             result = {}
         if len(yunohost.win) > 0:

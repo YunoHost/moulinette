@@ -106,7 +106,7 @@ def win_msg(astr):
     global win
     if os.isatty(1):
         print('\n' + colorize(_("Success: "), 'green') + astr + '\n')
-    
+
     win.append(astr)
 
 
@@ -277,18 +277,22 @@ class YunoHostLDAP(Singleton):
             elif self.pwd:
                 pass
             else:
-                need_password = True
-                while need_password:
-                    try:
-                        self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
-                        self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
-                    except KeyboardInterrupt, EOFError:
-                        raise YunoHostError(125, _("Interrupted"))
-                    except ldap.INVALID_CREDENTIALS:
-                        print(_('Invalid password... Try again'))
-                    else:
-                        need_password = False
-            
+                try:
+                    with open('/etc/yunohost/passwd') as f:
+                        self.pwd = f.read()
+                except IOError:
+                    need_password = True
+                    while need_password:
+                        try:
+                            self.pwd = getpass.getpass(colorize(_('Admin Password: '), 'yellow'))
+                            self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
+                        except KeyboardInterrupt, EOFError:
+                            raise YunoHostError(125, _("Interrupted"))
+                        except ldap.INVALID_CREDENTIALS:
+                            print(_('Invalid password... Try again'))
+                        else:
+                            need_password = False
+
             try:
                 self.conn.simple_bind_s('cn=admin,' + self.base, self.pwd)
                 self.connected = True
