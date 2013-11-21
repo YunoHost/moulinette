@@ -676,7 +676,7 @@ def app_ssowatconf():
             'Email': 'mail'
         },
         'domains': domains,
-        'skipped_urls': [main_domain +'/ynhadmin'],
+        'skipped_urls': [main_domain +'/ynhadmin', main_domain +'/ynhapi'],
         'unprotected_urls': [],
         'users': users
     }

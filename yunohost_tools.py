@@ -31,7 +31,6 @@ import getpass
 import subprocess
 import requests
 import json
-import time
 from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 from yunohost_domain import domain_add, domain_list
 from yunohost_dyndns import dyndns_subscribe
@@ -185,7 +184,7 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         with open('/etc/yunohost/light') as f: pass
     except IOError:
         command_list.append('service amavis restart')
-        command_list.append('service tahoe-lafs restart')
+        #command_list.append('service tahoe-lafs restart')
 
     for command in command_list:
         if os.system(command) != 0:
@@ -198,8 +197,6 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         dyndomain  = '.'.join(new_domain.split('.')[1:])
         if dyndomain in dyndomains:
             dyndns_subscribe(domain=new_domain)
-            time.sleep(120)
-            os.system('yunohost dyndns update')
 
     win_msg(_("Main domain has been successfully changed"))
 

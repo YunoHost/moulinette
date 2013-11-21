@@ -146,7 +146,7 @@ def dyndns_installcron():
 
     """
     os.system("touch /etc/cron.d/yunohost-dyndns")
-    os.system("echo '*/30 * * * * root yunohost dyndns update --no-ldap >> /dev/null' >/etc/cron.d/yunohost-dyndns")
+    os.system("echo '*/2 * * * * root yunohost dyndns update --no-ldap >> /dev/null' >/etc/cron.d/yunohost-dyndns")
     win_msg(_("DynDNS cron installed"))
 
 

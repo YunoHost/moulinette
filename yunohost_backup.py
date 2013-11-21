@@ -50,5 +50,6 @@ def backup_init(helper=False):
     try:
         with open('/etc/yunohost/light') as f: pass
     except IOError:
-        os.system('update-rc.d tahoe-lafs defaults')
-        os.system('service tahoe-lafs restart')
+        pass
+        #os.system('update-rc.d tahoe-lafs defaults')
+        #os.system('service tahoe-lafs restart')
