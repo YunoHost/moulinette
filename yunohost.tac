@@ -116,9 +116,10 @@ def http_exec(request, **kwargs):
             with open('/var/run/yunohost.pid', 'r'):
                 raise YunoHostError(1, _("A YunoHost command is already running"))
         except IOError:
-            with open('/var/run/yunohost.pid', 'w') as f:
-                f.write('ldap')
-                os.system('chmod 400 /var/run/yunohost.pid')
+            if dict['function'].split('.')[1] != 'tools_postinstall':
+                with open('/var/run/yunohost.pid', 'w') as f:
+                    f.write('ldap')
+                    os.system('chmod 400 /var/run/yunohost.pid')
             with open('/etc/yunohost/passwd', 'w') as f:
                 f.write(request.getPassword())
                 os.system('chmod 400 /etc/yunohost/passwd')
@@ -127,8 +128,10 @@ def http_exec(request, **kwargs):
             except KeyboardInterrupt, EOFError:
                 raise YunoHostError(125, _("Interrupted"))
             finally:
-                os.remove('/etc/yunohost/passwd')
-                os.remove('/var/run/yunohost.pid')
+                try:
+                    os.remove('/etc/yunohost/passwd')
+                    os.remove('/var/run/yunohost.pid')
+                except: pass
         if result is None:
             result = {}
         if len(yunohost.win) > 0:
