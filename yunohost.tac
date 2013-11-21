@@ -193,6 +193,13 @@ def favicon(request):
     return ''
 
 def is_installed(request):
+    global installed
+
+    try:
+        with open('/etc/yunohost/installed'):
+            installed = True
+    except IOError:
+        installed = False
     request.setHeader('Access-Control-Allow-Origin', '*') # Allow cross-domain requests
     request.setResponseCode(200, 'OK')
     return json.dumps({ 'installed': installed })
@@ -216,6 +223,12 @@ def main():
         action_map = yaml.load(f)
 
     # Register only postinstall action if YunoHost isn't completely set up
+    try:
+        with open('/etc/yunohost/installed'):
+            installed = True
+    except IOError:
+        installed = False
+
     del action_map['general_arguments']
     for category, category_params in action_map.items():
         api.register('ALL', '/api/'+ category, api_doc)
