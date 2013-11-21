@@ -117,6 +117,10 @@ def http_exec(request, **kwargs):
                 raise YunoHostError(1, _("A YunoHost command is already running"))
         except IOError:
             if dict['function'].split('.')[1] != 'tools_postinstall':
+                try:
+                    with open('/etc/yunohost/installed'): pass
+                except IOError:
+                    raise YunoHostError(1, _("You must run postinstall before any other actions"))
                 with open('/var/run/yunohost.pid', 'w') as f:
                     f.write('ldap')
                     os.system('chmod 400 /var/run/yunohost.pid')
@@ -212,38 +216,26 @@ def main():
         action_map = yaml.load(f)
 
     # Register only postinstall action if YunoHost isn't completely set up
-    try:
-        with open('/etc/yunohost/installed') as f: pass
-    except IOError:
-        installed = False
-        api.register('POST', '/postinstall', http_exec)
-        api.register('OPTIONS', '/postinstall', http_exec)
-        action_dict['POST /postinstall'] = {
-            'function'  : 'yunohost_tools.tools_postinstall',
-            'help'      : 'Execute post-install',
-            'arguments' : action_map['tools']['actions']['postinstall']['arguments']
-        }
-    else:
-        del action_map['general_arguments']
-        for category, category_params in action_map.items():
-            api.register('ALL', '/api/'+ category, api_doc)
-            for action, action_params in category_params['actions'].items():
-                if 'action_help' not in action_params:
-                    action_params['action_help'] = ''
-                if 'api' not in action_params:
-                    action_params['api'] = 'GET /'+ category +'/'+ action
-                method, path = action_params['api'].split(' ')
-                # Register route
-                if '{' in path:
-                    path = path.replace('{', '(?P<').replace('}', '>[^/]+)')
-                api.register(method, path, http_exec)
-                api.register('OPTIONS', path, http_exec)
-                action_dict[action_params['api']] = {
-                    'function': 'yunohost_'+ category +'.'+ category +'_'+ action,
-                    'help'    : action_params['action_help']
-                }
-                if 'arguments' in action_params:
-                    action_dict[action_params['api']]['arguments'] = action_params['arguments']
+    del action_map['general_arguments']
+    for category, category_params in action_map.items():
+        api.register('ALL', '/api/'+ category, api_doc)
+        for action, action_params in category_params['actions'].items():
+            if 'action_help' not in action_params:
+                action_params['action_help'] = ''
+            if 'api' not in action_params:
+                action_params['api'] = 'GET /'+ category +'/'+ action
+            method, path = action_params['api'].split(' ')
+            # Register route
+            if '{' in path:
+                path = path.replace('{', '(?P<').replace('}', '>[^/]+)')
+            api.register(method, path, http_exec)
+            api.register('OPTIONS', path, http_exec)
+            action_dict[action_params['api']] = {
+                'function': 'yunohost_'+ category +'.'+ category +'_'+ action,
+                'help'    : action_params['action_help']
+            }
+            if 'arguments' in action_params:
+                action_dict[action_params['api']]['arguments'] = action_params['arguments']
 
     api.register('ALL', '/installed', is_installed)
 
