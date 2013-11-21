@@ -301,6 +301,7 @@ def tools_postinstall(domain, password, dyndns=False):
 
         os.system('touch /etc/yunohost/installed')
         os.system('service samba restart')
+        os.system('service yunohost-api restart &')
 
     win_msg(_("YunoHost has been successfully configured"))
 
