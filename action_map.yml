@@ -302,7 +302,7 @@ app:
         ### app_remove() TODO: Write help
         remove:
             action_help: Remove app
-            api: DELETE /app
+            api: DELETE /app/{app}
             arguments:
                 app:
                     help: App(s) to delete
@@ -310,7 +310,7 @@ app:
         ### app_upgrade()
         upgrade:
             action_help: Upgrade app
-            api: PUT /app
+            api: PUT /app/{app}
             arguments:
                 app:
                     help: App(s) to upgrade (default all)

@@ -41,7 +41,7 @@ from yunohost_hook import hook_exec
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
 apps_setting_path= '/etc/yunohost/apps/'
-install_tmp      = '/var/cache/yunohost/install'
+install_tmp      = '/var/cache/yunohost'
 app_tmp_folder   = install_tmp + '/from_file'
 
 def app_listlists():
@@ -313,6 +313,7 @@ def app_upgrade(app, url=None, file=None):
                                 sources.write(re.sub(r''+ original_app_id +'', app_id, line))
 
             # Execute App upgrade script
+            os.system('chown -hR admin: '+ install_tmp)
             if hook_exec(app_tmp_folder +'/scripts/upgrade') != 0:
                 #TODO: display fail messages from script
                 pass
@@ -409,6 +410,7 @@ def app_install(app, label=None, args=None):
             args_dict = {}
 
         # Execute App install script
+        os.system('chown -hR admin: '+ install_tmp)
         if hook_exec(app_tmp_folder + '/scripts/install', args_dict) == 0:
             # Move scripts and manifest to the right place
             os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
@@ -440,6 +442,7 @@ def app_remove(app):
     os.system('chmod -R 777 '+ app_setting_path)
 
     #TODO: display fail messages from script
+    os.system('chown -hR admin: '+ app_setting_path)
     if hook_exec(app_setting_path + '/scripts/remove') != 0:
         os.system('chmod -R 700 '+ app_setting_path)
 
