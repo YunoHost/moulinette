@@ -239,7 +239,7 @@ app:
         ### app_list()
         list:
             action_help: List apps
-            api: GET /app/list
+            api: GET /apps
             arguments:
                 -l:
                     full: --limit
