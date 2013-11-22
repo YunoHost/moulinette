@@ -42,9 +42,9 @@ def hook_add(action, file):
     """
     try: os.listdir(hook_folder + action)
     except OSError: os.makedirs(hook_folder + action)
-    
+
     os.system('cp '+ file +' '+ hook_folder + action)
-    
+
 
 def hook_callback(action):
     """
@@ -109,7 +109,7 @@ def hook_exec(file, args=None):
                 elif os.isatty(1) and 'ask' in arg:
                     arg_list.append(raw_input(colorize(arg['ask']['en'] + ': ', 'cyan'))) #TODO: I18n
                 else:
-                    raise YunoHostError(22, _("Missing arguments") + ': ' + arg_name)
+                    raise YunoHostError(22, _("Missing arguments") + ': ' + arg['name'])
 
         file_path = "./"
         if "/" in file and file[0:2] != file_path:

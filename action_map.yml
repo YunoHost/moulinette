@@ -283,7 +283,7 @@ app:
                     full: --user
                     help: Allowed app map for a user
                     pattern: '^[a-z0-9_]+$'
-                    
+
 
         ### app_install() TODO: Write help
         install:
@@ -294,6 +294,10 @@ app:
                     help: App to install
                 -l:
                     full: --label
+                    help: Custom name for the app
+                -a:
+                    full: --args
+                    help: Serialize arguments for app installation
 
         ### app_remove() TODO: Write help
         remove:
@@ -372,7 +376,7 @@ app:
         ssowatconf:
             action_help: Regenerate SSOwat configuration file
             api: PUT /ssowatconf
-                
+
         ### app_addaccess() TODO: Write help
         addaccess:
             action_help: Grant access right to users (everyone by default)

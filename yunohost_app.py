@@ -32,6 +32,7 @@ import yaml
 import time
 import re
 import socket
+import urlparse
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info, user_list
@@ -331,13 +332,14 @@ def app_upgrade(app, url=None, file=None):
         win_msg(_("Upgrade complete"))
 
 
-def app_install(app, label=None):
+def app_install(app, label=None, args=None):
     """
     Install apps
 
     Keyword argument:
         label
         app -- App to install
+        args -- Serialize arguments of installation
 
     """
     #TODO: Create tool for nginx (check path availability & stuff)
@@ -398,8 +400,16 @@ def app_install(app, label=None):
             app_setting(app_id, 'label', manifest['name'])
 
         os.system('chown -R admin: '+ app_tmp_folder)
+
+        try:
+            if args is None:
+                args = ''
+            args_dict = dict(urlparse.parse_qsl(args))
+        except:
+            args_dict = {}
+
         # Execute App install script
-        if hook_exec(app_tmp_folder + '/scripts/install') == 0:
+        if hook_exec(app_tmp_folder + '/scripts/install', args_dict) == 0:
             # Move scripts and manifest to the right place
             os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
             shutil.rmtree(app_tmp_folder)
@@ -410,6 +420,7 @@ def app_install(app, label=None):
         else:
             #TODO: display script fail messages
             shutil.rmtree(app_setting_path)
+            shutil.rmtree(app_tmp_folder)
             raise YunoHostError(1, _("Installation failed"))
 
 
