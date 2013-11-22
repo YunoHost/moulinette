@@ -41,7 +41,7 @@ from yunohost_hook import hook_exec
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
 apps_setting_path= '/etc/yunohost/apps/'
-install_tmp      = '/tmp/yunohost/install'
+install_tmp      = '/var/cache/yunohost/install'
 app_tmp_folder   = install_tmp + '/from_file'
 
 def app_listlists():
