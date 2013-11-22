@@ -310,7 +310,7 @@ app:
         ### app_upgrade()
         upgrade:
             action_help: Upgrade app
-            api: PUT /app/{app}
+            api: PUT /app
             arguments:
                 app:
                     help: App(s) to upgrade (default all)
