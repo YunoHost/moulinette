@@ -442,11 +442,12 @@ def app_remove(app):
     os.system('chmod -R 777 '+ app_setting_path)
 
     #TODO: display fail messages from script
-    os.system('chown -hR admin: '+ app_setting_path)
-    if hook_exec(app_setting_path + '/scripts/remove') != 0:
-        os.system('chmod -R 700 '+ app_setting_path)
+    os.system('cp '+ app_setting_path + '/scripts/remove /tmp/yunohost_remove && chown admin: /tmp/yunohost_remove')
+    if hook_exec('/tmp/yunohost_remove') != 0:
+        os.system('chmod -hR 700 '+ app_setting_path)
 
     if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
+    os.remove('/tmp/yunohost_remove')
 
     win_msg(_("App removed: ")+ app)
 
