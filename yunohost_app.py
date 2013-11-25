@@ -454,7 +454,7 @@ def app_remove(app):
         pass
 
     if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
-    os.remove('/tmp/yunohost_remove')
+    os.system('rm -R /tmp/yunohost_remove')
     app_ssowatconf()
     win_msg(_("App removed: ")+ app)
 
