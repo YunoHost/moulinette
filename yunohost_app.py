@@ -418,6 +418,7 @@ def app_install(app, label=None, args=None):
             os.system('chmod -R 400 '+ app_setting_path)
             os.system('chown -R root: '+ app_setting_path)
             os.system('chown -R admin: '+ app_setting_path +'/scripts')
+            app_ssowatconf()
             win_msg(_("Installation complete"))
         else:
             #TODO: display script fail messages
@@ -454,7 +455,7 @@ def app_remove(app):
 
     if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
     os.remove('/tmp/yunohost_remove')
-
+    app_ssowatconf()
     win_msg(_("App removed: ")+ app)
 
 
