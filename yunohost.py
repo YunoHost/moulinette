@@ -269,7 +269,7 @@ class YunoHostLDAP(Singleton):
         if anonymous:
            self.conn.simple_bind_s()
            self.connected = True
-        elif self.connected:
+        elif self.connected and not password:
            pass
         else:
             if password:
@@ -316,6 +316,8 @@ class YunoHostLDAP(Singleton):
 
         """
         try:
+            self.connected = False
+            self.pwd = False
             self.conn.unbind_s()
         except:
             raise YunoHostError(169, _('An error occured during disconnection'))
