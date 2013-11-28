@@ -418,6 +418,7 @@ def app_install(app, label=None, args=None):
             os.system('chmod -R 400 '+ app_setting_path)
             os.system('chown -R root: '+ app_setting_path)
             os.system('chown -R admin: '+ app_setting_path +'/scripts')
+            app_ssowatconf()
             win_msg(_("Installation complete"))
         else:
             #TODO: display script fail messages
@@ -439,16 +440,22 @@ def app_remove(app):
         raise YunoHostError(22, _("App is not installed"))
 
     app_setting_path = apps_setting_path + app
-    os.system('chmod -R 777 '+ app_setting_path)
 
     #TODO: display fail messages from script
-    os.system('cp '+ app_setting_path + '/scripts/remove /tmp/yunohost_remove && chown admin: /tmp/yunohost_remove')
-    if hook_exec('/tmp/yunohost_remove') != 0:
-        os.system('chmod -hR 700 '+ app_setting_path)
+    try:
+        shutil.rmtree('/tmp/yunohost_remove')
+    except: pass
+    
+    os.system('cp -a '+ app_setting_path + ' /tmp/yunohost_remove && chown -hR admin: /tmp/yunohost_remove')
+    os.system('chown -R admin: /tmp/yunohost_remove')
+    os.system('chmod -R u+rX /tmp/yunohost_remove')
+    
+    if hook_exec('/tmp/yunohost_remove/scripts/remove') != 0:
+        pass
 
     if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
     os.remove('/tmp/yunohost_remove')
-
+    app_ssowatconf()
     win_msg(_("App removed: ")+ app)
 
 
