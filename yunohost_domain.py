@@ -105,6 +105,7 @@ def domain_add(domains, main=False):
                 'chmod 755 '+ ssl_domain_path,
                 'chmod 640 '+ ssl_domain_path +'/key.pem',
                 'chmod 640 '+ ssl_domain_path +'/crt.pem',
+                'chmod 600 '+ ssl_domain_path +'/openssl.cnf',
                 'chown root:metronome '+ ssl_domain_path +'/key.pem',
                 'chown root:metronome '+ ssl_domain_path +'/crt.pem'
             ]
