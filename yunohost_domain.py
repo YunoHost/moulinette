@@ -102,8 +102,11 @@ def domain_add(domains, main=False):
                 'ln -s /etc/ssl/certs/ca-yunohost_crt.pem   '+ ssl_domain_path +'/ca.pem',
                 'cp '+ ssl_dir +'/certs/yunohost_key.pem    '+ ssl_domain_path +'/key.pem',
                 'cp '+ ssl_dir +'/newcerts/'+ serial +'.pem '+ ssl_domain_path +'/crt.pem',
+                'chmod 755 '+ ssl_domain_path,
                 'chmod 640 '+ ssl_domain_path +'/key.pem',
-                'chown root:metronome '+ ssl_domain_path +'/key.pem'
+                'chmod 640 '+ ssl_domain_path +'/crt.pem',
+                'chown root:metronome '+ ssl_domain_path +'/key.pem',
+                'chown root:metronome '+ ssl_domain_path +'/crt.pem'
             ]
 
             for command in command_list:
