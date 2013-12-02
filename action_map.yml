@@ -421,41 +421,48 @@ backup:
 #          Monitor          #
 #############################
 monitor:
-    category_help: Monitoring functions
+    category_help: Monitor the server
     actions:
 
-        ### monitor_info()
-        info:
-            action_help: Check System
+        ### monitor_disk()
+        disk:
+            action_help: Monitor disk space and usage
             arguments:
-                -m:
-                    full: --memory
-                    help: Check Memory
-                    action: store_true
-                -s:
-                    full: --swap
-                    help: Check Swap
-                    action: store_true
-                -c:
-                    full: --cpu
-                    help: Check CPU
-                    action: store_true
-                -d:
-                    full: --disk
-                    help: Check Disk
-                    action: store_true
-                -i:
-                    full: --ifconfig
-                    help: Show Ip and MAC Adress
-                    action: store_true
                 -u:
-                    full: --uptime
-                    help: Show Uptime
-                    action: store_true
-                -p:
-                    full: --public
-                    help: Show IP public
-                    action: store_true
+                    full: --unit
+                    help: Unit to monitor
+                    choices:
+                        - io
+                        - filesystem
+                -m:
+                    full: --mountpoint
+                    help: Device mountpoint
+
+        ### monitor_network()
+        network:
+            action_help: Monitor network interfaces
+            arguments:
+                -u:
+                    full: --unit
+                    help: Unit to monitor
+                    choices:
+                        - usage
+                        - infos
+
+        ### monitor_system()
+        system:
+            action_help: Monitor system informations and usage
+            arguments:
+                -u:
+                    full: --unit
+                    help: Unit to monitor
+                    choices:
+                        - memory
+                        - cpu
+                        - process
+                        - uptime
+                        - infos
+
         process:
             action_help: Check Process
             arguments:

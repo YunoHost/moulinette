@@ -23,36 +23,18 @@
 
     Monitoring functions
 """
-import xmlrpclib
+import os
+import re
 import json
+import yaml
 import psutil
+import subprocess
+import xmlrpclib
 from urllib import urlopen
 from datetime import datetime, timedelta
 from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
-import os
-import sys
-try:
-    import yaml
-except ImportError:
-    sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
-    sys.stderr.write('apt-get install python-yaml\n')
-    sys.exit(1)
-import json
-import socket
-import fcntl
-import struct
-if not __debug__:
-    import traceback
 
-s = xmlrpclib.ServerProxy('http://127.0.0.1:61209')
-
-def get_ip_address(ifname):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
+glances_uri = 'http://127.0.0.1:61209'
 
 def bytes2human(n):
     symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
@@ -113,64 +95,175 @@ def process_check(args):
 
     return { 'Status' : result }
 
-def monitor_info(memory=False, swap=False, cpu=False, disk=False, ifconfig=False, uptime=False, public=False):
+
+def monitor_disk(unit=None, mountpoint=None):
     """
-    Check System
+    Monitor disk space and usage
 
     Keyword argument:
-        memory -- Check Memory
-        ifconfig -- Show Ip and MAC Adress
-        disk -- Check Disk
-        uptime -- Show Uptime
-        swap -- Check Swap
-        public -- Show IP public
-        cpu -- Check CPU
+        unit -- Unit to monitor
+        mountpoint -- Device mountpoint
 
     """
-    if memory:
-        return json.loads(s.getMem())
+    glances = _get_glances_api()
+    result_dname = None
+    result = {}
 
-    if swap:
-       return json.loads(s.getMemSwap())
-
-    elif cpu:
-        return json.loads(s.getLoad())
-
-    elif ifconfig:
-        result = {}
-        for k, fs in enumerate(json.loads(s.getNetwork())):
-            interface = fs['interface_name']
-            if interface != "lo":
-                ip = get_ip_address(str(interface))
-                del fs['interface_name']
-                result[ip] = fs
-            else:
-                del fs['interface_name']
-                result[interface] = fs
-        return result
-
-    elif disk:
-        result = {}
-        for k, fs in enumerate(json.loads(s.getFs())):
-            if fs['fs_type'] != 'tmpfs' and fs['fs_type'] != 'rpc_pipefs':
-                mnt_point = str(fs['mnt_point'])
-                del fs['mnt_point']
-                result[mnt_point] = fs
-        return result
-
-    elif uptime:
-        uptime_value = (str(datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)).split('.')[0])
-        return { 'Uptime' : uptime_value }
-
-    elif public:
-        try:
-            ip = str(urlopen('http://ip.yunohost.org').read())
-        except:
-            raise YunoHostError(1, _("No connection") )
-        return { 'Public IP' : ip }
-
+    if unit is None:
+        units = ['io', 'filesystem']
     else:
-        raise YunoHostError(1, _('No arguments provided'))
+        units = [unit]
+
+    # Get mounted block devices
+    devices = {}
+    output = subprocess.check_output('lsblk -o NAME,MOUNTPOINT -l -n'.split())
+    for d in output.split('\n'):
+        m = re.search(r'([a-z]+[0-9]+)[ ]+(\/\S*)', d) # Extract device name (1) and its mountpoint (2)
+        if m and (mountpoint is None or m.group(2) == mountpoint):
+            (dn, dm) = (m.group(1), m.group(2))
+            devices[dn] = dm
+            result[dn] = {} if unit is None else []
+            result_dname = dn if mountpoint is not None else None
+    if len(devices) == 0:
+        raise YunoHostError(1, _("Unknown mountpoint '%s'") % mountpoint)
+
+    # Retrieve monitoring for unit(s)
+    for u in units:
+        if u == 'io':
+            for d in json.loads(glances.getDiskIO()):
+                dname = d['disk_name']
+                if dname in devices.keys():
+                    del d['disk_name']
+                    if unit is None:
+                        result[dname][u] = d
+                    else:
+                        d['mnt_point'] = devices[dname]
+                        result[dname] = d
+        elif u == 'filesystem':
+            for d in json.loads(glances.getFs()):
+                dmount = d['mnt_point']
+                for (dn, dm) in devices.items():
+                    # TODO: Show non-block filesystems?
+                    if dm != dmount:
+                        continue
+                    del d['device_name']
+                    if unit is None:
+                        result[dn][u] = d
+                    else:
+                        result[dn] = d
+        else:
+            raise YunoHostError(1, _("Unknown unit '%s'") % u)
+
+    if result_dname is not None:
+        return result[result_dname]
+    return result
+
+
+def monitor_network(unit=None):
+    """
+    Monitor network interfaces
+
+    Keyword argument:
+        unit -- Unit to monitor
+
+    """
+    glances = _get_glances_api()
+    result = {}
+
+    if unit is None:
+        units = ['usage', 'infos']
+    else:
+        units = [unit]
+
+    # Get network devices and their addresses
+    devices = {}
+    output = subprocess.check_output('ip addr show'.split())
+    for d in re.split('^(?:[0-9]+: )', output, flags=re.MULTILINE):
+        d = re.sub('\n[ ]+', ' % ', d)          # Replace new lines by %
+        m = re.match('([a-z]+[0-9]?): (.*)', d) # Extract device name (1) and its addresses (2)
+        if m:
+            devices[m.group(1)] = m.group(2)
+
+    # Retrieve monitoring for unit(s)
+    for u in units:
+        if u == 'usage':
+            result[u] = {}
+            for i in json.loads(glances.getNetwork()):
+                iname = i['interface_name']
+                if iname in devices.keys():
+                    del i['interface_name']
+                    result[u][iname] = i
+        elif u == 'infos':
+            try:
+                p_ip = str(urlopen('http://ip.yunohost.org').read())
+            except:
+                raise YunoHostError(1, _("Public IP resolution failed"))
+
+            l_ip = None
+            for name, addrs in devices.items():
+                if name == 'lo':
+                    continue
+                if len(devices) == 2:
+                    l_ip = _extract_inet(addrs)
+                else:
+                    if l_ip is None:
+                        l_ip = {}
+                    l_ip[name] = _extract_inet(addrs)
+
+            result[u] = {
+                'public_ip': p_ip,
+                'local_ip': l_ip,
+                'gateway': 'TODO'
+            }
+        else:
+            raise YunoHostError(1, _("Unknown unit '%s'") % u)
+
+    if len(units) == 1:
+        return result[unit]
+    return result
+
+
+def monitor_system(unit=None):
+    """
+    Monitor system informations and usage
+
+    Keyword argument:
+        unit -- Unit to monitor
+
+    """
+    glances = _get_glances_api()
+    result = {}
+
+    if unit is None:
+        units = ['memory', 'cpu', 'process', 'uptime', 'infos']
+    else:
+        units = [unit]
+
+    # Retrieve monitoring for unit(s)
+    for u in units:
+        if u == 'memory':
+            result[u] = {
+                'ram': json.loads(glances.getMem()),
+                'swap': json.loads(glances.getMemSwap())
+            }
+        elif u == 'cpu':
+            result[u] = {
+                'load': json.loads(glances.getLoad()),
+                'usage': json.loads(glances.getCpu())
+            }
+        elif u == 'process':
+            result[u] = json.loads(glances.getProcessCount())
+        elif u == 'uptime':
+            result[u] = (str(datetime.now() - datetime.fromtimestamp(psutil.BOOT_TIME)).split('.')[0])
+        elif u == 'infos':
+            result[u] = json.loads(glances.getSystem())
+        else:
+            raise YunoHostError(1, _("Unknown unit '%s'") % u)
+
+    if len(units) == 1 and type(result[unit]) is not str:
+        return result[unit]
+    return result
+
 
 def monitor_process(enable=None, disable=None, start=None, stop=None, check=False, info=False):
     """
@@ -197,3 +290,40 @@ def monitor_process(enable=None, disable=None, start=None, stop=None, check=Fals
         return process_check(check)
     elif info:
         return json.loads(s.getProcessCount())
+
+
+def _get_glances_api():
+    """
+    Retrieve Glances API running on the local server
+
+    """
+    try:
+        p = xmlrpclib.ServerProxy(glances_uri)
+        p.system.methodHelp('getAll')
+    except (xmlrpclib.ProtocolError, IOError):
+        # TODO: Try to start Glances service
+        raise YunoHostError(1, _("Connection to Glances server failed"))
+
+    return p
+
+
+def _extract_inet(string):
+    """
+    Extract IP address (v4 or v6) from a string
+
+    Keyword argument:
+        string -- String to search in
+    """
+    # TODO: Return IPv4 and IPv6?
+    ip4_prog = re.compile('((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}/[0-9]{1,2})')
+    ip6_prog = re.compile('((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?/[0-9]{1,2})')
+
+    m = ip4_prog.search(string)
+    if m:
+        return m.group(1)
+
+    m = ip6_prog.search(string)
+    if m:
+        return m.group(1)
+
+    return None
