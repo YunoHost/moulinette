@@ -96,12 +96,12 @@ def process_check(args):
     return { 'Status' : result }
 
 
-def monitor_disk(unit=None, mountpoint=None):
+def monitor_disk(units=None, mountpoint=None):
     """
     Monitor disk space and usage
 
     Keyword argument:
-        unit -- Unit to monitor
+        units -- Unit(s) to monitor
         mountpoint -- Device mountpoint
 
     """
@@ -109,10 +109,8 @@ def monitor_disk(unit=None, mountpoint=None):
     result_dname = None
     result = {}
 
-    if unit is None:
+    if units is None:
         units = ['io', 'filesystem']
-    else:
-        units = [unit]
 
     # Get mounted block devices
     devices = {}
@@ -122,7 +120,7 @@ def monitor_disk(unit=None, mountpoint=None):
         if m and (mountpoint is None or m.group(2) == mountpoint):
             (dn, dm) = (m.group(1), m.group(2))
             devices[dn] = dm
-            result[dn] = {} if unit is None else []
+            result[dn] = {} if len(units) > 1 else []
             result_dname = dn if mountpoint is not None else None
     if len(devices) == 0:
         raise YunoHostError(1, _("Unknown mountpoint '%s'") % mountpoint)
@@ -134,7 +132,7 @@ def monitor_disk(unit=None, mountpoint=None):
                 dname = d['disk_name']
                 if dname in devices.keys():
                     del d['disk_name']
-                    if unit is None:
+                    if len(units) > 1:
                         result[dname][u] = d
                     else:
                         d['mnt_point'] = devices[dname]
@@ -147,7 +145,7 @@ def monitor_disk(unit=None, mountpoint=None):
                     if dm != dmount:
                         continue
                     del d['device_name']
-                    if unit is None:
+                    if len(units) > 1:
                         result[dn][u] = d
                     else:
                         result[dn] = d
@@ -159,21 +157,19 @@ def monitor_disk(unit=None, mountpoint=None):
     return result
 
 
-def monitor_network(unit=None):
+def monitor_network(units=None):
     """
     Monitor network interfaces
 
     Keyword argument:
-        unit -- Unit to monitor
+        units -- Unit(s) to monitor
 
     """
     glances = _get_glances_api()
     result = {}
 
-    if unit is None:
+    if units is None:
         units = ['usage', 'infos']
-    else:
-        units = [unit]
 
     # Get network devices and their addresses
     devices = {}
@@ -219,25 +215,23 @@ def monitor_network(unit=None):
             raise YunoHostError(1, _("Unknown unit '%s'") % u)
 
     if len(units) == 1:
-        return result[unit]
+        return result[units[0]]
     return result
 
 
-def monitor_system(unit=None):
+def monitor_system(units=None):
     """
     Monitor system informations and usage
 
     Keyword argument:
-        unit -- Unit to monitor
+        units -- Unit(s) to monitor
 
     """
     glances = _get_glances_api()
     result = {}
 
-    if unit is None:
+    if units is None:
         units = ['memory', 'cpu', 'process', 'uptime', 'infos']
-    else:
-        units = [unit]
 
     # Retrieve monitoring for unit(s)
     for u in units:
@@ -260,8 +254,8 @@ def monitor_system(unit=None):
         else:
             raise YunoHostError(1, _("Unknown unit '%s'") % u)
 
-    if len(units) == 1 and type(result[unit]) is not str:
-        return result[unit]
+    if len(units) == 1 and type(result[units[0]]) is not str:
+        return result[units[0]]
     return result
 
 
