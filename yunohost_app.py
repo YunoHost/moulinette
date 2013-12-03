@@ -686,6 +686,17 @@ def app_ssowatconf():
     for user in user_list()['Users']:
         users[user['Username']] = app_map(user=user['Username'])
 
+    skipped_uri=[]
+    apps={}
+    for app in app_list()['Apps']:
+        with open(apps_setting_path + app['ID'] +'/settings.yml') as f:
+            app_settings = yaml.load(f)
+            if 'skipped_uris' in app_settings:
+                skipped_uri=[app_settings['domain'] + app_settings['path'][:-1] + item for item in app_settings['skipped_uris'].split(',')]
+
+    for domain in domains:
+        skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
+
     conf_dict = {
         'portal_domain': main_domain,
         'portal_path': '/ynhsso/',
@@ -698,7 +709,7 @@ def app_ssowatconf():
             'Email': 'mail'
         },
         'domains': domains,
-        'skipped_urls': [main_domain +'/ynhadmin', main_domain +'/ynhapi'],
+        'skipped_urls': skipped_uri,
         'unprotected_urls': [],
         'users': users
     }
