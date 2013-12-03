@@ -57,9 +57,9 @@ Specifications
 
 ### Monitoring
 
-    yunohost monitor disk [-h] [-m MOUNTPOINT] [-t] [-f]
-    yunohost monitor network [-h] [-u] [-i]
-    yunohost monitor system [-h] [-m] [-u] [-i] [-p] [-c]
+    yunohost monitor disk [-h] [-m MOUNTPOINT] [-t] [-f] [-H]
+    yunohost monitor network [-h] [-u] [-i] [-H]
+    yunohost monitor system [-h] [-m] [-u] [-i] [-p] [-c] [-H]
     yunohost monitor process [-h] [-e PROCESS] [-d PROCESS]
                                   [--stop PROCESS] [-c PORT] [-i]
                                   [--start PROCESS]

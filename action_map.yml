@@ -444,6 +444,10 @@ monitor:
                     full: --mountpoint
                     help: Monitor only the device mounted on MOUNTPOINT
                     action: store
+                -H:
+                    full: --human-readable
+                    help: Print sizes in human readable format
+                    action: store_true
 
         ### monitor_network()
         network:
@@ -461,6 +465,10 @@ monitor:
                     action: append_const
                     const: infos
                     dest: units
+                -H:
+                    full: --human-readable
+                    help: Print sizes in human readable format
+                    action: store_true
 
         ### monitor_system()
         system:
@@ -496,6 +504,10 @@ monitor:
                     action: append_const
                     const: infos
                     dest: units
+                -H:
+                    full: --human-readable
+                    help: Print sizes in human readable format
+                    action: store_true
 
         process:
             action_help: Check Process

@@ -36,17 +36,6 @@ from yunohost import YunoHostError, win_msg, colorize, validate, get_required_ar
 
 glances_uri = 'http://127.0.0.1:61209'
 
-def bytes2human(n):
-    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-    prefix = {}
-    for i, s in enumerate(symbols):
-        prefix[s] = 1 << (i+1)*10
-    for s in reversed(symbols):
-        if n >= prefix[s]:
-            value = float(n) / prefix[s]
-            return '%.1f%s' % (value, s)
-    return "%sB" % n
-
 def process_enable(args):
     output = subprocess.Popen(['update-rc.d', args, 'defaults'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     if output.wait() == 0:
@@ -96,13 +85,14 @@ def process_check(args):
     return { 'Status' : result }
 
 
-def monitor_disk(units=None, mountpoint=None):
+def monitor_disk(units=None, mountpoint=None, human_readable=False):
     """
     Monitor disk space and usage
 
     Keyword argument:
         units -- Unit(s) to monitor
         mountpoint -- Device mountpoint
+        human_readable -- Print sizes in human readable format
 
     """
     glances = _get_glances_api()
@@ -145,6 +135,9 @@ def monitor_disk(units=None, mountpoint=None):
                     if dm != dmount:
                         continue
                     del d['device_name']
+                    if human_readable:
+                        for i in ['used', 'avail', 'size']:
+                            d[i] = _bytes_to_human(d[i])
                     if len(units) > 1:
                         result[dn][u] = d
                     else:
@@ -157,12 +150,13 @@ def monitor_disk(units=None, mountpoint=None):
     return result
 
 
-def monitor_network(units=None):
+def monitor_network(units=None, human_readable=False):
     """
     Monitor network interfaces
 
     Keyword argument:
         units -- Unit(s) to monitor
+        human_readable -- Print sizes in human readable format
 
     """
     glances = _get_glances_api()
@@ -188,6 +182,10 @@ def monitor_network(units=None):
                 iname = i['interface_name']
                 if iname in devices.keys():
                     del i['interface_name']
+                    if human_readable:
+                        for k in i.keys():
+                            if k != 'time_since_update':
+                                i[k] = _bytes_to_human(i[k], True)
                     result[u][iname] = i
         elif u == 'infos':
             try:
@@ -219,12 +217,13 @@ def monitor_network(units=None):
     return result
 
 
-def monitor_system(units=None):
+def monitor_system(units=None, human_readable=False):
     """
     Monitor system informations and usage
 
     Keyword argument:
         units -- Unit(s) to monitor
+        human_readable -- Print sizes in human readable format
 
     """
     glances = _get_glances_api()
@@ -236,9 +235,18 @@ def monitor_system(units=None):
     # Retrieve monitoring for unit(s)
     for u in units:
         if u == 'memory':
+            ram = json.loads(glances.getMem())
+            swap = json.loads(glances.getMemSwap())
+            if human_readable:
+                for i in ram.keys():
+                    if i != 'percent':
+                        ram[i] = _bytes_to_human(ram[i])
+                for i in swap.keys():
+                    if i != 'percent':
+                        swap[i] = _bytes_to_human(swap[i])
             result[u] = {
-                'ram': json.loads(glances.getMem()),
-                'swap': json.loads(glances.getMemSwap())
+                'ram': ram,
+                'swap': swap
             }
         elif u == 'cpu':
             result[u] = {
@@ -307,6 +315,7 @@ def _extract_inet(string):
 
     Keyword argument:
         string -- String to search in
+
     """
     # TODO: Return IPv4 and IPv6?
     ip4_prog = re.compile('((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}/[0-9]{1,2})')
@@ -321,3 +330,25 @@ def _extract_inet(string):
         return m.group(1)
 
     return None
+
+
+def _bytes_to_human(n, bits=False):
+    """
+    Convert bytes (or bits) into human readable format
+
+    Keyword argument:
+        n -- Number to convert
+        bits -- Process n as bits
+
+    """
+    symbols = ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    if bits:
+        symbols = ('b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb')
+    prefix = {}
+    for i, s in enumerate(symbols):
+        prefix[s] = 1 << i*10
+    for s in reversed(symbols):
+        if n >= prefix[s]:
+            value = float(n) / prefix[s]
+            return '%.1f%s' % (value, s)
+    return "%s%s" % (n, symbols[0])
