@@ -693,6 +693,7 @@ def app_ssowatconf():
             app_settings = yaml.load(f)
             if 'skipped_uris' in app_settings:
                 skipped_uri=[app_settings['domain'] + app_settings['path'][:-1] + item for item in app_settings['skipped_uris'].split(',')]
+
     for domain in domains:
         skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
 
