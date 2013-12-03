@@ -692,9 +692,8 @@ def app_ssowatconf():
         with open(apps_setting_path + app['ID'] +'/settings.yml') as f:                                                                           
             app_settings = yaml.load(f)                                                                                                           
                                                                                                                                                             
-            if 'skipped_uris' in app_settings:                                                                                                        
-                skipped_uri=app_settings['skipped_uris'].split(',')                                                                                    
-                skipped_uri=[main_domain+'/'+app['ID']+item for item in skipped_uri]
+            if 'skipped_uris' in app_settings:
+                skipped_uri=[app['domain'] + '/' + app['path'] + item for item in app_settings['skipped_uris'].split(',')]
     skipped_uri.extend([main_domain +'/ynhadmin', main_domain +'/ynhapi'])
 
     conf_dict = {
