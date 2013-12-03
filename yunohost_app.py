@@ -148,7 +148,9 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                 if original_app in app_dict:
                     app_dict[app] = app_dict[original_app]
                     continue
-            app_dict[app] = { 'orphan': True }
+            with open( apps_setting_path + app +'/manifest.json') as json_manifest:
+                app_dict[app] = {"manifest":json.loads(str(json_manifest.read()))}
+            app_dict[app]['manifest']['orphan']=True#{ 'orphan': True }
 
     if len(app_dict) > (0 + offset) and limit > 0:
         sorted_app_dict = {}
@@ -409,11 +411,13 @@ def app_install(app, label=None, args=None):
         except:
             args_dict = {}
 
+
         # Execute App install script
         os.system('chown -hR admin: '+ install_tmp)
+        # Move scripts and manifest to the right place
+        os.system('cp '+ app_tmp_folder +'/manifest.json ' + app_setting_path)
+        os.system('cp -R ' + app_tmp_folder +'/scripts '+ app_setting_path)
         if hook_exec(app_tmp_folder + '/scripts/install', args_dict) == 0:
-            # Move scripts and manifest to the right place
-            os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
             shutil.rmtree(app_tmp_folder)
             os.system('chmod -R 400 '+ app_setting_path)
             os.system('chown -R root: '+ app_setting_path)
@@ -685,7 +689,7 @@ def app_ssowatconf():
     users = {}
     for user in user_list()['Users']:
         users[user['Username']] = app_map(user=user['Username'])
-
+    
     skipped_uri=[]                                                                                                                                
     apps={}                                                                                                                                       
     for app in app_list()['Apps']:                                                                                                                
@@ -696,6 +700,7 @@ def app_ssowatconf():
                                                                                                                                                       
     for domain in domains:                                                                                                                        
         skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
+
 
     conf_dict = {
         'portal_domain': main_domain,
