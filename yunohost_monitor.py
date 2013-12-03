@@ -137,7 +137,7 @@ def monitor_disk(units=None, mountpoint=None, human_readable=False):
                     del d['device_name']
                     if human_readable:
                         for i in ['used', 'avail', 'size']:
-                            d[i] = _bytes_to_human(d[i])
+                            d[i] = _binary_to_human(d[i]) + 'B'
                     if len(units) > 1:
                         result[dn][u] = d
                     else:
@@ -185,7 +185,7 @@ def monitor_network(units=None, human_readable=False):
                     if human_readable:
                         for k in i.keys():
                             if k != 'time_since_update':
-                                i[k] = _bytes_to_human(i[k], True)
+                                i[k] = _binary_to_human(i[k]) + 'B'
                     result[u][iname] = i
         elif u == 'infos':
             try:
@@ -240,10 +240,10 @@ def monitor_system(units=None, human_readable=False):
             if human_readable:
                 for i in ram.keys():
                     if i != 'percent':
-                        ram[i] = _bytes_to_human(ram[i])
+                        ram[i] = _binary_to_human(ram[i]) + 'B'
                 for i in swap.keys():
                     if i != 'percent':
-                        swap[i] = _bytes_to_human(swap[i])
+                        swap[i] = _binary_to_human(swap[i]) + 'B'
             result[u] = {
                 'ram': ram,
                 'swap': swap
@@ -332,23 +332,23 @@ def _extract_inet(string):
     return None
 
 
-def _bytes_to_human(n, bits=False):
+def _binary_to_human(n, customary=False):
     """
-    Convert bytes (or bits) into human readable format
+    Convert bytes or bits into human readable format with binary prefix
 
     Keyword argument:
         n -- Number to convert
-        bits -- Process n as bits
+        customary -- Use customary symbol instead of IEC standard
 
     """
-    symbols = ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
-    if bits:
-        symbols = ('b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb')
+    symbols = ('Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi')
+    if customary:
+        symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
     prefix = {}
     for i, s in enumerate(symbols):
-        prefix[s] = 1 << i*10
+        prefix[s] = 1 << (i+1)*10
     for s in reversed(symbols):
         if n >= prefix[s]:
             value = float(n) / prefix[s]
             return '%.1f%s' % (value, s)
-    return "%s%s" % (n, symbols[0])
+    return "%s" % n
