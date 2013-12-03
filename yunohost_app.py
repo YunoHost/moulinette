@@ -150,7 +150,7 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                     continue
             with open( apps_setting_path + app +'/manifest.json') as json_manifest:
                 app_dict[app] = {"manifest":json.loads(str(json_manifest.read()))}
-            app_dict[app]['manifest']['orphan']=True#{ 'orphan': True }
+            app_dict[app]['manifest']['orphan']=True
 
     if len(app_dict) > (0 + offset) and limit > 0:
         sorted_app_dict = {}
@@ -410,7 +410,6 @@ def app_install(app, label=None, args=None):
             args_dict = dict(urlparse.parse_qsl(args))
         except:
             args_dict = {}
-
 
         # Execute App install script
         os.system('chown -hR admin: '+ install_tmp)
@@ -689,7 +688,7 @@ def app_ssowatconf():
     users = {}
     for user in user_list()['Users']:
         users[user['Username']] = app_map(user=user['Username'])
-    
+
     skipped_uri=[]                                                                                                                                
     apps={}                                                                                                                                       
     for app in app_list()['Apps']:                                                                                                                
@@ -700,7 +699,6 @@ def app_ssowatconf():
                                                                                                                                                       
     for domain in domains:                                                                                                                        
         skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
-
 
     conf_dict = {
         'portal_domain': main_domain,
