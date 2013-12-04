@@ -509,32 +509,6 @@ monitor:
                     help: Print sizes in human readable format
                     action: store_true
 
-        process:
-            action_help: Check Process
-            arguments:
-                -e:
-                    full: --enable
-                    help: Enable process
-                    metavar: PROCESS
-                -d:
-                    full: --disable
-                    help: Disable process
-                    metavar: PROCESS
-                --start:
-                    help: Start process
-                    metavar: PROCESS
-                --stop:
-                    help: Stop process
-                    metavar: PROCESS
-                -c:
-                    full: --check
-                    help: Check process
-                    action: store_true
-                -i:
-                    full: --info
-                    help: Process info
-                    action: store_true
-
 
 #############################
 #         Service           #

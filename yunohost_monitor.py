@@ -23,67 +23,16 @@
 
     Monitoring functions
 """
-import os
 import re
 import json
-import yaml
 import psutil
 import subprocess
 import xmlrpclib
 from urllib import urlopen
 from datetime import datetime, timedelta
-from yunohost import YunoHostError, win_msg, colorize, validate, get_required_args
+from yunohost import YunoHostError
 
 glances_uri = 'http://127.0.0.1:61209'
-
-def process_enable(args):
-    output = subprocess.Popen(['update-rc.d', args, 'defaults'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    if output.wait() == 0:
-        return process_start(args)
-        return resultat
-    else:
-        raise YunoHostError(1, 'Enable : ' + args.title() + " " + _("failure"))
-
-def process_disable(args):
-    output = subprocess.Popen(['update-rc.d', args, 'remove'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    if output.wait() == 0:
-        return process_stop(args)
-        return resultat
-    else:
-        raise YunoHostError(1, 'Disable : ' + args.title() + " " + _("failure"))
-
-def process_start(args):
-    output = subprocess.Popen(['service', args, 'start'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    if output.wait() == 0:
-        return { 'Start' : args.title() }
-    else:
-        raise YunoHostError(1, 'Start : ' + args.title() + " " + _("failure"))
-
-def process_stop(args):
-    output = subprocess.Popen(['service', args, 'stop'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    if output.wait() == 0:
-        return { 'Stop' : args.title() }
-    else:
-        raise YunoHostError(1, 'Stop : ' + args.title() + " " + _("failure"))
-
-def process_check(args):
-    with open('process.yml', 'r') as f:
-        processes = yaml.load(f)
-
-    result = {}
-    for process, commands in processes.items():
-        if commands['status'] == 'service':
-            cmd = "service " + process + " status"
-        else:
-            cmd = commands['status']
-
-        if os.system(cmd + " > /dev/null 2>&1") == 0:
-            result.update({ process : _('Running') })
-        else:
-            result.update({ process : _('Down') })
-
-    return { 'Status' : result }
-
 
 def monitor_disk(units=None, mountpoint=None, human_readable=False):
     """
