@@ -1,0 +1,186 @@
+# -*- coding: utf-8 -*-
+
+""" License
+
+    Copyright (C) 2013 YunoHost
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program; if not, see http://www.gnu.org/licenses
+
+"""
+
+""" yunohost_monitor.py
+
+    Monitoring functions
+"""
+import yaml
+import glob
+import subprocess
+import os.path
+from yunohost import YunoHostError, win_msg
+
+
+def service_start(names):
+    """
+    Start one or more services
+
+    Keyword argument:
+        names -- Services name to start
+
+    """
+    for name in names:
+        if _run_service_command('start', name):
+            win_msg(_("'%s' service started") % name)
+        else:
+            raise YunoHostError(1, _("Service starting failed for '%s'") % name)
+
+
+def service_stop(names):
+    """
+    Stop one or more services
+
+    Keyword argument:
+        name -- Services name to stop
+
+    """
+    for name in names:
+        if _run_service_command('stop', name):
+            win_msg(_("'%s' service stopped") % name)
+        else:
+            raise YunoHostError(1, _("Service stopping failed for '%s'") % name)
+
+
+def service_enable(names):
+    """
+    Enable one or more services
+
+    Keyword argument:
+        names -- Services name to enable
+
+    """
+    for name in names:
+        if _run_service_command('enable', name):
+            win_msg(_("'%s' service enabled") % name)
+        else:
+            raise YunoHostError(1, _("Service enabling failed for '%s'") % name)
+
+
+def service_disable(names):
+    """
+    Disable one or more services
+
+    Keyword argument:
+        names -- Services name to disable
+
+    """
+    for name in names:
+        if _run_service_command('disable', name):
+            win_msg(_("'%s' service disabled") % name)
+        else:
+            raise YunoHostError(1, _("Service disabling failed for '%s'") % name)
+
+
+def service_status(names=None):
+    """
+    Show status information about one or more services (all by default)
+
+    Keyword argument:
+        names -- Services name to show
+
+    """
+    services = _get_services()
+    check_names = True
+    result = {}
+
+    if names is None or len(names) == 0:
+        names = services.keys()
+        check_names = False
+
+    for name in names:
+        if check_names and name not in services.keys():
+            raise YunoHostError(1, _("Unknown service '%s'") % name)
+
+        status = None
+        if services[name]['status'] == 'service':
+            status = 'service %s status' % name
+        else:
+            status = str(services[name]['status'])
+
+        runlevel = 5
+        if 'runlevel' in services[name].keys():
+            runlevel = int(services[name]['runlevel'])
+
+        result[name] = { 'status': 'unknown', 'loaded': 'unknown' }
+
+        # Retrieve service status
+        try:
+            ret = subprocess.check_output(status.split(), stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            # TODO: log error
+            result[name]['status'] = _("inactive")
+        else:
+            result[name]['status'] = _("running")
+
+        # Retrieve service loading
+        rc_path = glob.glob("/etc/rc%d.d/S[0-9][0-9]%s" % (runlevel, name))
+        if len(rc_path) == 1 and os.path.islink(rc_path[0]):
+            result[name]['loaded'] = _("enabled")
+        elif os.path.isfile("/etc/init.d/%s" % name):
+            result[name]['loaded'] = _("disabled")
+        else:
+            result[name]['loaded'] = _("not-found")
+
+    return result
+
+
+def _run_service_command(action, service):
+    """
+    Run services management command (start, stop,  enable, disable)
+
+    Keyword argument:
+        service -- Service name
+        action -- Action to perform
+
+    """
+    if service not in _get_services().keys():
+        raise YunoHostError(1, _("Unknown service '%s'") % service)
+
+    cmd = None
+    if action in ['start', 'stop']:
+        cmd = 'service %s %s' % (service, action)
+    elif action in ['enable', 'disable']:
+        arg = 'defaults' if action == 'enable' else 'remove'
+        cmd = 'update-rc.d %s %s' % (service, arg)
+    else:
+        raise YunoHostError(1, _("Unknown action '%s'") % service)
+
+    try:
+        ret = subprocess.check_output(cmd.split(), stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        # TODO: log error instead
+        if os.isatty(1):
+            err = e.output.rstrip()
+            print(_("'%s' has returned:\n%s") % (' '.join(e.cmd), err))
+            return False
+
+    return True
+
+
+def _get_services():
+    """
+    Get a dict of managed services with their parameters
+
+    """
+    with open('process.yml', 'r') as f:
+        services = yaml.load(f)
+    return services

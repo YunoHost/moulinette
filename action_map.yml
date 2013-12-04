@@ -537,6 +537,59 @@ monitor:
 
 
 #############################
+#         Service           #
+#############################
+service:
+    category_help: Manage services
+    actions:
+
+        ### service_start()
+        start:
+            action_help: Start one or more services
+            arguments:
+                names:
+                    help: Service name to start
+                    nargs: +
+                    metavar: NAME
+
+        ### service_stop()
+        stop:
+            action_help: Stop one or more services
+            arguments:
+                names:
+                    help: Service name to stop
+                    nargs: +
+                    metavar: NAME
+
+        ### service_enable()
+        enable:
+            action_help: Enable one or more services
+            arguments:
+                names:
+                    help: Service name to enable
+                    nargs: +
+                    metavar: NAME
+
+        ### service_disable()
+        disable:
+            action_help: Disable one or more services
+            arguments:
+                names:
+                    help: Service name to disable
+                    nargs: +
+                    metavar: NAME
+
+        ### service_status()
+        status:
+            action_help: Show status information about one or more services (all by default)
+            arguments:
+                names:
+                    help: Service name to show
+                    nargs: "*"
+                    metavar: NAME
+
+
+#############################
 #         Firewall          #
 #############################
 firewall:
