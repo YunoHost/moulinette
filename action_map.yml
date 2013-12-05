@@ -339,6 +339,21 @@ app:
                     help: Delete the key
                     action: store_true
 
+        ### app_service()
+        service:
+            action_help: Add or remove a YunoHost monitored service
+            api: POST /app/service/{service}
+            arguments:
+                service:
+                    help: Service to add/remove
+                -s:
+                    full: --status
+                    help: Custom status command
+                -r:
+                    full: --remove
+                    help: Remove service
+                    action: store_true
+
         ### app_checkport()
         checkport:
             action_help: Check availability of a local port
