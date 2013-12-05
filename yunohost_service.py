@@ -19,9 +19,9 @@
 
 """
 
-""" yunohost_monitor.py
+""" yunohost_service.py
 
-    Monitoring functions
+    Manage services
 """
 import yaml
 import glob
