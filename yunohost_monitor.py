@@ -55,13 +55,15 @@ def monitor_disk(units=None, mountpoint=None, human_readable=False):
     devices = {}
     output = subprocess.check_output('lsblk -o NAME,MOUNTPOINT -l -n'.split())
     for d in output.split('\n'):
-        m = re.search(r'([a-z]+[0-9]+)[ ]+(\/\S*)', d) # Extract device name (1) and its mountpoint (2)
+        m = re.search(r'([a-z]+[0-9]*)[ ]+(\/\S*)', d) # Extract device name (1) and its mountpoint (2)
         if m and (mountpoint is None or m.group(2) == mountpoint):
             (dn, dm) = (m.group(1), m.group(2))
             devices[dn] = dm
             result[dn] = {} if len(units) > 1 else []
             result_dname = dn if mountpoint is not None else None
     if len(devices) == 0:
+        if mountpoint is None:
+            raise YunoHostError(1, _("No mounted block device found"))
         raise YunoHostError(1, _("Unknown mountpoint '%s'") % mountpoint)
 
     # Retrieve monitoring for unit(s)
@@ -214,33 +216,6 @@ def monitor_system(units=None, human_readable=False):
     if len(units) == 1 and type(result[units[0]]) is not str:
         return result[units[0]]
     return result
-
-
-def monitor_process(enable=None, disable=None, start=None, stop=None, check=False, info=False):
-    """
-    Check Process
-
-    Keyword argument:
-        info -- Process info
-        disable -- Disable process
-        enable -- Enable process
-        start -- Start process
-        check -- Check process
-        stop -- Stop process
-
-    """
-    if enable:
-        return process_enable(enable)
-    elif disable:
-        return process_disable(disable)
-    elif start:
-        return process_start(start)
-    elif stop:
-        return process_stop(stop)
-    elif check:
-        return process_check(check)
-    elif info:
-        return json.loads(s.getProcessCount())
 
 
 def _get_glances_api():
