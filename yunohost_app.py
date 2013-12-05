@@ -564,7 +564,7 @@ def app_setting(app, key, value=None, delete=False):
         # Do not fail if setting file is not there
         app_settings = {}
 
-    if value is None:
+    if value is None and not delete:
         # Get the value
         if app_settings is not None and key in app_settings:
             print(app_settings[key])
