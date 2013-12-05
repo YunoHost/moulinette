@@ -425,66 +425,146 @@ backup:
 #          Monitor          #
 #############################
 monitor:
-    category_help: Monitoring functions
+    category_help: Monitor the server
     actions:
 
-        ### monitor_info()
-        info:
-            action_help: Check System
+        ### monitor_disk()
+        disk:
+            action_help: Monitor disk space and usage
+            arguments:
+                -f:
+                    full: --filesystem
+                    help: Show filesystem disk space
+                    action: append_const
+                    const: filesystem
+                    dest: units
+                -t:
+                    full: --io
+                    help: Show I/O throughput
+                    action: append_const
+                    const: io
+                    dest: units
+                -m:
+                    full: --mountpoint
+                    help: Monitor only the device mounted on MOUNTPOINT
+                    action: store
+                -H:
+                    full: --human-readable
+                    help: Print sizes in human readable format
+                    action: store_true
+
+        ### monitor_network()
+        network:
+            action_help: Monitor network interfaces
+            arguments:
+                -u:
+                    full: --usage
+                    help: Show interfaces bit rates
+                    action: append_const
+                    const: usage
+                    dest: units
+                -i:
+                    full: --infos
+                    help: Show network informations
+                    action: append_const
+                    const: infos
+                    dest: units
+                -H:
+                    full: --human-readable
+                    help: Print sizes in human readable format
+                    action: store_true
+
+        ### monitor_system()
+        system:
+            action_help: Monitor system informations and usage
             arguments:
                 -m:
                     full: --memory
-                    help: Check Memory
-                    action: store_true
-                -s:
-                    full: --swap
-                    help: Check Swap
-                    action: store_true
+                    help: Show memory usage
+                    action: append_const
+                    const: memory
+                    dest: units
                 -c:
                     full: --cpu
-                    help: Check CPU
-                    action: store_true
-                -d:
-                    full: --disk
-                    help: Check Disk
-                    action: store_true
-                -i:
-                    full: --ifconfig
-                    help: Show Ip and MAC Adress
-                    action: store_true
+                    help: Show CPU usage and load
+                    action: append_const
+                    const: cpu
+                    dest: units
+                -p:
+                    full: --process
+                    help: Show processes summary
+                    action: append_const
+                    const: process
+                    dest: units
                 -u:
                     full: --uptime
-                    help: Show Uptime
-                    action: store_true
-                -p:
-                    full: --public
-                    help: Show IP public
-                    action: store_true
-        process:
-            action_help: Check Process
-            arguments:
-                -e:
-                    full: --enable
-                    help: Enable process
-                    metavar: PROCESS
-                -d:
-                    full: --disable
-                    help: Disable process
-                    metavar: PROCESS
-                --start:
-                    help: Start process
-                    metavar: PROCESS
-                --stop:
-                    help: Stop process
-                    metavar: PROCESS
-                -c:
-                    full: --check
-                    help: Check process
-                    action: store_true
+                    help: Show the system uptime
+                    action: append_const
+                    const: uptime
+                    dest: units
                 -i:
-                    full: --info
-                    help: Process info
+                    full: --infos
+                    help: Show system informations
+                    action: append_const
+                    const: infos
+                    dest: units
+                -H:
+                    full: --human-readable
+                    help: Print sizes in human readable format
                     action: store_true
+
+
+#############################
+#         Service           #
+#############################
+service:
+    category_help: Manage services
+    actions:
+
+        ### service_start()
+        start:
+            action_help: Start one or more services
+            arguments:
+                names:
+                    help: Service name to start
+                    nargs: +
+                    metavar: NAME
+
+        ### service_stop()
+        stop:
+            action_help: Stop one or more services
+            arguments:
+                names:
+                    help: Service name to stop
+                    nargs: +
+                    metavar: NAME
+
+        ### service_enable()
+        enable:
+            action_help: Enable one or more services
+            arguments:
+                names:
+                    help: Service name to enable
+                    nargs: +
+                    metavar: NAME
+
+        ### service_disable()
+        disable:
+            action_help: Disable one or more services
+            arguments:
+                names:
+                    help: Service name to disable
+                    nargs: +
+                    metavar: NAME
+
+        ### service_status()
+        status:
+            action_help: Show status information about one or more services (all by default)
+            arguments:
+                names:
+                    help: Service name to show
+                    nargs: "*"
+                    metavar: NAME
 
 
 #############################
