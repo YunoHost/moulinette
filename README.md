@@ -57,10 +57,18 @@ Specifications
 
 ### Monitoring
 
-    yunohost monitor info [-h] [-u] [-d] [-p] [-c] [-m] [-i]
-    yunohost monitor process [-h] [-e PROCESS] [-d PROCESS]
-                                  [--stop PROCESS] [-c PORT] [-i]
-                                  [--start PROCESS]
+    yunohost monitor disk [-h] [-m MOUNTPOINT] [-t] [-f] [-H]
+    yunohost monitor network [-h] [-u] [-i] [-H]
+    yunohost monitor system [-h] [-m] [-u] [-i] [-p] [-c] [-H]
+
+
+### Services
+
+    yunohost service status [-h] [NAME [NAME ...]]
+    yunohost service start [-h] NAME [NAME ...]
+    yunohost service stop [-h] NAME [NAME ...]
+    yunohost service enable [-h] NAME [NAME ...]
+    yunohost service disable [-h] NAME [NAME ...]
 
 
 ### Tools
