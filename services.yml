@@ -1,4 +1,4 @@
-apache2:
+nginx:
    status: service
 bind9:
    status: service
