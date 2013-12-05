@@ -160,10 +160,16 @@ def monitor_network(units=None, human_readable=False):
                         l_ip = {}
                     l_ip[name] = _extract_inet(addrs)
 
+            gateway = None
+            output = subprocess.check_output('ip route show'.split())
+            m = re.search('default via (.*) dev ([a-z]+[0-9]?)', output)
+            if m:
+                gateway = _extract_inet(m.group(1), True)
+
             result[u] = {
                 'public_ip': p_ip,
                 'local_ip': l_ip,
-                'gateway': 'TODO'
+                'gateway': gateway
             }
         else:
             raise YunoHostError(1, _("Unknown unit '%s'") % u)
@@ -238,7 +244,7 @@ def _get_glances_api():
     return p
 
 
-def _extract_inet(string):
+def _extract_inet(string, skip_netmask=False):
     """
     Extract IP address (v4 or v6) from a string
 
@@ -247,8 +253,13 @@ def _extract_inet(string):
 
     """
     # TODO: Return IPv4 and IPv6?
-    ip4_prog = re.compile('((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}/[0-9]{1,2})')
-    ip6_prog = re.compile('((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?/[0-9]{1,2})')
+    ip4 = '((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'
+    ip6 = '((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?'
+    ip4 += '/[0-9]{1,2})' if not skip_netmask else ')'
+    ip6 += '/[0-9]{1,2})' if not skip_netmask else ')'
+
+    ip4_prog = re.compile(ip4)
+    ip6_prog = re.compile(ip6)
 
     m = ip4_prog.search(string)
     if m:
