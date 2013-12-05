@@ -181,6 +181,6 @@ def _get_services():
     Get a dict of managed services with their parameters
 
     """
-    with open('process.yml', 'r') as f:
+    with open('/etc/yunohost/services.yml', 'r') as f:
         services = yaml.load(f)
     return services
