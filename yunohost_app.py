@@ -581,7 +581,7 @@ def app_setting(app, key, value=None, delete=False):
             yaml.safe_dump(app_settings, f, default_flow_style=False)
 
 
-def app_service(service, status=None, log=None, remove=False):
+def app_service(service, status=None, log=None, runlevel=None, remove=False):
     """
     Add or remove a YunoHost monitored service
 
@@ -589,6 +589,7 @@ def app_service(service, status=None, log=None, remove=False):
         service -- Service to add/remove
         status -- Custom status command
         log -- Absolute path to log file to display
+        runlevel -- Runlevel priority of the service
         remove -- Remove service
 
     """
@@ -611,6 +612,9 @@ def app_service(service, status=None, log=None, remove=False):
     
     if log is not None:
         services[service]['log'] = log
+
+    if runlevel is not None:
+        services[service]['runlevel'] = runlevel
 
     with open(service_file, 'w') as f:
         yaml.safe_dump(services, f, default_flow_style=False)

@@ -353,6 +353,9 @@ app:
                     full: --log
                     help: Absolute path to log file to display
                 -r:
+                    full: --runlevel
+                    help: Runlevel priority of the service
+                -R:
                     full: --remove
                     help: Remove service
                     action: store_true
