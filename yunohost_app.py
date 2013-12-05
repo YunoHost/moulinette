@@ -520,7 +520,6 @@ def app_removeaccess(apps, users):
     #TODO: Remove access
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
-
     for app in apps:
         new_users = ''
 
@@ -530,7 +529,7 @@ def app_removeaccess(apps, users):
         with open(apps_setting_path + app +'/settings.yml') as f:
             app_settings = yaml.load(f)
 
-        if 'mode' in app_settings and app_settings['mode'] == 'private':
+        if 'skipped_uris' not in app_settings or app_settings['skipped_uris'] != '/':
             if 'allowed_users' in app_settings:
                 for allowed_user in app_settings['allowed_users'].split(','):
                     if allowed_user not in users:
@@ -538,8 +537,15 @@ def app_removeaccess(apps, users):
                             new_users = allowed_user
                         else:
                             new_users = new_users +','+ allowed_user
-
-                app_setting(app, 'allowed_users', new_users.strip())
+            else:
+                new_users=''
+                for user in user_list()['Users']:
+                    if user['Username'] not in users:
+                        if new_users == '':
+                            new_users = user['Username']
+                        new_users=new_users+','+user['Username']
+ 
+            app_setting(app, 'allowed_users', new_users.strip())
 
     app_ssowatconf()
 
