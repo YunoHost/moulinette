@@ -544,7 +544,7 @@ def app_removeaccess(apps, users):
     app_ssowatconf()
 
 
-def app_setting(app, key, value=None):
+def app_setting(app, key, value=None, delete=False):
     """
     Set ou get an app setting value
 
@@ -552,6 +552,7 @@ def app_setting(app, key, value=None):
         value -- Value to set
         app -- App ID
         key -- Key to get/set
+        delete -- Delete the key
 
     """
     settings_file = apps_setting_path + app +'/settings.yml'
@@ -571,7 +572,7 @@ def app_setting(app, key, value=None):
         # Set the value
         if app_settings is None:
             app_settings = {}
-        if value == '' and key in app_settings:
+        if delete and key in app_settings:
             del app_settings[key]
         else:
             app_settings[key] = value

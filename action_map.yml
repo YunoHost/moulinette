@@ -334,6 +334,10 @@ app:
                 -v:
                     full: --value
                     help: Value to set
+                -d:
+                    full: --delete
+                    help: Delete the key
+                    action: store_true
 
         ### app_checkport()
         checkport:
