@@ -78,6 +78,11 @@ def monitor_disk(units=None, mountpoint=None, human_readable=False):
                     else:
                         d['mnt_point'] = devices[dname]
                         result[dname] = d
+            for dname in devices.keys():
+                if len(units) > 1 and u not in result[dname]:
+                    result[dname][u] = 'not-available'
+                elif len(result[dname]) == 0:
+                    result[dname] = 'not-available'
         elif u == 'filesystem':
             for d in json.loads(glances.getFs()):
                 dmount = d['mnt_point']
