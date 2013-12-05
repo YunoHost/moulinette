@@ -349,6 +349,9 @@ app:
                 -s:
                     full: --status
                     help: Custom status command
+                -l:
+                    full: --log
+                    help: Absolute path to log file to display
                 -r:
                     full: --remove
                     help: Remove service
