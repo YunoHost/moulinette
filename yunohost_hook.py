@@ -110,7 +110,13 @@ def hook_exec(file, args=None):
                         ask_string = ask_string +' ('+ '|'.join(arg['choices']) +')'
                     if 'default' in arg:
                         ask_string = ask_string +' (default: '+ arg['default'] +')'
-                    arg_list.append(raw_input(colorize(ask_string + ': ', 'cyan')))
+
+                    input_string = raw_input(colorize(ask_string + ': ', 'cyan'))
+
+                    if input_string == '' and 'default' in arg:
+                        input_string = arg['default']
+
+                    arg_list.append(input_string)
                 elif 'default' in arg:
                     arg_list.append(arg['default'])
                 else:
