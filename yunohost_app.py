@@ -735,14 +735,17 @@ def app_ssowatconf():
     for user in user_list()['Users']:
         users[user['Username']] = app_map(user=user['Username'])
 
-    skipped_uri=[]                                                                                                                                
-    apps={}                                                                                                                                       
+    skipped_uri = []                                                                                                                                
+    apps = {}                                                                                                                                       
     for app in app_list()['Apps']:
         if _is_installed(app['ID']):
             with open(apps_setting_path + app['ID'] +'/settings.yml') as f:                                                                           
                 app_settings = yaml.load(f)                                                                                                           
-                if 'skipped_uris' in app_settings:                                                                                                    
-                    skipped_uri=[app_settings['domain'] + app_settings['path'][:-1] + item for item in app_settings['skipped_uris'].split(',')]       
+                if 'skipped_uris' in app_settings:
+                    for item in app_settings['skipped_uris'].split(','):
+                        if item[-1:] == '/':
+                            item = item[:-1]
+                        skipped_uri.append(app_settings['domain'] + app_settings['path'][:-1] + item)    
                                                                                                                                                       
     for domain in domains:                                                                                                                        
         skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
