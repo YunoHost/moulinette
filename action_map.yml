@@ -587,6 +587,13 @@ service:
                     nargs: "*"
                     metavar: NAME
 
+        ### service_log()
+        log:
+            action_help: Show status information about one or more services (all by default)
+            arguments:
+                 name:
+                     help: Service name to log
+
 
 #############################
 #         Firewall          #
