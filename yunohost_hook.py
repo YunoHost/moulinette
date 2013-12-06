@@ -100,14 +100,19 @@ def hook_exec(file, args=None):
         arg_list = []
         for arg in required_args:
             if arg['name'] in args:
-                if 'choices' in arg and args[arg['name']] not in arg['choices'].split('|'):
+                if 'choices' in arg and args[arg['name']] not in arg['choices']:
                     raise YunoHostError(22, _("Invalid choice") + ': ' + args[arg['name']])
                 arg_list.append(args[arg['name']])
             else:
-                if 'default' in arg:
+                if os.isatty(1) and 'ask' in arg:
+                    ask_string = arg['ask']['en'] #TODO: I18n
+                    if 'choices' in arg:
+                        ask_string = ask_string +' ('+ '|'.join(arg['choices']) +')'
+                    if 'default' in arg:
+                        ask_string = ask_string +' (default: '+ arg['default'] +')'
+                    arg_list.append(raw_input(colorize(ask_string + ': ', 'cyan')))
+                elif 'default' in arg:
                     arg_list.append(arg['default'])
-                elif os.isatty(1) and 'ask' in arg:
-                    arg_list.append(raw_input(colorize(arg['ask']['en'] + ': ', 'cyan'))) #TODO: I18n
                 else:
                     raise YunoHostError(22, _("Missing arguments") + ': ' + arg['name'])
 
