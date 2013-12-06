@@ -589,7 +589,7 @@ service:
 
         ### service_log()
         log:
-            action_help: Show status information about one or more services (all by default)
+            action_help: Log every log files of a service
             arguments:
                  name:
                      help: Service name to log
