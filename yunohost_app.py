@@ -416,18 +416,23 @@ def app_install(app, label=None, args=None):
         # Move scripts and manifest to the right place
         os.system('cp '+ app_tmp_folder +'/manifest.json ' + app_setting_path)
         os.system('cp -R ' + app_tmp_folder +'/scripts '+ app_setting_path)
-        if hook_exec(app_tmp_folder + '/scripts/install', args_dict) == 0:
-            shutil.rmtree(app_tmp_folder)
-            os.system('chmod -R 400 '+ app_setting_path)
-            os.system('chown -R root: '+ app_setting_path)
-            os.system('chown -R admin: '+ app_setting_path +'/scripts')
-            app_ssowatconf()
-            win_msg(_("Installation complete"))
-        else:
-            #TODO: display script fail messages
+        try:
+            if hook_exec(app_tmp_folder + '/scripts/install', args_dict) == 0:
+                shutil.rmtree(app_tmp_folder)
+                os.system('chmod -R 400 '+ app_setting_path)
+                os.system('chown -R root: '+ app_setting_path)
+                os.system('chown -R admin: '+ app_setting_path +'/scripts')
+                app_ssowatconf()
+                win_msg(_("Installation complete"))
+            else:
+                #TODO: display script fail messages
+                shutil.rmtree(app_setting_path)
+                shutil.rmtree(app_tmp_folder)
+                raise YunoHostError(1, _("Installation failed"))
+        except KeyboardInterrupt, EOFError:
             shutil.rmtree(app_setting_path)
             shutil.rmtree(app_tmp_folder)
-            raise YunoHostError(1, _("Installation failed"))
+            raise YunoHostError(125, _("Interrupted"))
 
 
 def app_remove(app):
@@ -787,14 +792,16 @@ def _extract_app_from_file(path, remove=False):
     """
     global app_tmp_folder
 
+    print(_('Extracting...'))
+
     if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
     os.makedirs(app_tmp_folder)
 
     if ".zip" in path:
-        extract_result = os.system('cd '+ os.getcwd() +' && unzip '+ path +' -d '+ app_tmp_folder)
+        extract_result = os.system('cd '+ os.getcwd() +' && unzip '+ path +' -d '+ app_tmp_folder +' > /dev/null 2>&1')
         if remove: os.remove(path)
     elif ".tar" in path:
-        extract_result = os.system('cd '+ os.getcwd() +' && tar -xf '+ path +' -C '+ app_tmp_folder)
+        extract_result = os.system('cd '+ os.getcwd() +' && tar -xf '+ path +' -C '+ app_tmp_folder +' > /dev/null 2>&1')
         if remove: os.remove(path)
     elif (path[:1] == '/' and os.path.exists(path)) or (os.system('cd '+ os.getcwd() +'/'+ path) == 0):
         shutil.rmtree(app_tmp_folder)
@@ -817,7 +824,7 @@ def _extract_app_from_file(path, remove=False):
     except IOError:
         raise YunoHostError(1, _("Invalid App file"))
 
-    win_msg(_("Sources extracted"))
+    print(_('OK'))
 
     return manifest
 
@@ -835,13 +842,15 @@ def _fetch_app_from_git(app):
     """
     global app_tmp_folder
 
+    print(_('Downloading...'))
+
     if ('@' in app) or ('http://' in app) or ('https://' in app):
         if "github.com" in app:
             url = app.replace("git@github.com:", "https://github.com/")
             if ".git" in url[-4:]: url = url[:-4]
             if "/" in url [-1:]: url = url[:-1]
             url = url + "/archive/master.zip"
-            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip"') == 0:
+            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip" > /dev/null 2>&1') == 0:
                 return _extract_app_from_file(app_tmp_folder +'.zip', remove=True)
 
         git_result   = os.system('git clone '+ app +' '+ app_tmp_folder)
@@ -868,7 +877,7 @@ def _fetch_app_from_git(app):
             if ".git" in url[-4:]: url = url[:-4]
             if "/" in url [-1:]: url = url[:-1]
             url = url + "/archive/"+ str(app_info['git']['revision']) + ".zip"
-            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip"') == 0:
+            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip" > /dev/null 2>&1') == 0:
                 return _extract_app_from_file(app_tmp_folder +'.zip', remove=True)
 
         app_tmp_folder = install_tmp +'/'+ app
@@ -880,7 +889,7 @@ def _fetch_app_from_git(app):
     if not git_result == git_result_2 == 0:
         raise YunoHostError(22, _("Sources fetching failed"))
 
-    win_msg(_("Repository fetched"))
+    print(_('OK'))
 
     return manifest
 
