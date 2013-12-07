@@ -416,18 +416,23 @@ def app_install(app, label=None, args=None):
         # Move scripts and manifest to the right place
         os.system('cp '+ app_tmp_folder +'/manifest.json ' + app_setting_path)
         os.system('cp -R ' + app_tmp_folder +'/scripts '+ app_setting_path)
-        if hook_exec(app_tmp_folder + '/scripts/install', args_dict) == 0:
-            shutil.rmtree(app_tmp_folder)
-            os.system('chmod -R 400 '+ app_setting_path)
-            os.system('chown -R root: '+ app_setting_path)
-            os.system('chown -R admin: '+ app_setting_path +'/scripts')
-            app_ssowatconf()
-            win_msg(_("Installation complete"))
-        else:
-            #TODO: display script fail messages
+        try:
+            if hook_exec(app_tmp_folder + '/scripts/install', args_dict) == 0:
+                shutil.rmtree(app_tmp_folder)
+                os.system('chmod -R 400 '+ app_setting_path)
+                os.system('chown -R root: '+ app_setting_path)
+                os.system('chown -R admin: '+ app_setting_path +'/scripts')
+                app_ssowatconf()
+                win_msg(_("Installation complete"))
+            else:
+                #TODO: display script fail messages
+                shutil.rmtree(app_setting_path)
+                shutil.rmtree(app_tmp_folder)
+                raise YunoHostError(1, _("Installation failed"))
+        except KeyboardInterrupt, EOFError:
             shutil.rmtree(app_setting_path)
             shutil.rmtree(app_tmp_folder)
-            raise YunoHostError(1, _("Installation failed"))
+            raise YunoHostError(125, _("Interrupted"))
 
 
 def app_remove(app):
@@ -520,7 +525,6 @@ def app_removeaccess(apps, users):
     #TODO: Remove access
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
-
     for app in apps:
         new_users = ''
 
@@ -530,7 +534,7 @@ def app_removeaccess(apps, users):
         with open(apps_setting_path + app +'/settings.yml') as f:
             app_settings = yaml.load(f)
 
-        if 'mode' in app_settings and app_settings['mode'] == 'private':
+        if 'skipped_uris' not in app_settings or app_settings['skipped_uris'] != '/':
             if 'allowed_users' in app_settings:
                 for allowed_user in app_settings['allowed_users'].split(','):
                     if allowed_user not in users:
@@ -538,8 +542,15 @@ def app_removeaccess(apps, users):
                             new_users = allowed_user
                         else:
                             new_users = new_users +','+ allowed_user
-
-                app_setting(app, 'allowed_users', new_users.strip())
+            else:
+                new_users=''
+                for user in user_list()['Users']:
+                    if user['Username'] not in users:
+                        if new_users == '':
+                            new_users = user['Username']
+                        new_users=new_users+','+user['Username']
+ 
+            app_setting(app, 'allowed_users', new_users.strip())
 
     app_ssowatconf()
 
@@ -579,6 +590,45 @@ def app_setting(app, key, value=None, delete=False):
 
         with open(settings_file, 'w') as f:
             yaml.safe_dump(app_settings, f, default_flow_style=False)
+
+
+def app_service(service, status=None, log=None, runlevel=None, remove=False):
+    """
+    Add or remove a YunoHost monitored service
+
+    Keyword argument:
+        service -- Service to add/remove
+        status -- Custom status command
+        log -- Absolute path to log file to display
+        runlevel -- Runlevel priority of the service
+        remove -- Remove service
+
+    """
+    service_file = '/etc/yunohost/services.yml'
+
+    try:
+        with open(service_file) as f:
+            services = yaml.load(f)
+    except IOError:
+        # Do not fail if service file is not there
+        services = {}
+
+    if remove and service in services:
+        del services[service]
+    else:
+        if status is None:
+            services[service] = { 'status': 'service' }
+        else:
+            services[service] = { 'status': status }
+    
+    if log is not None:
+        services[service]['log'] = log
+
+    if runlevel is not None:
+        services[service]['runlevel'] = runlevel
+
+    with open(service_file, 'w') as f:
+        yaml.safe_dump(services, f, default_flow_style=False)
 
 
 def app_checkport(port):
@@ -690,14 +740,17 @@ def app_ssowatconf():
     for user in user_list()['Users']:
         users[user['Username']] = app_map(user=user['Username'])
 
-    skipped_uri=[]                                                                                                                                
-    apps={}                                                                                                                                       
+    skipped_uri = []                                                                                                                                
+    apps = {}                                                                                                                                       
     for app in app_list()['Apps']:
         if _is_installed(app['ID']):
             with open(apps_setting_path + app['ID'] +'/settings.yml') as f:                                                                           
                 app_settings = yaml.load(f)                                                                                                           
-                if 'skipped_uris' in app_settings:                                                                                                    
-                    skipped_uri=[app_settings['domain'] + app_settings['path'][:-1] + item for item in app_settings['skipped_uris'].split(',')]       
+                if 'skipped_uris' in app_settings:
+                    for item in app_settings['skipped_uris'].split(','):
+                        if item[-1:] == '/':
+                            item = item[:-1]
+                        skipped_uri.append(app_settings['domain'] + app_settings['path'][:-1] + item)    
                                                                                                                                                       
     for domain in domains:                                                                                                                        
         skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
@@ -739,14 +792,16 @@ def _extract_app_from_file(path, remove=False):
     """
     global app_tmp_folder
 
+    print(_('Extracting...'))
+
     if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
     os.makedirs(app_tmp_folder)
 
     if ".zip" in path:
-        extract_result = os.system('cd '+ os.getcwd() +' && unzip '+ path +' -d '+ app_tmp_folder)
+        extract_result = os.system('cd '+ os.getcwd() +' && unzip '+ path +' -d '+ app_tmp_folder +' > /dev/null 2>&1')
         if remove: os.remove(path)
     elif ".tar" in path:
-        extract_result = os.system('cd '+ os.getcwd() +' && tar -xf '+ path +' -C '+ app_tmp_folder)
+        extract_result = os.system('cd '+ os.getcwd() +' && tar -xf '+ path +' -C '+ app_tmp_folder +' > /dev/null 2>&1')
         if remove: os.remove(path)
     elif (path[:1] == '/' and os.path.exists(path)) or (os.system('cd '+ os.getcwd() +'/'+ path) == 0):
         shutil.rmtree(app_tmp_folder)
@@ -769,7 +824,7 @@ def _extract_app_from_file(path, remove=False):
     except IOError:
         raise YunoHostError(1, _("Invalid App file"))
 
-    win_msg(_("Sources extracted"))
+    print(_('OK'))
 
     return manifest
 
@@ -787,13 +842,15 @@ def _fetch_app_from_git(app):
     """
     global app_tmp_folder
 
+    print(_('Downloading...'))
+
     if ('@' in app) or ('http://' in app) or ('https://' in app):
         if "github.com" in app:
             url = app.replace("git@github.com:", "https://github.com/")
             if ".git" in url[-4:]: url = url[:-4]
             if "/" in url [-1:]: url = url[:-1]
             url = url + "/archive/master.zip"
-            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip"') == 0:
+            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip" > /dev/null 2>&1') == 0:
                 return _extract_app_from_file(app_tmp_folder +'.zip', remove=True)
 
         git_result   = os.system('git clone '+ app +' '+ app_tmp_folder)
@@ -820,7 +877,7 @@ def _fetch_app_from_git(app):
             if ".git" in url[-4:]: url = url[:-4]
             if "/" in url [-1:]: url = url[:-1]
             url = url + "/archive/"+ str(app_info['git']['revision']) + ".zip"
-            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip"') == 0:
+            if os.system('wget "'+ url +'" -O "'+ app_tmp_folder +'.zip" > /dev/null 2>&1') == 0:
                 return _extract_app_from_file(app_tmp_folder +'.zip', remove=True)
 
         app_tmp_folder = install_tmp +'/'+ app
@@ -832,7 +889,7 @@ def _fetch_app_from_git(app):
     if not git_result == git_result_2 == 0:
         raise YunoHostError(22, _("Sources fetching failed"))
 
-    win_msg(_("Repository fetched"))
+    print(_('OK'))
 
     return manifest
 

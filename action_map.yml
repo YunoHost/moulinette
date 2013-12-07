@@ -339,6 +339,27 @@ app:
                     help: Delete the key
                     action: store_true
 
+        ### app_service()
+        service:
+            action_help: Add or remove a YunoHost monitored service
+            api: POST /app/service/{service}
+            arguments:
+                service:
+                    help: Service to add/remove
+                -s:
+                    full: --status
+                    help: Custom status command
+                -l:
+                    full: --log
+                    help: Absolute path to log file to display
+                -r:
+                    full: --runlevel
+                    help: Runlevel priority of the service
+                -R:
+                    full: --remove
+                    help: Remove service
+                    action: store_true
+
         ### app_checkport()
         checkport:
             action_help: Check availability of a local port
@@ -565,6 +586,18 @@ service:
                     help: Service name to show
                     nargs: "*"
                     metavar: NAME
+
+        ### service_log()
+        log:
+            action_help: Log every log files of a service
+            arguments:
+                name:
+                    help: Service name to log
+                -n:
+                    full: --number
+                    help: Number of lines to display
+                    pattern: '^[0-9]+$'
+                    default: 50
 
 
 #############################

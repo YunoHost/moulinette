@@ -143,6 +143,38 @@ def service_status(names=None):
     return result
 
 
+def service_log(name, number=50):
+    """
+    Log every log files of a service
+
+    Keyword argument:
+        name -- Services name to log
+        number -- Number of lines to display
+
+    """
+    services = _get_services()
+
+    if name not in services.keys():
+        raise YunoHostError(1, _("Unknown service '%s'") % service)
+    
+    if 'log' in services[name]:
+        log_list = services[name]['log']
+        result = {}
+        if not isinstance(log_list, list):
+            log_list = [log_list]
+
+        for log_path in log_list:
+            if os.path.isdir(log_path):
+                for log in [ f for f in os.listdir(log_path) if os.path.isfile(os.path.join(log_path, f)) and f[-4:] == '.log' ]:
+                    result[os.path.join(log_path, log)] = _tail(os.path.join(log_path, log), int(number))
+            else:
+                result[log_path] = _tail(log_path, int(number))
+    else:
+        raise YunoHostError(1, _("Nothing to log for service '%s'") % name)
+
+    return result
+
+
 def _run_service_command(action, service):
     """
     Run services management command (start, stop,  enable, disable)
@@ -184,3 +216,31 @@ def _get_services():
     with open('/etc/yunohost/services.yml', 'r') as f:
         services = yaml.load(f)
     return services
+
+
+def _tail(file, n, offset=None):
+    """
+    Reads a n lines from f with an offset of offset lines.  The return
+    value is a tuple in the form ``(lines, has_more)`` where `has_more` is
+    an indicator that is `True` if there are more lines in the file.
+
+    """
+    avg_line_length = 74
+    to_read = n + (offset or 0)
+
+    try:
+        with open(file, 'r') as f:
+            while 1:
+                try:
+                    f.seek(-(avg_line_length * to_read), 2)
+                except IOError:
+                    # woops.  apparently file is smaller than what we want
+                    # to step back, go to the beginning instead
+                    f.seek(0)
+                pos = f.tell()
+                lines = f.read().splitlines()
+                if len(lines) >= to_read or pos == 0:
+                    return lines[-to_read:offset and -offset or None] 
+                avg_line_length *= 1.3
+
+    except IOError: return []
