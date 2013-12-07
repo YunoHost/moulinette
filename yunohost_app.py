@@ -759,7 +759,7 @@ def app_ssowatconf():
                         unprotected_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
 
     for domain in domains:
-        skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
+        skipped_urls.extend([domain +'/ynhadmin', domain +'/ynhapi'])
 
     conf_dict = {
         'portal_domain': main_domain,
