@@ -591,8 +591,13 @@ service:
         log:
             action_help: Log every log files of a service
             arguments:
-                 name:
-                     help: Service name to log
+                name:
+                    help: Service name to log
+                -n:
+                    full: --number
+                    help: Number of lines to display
+                    pattern: '^[0-9]+$'
+                    default: 50
 
 
 #############################

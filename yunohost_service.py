@@ -143,12 +143,13 @@ def service_status(names=None):
     return result
 
 
-def service_log(name):
+def service_log(name, number=50):
     """
     Log every log files of a service
 
     Keyword argument:
         name -- Services name to log
+        number -- Number of lines to display
 
     """
     services = _get_services()
@@ -165,9 +166,9 @@ def service_log(name):
         for log_path in log_list:
             if os.path.isdir(log_path):
                 for log in [ f for f in os.listdir(log_path) if os.path.isfile(os.path.join(log_path, f)) and f[-4:] == '.log' ]:
-                    result[os.path.join(log_path, log)] = _tail(os.path.join(log_path, log), 50)
+                    result[os.path.join(log_path, log)] = _tail(os.path.join(log_path, log), int(number))
             else:
-                result[log_path] = _tail(log_path, 50)
+                result[log_path] = _tail(log_path, int(number))
     else:
         raise YunoHostError(1, _("Nothing to log for service '%s'") % name)
 
