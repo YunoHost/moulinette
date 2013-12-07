@@ -453,11 +453,11 @@ def app_remove(app):
     try:
         shutil.rmtree('/tmp/yunohost_remove')
     except: pass
-    
+
     os.system('cp -a '+ app_setting_path + ' /tmp/yunohost_remove && chown -hR admin: /tmp/yunohost_remove')
     os.system('chown -R admin: /tmp/yunohost_remove')
     os.system('chmod -R u+rX /tmp/yunohost_remove')
-    
+
     if hook_exec('/tmp/yunohost_remove/scripts/remove') != 0:
         pass
 
@@ -549,7 +549,7 @@ def app_removeaccess(apps, users):
                         if new_users == '':
                             new_users = user['Username']
                         new_users=new_users+','+user['Username']
- 
+
             app_setting(app, 'allowed_users', new_users.strip())
 
     app_ssowatconf()
@@ -620,7 +620,7 @@ def app_service(service, status=None, log=None, runlevel=None, remove=False):
             services[service] = { 'status': 'service' }
         else:
             services[service] = { 'status': status }
-    
+
     if log is not None:
         services[service]['log'] = log
 
@@ -740,19 +740,25 @@ def app_ssowatconf():
     for user in user_list()['Users']:
         users[user['Username']] = app_map(user=user['Username'])
 
-    skipped_uri = []                                                                                                                                
-    apps = {}                                                                                                                                       
+    skipped_urls = []
+    unprotected_urls = []
+    apps = {}
     for app in app_list()['Apps']:
         if _is_installed(app['ID']):
-            with open(apps_setting_path + app['ID'] +'/settings.yml') as f:                                                                           
-                app_settings = yaml.load(f)                                                                                                           
+            with open(apps_setting_path + app['ID'] +'/settings.yml') as f:
+                app_settings = yaml.load(f)
                 if 'skipped_uris' in app_settings:
                     for item in app_settings['skipped_uris'].split(','):
                         if item[-1:] == '/':
                             item = item[:-1]
-                        skipped_uri.append(app_settings['domain'] + app_settings['path'][:-1] + item)    
-                                                                                                                                                      
-    for domain in domains:                                                                                                                        
+                        skipped_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+                if 'unprotected_uris' in app_settings:
+                    for item in app_settings['unprotected_uris'].split(','):
+                        if item[-1:] == '/':
+                            item = item[:-1]
+                        unprotected_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+
+    for domain in domains:
         skipped_uri.extend([domain +'/ynhadmin', domain +'/ynhapi'])
 
     conf_dict = {
@@ -767,8 +773,8 @@ def app_ssowatconf():
             'Email': 'mail'
         },
         'domains': domains,
-        'skipped_urls': skipped_uri,
-        'unprotected_urls': [],
+        'skipped_urls': skipped_urls,
+        'unprotected_urls': unprotected_urls,
         'users': users
     }
 
