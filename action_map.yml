@@ -762,7 +762,7 @@ tools:
             arguments:
                 -o:
                     full: --old-password
-                    ask: "Actual admin password"
+                    ask: "Current admin password"
                     password: yes
                 -n:
                     full: --new-password
