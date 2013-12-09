@@ -597,7 +597,7 @@ service:
                     full: --number
                     help: Number of lines to display
                     pattern: '^[0-9]+$'
-                    default: 50
+                    default: "50"
 
 
 #############################
