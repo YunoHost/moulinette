@@ -36,7 +36,7 @@ import urlparse
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
 from yunohost_domain import domain_list, domain_add
 from yunohost_user import user_info, user_list
-from yunohost_hook import hook_exec
+from yunohost_hook import hook_exec, hook_add, hook_remove
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'
@@ -374,7 +374,6 @@ def app_install(app, label=None, args=None):
 
             # Replace app_id with the new one in scripts
             for file in os.listdir(app_tmp_folder +'/scripts'):
-                #TODO: add hooks directory to the list
                 #TODO: do it with sed ?
                 if file[:1] != '.':
                     with open(app_tmp_folder +'/scripts/'+ file, "r") as sources:
@@ -382,6 +381,16 @@ def app_install(app, label=None, args=None):
                     with open(app_tmp_folder +'/scripts/'+ file, "w") as sources:
                         for line in lines:
                             sources.write(re.sub(r''+ app_id +'', app_id_forked, line))
+
+            if 'hooks' in os.listdir(app_tmp_folder):
+                for file in os.listdir(app_tmp_folder +'/hooks'):
+                    #TODO: do it with sed ?
+                    if file[:1] != '.':
+                        with open(app_tmp_folder +'/hooks/'+ file, "r") as sources:
+                            lines = sources.readlines()
+                        with open(app_tmp_folder +'/hooks/'+ file, "w") as sources:
+                            for line in lines:
+                                sources.write(re.sub(r''+ app_id +'', app_id_forked, line))
 
             # Change app_id for the rest of the process
             app_id = app_id_forked
@@ -393,6 +402,11 @@ def app_install(app, label=None, args=None):
         if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
         os.makedirs(app_setting_path)
         os.system('touch '+ app_setting_path +'/settings.yml')
+
+        # Add hooks
+        if 'hooks' in os.listdir(app_tmp_folder):
+            for file in os.listdir(app_tmp_folder +'/hooks'):
+                hook_add(app_id, app_tmp_folder +'/hooks/'+ file)
 
         app_setting(app_id, 'id', app_id)
         app_setting(app_id, 'install_time', int(time.time()))
@@ -426,10 +440,12 @@ def app_install(app, label=None, args=None):
                 win_msg(_("Installation complete"))
             else:
                 #TODO: display script fail messages
+                hook_remove(app_id)
                 shutil.rmtree(app_setting_path)
                 shutil.rmtree(app_tmp_folder)
                 raise YunoHostError(1, _("Installation failed"))
         except KeyboardInterrupt, EOFError:
+            hook_remove(app_id)
             shutil.rmtree(app_setting_path)
             shutil.rmtree(app_tmp_folder)
             raise YunoHostError(125, _("Interrupted"))
@@ -463,6 +479,7 @@ def app_remove(app):
 
     if os.path.exists(app_setting_path): shutil.rmtree(app_setting_path)
     shutil.rmtree('/tmp/yunohost_remove')
+    hook_remove(app)
     app_ssowatconf()
     win_msg(_("App removed: ")+ app)
 

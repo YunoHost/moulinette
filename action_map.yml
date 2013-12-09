@@ -811,16 +811,21 @@ hook:
 
         ### hook_add()
         add:
-            action_help: Store hook script to filsystem
+            action_help: Store hook script to filesystem
             api: PUT /hook
             arguments:
-                action:
-                    help: Action folder to store into
+                app:
+                    help: App to link with
                 file:
-                    help: Script to check
-                -n:
-                    full: --name
-                    help: Destination name for the script
+                    help: Script to add
+
+        ### hook_remove()
+        remove:
+            action_help: Remove hook scripts from filesystem
+            api: DELETE /hook
+            arguments:
+                app:
+                    help: Scripts related to app will be removed
 
         ### hook_callback()
         callback:

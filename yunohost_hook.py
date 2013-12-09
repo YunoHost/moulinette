@@ -31,23 +31,45 @@ from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize
 
 hook_folder = '/usr/share/yunohost/hooks/'
 
-def hook_add(action, file, name=None):
+def hook_add(app, file):
     """
     Store hook script to filsystem
 
     Keyword argument:
-        file -- Script to add
-        action -- Action folder to store into
-        name -- Destination name
+        app -- App to link with
+        file -- Script to add (/path/priority-file)
 
     """
+    path, filename = os.path.split(file)
+    if '-' in filename:
+        priority, action = filename.split('-')
+    else:
+        priority = '50'
+        action = filename
+
     try: os.listdir(hook_folder + action)
     except OSError: os.makedirs(hook_folder + action)
 
-    if name is None:
-        name = ''
+    finalpath = hook_folder + action +'/'+ priority +'-'+ app
+    print app
+    os.system('cp '+ file +' '+ finalpath)
+    os.system('chown -hR admin: '+ hook_folder)
 
-    os.system('cp '+ file +' '+ hook_folder + action +'/'+ name)
+    return { 'hook': finalpath }
+
+
+def hook_remove(app):
+    """
+    Remove hooks linked to a specific app
+
+    Keyword argument:
+        app -- Scripts related to app will be removed
+
+    """
+    for action in os.listdir(hook_folder):
+        for script in os.listdir(hook_folder + action):
+            if script.endswith(app):
+                os.remove(hook_folder + action +'/'+ script)
 
 
 def hook_callback(action, args=None):
