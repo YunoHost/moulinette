@@ -31,19 +31,23 @@ from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize
 
 hook_folder = '/usr/share/yunohost/hooks/'
 
-def hook_add(action, file):
+def hook_add(action, file, name=None):
     """
     Store hook script to filsystem
 
     Keyword argument:
         file -- Script to add
         action -- Action folder to store into
+        name -- Destination name
 
     """
     try: os.listdir(hook_folder + action)
     except OSError: os.makedirs(hook_folder + action)
 
-    os.system('cp '+ file +' '+ hook_folder + action)
+    if name is None:
+        name = ''
+
+    os.system('cp '+ file +' '+ hook_folder + action +'/'+ name)
 
 
 def hook_callback(action, args=None):

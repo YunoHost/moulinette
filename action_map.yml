@@ -818,6 +818,9 @@ hook:
                     help: Action folder to store into
                 file:
                     help: Script to check
+                -n:
+                    full: --name
+                    help: Destination name for the script
 
         ### hook_callback()
         callback:
