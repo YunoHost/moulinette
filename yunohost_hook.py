@@ -29,14 +29,14 @@ import re
 import json
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize
 
-hook_folder = '/user/share/yunohost/hooks/'
+hook_folder = '/usr/share/yunohost/hooks/'
 
 def hook_add(action, file):
     """
     Store hook script to filsystem
 
     Keyword argument:
-        file -- Script to check
+        file -- Script to add
         action -- Action folder to store into
 
     """
@@ -46,20 +46,28 @@ def hook_add(action, file):
     os.system('cp '+ file +' '+ hook_folder + action)
 
 
-def hook_callback(action):
+def hook_callback(action, args=None):
     """
     Execute all scripts binded to an action
 
     Keyword argument:
         action -- Action name
+        args -- Ordered list of arguments to pass to the script
 
     """
     with YunoHostLDAP() as yldap:
         try: os.listdir(hook_folder + action)
-        except OSError: os.makedirs(hook_folder + action)
+        except OSError: pass
+        else:
+            if args is None:
+                args = []
+            elif not isinstance(args, list):
+                args = [args]
 
-        for hook in os.listdir(hook_folder + action):
-            hook_exec(file=hook_folder + action +'/'+ hook)
+            for hook in os.listdir(hook_folder + action):
+                try:
+                    hook_exec(file=hook_folder + action +'/'+ hook, args=args)
+                except: pass
 
 
 def hook_check(file):
@@ -93,34 +101,37 @@ def hook_exec(file, args=None):
 
     """
     with YunoHostLDAP() as yldap:
-        required_args = hook_check(file)
-        if args is None:
-            args = {}
+        if isinstance(args, list):
+            arg_list = args
+        else:
+            required_args = hook_check(file)
+            if args is None:
+                args = {}
 
-        arg_list = []
-        for arg in required_args:
-            if arg['name'] in args:
-                if 'choices' in arg and args[arg['name']] not in arg['choices']:
-                    raise YunoHostError(22, _("Invalid choice") + ': ' + args[arg['name']])
-                arg_list.append(args[arg['name']])
-            else:
-                if os.isatty(1) and 'ask' in arg:
-                    ask_string = arg['ask']['en'] #TODO: I18n
-                    if 'choices' in arg:
-                        ask_string = ask_string +' ('+ '|'.join(arg['choices']) +')'
-                    if 'default' in arg:
-                        ask_string = ask_string +' (default: '+ arg['default'] +')'
-
-                    input_string = raw_input(colorize(ask_string + ': ', 'cyan'))
-
-                    if input_string == '' and 'default' in arg:
-                        input_string = arg['default']
-
-                    arg_list.append(input_string)
-                elif 'default' in arg:
-                    arg_list.append(arg['default'])
+            arg_list = []
+            for arg in required_args:
+                if arg['name'] in args:
+                    if 'choices' in arg and args[arg['name']] not in arg['choices']:
+                        raise YunoHostError(22, _("Invalid choice") + ': ' + args[arg['name']])
+                    arg_list.append(args[arg['name']])
                 else:
-                    raise YunoHostError(22, _("Missing arguments") + ': ' + arg['name'])
+                    if os.isatty(1) and 'ask' in arg:
+                        ask_string = arg['ask']['en'] #TODO: I18n
+                        if 'choices' in arg:
+                            ask_string = ask_string +' ('+ '|'.join(arg['choices']) +')'
+                        if 'default' in arg:
+                            ask_string = ask_string +' (default: '+ arg['default'] +')'
+
+                        input_string = raw_input(colorize(ask_string + ': ', 'cyan'))
+
+                        if input_string == '' and 'default' in arg:
+                            input_string = arg['default']
+
+                        arg_list.append(input_string)
+                    elif 'default' in arg:
+                        arg_list.append(arg['default'])
+                    else:
+                        raise YunoHostError(22, _("Missing arguments") + ': ' + arg['name'])
 
         file_path = "./"
         if "/" in file and file[0:2] != file_path:

@@ -826,6 +826,10 @@ hook:
             arguments:
                 action:
                     help: Action name
+                -a:
+                    full: --args
+                    help: Ordered list of arguments to pass to the script
+                    nargs: '*'
 
         ### hook_check()
         check:

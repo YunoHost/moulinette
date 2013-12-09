@@ -32,6 +32,7 @@ import string
 import getpass
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 from yunohost_domain import domain_list
+from yunohost_hook import hook_callback
 
 def user_list(fields=None, filter=None, limit=None, offset=None):
     """
@@ -116,6 +117,7 @@ def user_create(username, firstname, lastname, mail, password):
 
         if user_added == pwd_changed == 0:
             os.system('yunohost app ssowatconf > /dev/null 2>&1')
+            hook_callback('post_user_create', [username, mail, password, firstname, lastname])
             #TODO: Send a welcome mail to user
             win_msg(_("User successfully created"))
             return { _("Fullname") : firstname +' '+ lastname, _("Username") : username, _("Mail") : mail }
