@@ -29,6 +29,7 @@ import datetime
 import re
 import shutil
 import json
+import yaml
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
@@ -231,12 +232,20 @@ def domain_remove(domains):
             domains = [ domains ]
 
         for domain in domains:
+            # Check if apps are installed on the domain
+            for app in os.listdir('/etc/yunohost/apps/'):
+                with open('/etc/yunohost/apps/' + app +'/settings.yml') as f:
+                    if yaml.load(f)['domain'] == domain:
+                        raise YunoHostError(1, _("One or more apps are installed on this domain, please uninstall them before proceed to domain removal"))
+
             if yldap.remove('virtualdomain=' + domain + ',ou=domains'):
                 try:
                     shutil.rmtree('/etc/yunohost/certs/'+ domain)
                     os.remove('/var/lib/bind/'+ domain +'.zone')
                     shutil.rmtree('/var/lib/metronome/'+ domain.replace('.', '%2e'))
                     os.remove('/etc/metronome/conf.d/'+ domain +'.cfg.lua')
+                    shutil.rmtree('/etc/nginx/conf.d/'+ domain +'.d')
+                    os.remove('/etc/nginx/conf.d/'+ domain +'.conf')
                 except:
                     pass
                 with open('/etc/bind/named.conf.local', 'r') as conf:
@@ -257,6 +266,9 @@ def domain_remove(domains):
                 raise YunoHostError(169, _("An error occured during domain deletion"))
 
         os.system('yunohost app ssowatconf > /dev/null 2>&1')
+        os.system('service nginx reload')
+        os.system('service bind9 reload')
+        os.system('service metronome restart')
 
         win_msg(_("Domain(s) successfully deleted"))
 
