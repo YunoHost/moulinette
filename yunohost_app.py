@@ -295,7 +295,11 @@ def app_upgrade(app, url=None, file=None):
                 manifest = _extract_app_from_file(file)
             elif url:
                 manifest = _fetch_app_from_git(url)
-            elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) or ('update_time' not in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) or ('update_time' in current_app_dict['settings'] and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
+            elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) \
+                  or ('update_time' not in current_app_dict['settings'] \
+                       and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) \
+                  or ('update_time' in current_app_dict['settings'] \
+                       and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
                 manifest = _fetch_app_from_git(app_id)
             else:
                 continue
@@ -314,6 +318,21 @@ def app_upgrade(app, url=None, file=None):
                             for line in lines:
                                 sources.write(re.sub(r''+ original_app_id +'', app_id, line))
 
+                if 'hooks' in os.listdir(app_tmp_folder):
+                    for file in os.listdir(app_tmp_folder +'/hooks'):
+                        #TODO: do it with sed ?
+                        if file[:1] != '.':
+                            with open(app_tmp_folder +'/hooks/'+ file, "r") as sources:
+                                lines = sources.readlines()
+                            with open(app_tmp_folder +'/hooks/'+ file, "w") as sources:
+                                for line in lines:
+                                    sources.write(re.sub(r''+ original_app_id +'', app_id, line))
+
+            # Add hooks
+            if 'hooks' in os.listdir(app_tmp_folder):
+                for file in os.listdir(app_tmp_folder +'/hooks'):
+                    hook_add(app_id, app_tmp_folder +'/hooks/'+ file)
+
             # Execute App upgrade script
             os.system('chown -hR admin: '+ install_tmp)
             if hook_exec(app_tmp_folder +'/scripts/upgrade') != 0:
@@ -323,6 +342,7 @@ def app_upgrade(app, url=None, file=None):
                 app_setting(app_id, 'update_time', int(time.time()))
 
             # Move scripts and manifest to the right place
+            os.system('rm -rf "'+ app_setting_path +'/scripts" "'+ app_setting_path +'/manifest.json"')
             os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
 
             # So much win
