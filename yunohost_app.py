@@ -295,6 +295,8 @@ def app_upgrade(app, url=None, file=None):
                 manifest = _extract_app_from_file(file)
             elif url:
                 manifest = _fetch_app_from_git(url)
+            elif 'lastUpdate' not in new_app_dict or 'git' not in new_app_dict:
+                raise YunoHostError(22, app_id + _(" is a custom app, please provide an URL manually in order to upgrade it"))
             elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) \
                   or ('update_time' not in current_app_dict['settings'] \
                        and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) \
@@ -341,7 +343,7 @@ def app_upgrade(app, url=None, file=None):
             else:
                 app_setting(app_id, 'update_time', int(time.time()))
 
-            # Move scripts and manifest to the right place
+            # Replace scripts and manifest
             os.system('rm -rf "'+ app_setting_path +'/scripts" "'+ app_setting_path +'/manifest.json"')
             os.system('mv "'+ app_tmp_folder +'/manifest.json" "'+ app_tmp_folder +'/scripts" '+ app_setting_path)
 
