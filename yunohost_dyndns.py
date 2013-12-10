@@ -45,6 +45,10 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
         with open('/etc/yunohost/current_host', 'r') as f:
             domain = f.readline().rstrip()
 
+    # Verify if domain is available
+    if requests.get('http://'+ subscribe_host +'/test/'+ domain).status_code != 200:
+        raise YunoHostError(17, _("DynDNS domain is already taken"))
+
     if key is None:
         if len(glob.glob('/etc/yunohost/dyndns/*.key')) == 0:
             os.makedirs('/etc/yunohost/dyndns')
@@ -55,10 +59,6 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
         key_file = glob.glob('/etc/yunohost/dyndns/*.key')[0]
         with open(key_file) as f:
             key = f.readline().strip().split(' ')[-1]
-
-    # Verify if domain is available
-    if requests.get('http://'+ subscribe_host +'/test/'+ domain).status_code != 200:
-        raise YunoHostError(17, _("Domain is already taken"))
 
     # Send subscription
     r = requests.post('http://'+ subscribe_host +'/key/'+ base64.b64encode(key), data={ 'subdomain': domain })

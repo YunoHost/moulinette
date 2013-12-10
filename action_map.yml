@@ -180,6 +180,14 @@ domain:
                     help: Domain name to add
                     nargs: '+'
                     pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                -m:
+                    full: --main
+                    help: Is the main domain
+                    action: store_true
+                -d:
+                    full: --dyndns
+                    help: Subscribe to the DynDNS service
+                    action: store_true
 
         ### domain_remove()
         remove:

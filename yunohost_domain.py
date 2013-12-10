@@ -30,8 +30,10 @@ import re
 import shutil
 import json
 import yaml
+import requests
 from urllib import urlopen
 from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+from yunohost_dyndns import dyndns_subscribe
 
 
 def domain_list(filter=None, limit=None, offset=None):
@@ -66,12 +68,14 @@ def domain_list(filter=None, limit=None, offset=None):
         return { 'Domains': result_list }
 
 
-def domain_add(domains, main=False):
+def domain_add(domains, main=False, dyndns=False):
     """
     Create a custom domain
 
     Keyword argument:
         domains -- Domain name to add
+        main -- Is the main domain
+        dyndns -- Subscribe to DynDNS
 
     """
     with YunoHostLDAP() as yldap:
@@ -88,6 +92,19 @@ def domain_add(domains, main=False):
             try:
                 if domain in domain_list()['Domains']: continue
             except YunoHostError: pass
+
+            # DynDNS domain
+            if dyndns and len(domain.split('.')) >= 3:
+                r = requests.get('http://dyndns.yunohost.org/domains')
+                dyndomains = json.loads(r.text)
+                dyndomain  = '.'.join(domain.split('.')[1:])
+                if dyndomain in dyndomains:
+                    if os.path.exists('/etc/cron.d/yunohost-dyndns'):
+                        raise YunoHostError(22, _("You already have a DynDNS domain"))
+                    else:
+                        dyndns_subscribe(domain=domain)
+
+            # Commands
             ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
             ssl_domain_path  = '/etc/yunohost/certs/'+ domain
             with open(ssl_dir +'/serial', 'r') as f:
