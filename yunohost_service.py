@@ -127,7 +127,8 @@ def service_status(names=None):
             ret = subprocess.check_output(status.split(), stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             # TODO: log error
-            result[name]['status'] = _("inactive")
+            if 'usage:' not in e.output.lower():
+                result[name]['status'] = _("inactive")
         else:
             result[name]['status'] = _("running")
 
