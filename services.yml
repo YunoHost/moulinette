@@ -30,3 +30,9 @@ samba:
 slapd:
    status: service
    log: /var/log/syslog
+php5-fpm:
+   status: service
+   log: /var/log/php5-fpm.log
+yunohost-api:
+   status: service
+   log: /var/log/yunohost.log
