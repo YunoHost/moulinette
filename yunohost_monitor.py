@@ -450,6 +450,14 @@ def _save_stats(stats, period, date=None):
     if not os.path.isdir(stats_path):
         os.makedirs(stats_path)
 
+    # Limit stats
+    if date is None:
+        t = stats['timestamp']
+        limit = { 'day': 86400, 'week': 604800, 'month': 2419200 }
+        if (t[len(t) - 1] - t[0]) > limit[period]:
+            begin = t[len(t) - 1] - limit[period]
+            stats = _filter_stats(stats, begin)
+
     # Write file content
     with open(pkl_file, 'w') as f:
         pickle.dump(stats, f)
@@ -507,7 +515,7 @@ def _filter_stats(stats, t_begin=None, t_end=None):
         if t_begin and i_begin is None and t >= t_begin:
             i_begin = i
         if t_end and i != 0 and i_end is None and t > t_end:
-            i_end = i - 1
+            i_end = i
     # Check indexes
     if i_begin is None:
         if t_begin and t_begin > stats['timestamp'][0]:
@@ -516,8 +524,8 @@ def _filter_stats(stats, t_begin=None, t_end=None):
     if i_end is None:
         if t_end and t_end < stats['timestamp'][0]:
             return None
-        i_end = len(stats['timestamp']) - 1
-    if i_begin == 0 and i_end == (len(stats['timestamp']) - 1):
+        i_end = len(stats['timestamp'])
+    if i_begin == 0 and i_end == len(stats['timestamp']):
         return stats
 
     # Filter function
@@ -526,7 +534,7 @@ def _filter_stats(stats, t_begin=None, t_end=None):
             if isinstance(v, dict):
                 s[k] = _filter(v, i, j)
             elif isinstance(v, list):
-                s[k] = v[i:j] if i != j else [v[i]]
+                s[k] = v[i:j]
         return s
 
     stats = _filter(stats, i_begin, i_end)
