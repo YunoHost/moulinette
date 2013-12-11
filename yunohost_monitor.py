@@ -26,12 +26,12 @@
 import re
 import json
 import time
-import pickle
 import psutil
 import calendar
 import subprocess
 import xmlrpclib
 import os.path
+import cPickle as pickle
 from urllib import urlopen
 from datetime import datetime, timedelta
 from yunohost import YunoHostError
@@ -359,7 +359,7 @@ def _extract_inet(string, skip_netmask=False):
         string -- String to search in
 
     """
-    # TODO: Return IPv4 and IPv6?
+    # TODO: Return IPv4 and IPv6 when available
     ip4 = '((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'
     ip6 = '((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?'
     ip4 += '/[0-9]{1,2})' if not skip_netmask else ')'
