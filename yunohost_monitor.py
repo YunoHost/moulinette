@@ -25,14 +25,19 @@
 """
 import re
 import json
+import time
+import pickle
 import psutil
+import calendar
 import subprocess
 import xmlrpclib
+import os.path
 from urllib import urlopen
 from datetime import datetime, timedelta
 from yunohost import YunoHostError
 
 glances_uri = 'http://127.0.0.1:61209'
+stats_path  = '/var/lib/yunohost/stats'
 
 def monitor_disk(units=None, mountpoint=None, human_readable=False):
     """
@@ -229,6 +234,108 @@ def monitor_system(units=None, human_readable=False):
     return result
 
 
+def monitor_updatestats(period):
+    """
+    Update monitored statistics
+
+    Keyword argument:
+        period -- Time period to update (day, week, month)
+
+    """
+    if period not in ['day', 'week', 'month']:
+        raise YunoHostError(22, _("Invalid period"))
+
+    stats = _retrieve_stats(period)
+    if not stats:
+        stats = { 'disk': {}, 'network': {}, 'system': {}, 'timestamp': [] }
+
+    monitor = None
+    # Get monitored stats
+    if period == 'day':
+        monitor = _monitor_all('day')
+    else:
+        t = stats['timestamp']
+        p = 'day' if period == 'week' else 'week'
+        if len(t) > 0:
+            monitor = _monitor_all(p, t[len(t) - 1])
+        else:
+            monitor = _monitor_all(p, 0)
+    if not monitor:
+        raise YunoHostError(1, _("No monitored statistics to update"))
+
+    stats['timestamp'].append(time.time())
+
+    # Append disk stats
+    for dname, units in monitor['disk'].items():
+        disk = {}
+        # Retrieve current stats for disk name
+        if dname in stats['disk'].keys():
+            disk = stats['disk'][dname]
+
+        for unit, values in units.items():
+            # Continue if unit doesn't contain stats
+            if not isinstance(values, dict):
+                continue
+
+            # Retrieve current stats for unit and append new ones
+            curr = disk[unit] if unit in disk.keys() else {}
+            if unit == 'io':
+                disk[unit] = _append_to_stats(curr, values, 'time_since_update')
+            elif unit == 'filesystem':
+                disk[unit] = _append_to_stats(curr, values, ['fs_type', 'mnt_point'])
+        stats['disk'][dname] = disk
+
+    # Append network stats
+    net_usage = {}
+    for iname, values in monitor['network']['usage'].items():
+        # Continue if units doesn't contain stats
+        if not isinstance(values, dict):
+            continue
+
+        # Retrieve current stats and append new ones
+        curr = {}
+        if 'usage' in stats['network'] and iname in stats['network']['usage']:
+            curr = stats['network']['usage'][iname]
+        net_usage[iname] = _append_to_stats(curr, values, 'time_since_update')
+    stats['network'] = { 'usage': net_usage, 'infos': monitor['network']['infos'] }
+
+    # Append system stats
+    for unit, values in monitor['system'].items():
+        # Continue if units doesn't contain stats
+        if not isinstance(values, dict):
+            continue
+
+        # Set static infos unit
+        if unit == 'infos':
+            stats['system'][unit] = values
+            continue
+
+        # Retrieve current stats and append new ones
+        curr = stats['system'][unit] if unit in stats['system'].keys() else {}
+        stats['system'][unit] = _append_to_stats(curr, values)
+
+    _save_stats(stats, period)
+
+
+def monitor_showstats(period, date=None):
+    """
+    Show monitored statistics
+
+    Keyword argument:
+        period -- Time period to show (day, week, month)
+
+    """
+    if period not in ['day', 'week', 'month']:
+        raise YunoHostError(22, _("Invalid period"))
+
+    result = _retrieve_stats(period, date)
+    if result is False:
+        raise YunoHostError(167, _("Stats file not found"))
+    elif result is None:
+        raise YunoHostError(1, _("No available stats for the given period"))
+    return result
+
+
 def _get_glances_api():
     """
     Retrieve Glances API running on the local server
@@ -292,3 +399,204 @@ def _binary_to_human(n, customary=False):
             value = float(n) / prefix[s]
             return '%.1f%s' % (value, s)
     return "%s" % n
+
+
+def _retrieve_stats(period, date=None):
+    """
+    Retrieve statistics from pickle file
+
+    Keyword argument:
+        period -- Time period to retrieve (day, week, month)
+        date -- Date of stats to retrieve
+
+    """
+    pkl_file = None
+
+    # Retrieve pickle file
+    if date is not None:
+        timestamp = calendar.timegm(date)
+        pkl_file = '%s/%d_%s.pkl' % (stats_path, timestamp, period)
+    else:
+        pkl_file = '%s/%s.pkl' % (stats_path, period)
+    if not os.path.isfile(pkl_file):
+        return False
+
+    # Read file and process its content
+    with open(pkl_file, 'r') as f:
+        result = pickle.load(f)
+    if not isinstance(result, dict):
+        return None
+    return result
+
+
+def _save_stats(stats, period, date=None):
+    """
+    Save statistics to pickle file
+
+    Keyword argument:
+        stats -- Stats dict to save
+        period -- Time period of stats (day, week, month)
+        date -- Date of stats
+
+    """
+    pkl_file = None
+
+    # Set pickle file name
+    if date is not None:
+        timestamp = calendar.timegm(date)
+        pkl_file = '%s/%d_%s.pkl' % (stats_path, timestamp, period)
+    else:
+        pkl_file = '%s/%s.pkl' % (stats_path, period)
+    if not os.path.isdir(stats_path):
+        os.makedirs(stats_path)
+
+    # Limit stats
+    if date is None:
+        t = stats['timestamp']
+        limit = { 'day': 86400, 'week': 604800, 'month': 2419200 }
+        if (t[len(t) - 1] - t[0]) > limit[period]:
+            begin = t[len(t) - 1] - limit[period]
+            stats = _filter_stats(stats, begin)
+
+    # Write file content
+    with open(pkl_file, 'w') as f:
+        pickle.dump(stats, f)
+    return True
+
+
+def _monitor_all(period=None, since=None):
+    """
+    Monitor all units (disk, network and system) for the given period
+    If since is None, real-time monitoring is returned. Otherwise, the
+    mean of stats since this timestamp is calculated and returned.
+
+    Keyword argument:
+        period -- Time period to monitor (day, week, month)
+        since -- Timestamp of the stats beginning
+
+    """
+    result = { 'disk': {}, 'network': {}, 'system': {} }
+
+    # Real-time stats
+    if period == 'day' and since is None:
+        result['disk'] = monitor_disk()
+        result['network'] = monitor_network()
+        result['system'] = monitor_system()
+        return result
+
+    # Retrieve stats and calculate mean
+    stats = _retrieve_stats(period)
+    if not stats:
+        return None
+    stats = _filter_stats(stats, since)
+    if not stats:
+        return None
+    result = _calculate_stats_mean(stats)
+
+    return result
+
+
+def _filter_stats(stats, t_begin=None, t_end=None):
+    """
+    Filter statistics by beginning and/or ending timestamp
+
+    Keyword argument:
+        stats -- Dict stats to filter
+        t_begin -- Beginning timestamp
+        t_end -- Ending timestamp
+
+    """
+    if t_begin is None and t_end is None:
+        return stats
+
+    i_begin = i_end = None
+    # Look for indexes of timestamp interval
+    for i, t in enumerate(stats['timestamp']):
+        if t_begin and i_begin is None and t >= t_begin:
+            i_begin = i
+        if t_end and i != 0 and i_end is None and t > t_end:
+            i_end = i
+    # Check indexes
+    if i_begin is None:
+        if t_begin and t_begin > stats['timestamp'][0]:
+            return None
+        i_begin = 0
+    if i_end is None:
+        if t_end and t_end < stats['timestamp'][0]:
+            return None
+        i_end = len(stats['timestamp'])
+    if i_begin == 0 and i_end == len(stats['timestamp']):
+        return stats
+
+    # Filter function
+    def _filter(s, i, j):
+        for k, v in s.items():
+            if isinstance(v, dict):
+                s[k] = _filter(v, i, j)
+            elif isinstance(v, list):
+                s[k] = v[i:j]
+        return s
+
+    stats = _filter(stats, i_begin, i_end)
+    return stats
+
+
+def _calculate_stats_mean(stats):
+    """
+    Calculate the weighted mean for each statistic
+
+    Keyword argument:
+        stats -- Stats dict to process
+
+    """
+    timestamp = stats['timestamp']
+    t_sum = sum(timestamp)
+    del stats['timestamp']
+
+    # Weighted mean function
+    def _mean(s, t, ts):
+        for k, v in s.items():
+            if isinstance(v, dict):
+                s[k] = _mean(v, t, ts)
+            elif isinstance(v, list):
+                nums = [ float(x * t[i]) for i, x in enumerate(v) ]
+                s[k] = sum(nums) / float(ts)
+        return s
+
+    stats = _mean(stats, timestamp, t_sum)
+    return stats
+
+
+def _append_to_stats(stats, monitor, statics=[]):
+    """
+    Append monitored statistics to current statistics
+
+    Keyword argument:
+        stats -- Current stats dict
+        monitor -- Monitored statistics
+        statics -- List of stats static keys
+
+    """
+    if isinstance(statics, str):
+        statics = [statics]
+
+    # Appending function
+    def _append(s, m, st):
+        for k, v in m.items():
+            if k in st:
+                s[k] = v
+            elif isinstance(v, dict):
+                if k not in s:
+                    s[k] = {}
+                s[k] = _append(s[k], v, st)
+            else:
+                if k not in s:
+                    s[k] = []
+                if isinstance(v, list):
+                    s[k].extend(v)
+                else:
+                    s[k].append(v)
+        return s
+
+    stats = _append(stats, monitor, statics)
+    return stats

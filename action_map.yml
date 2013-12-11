@@ -460,6 +460,7 @@ monitor:
         ### monitor_disk()
         disk:
             action_help: Monitor disk space and usage
+            api: GET /monitor/disk
             arguments:
                 -f:
                     full: --filesystem
@@ -485,6 +486,7 @@ monitor:
         ### monitor_network()
         network:
             action_help: Monitor network interfaces
+            api: GET /monitor/network
             arguments:
                 -u:
                     full: --usage
@@ -506,6 +508,7 @@ monitor:
         ### monitor_system()
         system:
             action_help: Monitor system informations and usage
+            api: GET /monitor/system
             arguments:
                 -m:
                     full: --memory
@@ -541,6 +544,30 @@ monitor:
                     full: --human-readable
                     help: Print sizes in human readable format
                     action: store_true
+
+        ### monitor_updatestats()
+        updatestats:
+            action_help: Update monitored statistics
+            api: POST /monitor/updatestats
+            arguments:
+                period:
+                    help: Time period to update
+                    choices:
+                        - day
+                        - week
+                        - month
+
+        ### monitor_showstats()
+        showstats:
+            action_help: Show monitored statistics
+            api: GET /monitor/showstats
+            arguments:
+                period:
+                    help: Time period to show
+                    choices:
+                        - day
+                        - week
+                        - month
 
 
 #############################
