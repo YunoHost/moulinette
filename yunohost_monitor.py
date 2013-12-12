@@ -152,20 +152,20 @@ def monitor_network(units=None, human_readable=False):
             try:
                 p_ip = str(urlopen('http://ip.yunohost.org').read())
             except:
-                raise YunoHostError(1, _("Public IP resolution failed"))
+                p_ip = 'unknown'
 
-            l_ip = None
+            l_ip = 'unknown'
             for name, addrs in devices.items():
                 if name == 'lo':
                     continue
                 if len(devices) == 2:
                     l_ip = _extract_inet(addrs)
                 else:
-                    if l_ip is None:
+                    if not isinstance(l_ip, dict):
                         l_ip = {}
                     l_ip[name] = _extract_inet(addrs)
 
-            gateway = None
+            gateway = 'unknown'
             output = subprocess.check_output('ip route show'.split())
             m = re.search('default via (.*) dev ([a-z]+[0-9]?)', output)
             if m:
@@ -359,23 +359,27 @@ def _extract_inet(string, skip_netmask=False):
         string -- String to search in
 
     """
-    # TODO: Return IPv4 and IPv6 when available
     ip4 = '((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'
-    ip6 = '((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?'
+    ip6 = '(((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)'
     ip4 += '/[0-9]{1,2})' if not skip_netmask else ')'
     ip6 += '/[0-9]{1,2})' if not skip_netmask else ')'
 
     ip4_prog = re.compile(ip4)
     ip6_prog = re.compile(ip6)
+    result = []
 
     m = ip4_prog.search(string)
     if m:
-        return m.group(1)
+        result.append(m.group(1))
 
     m = ip6_prog.search(string)
     if m:
-        return m.group(1)
+        result.append(m.group(1))
 
+    if len(result) > 1:
+        return result
+    elif len(result) == 1:
+        return result[0]
     return None
 
 
