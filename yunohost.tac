@@ -244,7 +244,7 @@ def main():
             api.register(method, path, http_exec)
             api.register('OPTIONS', path, http_exec)
             action_dict[action_params['api']] = {
-                'function': 'yunohost_'+ category +'.'+ category +'_'+ action,
+                'function': 'yunohost_'+ category +'.'+ category +'_'+ action.replace('-', '_'),
                 'help'    : action_params['action_help']
             }
             if 'arguments' in action_params:

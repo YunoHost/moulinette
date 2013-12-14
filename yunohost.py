@@ -490,7 +490,7 @@ def parse_dict(action_map):
                 # Set the action s related function
                 parsers[category + '_' + action].set_defaults(
                     func=str_to_func('yunohost_' + category + '.'
-                                     + category + '_' + action))
+                                     + category + '_' + action.replace('-', '_')))
                 # Add arguments
                 if 'arguments' in action_params:
                     for arg_name, arg_params in action_params['arguments'].items():
