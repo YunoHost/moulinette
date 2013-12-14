@@ -539,7 +539,7 @@ monitor:
 
         ### monitor_updatestats()
         updatestats:
-            action_help: Update monitored statistics
+            action_help: Update monitoring statistics
             api: POST /monitor/updatestats
             arguments:
                 period:
@@ -551,7 +551,7 @@ monitor:
 
         ### monitor_showstats()
         showstats:
-            action_help: Show monitored statistics
+            action_help: Show monitoring statistics
             api: GET /monitor/showstats
             arguments:
                 period:

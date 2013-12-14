@@ -236,7 +236,7 @@ def monitor_system(units=None, human_readable=False):
 
 def monitor_updatestats(period):
     """
-    Update monitored statistics
+    Update monitoring statistics
 
     Keyword argument:
         period -- Time period to update (day, week, month)
@@ -250,7 +250,7 @@ def monitor_updatestats(period):
         stats = { 'disk': {}, 'network': {}, 'system': {}, 'timestamp': [] }
 
     monitor = None
-    # Get monitored stats
+    # Get monitoring stats
     if period == 'day':
         monitor = _monitor_all('day')
     else:
@@ -261,7 +261,7 @@ def monitor_updatestats(period):
         else:
             monitor = _monitor_all(p, 0)
     if not monitor:
-        raise YunoHostError(1, _("No monitored statistics to update"))
+        raise YunoHostError(1, _("No monitoring statistics to update"))
 
     stats['timestamp'].append(time.time())
 
@@ -319,7 +319,7 @@ def monitor_updatestats(period):
 
 def monitor_showstats(period, date=None):
     """
-    Show monitored statistics
+    Show monitoring statistics
 
     Keyword argument:
         period -- Time period to show (day, week, month)
@@ -573,11 +573,11 @@ def _calculate_stats_mean(stats):
 
 def _append_to_stats(stats, monitor, statics=[]):
     """
-    Append monitored statistics to current statistics
+    Append monitoring statistics to current statistics
 
     Keyword argument:
         stats -- Current stats dict
-        monitor -- Monitored statistics
+        monitor -- Monitoring statistics
         statics -- List of stats static keys
 
     """
