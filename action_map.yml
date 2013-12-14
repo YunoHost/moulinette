@@ -538,9 +538,9 @@ monitor:
                     action: store_true
 
         ### monitor_updatestats()
-        updatestats:
+        update-stats:
             action_help: Update monitoring statistics
-            api: POST /monitor/updatestats
+            api: POST /monitor/update-stats
             arguments:
                 period:
                     help: Time period to update
@@ -550,9 +550,9 @@ monitor:
                         - month
 
         ### monitor_showstats()
-        showstats:
+        show-stats:
             action_help: Show monitoring statistics
-            api: GET /monitor/showstats
+            api: GET /monitor/show-stats
             arguments:
                 period:
                     help: Time period to show

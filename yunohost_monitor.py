@@ -234,7 +234,7 @@ def monitor_system(units=None, human_readable=False):
     return result
 
 
-def monitor_updatestats(period):
+def monitor_update_stats(period):
     """
     Update monitoring statistics
 
@@ -317,7 +317,7 @@ def monitor_updatestats(period):
     _save_stats(stats, period)
 
 
-def monitor_showstats(period, date=None):
+def monitor_show_stats(period, date=None):
     """
     Show monitoring statistics
 
