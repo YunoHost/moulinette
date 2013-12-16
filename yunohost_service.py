@@ -38,6 +38,8 @@ def service_start(names):
         names -- Services name to start
 
     """
+    if isinstance(names, str):
+        names = [names]
     for name in names:
         if _run_service_command('start', name):
             win_msg(_("'%s' service started") % name)
@@ -53,6 +55,8 @@ def service_stop(names):
         name -- Services name to stop
 
     """
+    if isinstance(names, str):
+        names = [names]
     for name in names:
         if _run_service_command('stop', name):
             win_msg(_("'%s' service stopped") % name)
@@ -68,6 +72,8 @@ def service_enable(names):
         names -- Services name to enable
 
     """
+    if isinstance(names, str):
+        names = [names]
     for name in names:
         if _run_service_command('enable', name):
             win_msg(_("'%s' service enabled") % name)
@@ -83,6 +89,8 @@ def service_disable(names):
         names -- Services name to disable
 
     """
+    if isinstance(names, str):
+        names = [names]
     for name in names:
         if _run_service_command('disable', name):
             win_msg(_("'%s' service disabled") % name)
@@ -90,7 +98,7 @@ def service_disable(names):
             raise YunoHostError(1, _("Service disabling failed for '%s'") % name)
 
 
-def service_status(names=None):
+def service_status(names=[]):
     """
     Show status information about one or more services (all by default)
 
@@ -102,7 +110,9 @@ def service_status(names=None):
     check_names = True
     result = {}
 
-    if names is None or len(names) == 0:
+    if isinstance(names, str):
+        names = [names]
+    elif len(names) == 0:
         names = services.keys()
         check_names = False
 
@@ -141,6 +151,8 @@ def service_status(names=None):
         else:
             result[name]['loaded'] = _("not-found")
 
+    if len(names) == 1:
+        return result[names[0]]
     return result
 
 
