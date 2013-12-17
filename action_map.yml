@@ -561,6 +561,19 @@ monitor:
                         - week
                         - month
 
+        ### monitor_enable()
+        enable:
+            action_help: Enable server monitoring
+            arguments:
+                -n:
+                    full: --no-stats
+                    help: Disable monitoring statistics
+                    action: store_true
+
+        ### monitor_disable()
+        disable:
+            action_help: Disable server monitoring
+
 
 #############################
 #         Service           #
