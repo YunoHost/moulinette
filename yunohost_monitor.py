@@ -34,10 +34,13 @@ import os.path
 import cPickle as pickle
 from urllib import urlopen
 from datetime import datetime, timedelta
-from yunohost import YunoHostError
+from yunohost import YunoHostError, win_msg
+from yunohost_service import (service_enable, service_disable,
+    service_start, service_stop, service_status)
 
-glances_uri = 'http://127.0.0.1:61209'
-stats_path  = '/var/lib/yunohost/stats'
+glances_uri  = 'http://127.0.0.1:61209'
+stats_path   = '/var/lib/yunohost/stats'
+crontab_path = '/etc/cron.d/yunohost-monitor'
 
 def monitor_disk(units=None, mountpoint=None, human_readable=False):
     """
@@ -336,6 +339,60 @@ def monitor_show_stats(period, date=None):
     return result
 
 
+def monitor_enable(no_stats=False):
+    """
+    Enable server monitoring
+
+    Keyword argument:
+        no_stats -- Disable monitoring statistics
+
+    """
+    glances = service_status('glances')
+    if glances['status'] != 'running':
+        service_start('glances')
+    if glances['loaded'] != 'enabled':
+        try:
+            service_enable('glances')
+        except:
+            # TODO: log error
+            pass
+
+    # Install crontab
+    if not no_stats:
+        cmd = 'yunohost monitor update-stats'
+        rules = ('*/5 * * * * root %(cmd)s day --no-ldap >> /dev/null\n' + \
+                 '0 * * * * root %(cmd)s week --no-ldap >> /dev/null\n' + \
+                 '* */4 * * * root %(cmd)s month --no-ldap >> /dev/null') % {'cmd': cmd}
+        os.system("touch %s" % crontab_path)
+        os.system("echo '%s' >%s" % (rules, crontab_path))
+
+    win_msg(_("Server monitoring enabled"))
+
+
+def monitor_disable():
+    """
+    Disable server monitoring
+
+    """
+    glances = service_status('glances')
+    if glances['status'] != 'inactive':
+        service_stop('glances')
+    if glances['loaded'] != 'disabled':
+        try:
+            service_disable('glances')
+        except:
+            # TODO: log error
+            pass
+
+    # Remove crontab
+    try:
+        os.remove(crontab_path)
+    except:
+        pass
+
+    win_msg(_("Server monitoring disabled"))
+
+
 def _get_glances_api():
     """
     Retrieve Glances API running on the local server
@@ -345,10 +402,13 @@ def _get_glances_api():
         p = xmlrpclib.ServerProxy(glances_uri)
         p.system.methodHelp('getAll')
     except (xmlrpclib.ProtocolError, IOError):
-        # TODO: Try to start Glances service
-        raise YunoHostError(1, _("Connection to Glances server failed"))
+        pass
+    else:
+        return p
 
-    return p
+    if service_status('glances')['status'] != 'running':
+        raise YunoHostError(1, _("Monitoring is disabled"))
+    raise YunoHostError(1, _("Connection to Glances server failed"))
 
 
 def _extract_inet(string, skip_netmask=False):
@@ -563,8 +623,12 @@ def _calculate_stats_mean(stats):
             if isinstance(v, dict):
                 s[k] = _mean(v, t, ts)
             elif isinstance(v, list):
-                nums = [ float(x * t[i]) for i, x in enumerate(v) ]
-                s[k] = sum(nums) / float(ts)
+                try:
+                    nums = [ float(x * t[i]) for i, x in enumerate(v) ]
+                except:
+                    pass
+                else:
+                    s[k] = sum(nums) / float(ts)
         return s
 
     stats = _mean(stats, timestamp, t_sum)

@@ -22,6 +22,26 @@
 """
     YunoHost core classes & functions
 """
+
+__credits__ = """
+    Copyright (C) 2012 YunoHost
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program; if not, see http://www.gnu.org/licenses
+    """
+__author__  = 'Kload <kload@kload.fr>'
+__version__ = '2.0-beta3'
+
 import os
 import sys
 try:
@@ -468,10 +488,13 @@ def parse_dict(action_map):
 
     # Add general arguments
     for arg_name, arg_params in action_map['general_arguments'].items():
+        if 'version' in arg_params:
+            v = arg_params['version']
+            arg_params['version'] = v.replace('%version%', __version__)
         if 'full' in arg_params:
-             arg_names = [arg_name, arg_params['full']]
-             arg_fullname = arg_params['full']
-             del arg_params['full']
+            arg_names = [arg_name, arg_params['full']]
+            arg_fullname = arg_params['full']
+            del arg_params['full']
         else: arg_names = [arg_name]
         parsers['general'].add_argument(*arg_names, **arg_params)
 

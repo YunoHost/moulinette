@@ -39,7 +39,7 @@ general_arguments:
             full: --version
             help: Display YunoHost version
             action: version
-            version: YunoHost 2.0 beta1
+            version: YunoHost %version%
 
 #############################
 #           User            #
@@ -568,6 +568,19 @@ monitor:
                         - day
                         - week
                         - month
+
+        ### monitor_enable()
+        enable:
+            action_help: Enable server monitoring
+            arguments:
+                -n:
+                    full: --no-stats
+                    help: Disable monitoring statistics
+                    action: store_true
+
+        ### monitor_disable()
+        disable:
+            action_help: Disable server monitoring
 
 
 #############################
