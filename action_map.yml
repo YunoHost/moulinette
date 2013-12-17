@@ -39,7 +39,7 @@ general_arguments:
             full: --version
             help: Display YunoHost version
             action: version
-            version: YunoHost 2.0 beta1
+            version: YunoHost %version%
 
 #############################
 #           User            #
