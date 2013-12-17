@@ -563,8 +563,12 @@ def _calculate_stats_mean(stats):
             if isinstance(v, dict):
                 s[k] = _mean(v, t, ts)
             elif isinstance(v, list):
-                nums = [ float(x * t[i]) for i, x in enumerate(v) ]
-                s[k] = sum(nums) / float(ts)
+                try:
+                    nums = [ float(x * t[i]) for i, x in enumerate(v) ]
+                except:
+                    pass
+                else:
+                    s[k] = sum(nums) / float(ts)
         return s
 
     stats = _mean(stats, timestamp, t_sum)
