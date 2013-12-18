@@ -24,9 +24,6 @@ ssh:
 metronome:
    status: metronomectl status
    log: [/var/log/metronome/metronome.log,/var/log/metronome/metronome.err]
-samba:
-   status: service
-   log: [/var/log/samba/log.smbd,/var/log/samba/log.nmbd]
 slapd:
    status: service
    log: /var/log/syslog

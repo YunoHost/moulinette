@@ -65,29 +65,11 @@ def tools_ldapinit(password=None):
             'uidNumber': '1007',
             'homeDirectory': '/home/admin',
             'loginShell': '/bin/bash',
-            'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject']
+            'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject'],
+            'userPassword': 'yunohost'
         }
 
         yldap.update('cn=admin', admin_dict)
-
-    os.system('rm /etc/smbldap-tools/smbldap_bind.conf')
-    with open('/etc/smbldap-tools/smbldap_bind.conf', 'w') as f:
-        lines = [
-            'masterDN="cn=admin,dc=yunohost,dc=org"',
-            'slaveDN="cn=admin,dc=yunohost,dc=org"',
-            'masterPw="yunohost"',
-            'slavePw="yunohost"'
-        ]
-
-        for line in lines:
-            f.write(line +'\n')
-
-    os.system('chmod 600 /etc/smbldap-tools/smbldap_bind.conf')
-    os.system('smbpasswd -w yunohost')
-    sid = subprocess.check_output(['net', 'getlocalsid', 'YUNOHOST']).strip().split(':')[1][1:]
-    os.system('echo \'SID="'+ sid +'"\' >> /etc/smbldap-tools/smbldap.conf')
-    if password is not None:
-        os.system('echo "'+ password +'\n'+ password +'" | smbldap-populate')
 
     win_msg(_("LDAP has been successfully initialized"))
 
@@ -105,24 +87,13 @@ def tools_adminpw(old_password, new_password):
     if len(new_password) < 4:
         raise YunoHostError(22, _("Password is too short"))
 
-    result  = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ old_password +'" -a "'+ old_password +'" -s "' + new_password + '"')
-    result2 = os.system('smbpasswd -w "'+ new_password + '"')
+    old_password.replace('"', '\\"')
+    old_password.replace('&', '\\&')
+    new_password.replace('"', '\\"')
+    new_password.replace('&', '\\&')
+    result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ old_password +'" -a "'+ old_password +'" -s "' + new_password + '"')
 
-    os.system('rm /etc/smbldap-tools/smbldap_bind.conf')
-    with open('/etc/smbldap-tools/smbldap_bind.conf', 'w') as f:
-        lines = [
-            'masterDN="cn=admin,dc=yunohost,dc=org"',
-            'slaveDN="cn=admin,dc=yunohost,dc=org"',
-            'masterPw="'+ new_password +'"',
-            'slavePw="'+ new_password +'"'
-        ]
-
-        for line in lines:
-            f.write(line +'\n')
-
-    os.system('chmod 600 /etc/smbldap-tools/smbldap_bind.conf')
-
-    if result == result2 == 0:
+    if result == 0:
         win_msg(_("Admin password has been changed"))
     else:
         raise YunoHostError(22, _("Invalid password"))
@@ -233,7 +204,6 @@ def tools_postinstall(domain, password, dyndns=False):
         '/etc/yunohost/apps',
         '/etc/yunohost/certs',
         '/var/cache/yunohost/repo',
-        '/home/yunohost.samba',
         '/home/yunohost.backup',
         '/home/yunohost.app'
     ]
@@ -255,14 +225,9 @@ def tools_postinstall(domain, password, dyndns=False):
                 os.system('service dspam stop')
                 os.system('update-rc.d dspam remove')
                 os.system('sed -i "s/yes/no/g" /etc/default/dspam')
-                os.system('apt-get install -y -qq samba yunohost-config-amavis')
+                os.system('apt-get install -y -qq yunohost-config-amavis')
                 os.system('service amavis start')
                 os.system('apt-get install --reinstall -y -qq yunohost-config-postfix yunohost-config-dovecot')
-
-    # Samba sh*t fix
-    if os.system('net getlocalsid > /dev/null 2>&1') != 0:
-        os.system('apt-get install --reinstall -y -qq samba yunohost-config-samba')
-        os.system('smbpasswd -w yunohost')
 
     # Create SSL CA
     ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
@@ -299,7 +264,6 @@ def tools_postinstall(domain, password, dyndns=False):
         tools_adminpw(old_password='yunohost', new_password=password)
 
         os.system('touch /etc/yunohost/installed')
-        os.system('service samba restart')
         os.system('service yunohost-api restart &')
 
     win_msg(_("YunoHost has been successfully configured"))
