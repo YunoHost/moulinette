@@ -164,6 +164,9 @@ def domain_add(domains, main=False, dyndns=False):
                 with open('/var/lib/bind/' + domain + '.zone', 'w') as zone:
                     for line in zone_lines:
                         zone.write(line + '\n')
+
+                os.system('chown bind /var/lib/bind/' + domain + '.zone')
+
             else:
                 raise YunoHostError(17, _("Zone file already exists for ") + domain)
 
