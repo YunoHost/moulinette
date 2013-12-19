@@ -80,8 +80,12 @@ def app_fetchlist(url=None, name=None):
     else:
         if name is None: raise YunoHostError(22, _("You must indicate a name for your custom list"))
 
-    if os.system('wget "'+ url +'" -O "'+ repo_path +'/'+ name +'.json"') != 0:
+    list_file = repo_path +'/'+ name +'.json'
+    if os.system('wget "'+ url +'" -O "'+ list_file +'.tmp"') != 0:
         raise YunoHostError(1, _("List server connection failed"))
+
+    # Rename fetched temp list
+    os.rename(list_file +'.tmp', list_file)
 
     os.system("touch /etc/cron.d/yunohost-applist-"+ name)
     os.system("echo '00 00 * * * root yunohost app fetchlist -u "+ url +" -n "+ name +" --no-ldap >> /dev/null' >/etc/cron.d/yunohost-applist-"+ name)
@@ -306,6 +310,10 @@ def app_upgrade(app, url=None, file=None):
             else:
                 continue
 
+            # Check min version
+            if 'min_version' in manifest and __version__ < manifest['min_version']:
+                raise YunoHostError(1, app_id + _(" requires a more recent version of the moulinette"))
+
             app_setting_path = apps_setting_path +'/'+ app_id
 
             if original_app_id != app_id:
@@ -379,6 +387,10 @@ def app_install(app, label=None, args=None):
             manifest = _fetch_app_from_git(app)
         else:
             manifest = _extract_app_from_file(app)
+
+        # Check min version
+        if 'min_version' in manifest and __version__ < manifest['min_version']:
+            raise YunoHostError(1, _("App requires a more recent version of the moulinette"))
 
         # Check ID
         if 'id' not in manifest or '__' in manifest['id']:
