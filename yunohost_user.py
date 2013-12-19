@@ -144,6 +144,7 @@ def user_create(username, firstname, lastname, mail, password):
 
         if yldap.add(rdn, attr_dict):
             os.system("su - " + username + " -c ''")
+            os.system('yunohost app ssowatconf > /dev/null 2>&1')
             #TODO: Send a welcome mail to user
             win_msg(_("User successfully created"))
             hook_callback('post_user_create', [username, mail, password, firstname, lastname])
