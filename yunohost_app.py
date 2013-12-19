@@ -310,6 +310,10 @@ def app_upgrade(app, url=None, file=None):
             else:
                 continue
 
+            # Check min version
+            if 'min_version' in manifest and __version__ < manifest['min_version']:
+                raise YunoHostError(1, app_id + _(" requires a more recent version of the moulinette"))
+
             app_setting_path = apps_setting_path +'/'+ app_id
 
             if original_app_id != app_id:
@@ -383,6 +387,10 @@ def app_install(app, label=None, args=None):
             manifest = _fetch_app_from_git(app)
         else:
             manifest = _extract_app_from_file(app)
+
+        # Check min version
+        if 'min_version' in manifest and __version__ < manifest['min_version']:
+            raise YunoHostError(1, _("App requires a more recent version of the moulinette"))
 
         # Check ID
         if 'id' not in manifest or '__' in manifest['id']:
