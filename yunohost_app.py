@@ -80,8 +80,12 @@ def app_fetchlist(url=None, name=None):
     else:
         if name is None: raise YunoHostError(22, _("You must indicate a name for your custom list"))
 
-    if os.system('wget "'+ url +'" -O "'+ repo_path +'/'+ name +'.json"') != 0:
+    list_file = repo_path +'/'+ name +'.json'
+    if os.system('wget "'+ url +'" -O "'+ list_file +'.tmp"') != 0:
         raise YunoHostError(1, _("List server connection failed"))
+
+    # Rename fetched temp list
+    os.rename(list_file +'.tmp', list_file)
 
     os.system("touch /etc/cron.d/yunohost-applist-"+ name)
     os.system("echo '00 00 * * * root yunohost app fetchlist -u "+ url +" -n "+ name +" --no-ldap >> /dev/null' >/etc/cron.d/yunohost-applist-"+ name)
