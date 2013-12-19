@@ -40,7 +40,7 @@ __credits__ = """
     along with this program; if not, see http://www.gnu.org/licenses
     """
 __author__  = 'Kload <kload@kload.fr>'
-__version__ = '2.0-beta3'
+__version__ = '695'
 
 import os
 import sys

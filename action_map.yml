@@ -37,9 +37,9 @@
 general_arguments:
         -v:
             full: --version
-            help: Display YunoHost version
+            help: Display moulinette version
             action: version
-            version: YunoHost %version%
+            version: moulinette %version%
 
 #############################
 #           User            #

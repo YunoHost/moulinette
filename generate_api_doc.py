@@ -28,7 +28,7 @@ import sys
 import yaml
 import json
 import requests
-from yunohost import str_to_func
+from yunohost import str_to_func, __version__
 
 def main():
     """
@@ -47,7 +47,7 @@ def main():
         action_map = yaml.load(f)
 
     resource_list = {
-        'apiVersion': '0.1',
+        'apiVersion': __version__,
         'swaggerVersion': '1.1',
         'basePath': 'http://'+ domain + ':6767',
         'apis': []
@@ -64,7 +64,7 @@ def main():
             'description': category_params['category_help']
         })
         resources[category] = {
-            'apiVersion': '0.1',
+            'apiVersion': __version__,
             'swaggerVersion': '1.1',
             'basePath': 'http://'+ domain + ':6767',
             'apis': []
