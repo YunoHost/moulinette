@@ -66,10 +66,12 @@ def hook_remove(app):
         app -- Scripts related to app will be removed
 
     """
-    for action in os.listdir(hook_folder):
-        for script in os.listdir(hook_folder + action):
-            if script.endswith(app):
-                os.remove(hook_folder + action +'/'+ script)
+    try:
+        for action in os.listdir(hook_folder):
+            for script in os.listdir(hook_folder + action):
+                if script.endswith(app):
+                    os.remove(hook_folder + action +'/'+ script)
+    except OSError: pass
 
 
 def hook_callback(action, args=None):
