@@ -82,6 +82,7 @@ def app_fetchlist(url=None, name=None):
 
     list_file = repo_path +'/'+ name +'.json'
     if os.system('wget "'+ url +'" -O "'+ list_file +'.tmp"') != 0:
+        os.remove(list_file +'.tmp')
         raise YunoHostError(1, _("List server connection failed"))
 
     # Rename fetched temp list
@@ -312,7 +313,7 @@ def app_upgrade(app, url=None, file=None):
 
             # Check min version
             if 'min_version' in manifest and __version__ < manifest['min_version']:
-                raise YunoHostError(1, app_id + _(" requires a more recent version of the moulinette"))
+                raise YunoHostError(1, _("%s requires a more recent version of the moulinette") % app_id)
 
             app_setting_path = apps_setting_path +'/'+ app_id
 
@@ -388,15 +389,15 @@ def app_install(app, label=None, args=None):
         else:
             manifest = _extract_app_from_file(app)
 
-        # Check min version
-        if 'min_version' in manifest and __version__ < manifest['min_version']:
-            raise YunoHostError(1, _("App requires a more recent version of the moulinette"))
-
         # Check ID
         if 'id' not in manifest or '__' in manifest['id']:
             raise YunoHostError(22, _("App id is invalid"))
 
         app_id = manifest['id']
+
+        # Check min version
+        if 'min_version' in manifest and __version__ < manifest['min_version']:
+            raise YunoHostError(1, _("%s requires a more recent version of the moulinette") % app_id)
 
         # Check if app can be forked
         instance_number = _installed_instance_number(app_id, last=True) + 1
