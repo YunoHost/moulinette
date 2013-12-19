@@ -81,8 +81,6 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
 
                     result_list.append(entry)
                     i += 1
-        else:
-            raise YunoHostError(167, _("No user found"))
 
     return { 'Users' : result_list }
 
