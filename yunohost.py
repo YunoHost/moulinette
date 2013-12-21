@@ -105,7 +105,9 @@ def pretty_print_dict(d, depth=0):
                 else:
                     print(("  ") * (depth+1) + "- " +str(value))
         else:
-            print(("  ") * depth + "%s: %s" % (str(k), str(v)))
+            if not isinstance(v, basestring):
+                v = str(v)
+            print(("  ") * depth + "%s: %s" % (str(k), v))
 
 def is_true(arg):
     true_list = ['yes', 'Yes', 'true', 'True' ]
