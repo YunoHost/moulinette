@@ -609,7 +609,7 @@ def app_removeaccess(apps, users):
 
 def app_setting(app, key, value=None, delete=False):
     """
-    Set ou get an app setting value
+    Set or get an app setting value
 
     Keyword argument:
         value -- Value to set
