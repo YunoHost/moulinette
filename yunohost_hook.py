@@ -113,8 +113,8 @@ def hook_check(file):
         raise YunoHostError(22, _("Invalid app package"))
 
     action = file[file.index('scripts/') + 8:]
-    if action in manifest["arguments"]:
-        return manifest["arguments"][action]
+    if 'arguments' in manifest and action in manifest['arguments']:
+        return manifest['arguments'][action]
     else:
         return {}
 
