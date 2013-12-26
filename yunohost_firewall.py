@@ -137,10 +137,14 @@ def firewall_reload(upnp=False):
 
     add_portmapping('TCP', upnp, False, 'r')
     add_portmapping('UDP', upnp, False, 'r')
+    ipv6 = False
 
     if os.path.exists("/proc/net/if_inet6"):
         add_portmapping('TCP', upnp, True, 'r')
         add_portmapping('UDP', upnp, True, 'r')
+        ipv6 = True
+    
+    hook_callback('post_iptable_rules', [upnp, ipv6])
 
     os.system("iptables -A INPUT -i lo -j ACCEPT")
     os.system("iptables -A INPUT -p icmp -j ACCEPT")
