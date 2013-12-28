@@ -42,8 +42,10 @@ def http_exec(request, **kwargs):
 
     # Simple HTTP auth
     elif installed:
-        authorized = request.getUser() == 'admin'
+        authorized = False
         pwd = request.getPassword()
+        if request.getUser() == 'admin' and pwd != '':
+            authorized = True
         if dev and 'api_key' in request.args:
             pwd = request.args['api_key'][0]
             authorized = True
