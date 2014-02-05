@@ -224,8 +224,10 @@ def tools_postinstall(domain, password, dyndns=False):
                 os.system('touch /etc/yunohost/light')
             else:
                 os.system('service dspam stop')
+                os.system('chmod -x /etc/cron.daily/dspam')
                 os.system('update-rc.d dspam remove')
                 os.system('sed -i "s/yes/no/g" /etc/default/dspam')
+                os.system('sed -i "s/dspam=no/dspam=yes/" /etc/yunohost/yunohost.conf')
                 os.system('apt-get install -y -qq yunohost-config-amavis')
                 os.system('service amavis start')
                 os.system('apt-get install --reinstall -y -qq yunohost-config-postfix yunohost-config-dovecot')
