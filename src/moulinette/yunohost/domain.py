@@ -32,8 +32,9 @@ import json
 import yaml
 import requests
 from urllib import urlopen
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
-from yunohost_dyndns import dyndns_subscribe
+from dyndns import dyndns_subscribe
+
+from ..core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
 
 def domain_list(filter=None, limit=None, offset=None):

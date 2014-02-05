@@ -33,10 +33,11 @@ import time
 import re
 import socket
 import urlparse
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
-from yunohost_domain import domain_list, domain_add
-from yunohost_user import user_info, user_list
-from yunohost_hook import hook_exec, hook_add, hook_remove
+from domain import domain_list, domain_add
+from user import user_info, user_list
+from hook import hook_exec, hook_add, hook_remove
+
+from ..core.helpers import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'

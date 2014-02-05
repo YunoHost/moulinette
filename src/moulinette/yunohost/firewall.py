@@ -36,7 +36,8 @@ except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
     sys.stderr.write('apt-get install python-yaml\n')
     sys.exit(1)
-from yunohost import YunoHostError, win_msg
+
+from ..core.helpers import YunoHostError, win_msg
 
 
 def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):

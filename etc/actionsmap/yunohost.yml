@@ -95,7 +95,7 @@ user:
         ### user_delete()
         delete:
             action_help: Delete user
-            api: 'DELETE /users/{users}'
+            api: 'DELETE /users/<users>'
             arguments:
                 -u:
                     full: --users
@@ -109,7 +109,7 @@ user:
         ### user_update()
         update:
             action_help: Update user informations
-            api: 'PUT /users/{username}'
+            api: 'PUT /users/<username>'
             arguments:
                 username:
                     help: Username of user to update
@@ -143,7 +143,7 @@ user:
         ### user_info()
         info:
             action_help: Get user informations
-            api: 'GET /users/{username}'
+            api: 'GET /users/<username>'
             arguments:
                 username:
                     help: Username or mail to get informations
@@ -202,7 +202,7 @@ domain:
         ### domain_info()
         info:
             action_help: Get domain informations
-            api: 'GET /domains/{domain}'
+            api: 'GET /domains/<domain>'
             arguments:
                 domain:
                     help: ""
@@ -266,7 +266,7 @@ app:
         ### app_info()
         info:
             action_help: Get app info
-            api: GET /app/{app}
+            api: GET /app/<app>
             arguments:
                 app:
                     help: Specific app ID
@@ -310,7 +310,7 @@ app:
         ### app_remove() TODO: Write help
         remove:
             action_help: Remove app
-            api: DELETE /app/{app}
+            api: DELETE /app/<app>
             arguments:
                 app:
                     help: App(s) to delete
@@ -333,7 +333,7 @@ app:
         ### app_setting()
         setting:
             action_help: Set ou get an app setting value
-            api: GET /app/{app}/setting
+            api: GET /app/<app>/setting
             arguments:
                 app:
                     help: App ID
@@ -350,7 +350,7 @@ app:
         ### app_service()
         service:
             action_help: Add or remove a YunoHost monitored service
-            api: POST /app/service/{service}
+            api: POST /app/service/<service>
             arguments:
                 service:
                     help: Service to add/remove

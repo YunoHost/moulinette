@@ -34,9 +34,10 @@ import os.path
 import cPickle as pickle
 from urllib import urlopen
 from datetime import datetime, timedelta
-from yunohost import YunoHostError, win_msg
-from yunohost_service import (service_enable, service_disable,
+from service import (service_enable, service_disable,
     service_start, service_stop, service_status)
+
+from ..core.helpers import YunoHostError, win_msg
 
 glances_uri  = 'http://127.0.0.1:61209'
 stats_path   = '/var/lib/yunohost/stats'
@@ -359,7 +360,7 @@ def monitor_enable(no_stats=False):
 
     # Install crontab
     if not no_stats:
-        cmd = 'yunohost monitor update-stats'
+        cmd = 'cd /home/admin/dev/moulinette && ./yunohost monitor update-stats'
         #  day: every 5 min  #  week: every 1 h  #  month: every 4 h  #
         rules = ('*/5 * * * * root %(cmd)s day --no-ldap >> /dev/null\n' + \
                  '3 * * * * root %(cmd)s week --no-ldap >> /dev/null\n' + \

@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import os.path
+import gettext
+
+# Debug option
+if '--debug' in sys.argv:
+    sys.path.append(os.path.abspath(os.path.dirname(__file__) +'/../src'))
+from moulinette import api
+
+gettext.install('YunoHost')
+
+
+## Callbacks for additional routes
+
+def is_installed():
+    """
+    Check whether YunoHost is installed or not
+
+    """
+    installed = False
+    if os.path.isfile('/etc/yunohost/installed'):
+        installed = True
+    return { 'installed': installed }
+
+
+## Main action
+
+if __name__ == '__main__':
+    # Additional arguments
+    use_cache = True
+    if '--no-cache' in sys.argv:
+        use_cache = False
+        sys.argv.remove('--no-cache')
+    if '--debug' in sys.argv:
+        sys.argv.remove('--debug')
+    # TODO: Add log argument
+
+    # Rune the server
+    api(6787, {('GET', '/installed'): is_installed}, use_cache)
+    sys.exit(0)

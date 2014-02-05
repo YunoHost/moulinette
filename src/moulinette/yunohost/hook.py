@@ -27,7 +27,8 @@ import os
 import sys
 import re
 import json
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize
+
+from ..core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize
 
 hook_folder = '/usr/share/yunohost/hooks/'
 

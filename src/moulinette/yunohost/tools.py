@@ -31,11 +31,12 @@ import getpass
 import subprocess
 import requests
 import json
-from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
-from yunohost_domain import domain_add, domain_list
-from yunohost_dyndns import dyndns_subscribe
-from yunohost_backup import backup_init
-from yunohost_app import app_ssowatconf
+from domain import domain_add, domain_list
+from dyndns import dyndns_subscribe
+from backup import backup_init
+from app import app_ssowatconf
+
+from ..core.helpers import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 
 
 def tools_ldapinit(password=None):

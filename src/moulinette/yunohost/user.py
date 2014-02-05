@@ -30,9 +30,10 @@ import crypt
 import random
 import string
 import getpass
-from yunohost import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
-from yunohost_domain import domain_list
-from yunohost_hook import hook_callback
+from domain import domain_list
+from hook import hook_callback
+
+from ..core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
 def user_list(fields=None, filter=None, limit=None, offset=None):
     """
@@ -117,7 +118,7 @@ def user_create(username, firstname, lastname, mail, password):
             uid = str(random.randint(200, 99999))
             uid_check = os.system("getent passwd " + uid)
             gid_check = os.system("getent group " + uid)
- 
+
         # Adapt values for LDAP
         fullname = firstname + ' ' + lastname
         rdn = 'uid=' + username + ',ou=users'
@@ -139,7 +140,7 @@ def user_create(username, firstname, lastname, mail, password):
             'uidNumber'     : uid,
             'homeDirectory' : '/home/' + username,
             'loginShell'    : '/bin/false'
- 
+
         }
 
         if yldap.add(rdn, attr_dict):

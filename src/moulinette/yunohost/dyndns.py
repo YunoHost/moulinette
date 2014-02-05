@@ -29,7 +29,8 @@ import requests
 import json
 import glob
 import base64
-from yunohost import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
+
+from ..core.helpers import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
 
 def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None):
     """

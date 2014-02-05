@@ -27,7 +27,8 @@ import yaml
 import glob
 import subprocess
 import os.path
-from yunohost import YunoHostError, win_msg
+
+from ..core.helpers import YunoHostError, win_msg
 
 
 def service_start(names):
@@ -169,7 +170,7 @@ def service_log(name, number=50):
 
     if name not in services.keys():
         raise YunoHostError(1, _("Unknown service '%s'") % service)
-    
+
     if 'log' in services[name]:
         log_list = services[name]['log']
         result = {}
@@ -253,7 +254,7 @@ def _tail(file, n, offset=None):
                 pos = f.tell()
                 lines = f.read().splitlines()
                 if len(lines) >= to_read or pos == 0:
-                    return lines[-to_read:offset and -offset or None] 
+                    return lines[-to_read:offset and -offset or None]
                 avg_line_length *= 1.3
 
     except IOError: return []
