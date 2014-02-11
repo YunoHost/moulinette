@@ -121,6 +121,7 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         '/etc/dovecot/dovecot.conf',
         '/usr/share/yunohost/yunohost-config/others/startup',
         '/home/yunohost.backup/tahoe/tahoe.cfg'
+        '/etc/amavis/conf.d/05-node_id'
     ]
 
     config_dir = []
