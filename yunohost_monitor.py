@@ -161,12 +161,9 @@ def monitor_network(units=None, human_readable=False):
             for name, addrs in devices.items():
                 if name == 'lo':
                     continue
-                if len(devices) == 2:
-                    l_ip = _extract_inet(addrs)
-                else:
-                    if not isinstance(l_ip, dict):
-                        l_ip = {}
-                    l_ip[name] = _extract_inet(addrs)
+                if not isinstance(l_ip, dict):
+                    l_ip = {}
+                l_ip[name] = _extract_inet(addrs)
 
             gateway = 'unknown'
             output = subprocess.check_output('ip route show'.split())
