@@ -360,7 +360,7 @@ def monitor_enable(no_stats=False):
 
     # Install crontab
     if not no_stats:
-        cmd = 'cd /home/admin/dev/moulinette && ./yunohost monitor update-stats'
+        cmd = 'yunohost monitor update-stats'
         #  day: every 5 min  #  week: every 1 h  #  month: every 4 h  #
         rules = ('*/5 * * * * root %(cmd)s day --no-ldap >> /dev/null\n' + \
                  '3 * * * * root %(cmd)s week --no-ldap >> /dev/null\n' + \

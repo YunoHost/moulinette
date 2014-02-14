@@ -7,9 +7,12 @@ from beaker.middleware import SessionMiddleware
 from ..config import session_path, doc_json_path
 from helpers import YunoHostError, YunoHostLDAP
 
+
+## Bottle Plugins
+
 class APIAuthPlugin(object):
     """
-    This Bottle plugin manages the authentication for the API access.
+    Manage the authentication for the API access.
 
     """
     name = 'apiauth'
@@ -60,12 +63,7 @@ class APIAuthPlugin(object):
             if context.name == 'login':
                 self.logout()
             else:
-                # TODO: Fix this tweak to retrieve uri from the callback
-                def wrapper(*args, **kwargs):
-                    if hasattr(context.config, '_uri'):
-                        kwargs['_uri'] = context.config._uri
-                    return callback(*args, **kwargs)
-                return wrapper
+                return callback
 
         # Process login route
         if context.name == 'login':
@@ -121,6 +119,46 @@ class APIAuthPlugin(object):
             return True
         return False
 
+class ActionsMapPlugin(object):
+    """
+    Process action for the request using the actions map.
+
+    """
+    name = 'actionsmap'
+    api = 2
+
+    def __init__(self, actionsmap):
+        self.actionsmap = actionsmap
+
+    def setup(self, app):
+        pass
+
+    def apply(self, callback, context):
+        """
+        Process the relevant action for the request
+
+        Keyword argument:
+            callback -- The route callback
+            context -- An instance of Route
+
+        """
+        method = request.method
+        uri = context.rule
+
+        def wrapper(*args, **kwargs):
+            # Bring arguments together
+            params = kwargs
+            for a in args:
+                params[a] = True
+            for k, v in request.params.items():
+                params[k] = v
+
+            # Process the action
+            return self.actionsmap.process(params, route=(method, uri))
+        return wrapper
+
+
+## Main class
 
 class MoulinetteAPI(object):
     """
@@ -137,18 +175,19 @@ class MoulinetteAPI(object):
     """
 
     def __init__(self, actionsmap, routes={}):
-        self.actionsmap = actionsmap
-
         # Initialize app and default routes
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle()
-        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET', callback=self.doc, skip=['apiauth'])
+        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
+                  callback=self.doc, skip=['apiauth'])
 
         # Append routes from the actions map
+        amap = ActionsMapPlugin(actionsmap)
         for (m, u) in actionsmap.parser.routes:
-            app.route(u, method=m, callback=self._route_wrapper, _uri=u)
+            app.route(u, method=m, callback=self._error, apply=amap)
 
         # Append additional routes
+        # TODO: Add an option to skip auth for the route
         for (m, u), c in routes.items():
             app.route(u, method=m, callback=c)
 
@@ -190,22 +229,6 @@ class MoulinetteAPI(object):
         except IOError:
             return 'unknown'
 
-    def _route_wrapper(self, *args, **kwargs):
-        """Process the relevant action for the request"""
-        # Retrieve uri
-        if '_uri' in kwargs:
-            uri = kwargs['_uri']
-            del kwargs['_uri']
-        else:
-            uri = request.path
-
-        # Bring arguments together
-        params = kwargs
-        for a in args:
-            params[a] = True
-        for k, v in request.params.items():
-            params[k] = v
-
-        # Process the action
-        # TODO: Catch errors
-        return self.actionsmap.process(params, (request.method, uri))
+    def _error(self, *args, **kwargs):
+        # TODO: Raise or return an error
+        print('error')
