@@ -169,7 +169,9 @@ def monitor_network(units=None, human_readable=False):
             output = subprocess.check_output('ip route show'.split())
             m = re.search('default via (.*) dev ([a-z]+[0-9]?)', output)
             if m:
-                gateway = _extract_inet(m.group(1), True)
+                addr = _extract_inet(m.group(1), True)
+                if len(addr) == 1:
+                    proto, gateway = addr.popitem()
 
             result[u] = {
                 'public_ip': p_ip,
@@ -409,36 +411,46 @@ def _get_glances_api():
     raise YunoHostError(1, _("Connection to Glances server failed"))
 
 
-def _extract_inet(string, skip_netmask=False):
+def _extract_inet(string, skip_netmask=False, skip_loopback=True):
     """
-    Extract IP address (v4 or v6) from a string
+    Extract IP addresses (v4 and/or v6) from a string limited to one
+    address by protocol
 
     Keyword argument:
         string -- String to search in
+        skip_netmask -- True to skip subnet mask extraction
+        skip_loopback -- False to include addresses reserved for the
+            loopback interface
+
+    Returns:
+        A dict of {protocol: address} with protocol one of 'ipv4' or 'ipv6'
 
     """
-    ip4 = '((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'
-    ip6 = '(((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)'
-    ip4 += '/[0-9]{1,2})' if not skip_netmask else ')'
-    ip6 += '/[0-9]{1,2})' if not skip_netmask else ')'
+    ip4_pattern = '((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'
+    ip6_pattern = '(((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)'
+    ip4_pattern += '/[0-9]{1,2})' if not skip_netmask else ')'
+    ip6_pattern += '/[0-9]{1,2})' if not skip_netmask else ')'
+    result = {}
 
-    ip4_prog = re.compile(ip4)
-    ip6_prog = re.compile(ip6)
-    result = []
+    for m in re.finditer(ip4_pattern, string):
+        addr = m.group(1)
+        if skip_loopback and addr.startswith('127.'):
+            continue
 
-    m = ip4_prog.search(string)
-    if m:
-        result.append(m.group(1))
+        # Limit to only one result
+        result['ipv4'] = addr
+        break
 
-    m = ip6_prog.search(string)
-    if m:
-        result.append(m.group(1))
+    for m in re.finditer(ip6_pattern, string):
+        addr = m.group(1)
+        if skip_loopback and addr == '::1':
+            continue
 
-    if len(result) > 1:
-        return result
-    elif len(result) == 1:
-        return result[0]
-    return None
+        # Limit to only one result
+        result['ipv6'] = addr
+        break
+
+    return result
 
 
 def _binary_to_human(n, customary=False):
