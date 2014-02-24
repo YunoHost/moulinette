@@ -298,7 +298,7 @@ class ActionsMap(object):
         function = '%s_%s' % (category, action)
 
         try:
-            mod = __import__(module, globals=globals(), fromlist=[function], level=2)
+            mod = __import__(module, globals=globals(), fromlist=[function], level=0)
             func = getattr(mod, function)
         except (AttributeError, ImportError):
             raise YunoHostError(168, _('Function is not defined'))

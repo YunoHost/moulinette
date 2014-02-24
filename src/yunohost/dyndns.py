@@ -30,7 +30,7 @@ import json
 import glob
 import base64
 
-from ..core.helpers import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
+from moulinette.core.helpers import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
 
 def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None):
     """

@@ -29,7 +29,7 @@ import json
 import yaml
 import glob
 
-from ..core.helpers import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
+from moulinette.core.helpers import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
 
 def backup_init(helper=False):
     """

@@ -28,7 +28,7 @@ import glob
 import subprocess
 import os.path
 
-from ..core.helpers import YunoHostError, win_msg
+from moulinette.core.helpers import YunoHostError, win_msg
 
 
 def service_start(names):

@@ -33,7 +33,7 @@ import getpass
 from domain import domain_list
 from hook import hook_callback
 
-from ..core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+from moulinette.core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
 def user_list(fields=None, filter=None, limit=None, offset=None):
     """

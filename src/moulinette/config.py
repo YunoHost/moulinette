@@ -7,7 +7,7 @@ import os
 session_path = '/var/cache/yunohost/session'
 
 # Path of the actions map definition(s)
-actionsmap_path =  os.path.dirname(__file__) +'/../../etc/actionsmap'
+actionsmap_path =  os.path.dirname(__file__) +'/../../data/actionsmap'
 
 # Path for the actions map cache
 actionsmap_cache_path = '/var/cache/yunohost/actionsmap'

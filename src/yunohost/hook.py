@@ -28,7 +28,7 @@ import sys
 import re
 import json
 
-from ..core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize
+from moulinette.core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize
 
 hook_folder = '/usr/share/yunohost/hooks/'
 
