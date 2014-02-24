@@ -46,8 +46,9 @@ def api(port, routes={}, use_cache=True):
     from bottle import run
     from core.actionsmap import ActionsMap
     from core.api import MoulinetteAPI
+    from core.helpers import Interface
 
-    amap = ActionsMap(ActionsMap.IFACE_API, use_cache=use_cache)
+    amap = ActionsMap(Interface.api, use_cache=use_cache)
     moulinette = MoulinetteAPI(amap, routes)
 
     run(moulinette.app, port=port)
@@ -67,10 +68,11 @@ def cli(args, use_cache=True):
     """
     import os
     from core.actionsmap import ActionsMap
-    from core.helpers import YunoHostError, pretty_print_dict
+    from core.helpers import Interface, YunoHostError, pretty_print_dict
 
     lock_file = '/var/run/moulinette.lock'
 
+    # TODO: Move the lock checking into the ActionsMap class
     # Check the lock
     if os.path.isfile(lock_file):
         raise YunoHostError(1, _("The moulinette is already running"))
@@ -80,7 +82,7 @@ def cli(args, use_cache=True):
     os.system('chmod 400 '+ lock_file)
 
     try:
-        amap = ActionsMap(ActionsMap.IFACE_CLI, use_cache=use_cache)
+        amap = ActionsMap(Interface.cli, use_cache=use_cache)
         pretty_print_dict(amap.process(args))
     except KeyboardInterrupt, EOFError:
         raise YunoHostError(125, _("Interrupted"))

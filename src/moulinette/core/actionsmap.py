@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import getpass
-import marshal
 import pickle
 import yaml
 import re
 import os
+from collections import OrderedDict
+
+import logging
 
 from .. import __version__
 from ..config import actionsmap_path, actionsmap_cache_path
-from helpers import YunoHostError, colorize
+
+from extraparameters import extraparameters_list
+from helpers import Interface, YunoHostError
+
+## Additional parsers
 
 class _HTTPArgumentParser(object):
 
@@ -137,80 +142,75 @@ class HTTPParser(object):
 
         return self._parsers[key].parse_args(args)
 
+class ExtraParser(object):
+    """
+    Global parser for the extra parameters.
 
-class _ExtraParameters(object):
+    """
+    def __init__(self, iface):
+        self.iface = iface
+        self.extra = OrderedDict()
 
-    CLI_PARAMETERS = ['ask', 'password', 'pattern']
-    API_PARAMETERS = ['pattern']
-    AVAILABLE_PARAMETERS = CLI_PARAMETERS
+        # Append available extra parameters for the current interface
+        for klass in extraparameters_list:
+            if iface in klass.skipped_iface:
+                continue
+            if klass.name in self.extra:
+                logging.warning("extra parameter named '%s' was already added" % klass.name)
+                continue
+            self.extra[klass.name] = klass
 
-    def __init__(self, **kwargs):
-        self._params = {}
+    def validate(self, arg_name, parameters):
+        """
+        Validate values of extra parameters for an argument
 
-        for k, v in kwargs.items():
-            if k in self.AVAILABLE_PARAMETERS:
-                self._params[k] = v
+        Keyword arguments:
+            - arg_name -- The argument name
+            - parameters -- A dict of extra parameters with their values
 
-    def validate(self, p_name, p_value):
-        ret = type(p_value)() if p_value is not None else None
+        """
+        # Iterate over parameters to validate
+        for p, v in parameters.items():
+            # Remove unknow parameters
+            if p not in self.extra.keys():
+                del parameters[p]
 
-        for p, v in self._params.items():
-            func = getattr(self, 'process_' + p)
+            # Validate parameter value
+            parameters[p] = self.extra[p].validate(v, arg_name)
 
-            if isinstance(ret, list):
-                for p_v in p_value:
-                    r = func(v, p_name, p_v)
-                    if r is not None:
-                        ret.append(r)
+        return parameters
+
+    def parse(self, arg_name, arg_value, parameters):
+        """
+        Parse argument with extra parameters
+
+        Keyword arguments:
+            - arg_name -- The argument name
+            - arg_value -- The argument value
+            - parameters -- A dict of extra parameters with their values
+
+        """
+        # Iterate over available parameters
+        for p, klass in self.extra.items():
+            if p not in parameters.keys():
+                continue
+
+            # Initialize the extra parser
+            parser = klass(self.iface)
+
+            # Parse the argument
+            if isinstance(arg_value, list):
+                for v in arg_value:
+                    r = parser(parameters[p], arg_name, v)
+                    if r not in arg_value:
+                        arg_value.append(r)
             else:
-                r = func(v, p_name, p_value)
-                if r is not None:
-                    ret = r
+                arg_value = parser(parameters[p], arg_name, arg_value)
 
-        return ret
+        return arg_value
 
 
-    ## Parameters validating's method
-    # TODO: Add doc
-
-    def process_ask(self, message, p_name, p_value):
-        # TODO: Fix asked arguments ordering
-        if not self._can_prompt(p_value):
-            return p_value
-
-        # Skip password asking
-        if 'password' in self._params.keys():
-            return None
-
-        ret =  raw_input(colorize(message + ': ', 'cyan'))
-        return ret
-
-    def process_password(self, is_password, p_name, p_value):
-        if not self._can_prompt(p_value):
-            return p_value
-
-        message = self._params['ask']
-        pwd1 = getpass.getpass(colorize(message + ': ', 'cyan'))
-        pwd2 = getpass.getpass(colorize('Retype ' + message + ': ', 'cyan'))
-        if pwd1 != pwd2:
-            raise YunoHostError(22, _("Passwords don't match"))
-        return pwd1
-
-    def process_pattern(self, pattern, p_name, p_value):
-        # TODO: Add a pattern_help parameter
-        # TODO: Fix missing pattern matching on asking
-        if p_value is not None and not re.match(pattern, p_value):
-            raise YunoHostError(22, _("'%s' argument not match pattern" % p_name))
-        return p_value
-
-
-    ## Private method
-
-    def _can_prompt(self, p_value):
-        if os.isatty(1) and (p_value is None or p_value == ''):
-            return True
-        return False
-
+## Main class
 
 class ActionsMap(object):
     """
@@ -231,30 +231,37 @@ class ActionsMap(object):
             instead of using the cached one.
 
     """
-    IFACE_CLI = 'cli'
-    IFACE_API = 'api'
-
     def __init__(self, interface, use_cache=True):
-        if interface not in [self.IFACE_CLI,self.IFACE_API]:
+        if interface not in Interface.all():
             raise ValueError(_("Invalid interface '%s'" % interface))
         self.interface = interface
+        self.use_cache = use_cache
+
+        logging.debug("initializing ActionsMap for the '%s' interface" % interface)
 
         # Iterate over actions map namespaces
-        actionsmap = {}
+        actionsmaps = {}
         for n in self.get_actionsmap_namespaces():
+            logging.debug("loading '%s' actions map namespace" % n)
+
             if use_cache:
+                # Attempt to load cache if it exists
                 cache_file = '%s/%s.pkl' % (actionsmap_cache_path, n)
                 if os.path.isfile(cache_file):
                     with open(cache_file, 'r') as f:
-                        actionsmap[n] = pickle.load(f)
+                        actionsmaps[n] = pickle.load(f)
                 else:
-                    actionsmap = self.generate_cache()
+                    self.use_cache = False
+                    actionsmaps = self.generate_cache()
+                    break
             else:
                 am_file = '%s/%s.yml' % (actionsmap_path, n)
                 with open(am_file, 'r') as f:
-                    actionsmap[n] = yaml.load(f)
+                    actionsmaps[n] = yaml.load(f)
 
-        self.parser = self._construct_parser(actionsmap)
+        # Generate parsers
+        self.extraparser = ExtraParser(interface)
+        self.parser = self._construct_parser(actionsmaps)
 
     def process(self, args, route=None):
         """
@@ -268,9 +275,9 @@ class ActionsMap(object):
         arguments = None
 
         # Parse arguments
-        if self.interface ==self.IFACE_CLI:
+        if self.interface == Interface.cli:
             arguments = self.parser.parse_args(args)
-        elif self.interface ==self.IFACE_API:
+        elif self.interface == Interface.api:
             if route is None:
                 # TODO: Raise a proper exception
                 raise Exception(_("Missing route argument"))
@@ -302,7 +309,10 @@ class ActionsMap(object):
     @staticmethod
     def get_actionsmap_namespaces(path=actionsmap_path):
         """
-        Retrieve actions map namespaces in a given path
+        Retrieve actions map namespaces from a given path
+
+        Returns:
+            A list of available namespaces
 
         """
         namespaces = []
@@ -313,65 +323,77 @@ class ActionsMap(object):
         return namespaces
 
     @classmethod
-    def generate_cache(cls):
+    def generate_cache(klass):
         """
         Generate cache for the actions map's file(s)
 
+        Returns:
+            A dict of actions map for each namespaces
+
         """
-        actionsmap = {}
+        actionsmaps = {}
 
         if not os.path.isdir(actionsmap_cache_path):
             os.makedirs(actionsmap_cache_path)
 
-        for n in cls.get_actionsmap_namespaces():
+        # Iterate over actions map namespaces
+        for n in klass.get_actionsmap_namespaces():
+            logging.debug("generating cache for '%s' actions map namespace" % n)
+
+            # Read actions map from yaml file
             am_file = '%s/%s.yml' % (actionsmap_path, n)
             with open(am_file, 'r') as f:
-                actionsmap[n] = yaml.load(f)
+                actionsmaps[n] = yaml.load(f)
+
+            # Cache actions map into pickle file
             cache_file = '%s/%s.pkl' % (actionsmap_cache_path, n)
             with open(cache_file, 'w') as f:
-                pickle.dump(actionsmap[n], f)
+                pickle.dump(actionsmaps[n], f)
 
-        return actionsmap
+        return actionsmaps
 
 
     ## Private class and methods
 
     def _store_extra_parameters(self, parser, arg_name, arg_params):
         """
-        Store extra parameters for a given parser's argument name
+        Store extra parameters for a given argument
 
         Keyword arguments:
-            - parser -- Parser object of the argument
+            - parser -- Parser object for the arguments
             - arg_name -- Argument name
             - arg_params -- Argument parameters
 
+        Returns:
+            The parser object
+
         """
-        params = {}
-        keys = []
-
-        # Get available parameters for the current interface
-        if self.interface ==self.IFACE_CLI:
-            keys = _ExtraParameters.CLI_PARAMETERS
-        elif self.interface ==self.IFACE_API:
-            keys = _ExtraParameters.API_PARAMETERS
-
-        for k in keys:
-            if k in arg_params:
-                params[k] = arg_params[k]
-
-        if len(params) > 0:
-            # Retrieve all extra parameters from the parser
+        if 'extra' in arg_params:
+            # Retrieve current extra parameters dict
             extra = parser.get_default('_extra')
             if not extra or not isinstance(extra, dict):
                 extra = {}
 
-            # Add completed extra parameters to the parser
-            extra[arg_name] = _ExtraParameters(**params)
+            if not self.use_cache:
+                # Validate extra parameters for the argument
+                extra[arg_name] = self.extraparser.validate(arg_name, arg_params['extra'])
+            else:
+                extra[arg_name] = arg_params['extra']
             parser.set_defaults(_extra=extra)
 
         return parser
 
     def _parse_extra_parameters(self, args):
+        """
+        Parse arguments with their extra parameters
+
+        Keyword arguments:
+            - args -- A dict of all arguments
+
+        Return:
+            The parsed arguments dict
+
+        """
         # Retrieve extra parameters from the arguments
         if '_extra' not in args:
             return args
@@ -379,41 +401,41 @@ class ActionsMap(object):
         del args['_extra']
 
         # Validate extra parameters for each arguments
-        for n, e in extra.items():
-            args[n] = e.validate(n, args[n])
+        for an, parameters in extra.items():
+            args[an] = self.extraparser.parse(an, args[an], parameters)
 
         return args
 
-    def _construct_parser(self, actionsmap):
+    def _construct_parser(self, actionsmaps):
         """
         Construct the parser with the actions map
 
         Keyword arguments:
-            - actionsmap -- Multi-level dictionnary of
-                categories/actions/arguments list
+            - actionsmaps -- A dict of multi-level dictionnary of
+                categories/actions/arguments list for each namespaces
 
         Returns:
-            Interface relevant's parser object
+            An interface relevant's parser object
 
         """
         top_parser = None
         iface = self.interface
 
         # Create parser object
-        if iface ==self.IFACE_CLI:
-            # TODO: Add descritpion (from __description__)
+        if iface == Interface.cli:
+            # TODO: Add descritpion (from __description__?)
             top_parser = argparse.ArgumentParser()
             top_subparsers = top_parser.add_subparsers()
-        elif iface ==self.IFACE_API:
+        elif iface == Interface.api:
             top_parser = HTTPParser()
 
-        ## Extract option strings from parameters
+        ## Format option strings from argument parameters
         def _option_strings(arg_name, arg_params):
-            if iface ==self.IFACE_CLI:
+            if iface == Interface.cli:
                 if arg_name[0] == '-' and 'full' in arg_params:
                     return [arg_name, arg_params['full']]
                 return [arg_name]
-            elif iface ==self.IFACE_API:
+            elif iface == Interface.api:
                 if arg_name[0] != '-':
                     return [arg_name]
                 if 'full' in arg_params:
@@ -422,40 +444,31 @@ class ActionsMap(object):
                     return [arg_name.replace('--', '@', 1)]
                 return [arg_name.replace('-', '@', 1)]
 
-        ## Extract a key from parameters
-        def _key(arg_params, key, default=str()):
-            if key in arg_params:
-                return arg_params[key]
-            return default
-
         ## Remove extra parameters
         def _clean_params(arg_params):
-            keys = list(_ExtraParameters.AVAILABLE_PARAMETERS)
-            keys.append('full')
-
-            for k in keys:
+            for k in {'full', 'extra'}:
                 if k in arg_params:
                     del arg_params[k]
             return arg_params
 
         # Iterate over actions map namespaces
-        for n in self.get_actionsmap_namespaces():
+        for n, actionsmap in actionsmaps.items():
             # Parse general arguments for the cli only
-            if iface ==self.IFACE_CLI:
-                for an, ap in actionsmap[n]['general_arguments'].items():
+            if iface == Interface.cli:
+                for an, ap in actionsmap['general_arguments'].items():
                     if 'version' in ap:
                         ap['version'] = ap['version'].replace('%version%', __version__)
                     top_parser.add_argument(*_option_strings(an, ap), **_clean_params(ap))
-            del actionsmap[n]['general_arguments']
+            del actionsmap['general_arguments']
 
             # Parse categories
-            for cn, cp in actionsmap[n].items():
+            for cn, cp in actionsmap.items():
                 if 'actions' not in cp:
                     continue
 
                 # Add category subparsers for the cli only
-                if iface ==self.IFACE_CLI:
-                    c_help = _key(cp, 'category_help')
+                if iface == Interface.cli:
+                    c_help = cp.get('category_help')
                     subparsers = top_subparsers.add_parser(cn, help=c_help).add_subparsers()
 
                 # Parse actions
@@ -463,10 +476,10 @@ class ActionsMap(object):
                     parser = None
 
                     # Add parser for the current action
-                    if iface ==self.IFACE_CLI:
-                        a_help = _key(ap, 'action_help')
+                    if iface == Interface.cli:
+                        a_help = ap.get('action_help')
                         parser = subparsers.add_parser(an, help=a_help)
-                    elif iface ==self.IFACE_API and 'api' in ap:
+                    elif iface == Interface.api and 'api' in ap:
                         # Extract method and uri
                         m = re.match('(GET|POST|PUT|DELETE) (/\S+)', ap['api'])
                         if m:

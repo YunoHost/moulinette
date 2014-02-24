@@ -74,23 +74,29 @@ user:
                 -u:
                     full: --username
                     help: Must be unique
-                    ask: "Username"
-                    pattern: '^[a-z0-9_]+$'
+                    extra:
+                        ask: "Username"
+                        pattern: '^[a-z0-9_]+$'
                 -f:
                     full: --firstname
-                    ask: "Firstname"
+                    extra:
+                        ask: "Firstname"
                 -l:
                     full: --lastname
-                    ask: "Lastname"
+                    extra:
+                        ask: "Lastname"
                 -m:
                     full: --mail
                     help: Main mail address must be unique
-                    ask: "Mail address"
-                    pattern: '^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$'
+                    extra:
+                        ask: "Mail address"
+                        pattern:
+                            - '^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$'
+                            - "Must be a valid email address (e.g. someone@domain.org)"
                 -p:
                     full: --password
-                    ask: "User password"
-                    password: yes
+                    extra:
+                        password: "User password"
 
         ### user_delete()
         delete:
@@ -100,9 +106,10 @@ user:
                 -u:
                     full: --users
                     help: Username of users to delete
-                    ask: "Users to delete"
-                    pattern: '^[a-z0-9_]+$'
                     nargs: "*"
+                    extra:
+                        ask: "Users to delete"
+                        pattern: '^[a-z0-9_]+$'
                 --purge:
                     action: store_true
 
@@ -179,7 +186,8 @@ domain:
                 domains:
                     help: Domain name to add
                     nargs: '+'
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                    extra:
+                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -m:
                     full: --main
                     help: Is the main domain
@@ -197,7 +205,8 @@ domain:
                 domains:
                     help: Domain(s) to delete
                     nargs: "+"
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                    extra:
+                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### domain_info()
         info:
@@ -206,7 +215,8 @@ domain:
             arguments:
                 domain:
                     help: ""
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                    extra:
+                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
 
 #############################
@@ -241,8 +251,9 @@ app:
                 -n:
                     full: --name
                     help: Name of the list to remove
-                    ask: "List to remove"
-                    pattern: '^[a-z0-9_]+$'
+                    extra:
+                        ask: "List to remove"
+                        pattern: '^[a-z0-9_]+$'
 
         ### app_list()
         list:
@@ -290,7 +301,8 @@ app:
                 -u:
                     full: --user
                     help: Allowed app map for a user
-                    pattern: '^[a-z0-9_]+$'
+                    extra:
+                        pattern: '^[a-z0-9_]+$'
 
 
         ### app_install() TODO: Write help
@@ -375,7 +387,8 @@ app:
             arguments:
                 port:
                     help: Port to check
-                    pattern: '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+                    extra:
+                        pattern: '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
 
         ### app_checkurl()
         checkurl:
@@ -644,8 +657,9 @@ service:
                 -n:
                     full: --number
                     help: Number of lines to display
-                    pattern: '^[0-9]+$'
                     default: "50"
+                    extra:
+                        pattern: '^[0-9]+$'
 
 
 #############################
@@ -676,7 +690,8 @@ firewall:
             arguments:
                 port:
                     help: Port to open
-                    pattern: '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+                    extra:
+                        pattern: '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
                 protocol:
                     help: Protocol associated with port
                     choices:
@@ -810,12 +825,12 @@ tools:
             arguments:
                 -o:
                     full: --old-password
-                    ask: "Current admin password"
-                    password: yes
+                    extra:
+                        password: "Current admin password"
                 -n:
                     full: --new-password
-                    ask: "New admin password"
-                    password: yes
+                    extra:
+                        password: "New admin password"
 
         ### tools_maindomain()
         maindomain:
@@ -824,11 +839,13 @@ tools:
             arguments:
                 -o:
                     full: --old-domain
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                    extra:
+                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -n:
                     full: --new-domain
-                    ask: "New main domain"
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                    extra:
+                        ask: "New main domain"
+                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
 
         ### tools_postinstall()
         postinstall:
@@ -838,13 +855,14 @@ tools:
                 -d:
                     full: --domain
                     help: YunoHost main domain
-                    ask: "Main domain"
-                    pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                    extra:
+                        ask: "Main domain"
+                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
                 -p:
                     full: --password
                     help: YunoHost admin password
-                    ask: "New admin password"
-                    password: yes
+                    extra:
+                        password: "New admin password"
                 --dyndns:
                     help: Subscribe domain to a DynDNS service
                     action: store_true

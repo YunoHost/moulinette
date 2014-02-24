@@ -21,6 +21,21 @@ import getpass
 if not __debug__:
     import traceback
 
+
+class Interface():
+    """
+    Contain available interfaces to use with the moulinette.
+
+    """
+    api = 'api'
+    cli = 'cli'
+
+    @classmethod
+    def all(klass):
+        """Get a list of all interfaces"""
+        ifaces = set(i for i in dir(klass) if not i.startswith('_'))
+        return ifaces
+
 win = []
 
 def random_password(length=8):
