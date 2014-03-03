@@ -99,7 +99,7 @@ def tools_adminpw(old_password, new_password):
         raise YunoHostError(22, _("Invalid password"))
 
 
-def tools_maindomain(old_domain, new_domain, dyndns=False):
+def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
     """
     Main domain change tool
 
@@ -112,6 +112,9 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
     if not old_domain:
         with open('/etc/yunohost/current_host', 'r') as f:
             old_domain = f.readline().rstrip()
+
+        if not new_domain:
+            return { 'Current main domain': old_domain }
 
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
 
