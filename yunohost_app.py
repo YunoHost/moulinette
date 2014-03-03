@@ -528,7 +528,11 @@ def app_addaccess(apps, users):
         apps
 
     """
-    #TODO: Adapt to SSOwat
+    if not users:
+        users = []
+        for user in user_list()['Users']:
+            users.append(user['Username'])
+
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
@@ -564,6 +568,8 @@ def app_addaccess(apps, users):
 
     app_ssowatconf()
 
+    return { 'allowed_users': new_users.split(',') }
+
 
 def app_removeaccess(apps, users):
     """
@@ -574,7 +580,9 @@ def app_removeaccess(apps, users):
         apps
 
     """
-    #TODO: Remove access
+    remove_all = False
+    if not users:
+        remove_all = True
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
     for app in apps:
@@ -587,7 +595,9 @@ def app_removeaccess(apps, users):
             app_settings = yaml.load(f)
 
         if 'skipped_uris' not in app_settings or app_settings['skipped_uris'] != '/':
-            if 'allowed_users' in app_settings:
+            if remove_all:
+                new_users = ''
+            elif 'allowed_users' in app_settings:
                 for allowed_user in app_settings['allowed_users'].split(','):
                     if allowed_user not in users:
                         if new_users == '':
@@ -606,6 +616,7 @@ def app_removeaccess(apps, users):
 
     app_ssowatconf()
 
+    return { 'allowed_users': new_users.split(',') }
 
 def app_setting(app, key, value=None, delete=False):
     """
