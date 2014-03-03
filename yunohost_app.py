@@ -618,6 +618,33 @@ def app_removeaccess(apps, users):
 
     return { 'allowed_users': new_users.split(',') }
 
+
+def app_clearaccess(apps):
+    """
+    Reset access rights for the app
+
+    Keyword argument:
+        apps
+
+    """
+    if not isinstance(apps, list): apps = [apps]
+
+    for app in apps:
+        if not _is_installed(app):
+            raise YunoHostError(22, _("App is not installed"))
+
+        with open(apps_setting_path + app +'/settings.yml') as f:
+            app_settings = yaml.load(f)
+
+        if 'mode' in app_settings:
+            app_setting(app, 'mode', delete=True)
+
+        if 'allowed_users' in app_settings:
+            app_setting(app, 'allowed_users', delete=True)
+
+    app_ssowatconf()
+
+
 def app_setting(app, key, value=None, delete=False):
     """
     Set or get an app setting value

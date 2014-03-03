@@ -432,6 +432,13 @@ app:
                     full: --users
                     nargs: "+"
 
+        ### app_clearaccess()
+        clearaccess:
+            action_help: Reset access rights for the app
+            api: POST /app/access
+            arguments:
+                apps:
+                    nargs: "+"
 
 #############################
 #          Backup           #
