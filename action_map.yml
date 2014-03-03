@@ -310,7 +310,7 @@ app:
         ### app_remove() TODO: Write help
         remove:
             action_help: Remove app
-            api: DELETE /app/{app}
+            api: DELETE /app
             arguments:
                 app:
                     help: App(s) to delete
