@@ -153,7 +153,8 @@ def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
         'service nginx restart',
         'service metronome restart',
         'service postfix restart',
-        'service dovecot restart'
+        'service dovecot restart',
+        'service amavis restart'
     ]
 
     try:
