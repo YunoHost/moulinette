@@ -136,7 +136,7 @@ def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=Non
             with open('/etc/yunohost/dyndns/old_ip', 'w') as f:
                 f.write(new_ip)
         else:
-            os.remove('/etc/yunohost/dyndns/old_ip')
+            os.system('rm /etc/yunohost/dyndns/old_ip > /dev/null 2>&1')
             raise YunoHostError(1, _("An error occured during DynDNS update"))
 
 
