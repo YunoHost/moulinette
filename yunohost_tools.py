@@ -114,7 +114,7 @@ def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
             old_domain = f.readline().rstrip()
 
         if not new_domain:
-            return { 'Current main domain': old_domain }
+            return { 'current_main_domain': old_domain }
 
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
 
