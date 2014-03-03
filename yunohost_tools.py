@@ -123,8 +123,9 @@ def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
         '/etc/metronome/metronome.cfg.lua',
         '/etc/dovecot/dovecot.conf',
         '/usr/share/yunohost/yunohost-config/others/startup',
-        '/home/yunohost.backup/tahoe/tahoe.cfg'
-        '/etc/amavis/conf.d/05-node_id'
+        '/home/yunohost.backup/tahoe/tahoe.cfg',
+        '/etc/amavis/conf.d/05-node_id',
+        '/etc/amavis/conf.d/50-user'
     ]
 
     config_dir = []
@@ -219,21 +220,6 @@ def tools_postinstall(domain, password, dyndns=False):
     # Set hostname to avoid amavis bug
     if os.system('hostname -d') != 0:
         os.system('hostname yunohost.yunohost.org')
-
-    # Activate "full" mode if RAM >= 512MB
-    for L in open("/proc/meminfo"):
-        if "MemTotal" in L:
-            if int(L.split(" ")[-2]) < 500000 or not requests.get('http://ip.yunohost.org/'):
-                os.system('touch /etc/yunohost/light')
-            else:
-                os.system('service dspam stop')
-                os.system('chmod -x /etc/cron.daily/dspam')
-                os.system('update-rc.d dspam remove')
-                os.system('sed -i "s/yes/no/g" /etc/default/dspam')
-                os.system('sed -i "s/dspam=no/dspam=yes/" /etc/yunohost/yunohost.conf')
-                os.system('apt-get install -y -qq yunohost-config-amavis')
-                os.system('service amavis start')
-                os.system('apt-get install --reinstall -y -qq yunohost-config-postfix yunohost-config-dovecot')
 
     # Create SSL CA
     ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
