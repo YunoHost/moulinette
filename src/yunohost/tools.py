@@ -36,7 +36,7 @@ from dyndns import dyndns_subscribe
 from backup import backup_init
 from app import app_ssowatconf
 
-from moulinette.core.helpers import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
+from moulinette.helpers import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
 
 
 def tools_ldapinit(password=None):

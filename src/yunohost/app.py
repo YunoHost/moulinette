@@ -37,7 +37,7 @@ from domain import domain_list, domain_add
 from user import user_info, user_list
 from hook import hook_exec, hook_add, hook_remove
 
-from .moulinette.core.helpers import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
+from moulinette.helpers import YunoHostError, YunoHostLDAP, win_msg, random_password, is_true, validate
 
 repo_path        = '/var/cache/yunohost/repo'
 apps_path        = '/usr/share/yunohost/apps'

@@ -5,25 +5,29 @@ import sys
 import os.path
 import gettext
 
-# Debug option
-if '--debug' in sys.argv:
-    sys.path.append(os.path.abspath(os.path.dirname(__file__) +'/../src'))
-from moulinette import cli
-from moulinette.core.helpers import YunoHostError, colorize
+# Run from source
+basedir = os.path.abspath(os.path.dirname(__file__) +'/../')
+if os.path.isdir(basedir +'/src'):
+    sys.path.append(basedir +'/src')
 
-gettext.install('YunoHost')
+from moulinette import init, cli, MoulinetteError
+from moulinette.helpers import YunoHostError, colorize
+
+gettext.install('yunohost')
 
 
 ## Main action
 
 if __name__ == '__main__':
+    # Run from source (prefix and libdir set to None)
+    init('yunohost', prefix=None, libdir=None,
+         cachedir=os.path.join(basedir, 'cache'))
+
     # Additional arguments
     use_cache = True
     if '--no-cache' in sys.argv:
         use_cache = False
         sys.argv.remove('--no-cache')
-    if '--debug' in sys.argv:
-        sys.argv.remove('--debug')
 
     try:
         args = list(sys.argv)
@@ -36,6 +40,9 @@ if __name__ == '__main__':
 
         # Execute the action
         cli(args, use_cache)
+    except MoulinetteError as e:
+        print(e.colorize())
+        sys.exit(e.code)
     except YunoHostError as e:
         print(colorize(_("Error: "), 'red') + e.message)
         sys.exit(e.code)

@@ -76,7 +76,9 @@ user:
                     help: Must be unique
                     extra:
                         ask: "Username"
-                        pattern: '^[a-z0-9_]+$'
+                        pattern:
+                            - '^[a-z0-9_]+$'
+                            - "Must be alphanumeric and underscore characters only"
                 -f:
                     full: --firstname
                     extra:
@@ -109,7 +111,9 @@ user:
                     nargs: "*"
                     extra:
                         ask: "Users to delete"
-                        pattern: '^[a-z0-9_]+$'
+                        pattern:
+                            - '^[a-z0-9_]+$'
+                            - "Must be alphanumeric and underscore characters only"
                 --purge:
                     action: store_true
 
@@ -187,7 +191,9 @@ domain:
                     help: Domain name to add
                     nargs: '+'
                     extra:
-                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                        pattern:
+                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                            - "Must be a valid domain name (e.g. my-domain.org)"
                 -m:
                     full: --main
                     help: Is the main domain
@@ -206,7 +212,9 @@ domain:
                     help: Domain(s) to delete
                     nargs: "+"
                     extra:
-                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                        pattern:
+                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                            - "Must be a valid domain name (e.g. my-domain.org)"
 
         ### domain_info()
         info:
@@ -216,7 +224,9 @@ domain:
                 domain:
                     help: ""
                     extra:
-                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                        pattern:
+                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                            - "Must be a valid domain name (e.g. my-domain.org)"
 
 
 #############################
@@ -253,7 +263,9 @@ app:
                     help: Name of the list to remove
                     extra:
                         ask: "List to remove"
-                        pattern: '^[a-z0-9_]+$'
+                        pattern:
+                            - '^[a-z0-9_]+$'
+                            - "Must be alphanumeric and underscore characters only"
 
         ### app_list()
         list:
@@ -302,7 +314,9 @@ app:
                     full: --user
                     help: Allowed app map for a user
                     extra:
-                        pattern: '^[a-z0-9_]+$'
+                        pattern:
+                            - '^[a-z0-9_]+$'
+                            - "Must be alphanumeric and underscore characters only"
 
 
         ### app_install() TODO: Write help
@@ -388,7 +402,9 @@ app:
                 port:
                     help: Port to check
                     extra:
-                        pattern: '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+                        pattern:
+                            - '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+                            - "Must be a valid port number (i.e. 0-65535)"
 
         ### app_checkurl()
         checkurl:
@@ -659,7 +675,9 @@ service:
                     help: Number of lines to display
                     default: "50"
                     extra:
-                        pattern: '^[0-9]+$'
+                        pattern:
+                            - '^[0-9]+$'
+                            - "Must be a valid number"
 
 
 #############################
@@ -691,7 +709,9 @@ firewall:
                 port:
                     help: Port to open
                     extra:
-                        pattern: '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+                        pattern:
+                            - '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+                            - "Must be a valid port number (i.e. 0-65535)"
                 protocol:
                     help: Protocol associated with port
                     choices:
@@ -840,12 +860,16 @@ tools:
                 -o:
                     full: --old-domain
                     extra:
-                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                        pattern:
+                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                            - "Must be a valid domain name (e.g. my-domain.org)"
                 -n:
                     full: --new-domain
                     extra:
                         ask: "New main domain"
-                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                        pattern:
+                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                            - "Must be a valid domain name (e.g. my-domain.org)"
 
         ### tools_postinstall()
         postinstall:
@@ -857,7 +881,9 @@ tools:
                     help: YunoHost main domain
                     extra:
                         ask: "Main domain"
-                        pattern: '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                        pattern:
+                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+                            - "Must be a valid domain name (e.g. my-domain.org)"
                 -p:
                     full: --password
                     help: YunoHost admin password

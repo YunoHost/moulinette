@@ -34,7 +34,7 @@ import requests
 from urllib import urlopen
 from dyndns import dyndns_subscribe
 
-from moulinette.core.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+from moulinette.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
 
 
 def domain_list(filter=None, limit=None, offset=None):

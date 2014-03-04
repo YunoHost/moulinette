@@ -5,12 +5,14 @@ import sys
 import os.path
 import gettext
 
-# Debug option
-if '--debug' in sys.argv:
-    sys.path.append(os.path.abspath(os.path.dirname(__file__) +'/../src'))
-from moulinette import api
+# Run from source
+basedir = os.path.abspath(os.path.dirname(__file__) +'/../')
+if os.path.isdir(basedir +'/src'):
+    sys.path.append(basedir +'/src')
 
-gettext.install('YunoHost')
+from moulinette import init, api
+
+gettext.install('yunohost')
 
 
 ## Callbacks for additional routes
@@ -29,6 +31,10 @@ def is_installed():
 ## Main action
 
 if __name__ == '__main__':
+    # Run from source (prefix and libdir set to None)
+    init('yunohost', prefix=None, libdir=None,
+         cachedir=os.path.join(basedir, 'cache'))
+
     # Additional arguments
     use_cache = True
     if '--no-cache' in sys.argv:

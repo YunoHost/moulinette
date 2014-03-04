@@ -4,7 +4,8 @@ import getpass
 import re
 import logging
 
-from helpers import Interface, colorize, YunoHostError
+from .. import MoulinetteError
+from ..helpers import colorize
 
 class _ExtraParameter(object):
     """
@@ -78,7 +79,7 @@ class AskParameter(_ExtraParameter):
 
     """
     name = 'ask'
-    skipped_iface = {Interface.api}
+    skipped_iface = { 'api' }
 
     def __call__(self, message, arg_name, arg_value):
         # TODO: Fix asked arguments ordering
@@ -119,7 +120,7 @@ class PasswordParameter(AskParameter):
         pwd1 = getpass.getpass(colorize(message + ': ', 'cyan'))
         pwd2 = getpass.getpass(colorize('Retype ' + message + ': ', 'cyan'))
         if pwd1 != pwd2:
-            raise YunoHostError(22, _("Passwords don't match"))
+            raise MoulinetteError(22, _("Passwords don't match"))
         return pwd1
 
 class PatternParameter(_ExtraParameter):
@@ -137,7 +138,7 @@ class PatternParameter(_ExtraParameter):
         message = arguments[1]
 
         if arg_value is not None and not re.match(pattern, arg_value):
-            raise YunoHostError(22, message)
+            raise MoulinetteError(22, message)
         return arg_value
 
     @staticmethod

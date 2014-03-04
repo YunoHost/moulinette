@@ -37,7 +37,7 @@ from datetime import datetime, timedelta
 from service import (service_enable, service_disable,
     service_start, service_stop, service_status)
 
-from moulinette.core.helpers import YunoHostError, win_msg
+from moulinette.helpers import YunoHostError, win_msg
 
 glances_uri  = 'http://127.0.0.1:61209'
 stats_path   = '/var/lib/yunohost/stats'
