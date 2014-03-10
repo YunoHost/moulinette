@@ -1,25 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
-try:
-    import ldap
-except ImportError:
-    sys.stderr.write('Error: Yunohost CLI Require LDAP lib\n')
-    sys.stderr.write('apt-get install python-ldap\n')
-    sys.exit(1)
+import ldap
 import ldap.modlist as modlist
-import yaml
 import json
 import re
 import getpass
 import random
 import string
-import argparse
 import gettext
 import getpass
-if not __debug__:
-    import traceback
 
 win = []
 

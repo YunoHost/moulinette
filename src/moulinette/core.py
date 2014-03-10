@@ -5,115 +5,126 @@ import sys
 import gettext
 from .helpers import colorize
 
+# Package manipulation -------------------------------------------------
+
+def install_i18n(namespace=None):
+    """Install internationalization
+
+    Install translation based on the package's default gettext domain or
+    on 'namespace' if provided.
+
+    Keyword arguments:
+        - namespace -- The namespace to initialize i18n for
+
+    """
+    if namespace:
+        try:
+            t = gettext.translation(namespace, pkg.localedir)
+        except IOError:
+            # TODO: Log error
+            return
+        else:
+            t.install()
+    else:
+        gettext.install('moulinette', pkg.localedir)
+
 class Package(object):
-    """Package representation and easy access
+    """Package representation and easy access methods
 
     Initialize directories and variables for the package and give them
     easy access.
 
     Keyword arguments:
-        - prefix -- The installation prefix
-        - libdir -- The library directory; usually, this would be
-                    prefix + '/lib' (or '/lib64') when installed
-        - cachedir -- The cache directory; usually, this would be
-                      '/var/cache' when installed
-        - destdir -- The destination prefix only if it's an installation
-
-    'prefix' and 'libdir' arguments should be empty in order to run
-    package from source.
+        - _from_source -- Either the package is running from source or
+            not (only for debugging)
 
     """
-    def __init__(self, prefix, libdir, cachedir, destdir=None):
-        if not prefix and not libdir:
-            # Running from source directory
+    def __init__(self, _from_source=False):
+        if _from_source:
+            import sys
             basedir = os.path.abspath(os.path.dirname(sys.argv[0]) +'/../')
-            self._datadir = os.path.join(basedir, 'data')
-            self._libdir = os.path.join(basedir, 'src')
-            self._cachedir = cachedir
+
+            # Set local directories
+            self._datadir = '%s/data' % basedir
+            self._libdir = '%s/lib' % basedir
+            self._localedir = '%s/po' % basedir
+            self._cachedir = '%s/cache' % basedir
         else:
-            self._datadir = os.path.join(prefix, 'share/moulinette')
-            self._libdir = os.path.join(libdir, 'moulinette')
-            self._cachedir = os.path.join(cachedir, 'moulinette')
+            import package
 
-            # Append library path to python's path
-            sys.path.append(self._libdir)
-        self._destdir = destdir or None
+            # Set system directories
+            self._datadir = package.datadir
+            self._libdir = package.libdir
+            self._localedir = package.localedir
+            self._cachedir = package.cachedir
 
-
-    ## Easy access to directories and files
-
-    def datadir(self, subdir=None, **kwargs):
-        """Return the path to a data directory"""
-        return self.get_dir(self._datadir, subdir, **kwargs)
-
-    def datafile(self, filename, **kwargs):
-        """Return the path to a data file"""
-        return self.get_file(self._datadir, filename, **kwargs)
-
-    def libdir(self, subdir=None, **kwargs):
-        """Return the path to a lib directory"""
-        return self.get_dir(self._libdir, subdir, **kwargs)
-
-    def libfile(self, filename, **kwargs):
-        """Return the path to a lib file"""
-        return self.get_file(self._libdir, filename, **kwargs)
-
-    def cachedir(self, subdir=None, **kwargs):
-        """Return the path to a cache directory"""
-        return self.get_dir(self._cachedir, subdir, **kwargs)
-
-    def cachefile(self, filename, **kwargs):
-        """Return the path to a cache file"""
-        return self.get_file(self._cachedir, filename, **kwargs)
+    def __setattr__(self, name, value):
+        if name[0] == '_' and self.__dict__.has_key(name):
+            # Deny reassignation of package directories
+            raise TypeError("cannot reassign constant '%s'")
+        self.__dict__[name] = value
 
 
-    ## Standard methods
+    ## Easy access to package directories
 
-    def get_dir(self, basedir, subdir=None, make_dir=False):
-        """Get a directory path
+    @property
+    def datadir(self):
+        """Return the data directory of the package"""
+        return self._datadir
 
-        Return a path composed by a base directory and an optional
-        subdirectory. The path will be created if needed.
+    @property
+    def libdir(self):
+        """Return the lib directory of the package"""
+        return self._libdir
+
+    @property
+    def localedir(self):
+        """Return the locale directory of the package"""
+        return self._localedir
+
+    @property
+    def cachedir(self):
+        """Return the cache directory of the package"""
+        return self._cachedir
+
+
+    ## Additional methods
+
+    def get_cachedir(self, subdir='', make_dir=True):
+        """Get the path to a cache directory
+
+        Return the path to the cache directory from an optional
+        subdirectory and create it if needed.
 
         Keyword arguments:
-            - basedir -- The base directory
-            - subdir -- An optional subdirectory
-            - make_dir -- True if it should create needed directory
+            - subdir -- A cache subdirectory
+            - make_dir -- False to not make directory if it not exists
 
         """
-        # Retrieve path
-        path = basedir
-        if self._destdir:
-            path = os.path.join(self._destdir, path)
-        if subdir:
-            path = os.path.join(path, subdir)
+        path = os.path.join(self.cachedir, subdir)
 
-        # Create directory
         if make_dir and not os.path.isdir(path):
             os.makedirs(path)
         return path
 
-    def get_file(self, basedir, filename, **kwargs):
-        """Get a file path
+    def open_cache(self, filename, subdir='', mode='w'):
+        """Open a cache file and return a stream
 
-        Return the path of the filename in the specified directory. This
-        directory will be created if needed.
+        Attempt to open in 'mode' the cache file 'filename' from the
+        default cache directory and in the subdirectory 'subdir' if
+        given. Directories are created if needed and a stream is
+        returned if the file can be written.
 
         Keyword arguments:
-            - basedir -- The base directory of the file
-            - filename -- The filename or a path relative to basedir
-            - **kwargs -- Additional arguments for Package.get_dir
+            - filename -- The cache filename
+            - subdir -- A subdirectory which contains the file
+            - mode -- The mode in which the file is opened
 
         """
-        # Check for a directory in filename
-        subdir = os.path.dirname(filename) or None
-        if subdir:
-            filename = os.path.basename(filename)
+        return open('%s/%s' % (self.get_cachedir(subdir), filename), mode)
 
-        # Get directory path
-        dirpath = self.get_dir(basedir, subdir, **kwargs)
-        return os.path.join(dirpath, filename)
 
+# Moulinette core classes ----------------------------------------------
 
 class MoulinetteError(Exception):
     """Moulinette base exception

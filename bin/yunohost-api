@@ -3,7 +3,6 @@
 
 import sys
 import os.path
-import gettext
 
 # Run from source
 basedir = os.path.abspath(os.path.dirname(__file__) +'/../')
@@ -11,8 +10,6 @@ if os.path.isdir(basedir +'/src'):
     sys.path.append(basedir +'/src')
 
 from moulinette import init, api
-
-gettext.install('yunohost')
 
 
 ## Callbacks for additional routes
@@ -31,9 +28,8 @@ def is_installed():
 ## Main action
 
 if __name__ == '__main__':
-    # Run from source (prefix and libdir set to None)
-    init('yunohost', prefix=None, libdir=None,
-         cachedir=os.path.join(basedir, 'cache'))
+    # Run from source
+    init(_from_source=True)
 
     # Additional arguments
     use_cache = True
@@ -45,5 +41,5 @@ if __name__ == '__main__':
     # TODO: Add log argument
 
     # Rune the server
-    api(6787, {('GET', '/installed'): is_installed}, use_cache)
+    api(['yunohost'], 6787, {('GET', '/installed'): is_installed}, use_cache)
     sys.exit(0)

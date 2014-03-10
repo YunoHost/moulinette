@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __title__ = 'moulinette'
-__version__ = '695'
+__version__ = '0.1'
 __author__ = ['Kload',
               'jlebleu',
               'titoko',
@@ -31,12 +31,10 @@ __all__ = [
 
 from .core import MoulinetteError
 
-curr_namespace = None
-
 
 ## Package functions
 
-def init(namespace=None, **kwargs):
+def init(**kwargs):
     """Package initialization
 
     Initialize directories and global variables. It must be called
@@ -44,30 +42,33 @@ def init(namespace=None, **kwargs):
     functions.
 
     Keyword arguments:
-        - namespace -- The namespace to initialize and use
-        - **kwargs -- See helpers.Package
+        - **kwargs -- See core.Package
 
     At the end, the global variable 'pkg' will contain a Package
-    instance. See helpers.Package for available methods and variables.
+    instance. See core.Package for available methods and variables.
 
     """
+    import sys
     import __builtin__
-    from .core import Package
-
-    global curr_namespace
-    curr_namespace = namespace
-
+    from .core import Package, install_i18n
     __builtin__.__dict__['pkg'] = Package(**kwargs)
+
+    # Initialize internationalization
+    install_i18n()
+
+    # Add library directory to python path
+    sys.path.append(pkg.libdir)
 
 
 ## Easy access to interfaces
 
-def api(port, routes={}, use_cache=True):
+def api(namespaces, port, routes={}, use_cache=True):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
 
     Keyword arguments:
+        - namespaces -- The list of namespaces to use
         - port -- Port to run on
         - routes -- A dict of additional routes to add in the form of
             {(method, uri): callback}
@@ -79,18 +80,19 @@ def api(port, routes={}, use_cache=True):
     from .actionsmap import ActionsMap
     from .interface.api import MoulinetteAPI
 
-    amap = ActionsMap('api', use_cache=use_cache)
+    amap = ActionsMap('api', namespaces, use_cache)
     moulinette = MoulinetteAPI(amap, routes)
 
     run(moulinette.app, port=port)
 
-def cli(args, use_cache=True):
+def cli(namespaces, args, use_cache=True):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
     result in a readable format.
 
     Keyword arguments:
+        - namespaces -- The list of namespaces to use
         - args -- A list of argument strings
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one
@@ -98,7 +100,7 @@ def cli(args, use_cache=True):
     """
     import os
     from .actionsmap import ActionsMap
-    from .helpers import YunoHostError, pretty_print_dict
+    from .helpers import pretty_print_dict
 
     lock_file = '/var/run/moulinette.lock'
 
@@ -112,7 +114,7 @@ def cli(args, use_cache=True):
     os.system('chmod 400 '+ lock_file)
 
     try:
-        amap = ActionsMap('cli', use_cache=use_cache)
+        amap = ActionsMap('cli', namespaces, use_cache)
         pretty_print_dict(amap.process(args))
     except KeyboardInterrupt, EOFError:
         raise MoulinetteError(125, _("Interrupted"))

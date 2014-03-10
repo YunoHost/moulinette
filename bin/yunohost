@@ -3,25 +3,21 @@
 
 import sys
 import os.path
-import gettext
 
 # Run from source
-basedir = os.path.abspath(os.path.dirname(__file__) +'/../')
-if os.path.isdir(basedir +'/src'):
-    sys.path.append(basedir +'/src')
+basedir = os.path.abspath('%s/../' % os.path.dirname(__file__))
+if os.path.isdir('%s/src' % basedir):
+    sys.path.append('%s/src' % basedir)
 
 from moulinette import init, cli, MoulinetteError
 from moulinette.helpers import YunoHostError, colorize
-
-gettext.install('yunohost')
 
 
 ## Main action
 
 if __name__ == '__main__':
-    # Run from source (prefix and libdir set to None)
-    init('yunohost', prefix=None, libdir=None,
-         cachedir=os.path.join(basedir, 'cache'))
+    # Run from source
+    init(_from_source=True)
 
     # Additional arguments
     use_cache = True
@@ -39,7 +35,7 @@ if __name__ == '__main__':
             raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
 
         # Execute the action
-        cli(args, use_cache)
+        cli(['yunohost'], args, use_cache)
     except MoulinetteError as e:
         print(e.colorize())
         sys.exit(e.code)
