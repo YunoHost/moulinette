@@ -267,7 +267,7 @@ def tools_update():
     Update distribution
 
     """
-    process = Popen("./checkupdate", stdout=PIPE)
+    process = Popen("./bash/checkupdate", stdout=PIPE)
     stdout, stderr = process.communicate()
     if process.returncode == 1:
         win_msg( _("Not upgrade found"))
