@@ -267,7 +267,6 @@ def tools_update():
     Update distribution
 
     """
-
     process = Popen("/usr/local/bin/checkupdate", stdout=PIPE)
     stdout, stderr = process.communicate()
     if process.returncode == 1:
@@ -282,7 +281,7 @@ def tools_changelog():
     Show Changelog
 
     """
-
+    win_msg(_("TODO Show Changelog"))
 
 
 def tools_upgrade():
@@ -290,7 +289,6 @@ def tools_upgrade():
     Upgrade distribution
 
     """
-
     if os.path.isfile('/tmp/update_status'):
         os.system('at now -f /etc/yunohost/upgrade')
     else:
