@@ -1,0 +1,3 @@
+rm /tmp/update_status
+sudo apt-get upgrade -y > /tmp/update_log 2>&1
+if [[ $? = 0 ]]; then echo "OK" > /tmp/upgrade_status; else echo "NOK" > /tmp/upgrade_status; fi
