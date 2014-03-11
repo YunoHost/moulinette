@@ -276,12 +276,15 @@ def tools_update():
     else:
         return { "Update" : stdout.splitlines() }
 
+
 def tools_changelog():
     """
     Show Changelog
 
     """
-    win_msg(_("TODO Show Changelog"))
+    with open('/tmp/changelog', 'r') as f:
+        read_data = f.read()
+        return { "Changelog" : read_data.splitlines() }
 
 
 def tools_upgrade():
