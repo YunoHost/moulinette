@@ -19,26 +19,20 @@ class _AMapParser(object):
 
     Each interfaces must implement a parser class derived from this
     class. It is used to parse the main parts of the actions map (i.e.
-    general arguments, categories and actions).
+    global arguments, categories and actions).
 
     """
-
-    ## Optional variables
-    # Each parser classes can overwrite these variables.
-
-    """Either it will parse general arguments, or not"""
-    parse_general_arguments = True
-
 
     ## Virtual methods
     # Each parser classes can implement these methods.
 
     @staticmethod
-    def format_arg_name(name, full):
+    def format_arg_names(name, full):
         """Format argument name
 
-        Format agument name depending on its 'full' parameters and return
-        a list to use it as option string for the argument parser.
+        Format agument name depending on its 'full' parameter and return
+        a list of strings which will be used as name or option strings
+        for the argument parser.
 
         Keyword arguments:
             - name -- The argument name
@@ -51,21 +45,17 @@ class _AMapParser(object):
         raise NotImplementedError("derived class '%s' must override this method" % \
                                     self.__class__.__name__)
 
-    def add_general_parser(self, **kwargs):
-        """Add a parser for general arguments
+    def add_global_parser(self, **kwargs):
+        """Add a parser for global arguments
 
-        Create and return an argument parser for general arguments.
+        Create and return an argument parser for global arguments.
 
         Returns:
             An ArgumentParser based object
 
         """
-        if not self.parse_general_arguments:
-            msg = "doesn't parse general arguments"
-        else:
-            msg = "must override this method"
-        raise NotImplementedError("derived class '%s' %s" % \
-                                    (self.__class__.__name__, msg))
+        raise NotImplementedError("derived class '%s' must override this method" % \
+                                    self.__class__.__name__)
 
     def add_category_parser(self, name, **kwargs):
         """Add a parser for a category
@@ -124,12 +114,12 @@ class CLIAMapParser(_AMapParser):
         self._subparsers = self._parser.add_subparsers()
 
     @staticmethod
-    def format_arg_name(name, full):
+    def format_arg_names(name, full):
         if name[0] == '-' and full:
             return [name, full]
         return [name]
 
-    def add_general_parser(self, **kwargs):
+    def add_global_parser(self, **kwargs):
         return self._parser
 
     def add_category_parser(self, name, category_help=None, **kwargs):
@@ -145,7 +135,7 @@ class CLIAMapParser(_AMapParser):
         parser = self._subparsers.add_parser(name, help=category_help)
         return self.__class__(parser)
 
-    def add_action_parser(self, name, action_help, **kwargs):
+    def add_action_parser(self, name, action_help=None, **kwargs):
         """Add a parser for an action
 
         Keyword arguments:
@@ -234,7 +224,6 @@ class APIAMapParser(_AMapParser):
     """Actions map's API Parser
 
     """
-    parse_general_arguments = False
 
     def __init__(self):
         self._parsers = {}   # dict({(method, path): _HTTPArgumentParser})
@@ -248,7 +237,7 @@ class APIAMapParser(_AMapParser):
     ## Implement virtual methods
 
     @staticmethod
-    def format_arg_name(name, full):
+    def format_arg_names(name, full):
         if name[0] != '-':
             return [name]
         if full:
@@ -256,6 +245,9 @@ class APIAMapParser(_AMapParser):
         if name.startswith('--'):
             return [name.replace('--', '@', 1)]
         return [name.replace('-', '@', 1)]
+
+    def add_global_parser(self, **kwargs):
+        raise AttributeError("global arguments are not managed")
 
     def add_category_parser(self, name, **kwargs):
         return self
@@ -271,17 +263,17 @@ class APIAMapParser(_AMapParser):
 
         """
         if not api:
-            return None
+            raise AttributeError("the action '%s' doesn't provide api access" % name)
 
         # Validate action route
         m = re.match('(GET|POST|PUT|DELETE) (/\S+)', api)
         if not m:
-            return None
+            raise ValueError("the action '%s' doesn't provide api access" % name)
 
         # Check if a parser already exists for the route
         key = (m.group(1), m.group(2))
         if key in self.routes:
-            raise ValueError("A parser for '%s' already exists" % key)
+            raise AttributeError("a parser for '%s' already exists" % key)
 
         # Create and append parser
         parser = _HTTPArgumentParser()
@@ -612,8 +604,8 @@ class ActionsMap(object):
             arguments[an] = self.extraparser.parse(an, arguments[an], parameters)
 
         # Retrieve action information
-        namespace, category, action = arguments.pop('_info')
-        func_name = '%s_%s' % (category, action)
+        namespace, category, action = arguments.pop('_id')
+        func_name = '%s_%s' % (category, action.replace('-', '_'))
 
         # Lock the moulinette for the namespace
         with MoulinetteLock(namespace, timeout):
@@ -690,67 +682,75 @@ class ActionsMap(object):
             An interface relevant's parser object
 
         """
-        # Define setter for extra parameters
+        ## Get extra parameters
         if not self.use_cache:
-            _set_extra = lambda an, e: self.extraparser.validate(an, e)
+            _get_extra = lambda an, e: self.extraparser.validate(an, e)
         else:
-            _set_extra = lambda an, e: e
+            _get_extra = lambda an, e: e
+
+        ## Add arguments to the parser
+        def _add_arguments(parser, arguments):
+            extras = {}
+            for argn, argp in arguments.items():
+                names = top_parser.format_arg_names(argn,
+                                                    argp.pop('full', None))
+                extra = argp.pop('extra', None)
+
+                arg = parser.add_argument(*names, **argp)
+                if extra:
+                    extras[arg.dest] = _get_extra(arg.dest, extra)
+            parser.set_defaults(_extra=extras)
 
         # Instantiate parser
         top_parser = self._parser_class()
 
         # Iterate over actions map namespaces
         for n, actionsmap in actionsmaps.items():
-            if 'general_arguments' in actionsmap:
-                # Parse general arguments
-                if top_parser.parse_general_arguments:
-                    parser = top_parser.add_general_parser()
-                    for an, ap in actionsmap['general_arguments'].items():
-                        # Replace version number
-                        version = ap.get('version', None)
-                        if version:
-                            ap['version'] = version.replace('%version%',
-                                                            __version__)
-                        argname = top_parser.format_arg_name(an, ap.pop('full', None))
-                        parser.add_argument(*argname, **ap)
-                del actionsmap['general_arguments']
+            # Retrieve global parameters
+            _global = actionsmap.pop('_global', {})
 
-            # Parse categories
+            # -- Parse global configuration
+            # TODO
+
+            # -- Parse global arguments
+            if 'arguments' in _global:
+                try:
+                    # Get global arguments parser
+                    parser = top_parser.add_global_parser()
+                except AttributeError:
+                    # No parser for global arguments
+                    pass
+                else:
+                    # Add arguments
+                    _add_arguments(parser, _global['arguments'])
+
+            # -- Parse categories
             for cn, cp in actionsmap.items():
                 try:
                     actions = cp.pop('actions')
                 except KeyError:
+                    # Invalid category without actions
                     continue
 
-                # Add category parser
+                # Get category parser
                 cat_parser = top_parser.add_category_parser(cn, **cp)
 
-                # Parse actions
+                # -- Parse actions
                 for an, ap in actions.items():
                     arguments = ap.pop('arguments', {})
 
-                    # Add action parser
-                    parser = cat_parser.add_action_parser(an, **ap)
-
                     try:
-                        # Store action information
-                        parser.set_defaults(_info=(n, cn, an))
+                        # Get action parser
+                        parser = cat_parser.add_action_parser(an, **ap)
                     except AttributeError:
                         # No parser for the action
-                        break
-
-                    # Add action arguments
-                    for argn, argp in arguments.items():
-                        name = top_parser.format_arg_name(argn, argp.pop('full', None))
-                        extra = argp.pop('extra', None)
-
-                        arg = parser.add_argument(*name, **argp)
-                        if not extra:
-                            continue
-
-                        # Store extra parameters
-                        extras = parser.get_default('_extra') or {}
-                        extras[arg.dest] = _set_extra(arg.dest, extra)
-                        parser.set_defaults(_extra=extras)
+                        continue
+                    except ValueError:
+                        # TODO: Log error
+                        continue
+                    else:
+                        # Store action identification and add arguments
+                        parser.set_defaults(_id=(n, cn, an))
+                        _add_arguments(parser, arguments)
 
         return top_parser

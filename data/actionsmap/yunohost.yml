@@ -29,12 +29,14 @@
 #
 ##########################################################################
 
-# TODO: Add patern for all this
-
 #############################
-#       General args        #
+#     Global parameters     #
 #############################
-general_arguments:
+_global:
+    configuration:
+        auth:
+            - api
+    arguments:
         -v:
             full: --version
             help: Display moulinette version
