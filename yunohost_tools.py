@@ -293,6 +293,6 @@ def tools_upgrade():
 
     """
     if os.path.isfile('/tmp/update_status'):
-        os.system('at now -f /etc/yunohost/upgrade')
+        os.system('at now -f /usr/share/pyshared/yunohost-cli/upgrade')
     else:
         raise YunoHostError(17, _("Launch update before upgrade"))
