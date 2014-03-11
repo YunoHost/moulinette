@@ -10,7 +10,7 @@ from collections import OrderedDict
 import logging
 
 from . import __version__
-from .core import MoulinetteError
+from .core import MoulinetteError, MoulinetteLock
 
 ## Interfaces' Actions map Parser --------------------------------------
 
@@ -441,10 +441,9 @@ class PatternParameter(_ExtraParameter):
     name = 'pattern'
 
     def __call__(self, arguments, arg_name, arg_value):
-        pattern = arguments[0]
-        message = arguments[1]
+        pattern, message = (arguments[0], arguments[1])
 
-        if arg_value is not None and not re.match(pattern, arg_value):
+        if not re.match(pattern, arg_value or ''):
             raise MoulinetteError(22, message)
         return arg_value
 
@@ -496,12 +495,13 @@ class ExtraArgumentParser(object):
         """
         # Iterate over parameters to validate
         for p, v in parameters.items():
-            # Remove unknow parameters
-            if p not in self.extra.keys():
+            klass = self.extra.get(p, None)
+            if not klass:
+                # Remove unknown parameters
                 del parameters[p]
-
-            # Validate parameter value
-            parameters[p] = self.extra[p].validate(v, arg_name)
+            else:
+                # Validate parameter value
+                parameters[p] = klass.validate(v, arg_name)
 
         return parameters
 
@@ -595,36 +595,38 @@ class ActionsMap(object):
         self.extraparser = ExtraArgumentParser(interface)
         self.parser = self._construct_parser(actionsmaps)
 
-    def process(self, args, **kwargs):
+    def process(self, args, timeout=0, **kwargs):
         """
         Parse arguments and process the proper action
 
         Keyword arguments:
             - args -- The arguments to parse
+            - timeout -- The time period before failing if the lock
+                cannot be acquired for the action
             - **kwargs -- Additional interface arguments
 
         """
-        # Check moulinette status
-        
         # Parse arguments
         arguments = vars(self.parser.parse_args(args, **kwargs))
-        arguments = self._parse_extra_parameters(arguments)
+        for an, parameters in (arguments.pop('_extra', {})).items():
+            arguments[an] = self.extraparser.parse(an, arguments[an], parameters)
 
         # Retrieve action information
         namespace, category, action = arguments.pop('_info')
         func_name = '%s_%s' % (category, action)
 
-        try:
-            mod = __import__('%s.%s' % (namespace, category),
-                             globals=globals(), level=0,
-                             fromlist=[func_name])
-            func = getattr(mod, func_name)
-        except (AttributeError, ImportError):
-            raise MoulinetteError(168, _('Function is not defined'))
-        else:
-            # Process the action
-            return func(**arguments)
-        return {}
+        # Lock the moulinette for the namespace
+        with MoulinetteLock(namespace, timeout):
+            try:
+                mod = __import__('%s.%s' % (namespace, category),
+                                 globals=globals(), level=0,
+                                 fromlist=[func_name])
+                func = getattr(mod, func_name)
+            except (AttributeError, ImportError):
+                raise MoulinetteError(168, _('Function is not defined'))
+            else:
+                # Process the action
+                return func(**arguments)
 
     @staticmethod
     def get_namespaces():
@@ -674,57 +676,7 @@ class ActionsMap(object):
         return actionsmaps
 
 
-    ## Private class and methods
-
-    def _store_extra_parameters(self, parser, arg_name, arg_extra):
-        """
-        Store extra parameters for a given argument
-
-        Keyword arguments:
-            - parser -- Parser object for the arguments
-            - arg_name -- Argument name
-            - arg_extra -- Argument extra parameters
-
-        Returns:
-            The parser object
-
-        """
-        if arg_extra:
-            # Retrieve current extra parameters dict
-            extra = parser.get_default('_extra')
-            if not extra or not isinstance(extra, dict):
-                extra = {}
-
-            if not self.use_cache:
-                # Validate extra parameters for the argument
-                extra[arg_name] = self.extraparser.validate(arg_name, arg_extra)
-            else:
-                extra[arg_name] = arg_extra
-            parser.set_defaults(_extra=extra)
-
-        return parser
-
-    def _parse_extra_parameters(self, args):
-        """
-        Parse arguments with their extra parameters
-
-        Keyword arguments:
-            - args -- A dict of all arguments
-
-        Return:
-            The parsed arguments dict
-
-        """
-        # Retrieve extra parameters for the arguments
-        extra = args.pop('_extra', None)
-        if not extra:
-            return args
-
-        # Validate extra parameters for each arguments
-        for an, parameters in extra.items():
-            args[an] = self.extraparser.parse(an, args[an], parameters)
-
-        return args
+    ## Private methods
 
     def _construct_parser(self, actionsmaps):
         """
@@ -738,6 +690,12 @@ class ActionsMap(object):
             An interface relevant's parser object
 
         """
+        # Define setter for extra parameters
+        if not self.use_cache:
+            _set_extra = lambda an, e: self.extraparser.validate(an, e)
+        else:
+            _set_extra = lambda an, e: e
+
         # Instantiate parser
         top_parser = self._parser_class()
 
@@ -787,6 +745,12 @@ class ActionsMap(object):
                         extra = argp.pop('extra', None)
 
                         arg = parser.add_argument(*name, **argp)
-                        parser = self._store_extra_parameters(parser, arg.dest, extra)
+                        if not extra:
+                            continue
+
+                        # Store extra parameters
+                        extras = parser.get_default('_extra') or {}
+                        extras[arg.dest] = _set_extra(arg.dest, extra)
+                        parser.set_defaults(_extra=extras)
 
         return top_parser

@@ -2,7 +2,9 @@
 
 import os
 import sys
+import time
 import gettext
+
 from .helpers import colorize
 
 # Package manipulation -------------------------------------------------
@@ -164,3 +166,70 @@ class MoulinetteError(Exception):
 
     def colorize(self):
         return self.__str__(colorized=True)
+
+
+class MoulinetteLock(object):
+    """Locker for a moulinette instance
+
+    It provides a lock mechanism for a given moulinette instance. It can
+    be used in a with statement as it has a context-manager support.
+
+    Keyword arguments:
+        - namespace -- The namespace to lock
+        - timeout -- The time period before failing if the lock cannot
+            be acquired
+        - interval -- The time period before trying again to acquire the
+            lock
+
+    """
+    def __init__(self, namespace, timeout=0, interval=.5):
+        self.namespace = namespace
+        self.timeout = timeout
+        self.interval = interval
+
+        self._lockfile = '/var/run/moulinette_%s.lock' % namespace
+        self._locked = False
+
+    def acquire(self):
+        """Attempt to acquire the lock for the moulinette instance
+
+        It will try to write to the lock file only if it doesn't exist.
+        Otherwise, it will wait and try again until the timeout expires
+        or the lock file doesn't exist.
+
+        """
+        start_time = time.time()
+
+        while True:
+            if not os.path.isfile(self._lockfile):
+                # Create the lock file
+                (open(self._lockfile, 'w')).close()
+                break
+
+            if (time.time() - start_time) > self.timeout:
+                raise MoulinetteError(1, _("An instance is already running for '%s'") \
+                                            % self.namespace)
+            # Wait before checking again
+            time.sleep(self.interval)
+        self._locked = True
+
+    def release(self):
+        """Release the lock of the moulinette instance
+
+        It will delete the lock file if the lock has been acquired.
+
+        """
+        if self._locked:
+            os.unlink(self._lockfile)
+            self._locked = False
+
+    def __enter__(self):
+        if not self._locked:
+            self.acquire()
+        return self
+
+    def __exit__(self, *args):
+        self.release()
+
+    def __del__(self):
+        self.release()

@@ -98,26 +98,11 @@ def cli(namespaces, args, use_cache=True):
             instead of using the cached one
 
     """
-    import os
     from .actionsmap import ActionsMap
     from .helpers import pretty_print_dict
-
-    lock_file = '/var/run/moulinette.lock'
-
-    # TODO: Move the lock checking into the ActionsMap class
-    # Check the lock
-    if os.path.isfile(lock_file):
-        raise MoulinetteError(1, _("The moulinette is already running"))
-
-    # Create a lock
-    with open(lock_file, 'w') as f: pass
-    os.system('chmod 400 '+ lock_file)
 
     try:
         amap = ActionsMap('cli', namespaces, use_cache)
         pretty_print_dict(amap.process(args))
     except KeyboardInterrupt, EOFError:
         raise MoulinetteError(125, _("Interrupted"))
-    finally:
-        # Remove the lock
-        os.remove(lock_file)
