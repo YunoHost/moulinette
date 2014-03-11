@@ -262,3 +262,36 @@ def tools_postinstall(domain, password, dyndns=False):
     win_msg(_("YunoHost has been successfully configured"))
 
 
+def tools_update():
+    """
+    Update distribution
+
+    """
+
+    process = Popen("/usr/local/bin/checkupdate", stdout=PIPE)
+    stdout, stderr = process.communicate()
+    if process.returncode == 1:
+        win_msg( _("Not upgrade found"))
+    elif process.returncode == 2:
+        raise YunoHostError(17, _("Error during update"))
+    else:
+        return { "Update" : stdout.splitlines() }
+
+def tools_changelog():
+    """
+    Show Changelog
+
+    """
+
+
+
+def tools_upgrade():
+    """
+    Upgrade distribution
+
+    """
+
+    if os.path.isfile('/tmp/update_status'):
+        os.system('at now -f /etc/yunohost/upgrade')
+    else:
+        raise YunoHostError(17, _("Launch update before upgrade"))
