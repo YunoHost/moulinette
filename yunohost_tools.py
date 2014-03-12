@@ -267,7 +267,7 @@ def tools_update():
     Update distribution
 
     """
-    process = Popen("./bash/checkupdate", stdout=PIPE)
+    process = Popen("/usr/bin/checkupdate", stdout=PIPE)
     stdout, stderr = process.communicate()
     if process.returncode == 1:
         win_msg( _("Not upgrade found"))
@@ -293,6 +293,6 @@ def tools_upgrade():
 
     """
     if os.path.isfile('/tmp/update_status'):
-        os.system('at now -f /usr/share/pyshared/yunohost-cli/upgrade')
+        os.system('at now -f /etc/yunohost/upgrade')
     else:
         raise YunoHostError(17, _("Launch update before upgrade"))
