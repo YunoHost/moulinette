@@ -311,3 +311,16 @@ def tools_upgrade():
             win_msg( _("Upgrade in progress"))
         else:
             raise YunoHostError(17, _("Launch update before upgrade"))
+            
+
+def tools_upgradelog():
+    """
+    Show upgrade log
+
+    """
+    if os.path.isfile('/tmp/yunohost/upgrade.run'):
+        win_msg( _("Upgrade in progress"))
+    else:
+        with open('/tmp/yunohost/update_log', 'r') as f:
+            read_data = f.read()
+            return { "DPKG LOG" : read_data.splitlines() }
