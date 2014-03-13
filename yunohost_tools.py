@@ -262,3 +262,65 @@ def tools_postinstall(domain, password, dyndns=False):
     win_msg(_("YunoHost has been successfully configured"))
 
 
+def tools_update():
+    """
+    Update distribution
+
+    """
+    process = Popen("/usr/bin/checkupdate", stdout=PIPE)
+    stdout, stderr = process.communicate()
+    if process.returncode == 1:
+        win_msg( _("Not upgrade found"))
+    elif process.returncode == 2:
+        raise YunoHostError(17, _("Error during update"))
+    else:
+        return { "Update" : stdout.splitlines() }
+        
+
+def tools_changelog():
+    """
+    Show Changelog
+
+    """
+    if os.path.isfile('/tmp/yunohost/update_status'):
+        with open('/tmp/yunohost/changelog', 'r') as f:
+            read_data = f.read()
+            return { "Changelog" : read_data.splitlines() }
+    else:
+        raise YunoHostError(17, _("Launch update before upgrade"))
+        
+
+def tools_upgrade():
+    """
+    Upgrade distribution
+
+    """
+    if os.path.isfile('/tmp/yunohost/upgrade.run'):
+        win_msg( _("Upgrade in progress"))
+    else:
+        if os.path.isfile('/tmp/yunohost/upgrade_status'):
+            with open('/tmp/yunohost/upgrade_status', 'r') as f:
+                read_data = f.read()
+                os.system('rm /tmp/yunohost/upgrade_status')
+                if read_data.strip() == "OK":
+                    win_msg( _("YunoHost has been successfully upgraded"))
+                else:
+                    raise YunoHostError(17, _("Error during upgrade"))
+        elif os.path.isfile('/tmp/yunohost/update_status'):
+            os.system('at now -f /usr/share/yunohost/upgrade')
+            win_msg( _("Upgrade in progress"))
+        else:
+            raise YunoHostError(17, _("Launch update before upgrade"))
+            
+
+def tools_upgradelog():
+    """
+    Show upgrade log
+
+    """
+    if os.path.isfile('/tmp/yunohost/upgrade.run'):
+        win_msg( _("Upgrade in progress"))
+    else:
+        with open('/tmp/yunohost/update_log', 'r') as f:
+            read_data = f.read()
+            return { "DPKG LOG" : read_data.splitlines() }

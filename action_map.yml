@@ -855,6 +855,26 @@ tools:
                     help: Subscribe domain to a DynDNS service
                     action: store_true
 
+        ### tools_update()
+        update:
+            action_help: YunoHost update
+            api: POST /update
+
+        ### tools_changelog()
+        changelog:
+            action_help: YunoHost changelog
+            api: POST /changelog
+
+        ### tools_upgrade()
+        upgrade:
+            action_help: YunoHost upgrade
+            api: POST /upgrade
+            
+        ### tools_upgradelog()
+        upgradelog:
+            action_help: Show dpkg log
+            api: POST /upgradelog
+
 
 #############################
 #           Hook            #
