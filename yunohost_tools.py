@@ -281,9 +281,12 @@ def tools_changelog():
     Show Changelog
 
     """
-    with open('/tmp/yunohost/changelog', 'r') as f:
-        read_data = f.read()
-        return { "Changelog" : read_data.splitlines() }
+    if os.path.isfile('/tmp/yunohost/update_status'):
+        with open('/tmp/yunohost/changelog', 'r') as f:
+            read_data = f.read()
+            return { "Changelog" : read_data.splitlines() }
+    else:
+        raise YunoHostError(17, _("Launch update before upgrade"))
 
 def tools_upgrade():
     """
