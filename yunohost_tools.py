@@ -275,6 +275,7 @@ def tools_update():
         raise YunoHostError(17, _("Error during update"))
     else:
         return { "Update" : stdout.splitlines() }
+        
 
 def tools_changelog():
     """
@@ -287,6 +288,7 @@ def tools_changelog():
             return { "Changelog" : read_data.splitlines() }
     else:
         raise YunoHostError(17, _("Launch update before upgrade"))
+        
 
 def tools_upgrade():
     """
@@ -296,8 +298,7 @@ def tools_upgrade():
     if os.path.isfile('/tmp/yunohost/upgrade.run'):
         win_msg( _("Upgrade in progress"))
     else:
-        if os.path.isfile('/tmp/yunohost/update_status'):
-            os.system('at now -f /etc/yunohost/upgrade')
+        if os.path.isfile('/tmp/yunohost/upgrade_status'):
             with open('/tmp/yunohost/upgrade_status', 'r') as f:
                 read_data = f.read()
                 os.system('rm /tmp/yunohost/upgrade_status')
@@ -305,5 +306,8 @@ def tools_upgrade():
                     win_msg( _("YunoHost has been successfully upgraded"))
                 else:
                     raise YunoHostError(17, _("Error during upgrade"))
+        elif os.path.isfile('/tmp/yunohost/update_status'):
+            os.system('at now -f /etc/yunohost/upgrade')
+            win_msg( _("Upgrade in progress"))
         else:
             raise YunoHostError(17, _("Launch update before upgrade"))
