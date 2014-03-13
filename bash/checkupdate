@@ -1,8 +1,13 @@
 #!/bin/bash
 
-if [ -f /tmp/changelog ];
+if [ ! -d /tmp/yunohost ];
 then
-	rm /tmp/changelog
+        mkdir /tmp/yunohost
+fi
+
+if [ -f /tmp/yunohost/changelog ];
+then
+	rm /tmp/yunohost/changelog
 fi
 
 apt-get update -y > /dev/null 2>&1
@@ -10,7 +15,7 @@ if [[ $? != 0 ]];
 then
 	exit 2
 else
-	echo OK > /tmp/update_status
+	echo OK > /tmp/yunohost/update_status
 fi
 
 # Set $DIRCACHE
@@ -57,6 +62,6 @@ then
 	exit 3
 else
 	if [ -x /usr/bin/apt-listchanges ] ; then
-        	/usr/bin/apt-listchanges --which=both -f text $DEBS > /tmp/changelog 2>/dev/null
+        	/usr/bin/apt-listchanges --which=both -f text $DEBS > /tmp/yunohost/changelog 2>/dev/null
 	fi
 fi
