@@ -869,6 +869,11 @@ tools:
         upgrade:
             action_help: YunoHost upgrade
             api: POST /upgrade
+            
+        ### tools_upgradelog()
+        upgradelog:
+            action_help: Show dpkg log
+            api: POST /upgradelog
 
 
 #############################
