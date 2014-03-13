@@ -307,7 +307,7 @@ def tools_upgrade():
                 else:
                     raise YunoHostError(17, _("Error during upgrade"))
         elif os.path.isfile('/tmp/yunohost/update_status'):
-            os.system('at now -f /etc/yunohost/upgrade')
+            os.system('at now -f /usr/share/yunohost/upgrade')
             win_msg( _("Upgrade in progress"))
         else:
             raise YunoHostError(17, _("Launch update before upgrade"))
