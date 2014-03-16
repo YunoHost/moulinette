@@ -213,11 +213,11 @@ class MoulinetteAPI(object):
 
         """
         if category is None:
-            with open('%s/doc/resources.json' % pkg.datadir) as f:
+            with open('%s/../doc/resources.json' % pkg.datadir) as f:
                 return f.read()
 
         try:
-            with open('%s/doc/%s.json' % (pkg.datadir, category)) as f:
+            with open('%s/../doc/%s.json' % (pkg.datadir, category)) as f:
                 return f.read()
         except IOError:
             return 'unknown'

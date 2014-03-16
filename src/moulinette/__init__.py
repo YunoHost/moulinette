@@ -57,7 +57,7 @@ def init(**kwargs):
     install_i18n()
 
     # Add library directory to python path
-    sys.path.append(pkg.libdir)
+    sys.path.insert(0, pkg.libdir)
 
 
 ## Easy access to interfaces
@@ -99,10 +99,9 @@ def cli(namespaces, args, use_cache=True):
 
     """
     from .actionsmap import ActionsMap
-    from .helpers import pretty_print_dict
+    from .interface.cli import MoulinetteCLI
 
-    try:
-        amap = ActionsMap('cli', namespaces, use_cache)
-        pretty_print_dict(amap.process(args))
-    except KeyboardInterrupt, EOFError:
-        raise MoulinetteError(125, _("Interrupted"))
+    amap = ActionsMap('cli', namespaces, use_cache)
+    moulinette = MoulinetteCLI(amap)
+
+    moulinette.run(args)

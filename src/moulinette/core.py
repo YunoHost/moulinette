@@ -126,6 +126,80 @@ class Package(object):
         return open('%s/%s' % (self.get_cachedir(subdir), filename), mode)
 
 
+# Authenticators -------------------------------------------------------
+
+class _BaseAuthenticator(object):
+
+    ## Virtual properties
+    # Each authenticator classes must implement these properties.
+
+    """The name of the authenticator"""
+    name = None
+
+    @property
+    def is_authenticated(self):
+        """Either the instance is authenticated or not"""
+        raise NotImplementedError("derived class '%s' must override this property" % \
+                                    self.__class__.__name__)
+
+
+    ## Virtual methods
+    # Each authenticator classes must implement these methods.
+
+    def authenticate(password=None, token=None):
+        """Attempt to authenticate
+
+        Attempt to authenticate with given password or session token.
+
+        Keyword arguments:
+            - password -- A clear text password
+            - token -- A session token
+
+        Returns:
+            An optional session token
+
+        """
+        raise NotImplementedError("derived class '%s' must override this method" % \
+                                    self.__class__.__name__)
+
+
+class LDAPAuthenticator(object):
+
+    def __init__(self, uri, base, anonymous=False):
+        # TODO: Initialize LDAP connection
+
+        if anonymous:
+            self._authenticated = True
+        else:
+            self._authenticated = False
+
+
+    ## Implement virtual properties
+
+    name = 'ldap'
+
+    @property
+    def is_authenticated(self):
+        return self._authenticated
+
+
+    ## Implement virtual methods
+
+    def authenticate(self, password=None, token=None):
+        # TODO: Perform LDAP authentication
+        if password == 'test':
+            self._authenticated = True
+        else:
+            raise MoulinetteError(13, _("Invalid password"))
+
+        return self
+
+
+def init_authenticator(_name, **kwargs):
+    if _name == 'ldap':
+        return LDAPAuthenticator(**kwargs)
+
+
 # Moulinette core classes ----------------------------------------------
 
 class MoulinetteError(Exception):

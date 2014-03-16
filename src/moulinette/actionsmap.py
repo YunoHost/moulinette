@@ -10,7 +10,91 @@ from collections import OrderedDict
 import logging
 
 from . import __version__
-from .core import MoulinetteError, MoulinetteLock
+from .core import MoulinetteError, MoulinetteLock, init_authenticator
+
+## Actions map Signals -------------------------------------------------
+
+class _AMapSignals(object):
+    """Actions map's Signals interface
+
+    Allow to easily connect signals of the actions map to handlers. They
+    can be given as arguments in the form of { signal: handler }.
+
+    """
+    def __init__(self, **kwargs):
+        # Initialize handlers
+        for s in self.signals:
+            self.clear_handler(s)
+
+        # Iterate over signals to connect
+        for s, h in kwargs.items():
+            self.set_handler(s, h)
+
+    def set_handler(self, signal, handler):
+        """Set the handler for a signal"""
+        if signal not in self.signals:
+            raise ValueError("unknown signal '%s'" % signal)
+        setattr(self, '_%s' % signal, handler)
+
+    def clear_handler(self, signal):
+        """Clear the handler of a signal"""
+        if signal not in self.signals:
+            raise ValueError("unknown signal '%s'" % signal)
+        setattr(self, '_%s' % signal, self._notimplemented)
+
+
+    ## Signals definitions
+
+    """The list of available signals"""
+    signals = { 'authenticate', 'prompt' }
+
+    def authenticate(self, authenticator, name, help):
+        """Process the authentication
+
+        Attempt to authenticate to the given authenticator and return
+        it.
+        It is called when authentication is needed (e.g. to process an
+        action).
+
+        Keyword arguments:
+            - authenticator -- The authenticator to use
+            - name -- The authenticator name in the actions map
+            - help -- A help message for the authenticator
+
+        Returns:
+            The authenticator object
+
+        """
+        if authenticator.is_authenticated:
+            return authenticator
+        return self._authenticate(authenticator, name, help)
+
+    def prompt(self, message, is_password=False, confirm=False):
+        """Prompt for a value
+
+        Prompt the interface for a parameter value which is a password
+        if 'is_password' and must be confirmed if 'confirm'.
+        Is is called when a parameter value is needed and when the
+        current interface should allow user interaction (e.g. to parse
+        extra parameter 'ask' in the cli).
+
+        Keyword arguments:
+            - message -- The message to display
+            - is_password -- True if the parameter is a password
+            - confirm -- True if the value must be confirmed
+
+        Returns:
+            The collected value
+
+        """
+        return self._prompt(message, is_password, confirm)
+
+    @staticmethod
+    def _notimplemented(**kwargs):
+        raise NotImplementedError("this signal is not handled")
+
+shandler = _AMapSignals()
+
 
 ## Interfaces' Actions map Parser --------------------------------------
 
@@ -22,9 +106,24 @@ class _AMapParser(object):
     global arguments, categories and actions).
 
     """
+    def __init__(self, parent=None):
+        if parent:
+            self._o = parent
+        else:
+            self._o = self
+            self._global_conf = {}
+            self._conf = {}
+
+
+    ## Virtual properties
+    # Each parser classes must implement these properties.
+
+    """The name of the interface for which it is the parser"""
+    name = None
+
 
     ## Virtual methods
-    # Each parser classes can implement these methods.
+    # Each parser classes must implement these methods.
 
     @staticmethod
     def format_arg_names(name, full):
@@ -72,13 +171,18 @@ class _AMapParser(object):
         raise NotImplementedError("derived class '%s' must override this method" % \
                                     self.__class__.__name__)
 
-    def add_action_parser(self, name, **kwargs):
+    def add_action_parser(self, name, tid, conf=None, **kwargs):
         """Add a parser for an action
 
-        Create a new action and return an argument parser for it.
+        Create a new action and return an argument parser for it. It
+        should set the configuration 'conf' for the action which can be
+        identified by the tuple identifier 'tid' - it is usually in the
+        form of (namespace, category, action).
 
         Keyword arguments:
             - name -- The action name
+            - tid -- The tuple identifier of the action
+            - conf -- A dict of configuration for the action
 
         Returns:
             An ArgumentParser based object
@@ -103,15 +207,193 @@ class _AMapParser(object):
         raise NotImplementedError("derived class '%s' must override this method" % \
                                     self.__class__.__name__)
 
+
+    ## Configuration access
+
+    @property
+    def global_conf(self):
+        """Return the global configuration of the parser"""
+        return self._o._global_conf
+
+    def get_global_conf(self, name, profile='default'):
+        """Get the global value of a configuration
+
+        Return the formated global value of the configuration 'name' for
+        the given profile. If the configuration doesn't provide profile,
+        the formated default value is returned.
+
+        Keyword arguments:
+            - name -- The configuration name
+            - profile -- The profile of the configuration
+
+        """
+        try:
+            if name == 'authenticator':
+                value = self.global_conf[name][profile]
+            else:
+                value = self.global_conf[name]
+        except KeyError:
+            return None
+        else:
+            return self._format_conf(name, value)
+
+    def set_global_conf(self, configuration):
+        """Set global configuration
+
+        Set the global configuration to use for the parser.
+
+        Keyword arguments:
+            - configuration -- The global configuration
+
+        """
+        self._o._global_conf.update(self._validate_conf(configuration, True))
+
+    def get_conf(self, action, name):
+        """Get the value of an action configuration
+
+        Return the formated value of configuration 'name' for the action
+        identified by 'action'. If the configuration for the action is
+        not set, the default one is returned.
+
+        Keyword arguments:
+            - action -- An action identifier
+            - name -- The configuration name
+
+        """
+        try:
+            value = self._o._conf[action][name]
+        except KeyError:
+            return self.get_global_conf(name)
+        else:
+            return self._format_conf(name, value)
+
+    def set_conf(self, action, configuration):
+        """Set configuration for an action
+
+        Set the configuration to use for a given action identified by
+        'action' which is specific to the parser.
+
+        Keyword arguments:
+            - action -- The action identifier
+            - configuration -- The configuration for the action
+
+        """
+        self._o._conf[action] = self._validate_conf(configuration)
+
+
+    def _validate_conf(self, configuration, is_global=False):
+        """Validate configuration for the parser
+
+        Return the validated configuration for the interface's actions
+        map parser.
+
+        Keyword arguments:
+            - configuration -- The configuration to pre-format
+
+        """
+        conf = {}
+
+        # -- 'authenficate'
+        try:
+            ifaces = configuration['authenticate']
+        except KeyError:
+            pass
+        else:
+            if ifaces == 'all':
+                conf['authenticate'] = ifaces
+            elif ifaces == False:
+                conf['authenticate'] = False
+            elif isinstance(ifaces, list):
+                # Store only if authentication is needed
+                conf['authenticate'] = True if self.name in ifaces else False
+            else:
+                # TODO: Log error instead and tell valid values
+                raise MoulinetteError(22, "Invalid value '%r' for configuration 'authenticate'" % ifaces)
+
+        # -- 'authenticator'
+        try:
+            auth = configuration['authenticator']
+        except KeyError:
+            pass
+        else:
+            if not is_global and isinstance(auth, str):
+                try:
+                    # Store parameters of the required authenticator
+                    conf['authenticator'] = self.global_conf['authenticator'][auth]
+                except KeyError:
+                    raise MoulinetteError(22, "Authenticator '%s' is not defined in global configuration" % auth)
+            elif is_global and isinstance(auth, dict):
+                if len(auth) == 0:
+                    logging.warning('no authenticator defined in global configuration')
+                else:
+                    auths = {}
+                    for auth_name, auth_conf in auth.items():
+                        # Add authenticator name
+                        auths[auth_name] = ({ 'name': auth_name,
+                                              'type': auth_conf.get('type'),
+                                              'help': auth_conf.get('help', None)
+                                            },
+                                            auth_conf.get('parameters', {}))
+                    conf['authenticator'] = auths
+            else:
+                # TODO: Log error instead and tell valid values
+                raise MoulinetteError(22, "Invalid value '%r' for configuration 'authenticator'" % auth)
+
+        # -- 'argument_auth'
+        try:
+            arg_auth = configuration['argument_auth']
+        except KeyError:
+            pass
+        else:
+            if isinstance(arg_auth, bool):
+                conf['argument_auth'] = arg_auth
+            else:
+                # TODO: Log error instead and tell valid values
+                raise MoulinetteError(22, "Invalid value '%r' for configuration 'argument_auth'" % arg_auth)
+
+        return conf
+
+    def _format_conf(self, name, value):
+        """Format a configuration value
+
+        Return the formated value of the configuration 'name' from its
+        given value.
+
+        Keyword arguments:
+            - name -- The name of the configuration
+            - value -- The value to format
+
+        """
+        if name == 'authenticator' and value:
+            auth_conf, auth_params = value
+            auth_type = auth_conf.pop('type')
+
+            # Return authenticator configuration and an instanciator for
+            # it as a 2-tuple
+            return (auth_conf,
+                    lambda: init_authenticator(auth_type, **auth_params))
+
+        return value
+
 # CLI Actions map Parser
 
 class CLIAMapParser(_AMapParser):
     """Actions map's CLI Parser
 
     """
-    def __init__(self, parser=None):
+    def __init__(self, parent=None, parser=None):
+        super(CLIAMapParser, self).__init__(parent)
+
         self._parser = parser or argparse.ArgumentParser()
         self._subparsers = self._parser.add_subparsers()
+
+
+    ## Implement virtual properties
+
+    name = 'cli'
+
+
+    ## Implement virtual methods
 
     @staticmethod
     def format_arg_names(name, full):
@@ -133,9 +415,9 @@ class CLIAMapParser(_AMapParser):
 
         """
         parser = self._subparsers.add_parser(name, help=category_help)
-        return self.__class__(parser)
+        return self.__class__(self, parser)
 
-    def add_action_parser(self, name, action_help=None, **kwargs):
+    def add_action_parser(self, name, tid, conf=None, action_help=None, **kwargs):
         """Add a parser for an action
 
         Keyword arguments:
@@ -145,10 +427,27 @@ class CLIAMapParser(_AMapParser):
             A new argparse.ArgumentParser object for the action
 
         """
+        if conf:
+            self.set_conf(tid, conf)
         return self._subparsers.add_parser(name, help=action_help)
 
     def parse_args(self, args, **kwargs):
-        return self._parser.parse_args(args)
+        ret = self._parser.parse_args(args)
+
+        # Perform authentication if needed
+        if self.get_conf(ret._tid, 'authenticate'):
+            auth_conf, klass = self.get_conf(ret._tid, 'authenticator')
+
+            # TODO: Catch errors
+            auth = shandler.authenticate(klass(), **auth_conf)
+            if not auth.is_authenticated:
+                # TODO: Set proper error code
+                raise MoulinetteError(1, _("This action need authentication"))
+            if self.get_conf(ret._tid, 'argument_auth') and \
+               self.get_conf(ret._tid, 'authenticate') == 'all':
+                ret.auth = auth
+
+        return ret
 
 # API Actions map Parser
 
@@ -226,12 +525,19 @@ class APIAMapParser(_AMapParser):
     """
 
     def __init__(self):
-        self._parsers = {}   # dict({(method, path): _HTTPArgumentParser})
+        super(APIAMapParser, self).__init__()
+
+        self._parsers = {} # dict({(method, path): _HTTPArgumentParser})
 
     @property
     def routes(self):
         """Get current routes"""
         return self._parsers.keys()
+
+
+    ## Implement virtual properties
+
+    name = 'api'
 
     
     ## Implement virtual methods
@@ -252,7 +558,7 @@ class APIAMapParser(_AMapParser):
     def add_category_parser(self, name, **kwargs):
         return self
 
-    def add_action_parser(self, name, api=None, **kwargs):
+    def add_action_parser(self, name, tid, conf=None, api=None, **kwargs):
         """Add a parser for an action
 
         Keyword arguments:
@@ -262,12 +568,13 @@ class APIAMapParser(_AMapParser):
             A new _HTTPArgumentParser object for the route
 
         """
-        if not api:
+        try:
+            # Validate action route
+            m = re.match('(GET|POST|PUT|DELETE) (/\S+)', api)
+        except TypeError:
             raise AttributeError("the action '%s' doesn't provide api access" % name)
-
-        # Validate action route
-        m = re.match('(GET|POST|PUT|DELETE) (/\S+)', api)
         if not m:
+            # TODO: Log error
             raise ValueError("the action '%s' doesn't provide api access" % name)
 
         # Check if a parser already exists for the route
@@ -278,6 +585,8 @@ class APIAMapParser(_AMapParser):
         # Create and append parser
         parser = _HTTPArgumentParser()
         self._parsers[key] = parser
+        if conf:
+            self.set_conf(key, conf)
 
         # Return the created parser
         return parser
@@ -292,6 +601,8 @@ class APIAMapParser(_AMapParser):
         # Retrieve the parser for the route
         if route not in self.routes:
             raise MoulinetteError(22, "No parser for '%s %s' found" % key)
+
+        # TODO: Implement authentication
 
         return self._parsers[route].parse_args(args)
 
@@ -385,9 +696,11 @@ class AskParameter(_ExtraParameter):
         if arg_value:
             return arg_value
 
-        # Ask for the argument value
-        ret = raw_input(colorize(message + ': ', 'cyan'))
-        return ret
+        try:
+            # Ask for the argument value
+            return shandler.prompt(message)
+        except NotImplementedError:
+            return arg_value
 
     @classmethod
     def validate(klass, value, arg_name):
@@ -415,12 +728,11 @@ class PasswordParameter(AskParameter):
         if arg_value:
             return arg_value
 
-        # Ask for the password
-        pwd1 = getpass.getpass(colorize(message + ': ', 'cyan'))
-        pwd2 = getpass.getpass(colorize('Retype ' + message + ': ', 'cyan'))
-        if pwd1 != pwd2:
-            raise MoulinetteError(22, _("Passwords don't match"))
-        return pwd1
+        try:
+            # Ask for the password
+            return shandler.prompt(message, True, True)
+        except NotImplementedError:
+            return arg_value
 
 class PatternParameter(_ExtraParameter):
     """
@@ -552,6 +864,7 @@ class ActionsMap(object):
     """
     def __init__(self, interface, namespaces=[], use_cache=True):
         self.use_cache = use_cache
+        self.interface = interface
 
         try:
             # Retrieve the interface parser
@@ -563,7 +876,7 @@ class ActionsMap(object):
 
         if len(namespaces) == 0:
             namespaces = self.get_namespaces()
-        actionsmaps = {}
+        actionsmaps = OrderedDict()
 
         # Iterate over actions map namespaces
         for n in namespaces:
@@ -585,7 +898,26 @@ class ActionsMap(object):
 
         # Generate parsers
         self.extraparser = ExtraArgumentParser(interface)
-        self.parser = self._construct_parser(actionsmaps)
+        self._parser = self._construct_parser(actionsmaps)
+
+    @property
+    def parser(self):
+        """Return the instance of the interface's actions map parser"""
+        return self._parser
+
+    def connect(self, signal, handler):
+        """Connect a signal to a handler
+
+        Connect a signal emitted by actions map while processing to a
+        handler. Note that some signals need a return value.
+
+        Keyword arguments:
+            - signal -- The name of the signal
+            - handler -- The method to handle the signal
+
+        """
+        global shandler
+        shandler.set_handler(signal, handler)
 
     def process(self, args, timeout=0, **kwargs):
         """
@@ -604,7 +936,7 @@ class ActionsMap(object):
             arguments[an] = self.extraparser.parse(an, arguments[an], parameters)
 
         # Retrieve action information
-        namespace, category, action = arguments.pop('_id')
+        namespace, category, action = arguments.pop('_tid')
         func_name = '%s_%s' % (category, action.replace('-', '_'))
 
         # Lock the moulinette for the namespace
@@ -710,7 +1042,9 @@ class ActionsMap(object):
             _global = actionsmap.pop('_global', {})
 
             # -- Parse global configuration
-            # TODO
+            if 'configuration' in _global:
+                # Set global configuration
+                top_parser.set_global_conf(_global['configuration'])
 
             # -- Parse global arguments
             if 'arguments' in _global:
@@ -737,20 +1071,22 @@ class ActionsMap(object):
 
                 # -- Parse actions
                 for an, ap in actions.items():
-                    arguments = ap.pop('arguments', {})
+                    conf = ap.pop('configuration', None)
+                    args = ap.pop('arguments', {})
+                    tid = (n, cn, an)
 
                     try:
                         # Get action parser
-                        parser = cat_parser.add_action_parser(an, **ap)
+                        parser = cat_parser.add_action_parser(an, tid, conf, **ap)
                     except AttributeError:
                         # No parser for the action
                         continue
-                    except ValueError:
-                        # TODO: Log error
+                    except ValueError as e:
+                        logging.warning("cannot add action (%s, %s, %s): %s" % (n, cn, an, e))
                         continue
                     else:
-                        # Store action identification and add arguments
-                        parser.set_defaults(_id=(n, cn, an))
-                        _add_arguments(parser, arguments)
+                        # Store action identifier and add arguments
+                        parser.set_defaults(_tid=tid)
+                        _add_arguments(parser, args)
 
         return top_parser
