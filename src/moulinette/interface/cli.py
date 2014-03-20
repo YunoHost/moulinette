@@ -108,7 +108,7 @@ class MoulinetteCLI(object):
         """
         # TODO: Allow token authentication?
         msg = help or _("Password")
-        return authenticator.authenticate(password=self._do_prompt(msg, True, False))
+        return authenticator(password=self._do_prompt(msg, True, False))
 
     def _do_prompt(self, message, is_password, confirm):
         """Prompt for a value

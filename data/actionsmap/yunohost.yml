@@ -38,18 +38,17 @@ _global:
             - api
         authenticator:
             default:
-                type: ldap
+                vendor: ldap
                 help: Admin Password
                 parameters:
                     uri: ldap://localhost:389
-                    base: dc=yunohost,dc=org
-                    anonymous: false
+                    base_dn: dc=yunohost,dc=org
+                    user_rdn: cn=admin
             ldap-anonymous:
-                type: ldap
+                vendor: ldap
                 parameters:
                     uri: ldap://localhost:389
-                    base: dc=yunohost,dc=org
-                    anonymous: true
+                    base_dn: dc=yunohost,dc=org
     arguments:
         -v:
             full: --version

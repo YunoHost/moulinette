@@ -330,7 +330,7 @@ class _AMapParser(object):
                     for auth_name, auth_conf in auth.items():
                         # Add authenticator name
                         auths[auth_name] = ({ 'name': auth_name,
-                                              'type': auth_conf.get('type'),
+                                              'vendor': auth_conf.get('vendor'),
                                               'help': auth_conf.get('help', None)
                                             },
                                             auth_conf.get('parameters', {}))
@@ -366,12 +366,13 @@ class _AMapParser(object):
         """
         if name == 'authenticator' and value:
             auth_conf, auth_params = value
-            auth_type = auth_conf.pop('type')
+            auth_vendor = auth_conf.pop('vendor')
 
             # Return authenticator configuration and an instanciator for
             # it as a 2-tuple
             return (auth_conf,
-                    lambda: init_authenticator(auth_type, **auth_params))
+                    lambda: init_authenticator(auth_conf['name'],
+                                               auth_vendor, **auth_params))
 
         return value
 
@@ -994,7 +995,7 @@ class ActionsMap(object):
                 actionsmaps[n] = yaml.load(f)
 
             # Cache actions map into pickle file
-            with pkg.open_cache('%s.pkl' % n, subdir='actionsmap') as f:
+            with pkg.open_cachefile('%s.pkl' % n, 'w', subdir='actionsmap') as f:
                 pickle.dump(actionsmaps[n], f)
 
         return actionsmaps

@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import gettext
+import logging
 
 from .helpers import colorize
 
@@ -109,7 +110,7 @@ class Package(object):
             os.makedirs(path)
         return path
 
-    def open_cache(self, filename, subdir='', mode='w'):
+    def open_cachefile(self, filename, mode='r', **kwargs):
         """Open a cache file and return a stream
 
         Attempt to open in 'mode' the cache file 'filename' from the
@@ -119,85 +120,201 @@ class Package(object):
 
         Keyword arguments:
             - filename -- The cache filename
-            - subdir -- A subdirectory which contains the file
             - mode -- The mode in which the file is opened
+            - **kwargs -- Optional arguments for get_cachedir
 
         """
-        return open('%s/%s' % (self.get_cachedir(subdir), filename), mode)
+        # Set make_dir if not given
+        kwargs['make_dir'] = kwargs.get('make_dir',
+                                        True if mode[0] == 'w' else False)
+        return open('%s/%s' % (self.get_cachedir(**kwargs), filename), mode)
 
 
 # Authenticators -------------------------------------------------------
 
+import ldap
+import gnupg
+
+class AuthenticationError(Exception):
+    pass
+
 class _BaseAuthenticator(object):
+
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        """Return the name of the authenticator instance"""
+        return self._name
+
 
     ## Virtual properties
     # Each authenticator classes must implement these properties.
 
-    """The name of the authenticator"""
-    name = None
+    """The vendor of the authenticator"""
+    vendor = None
 
     @property
     def is_authenticated(self):
         """Either the instance is authenticated or not"""
         raise NotImplementedError("derived class '%s' must override this property" % \
-                                    self.__class__.__name__)
+                                      self.__class__.__name__)
 
 
     ## Virtual methods
     # Each authenticator classes must implement these methods.
 
-    def authenticate(password=None, token=None):
+    def authenticate(password=None):
         """Attempt to authenticate
 
-        Attempt to authenticate with given password or session token.
+        Attempt to authenticate with given password. It should raise an
+        AuthenticationError exception if authentication fails.
 
         Keyword arguments:
             - password -- A clear text password
-            - token -- A session token
-
-        Returns:
-            An optional session token
 
         """
         raise NotImplementedError("derived class '%s' must override this method" % \
-                                    self.__class__.__name__)
+                                      self.__class__.__name__)
 
 
-class LDAPAuthenticator(object):
+    ## Authentication methods
 
-    def __init__(self, uri, base, anonymous=False):
-        # TODO: Initialize LDAP connection
+    def __call__(self, password=None, token=None):
+        """Attempt to authenticate
 
-        if anonymous:
-            self._authenticated = True
-        else:
-            self._authenticated = False
+        Attempt to authenticate either with password or with session
+        token if 'password' is None. If the authentication succeed, the
+        instance is returned and the session is registered for the token
+        if 'token' and 'password' are given.
+        The token is composed by the session identifier and a session
+        hash - to use for encryption - as a 2-tuple.
 
+        Keyword arguments:
+            - password -- A clear text password
+            - token -- The session token in the form of (id, hash)
 
-    ## Implement virtual properties
+        Returns:
+            The authenticated instance
 
-    name = 'ldap'
+        """
+        if self.is_authenticated:
+            return self
+        store_session = True if password and token else False
 
-    @property
-    def is_authenticated(self):
-        return self._authenticated
+        if token:
+            try:
+                # Extract id and hash from token
+                s_id, s_hash = token
+            except TypeError:
+                if not password:
+                    raise MoulinetteError(22, _("Invalid format for token"))
+                else:
+                    # TODO: Log error
+                    store_session = False
+            else:
+                if password is None:
+                    # Retrieve session
+                    password = self._retrieve_session(s_id, s_hash)
 
+        try:
+            # Attempt to authenticate
+            self.authenticate(password)
+        except AuthenticationError as e:
+            raise MoulinetteError(13, str(e))
+        except Exception as e:
+            logging.error("authentication (name: '%s', type: '%s') fails: %s" % \
+                              (self.name, self.vendor, e))
+            raise MoulinetteError(13, _("Unable to authenticate"))
 
-    ## Implement virtual methods
-
-    def authenticate(self, password=None, token=None):
-        # TODO: Perform LDAP authentication
-        if password == 'test':
-            self._authenticated = True
-        else:
-            raise MoulinetteError(13, _("Invalid password"))
+        # Store session
+        if store_session:
+            self._store_session(s_id, s_hash, password)
 
         return self
 
 
-def init_authenticator(_name, **kwargs):
-    if _name == 'ldap':
-        return LDAPAuthenticator(**kwargs)
+    ## Private methods
+
+    def _open_sessionfile(self, session_id, mode='r'):
+        """Open a session file for this instance in given mode"""
+        return pkg.open_cachefile('%s.asc' % session_id, mode,
+                                  subdir='session/%s' % self.name)
+
+    def _store_session(self, session_id, session_hash, password):
+        """Store a session and its associated password"""
+        gpg = gnupg.GPG()
+        gpg.encoding = 'utf-8'
+        with self._open_sessionfile(session_id, 'w') as f:
+            f.write(str(gpg.encrypt(password, None, symmetric=True,
+                                    passphrase=session_hash)))
+
+    def _retrieve_session(self, session_id, session_hash):
+        """Retrieve a session and return its associated password"""
+        try:
+            with self._open_sessionfile(session_id, 'r') as f:
+                enc_pwd = f.read()
+        except IOError:
+            # TODO: Set proper error code
+            raise MoulinetteError(167, _("Unable to retrieve session"))
+        else:
+            gpg = gnupg.GPG()
+            gpg.encoding = 'utf-8'
+            return str(gpg.decrypt(enc_pwd, passphrase=session_hash))
+
+
+class LDAPAuthenticator(_BaseAuthenticator):
+
+    def __init__(self, uri, base_dn, user_rdn=None, **kwargs):
+        super(LDAPAuthenticator, self).__init__(**kwargs)
+
+        self.uri = uri
+        self.basedn = base_dn
+        if user_rdn:
+            self.userdn = '%s,%s' % (user_rdn, base_dn)
+            self.con = None
+        else:
+            # Initialize anonymous usage
+            self.userdn = ''
+            self.authenticate(None)
+
+
+    ## Implement virtual properties
+
+    vendor = 'ldap'
+
+    @property
+    def is_authenticated(self):
+        try:
+            # Retrieve identity
+            who = self.con.whoami_s()
+        except:
+            return False
+        else:
+            if who[3:] == self.userdn:
+                return True
+        return False
+
+
+    ## Implement virtual methods
+
+    def authenticate(self, password):
+        try:
+            con = ldap.initialize(self.uri)
+            if self.userdn:
+                con.simple_bind_s(self.userdn, password)
+            else:
+                con.simple_bind_s()
+        except ldap.INVALID_CREDENTIALS:
+            raise AuthenticationError(_("Invalid password"))
+        else:
+            self.con = con
+
+
+def init_authenticator(_name, _vendor, **kwargs):
+    if _vendor == 'ldap':
+        return LDAPAuthenticator(name=_name, **kwargs)
 
 
 # Moulinette core classes ----------------------------------------------
