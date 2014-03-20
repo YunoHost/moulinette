@@ -66,8 +66,8 @@ def app_fetchlist(url=None, name=None):
     Fetch application list from app server
 
     Keyword argument:
-        name -- Name of the list (default fapp)
-        url -- URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw)
+        name -- Name of the list (default yunohost)
+        url -- URL of remote JSON list (default http://app.yunohost.org/list.json)
 
     """
     # Create app path if not exists
@@ -89,7 +89,7 @@ def app_fetchlist(url=None, name=None):
     os.rename(list_file +'.tmp', list_file)
 
     os.system("touch /etc/cron.d/yunohost-applist-"+ name)
-    os.system("echo '00 00 * * * root yunohost app fetchlist -u "+ url +" -n "+ name +" --no-ldap >> /dev/null' >/etc/cron.d/yunohost-applist-"+ name)
+    os.system("echo '00 00 * * * root yunohost app fetchlist -u "+ url +" -n "+ name +" --no-ldap > /dev/null 2>&1' >/etc/cron.d/yunohost-applist-"+ name)
 
     win_msg(_("List successfully fetched"))
 
