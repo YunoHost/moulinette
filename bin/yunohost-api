@@ -41,5 +41,5 @@ if __name__ == '__main__':
     # TODO: Add log argument
 
     # Rune the server
-    api(['yunohost'], 6787, {('GET', '/installed'): is_installed}, use_cache)
+    api(['yunohost', 'test'], 6787, {('GET', '/installed'): is_installed}, use_cache)
     sys.exit(0)

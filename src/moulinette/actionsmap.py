@@ -48,7 +48,7 @@ class _AMapSignals(object):
     """The list of available signals"""
     signals = { 'authenticate', 'prompt' }
 
-    def authenticate(self, authenticator, name, help):
+    def authenticate(self, authenticator, name, help, vendor=None):
         """Process the authentication
 
         Attempt to authenticate to the given authenticator and return
@@ -60,6 +60,7 @@ class _AMapSignals(object):
             - authenticator -- The authenticator to use
             - name -- The authenticator name in the actions map
             - help -- A help message for the authenticator
+            - vendor -- Not expected (TODO: Remove it)
 
         Returns:
             The authenticator object
@@ -227,15 +228,11 @@ class _AMapParser(object):
             - profile -- The profile of the configuration
 
         """
-        try:
-            if name == 'authenticator':
-                value = self.global_conf[name][profile]
-            else:
-                value = self.global_conf[name]
-        except KeyError:
-            return None
+        if name == 'authenticator':
+            value = self.global_conf[name][profile]
         else:
-            return self._format_conf(name, value)
+            value = self.global_conf[name]
+        return self._format_conf(name, value)
 
     def set_global_conf(self, configuration):
         """Set global configuration
@@ -366,13 +363,13 @@ class _AMapParser(object):
         """
         if name == 'authenticator' and value:
             auth_conf, auth_params = value
-            auth_vendor = auth_conf.pop('vendor')
 
             # Return authenticator configuration and an instanciator for
             # it as a 2-tuple
             return (auth_conf,
                     lambda: init_authenticator(auth_conf['name'],
-                                               auth_vendor, **auth_params))
+                                               auth_conf['vendor'],
+                                               **auth_params))
 
         return value
 
@@ -486,7 +483,7 @@ class _HTTPArgumentParser(object):
 
         return action
 
-    def parse_args(self, args):
+    def parse_args(self, args={}, namespace=None):
         arg_strings = []
 
         ## Append an argument to the current one
@@ -514,7 +511,7 @@ class _HTTPArgumentParser(object):
         for dest, opt in self._optional.items():
             if dest in args:
                 arg_strings = append(arg_strings, args[dest], opt[0])
-        return self._parser.parse_args(arg_strings)
+        return self._parser.parse_args(arg_strings, namespace)
 
     def _error(self, message):
         # TODO: Raise a proper exception
@@ -596,16 +593,28 @@ class APIAMapParser(_AMapParser):
         """Parse arguments
 
         Keyword arguments:
-            - route -- The action route (e.g. 'GET /' )
+            - route -- The action route as a 2-tuple (method, path)
 
         """
         # Retrieve the parser for the route
         if route not in self.routes:
             raise MoulinetteError(22, "No parser for '%s %s' found" % key)
+        ret = argparse.Namespace()
 
-        # TODO: Implement authentication
+        # Perform authentication if needed
+        if self.get_conf(route, 'authenticate'):
+            auth_conf, klass = self.get_conf(route, 'authenticator')
 
-        return self._parsers[route].parse_args(args)
+            # TODO: Catch errors
+            auth = shandler.authenticate(klass(), **auth_conf)
+            if not auth.is_authenticated:
+                # TODO: Set proper error code
+                raise MoulinetteError(1, _("This action need authentication"))
+            if self.get_conf(route, 'argument_auth') and \
+               self.get_conf(route, 'authenticate') == 'all':
+                ret.auth = auth
+
+        return self._parsers[route].parse_args(args, ret)
 
 """
 The dict of interfaces names and their associated parser class.
@@ -905,6 +914,26 @@ class ActionsMap(object):
     def parser(self):
         """Return the instance of the interface's actions map parser"""
         return self._parser
+
+    def get_authenticator(self, profile='default'):
+        """Get an authenticator instance
+
+        Retrieve the authenticator for the given profile and return a
+        new instance.
+
+        Keyword arguments:
+            - profile -- An authenticator profile name
+
+        Returns:
+            A new _BaseAuthenticator derived instance
+
+        """
+        try:
+            auth = self.parser.get_global_conf('authenticator', profile)[1]
+        except KeyError:
+            raise MoulinetteError(167, _("Unknown authenticator profile '%s'") % profile)
+        else:
+            return auth()
 
     def connect(self, signal, handler):
         """Connect a signal to a handler

@@ -69,21 +69,20 @@ def api(namespaces, port, routes={}, use_cache=True):
 
     Keyword arguments:
         - namespaces -- The list of namespaces to use
-        - port -- Port to run on
+        - port -- Port number to run on
         - routes -- A dict of additional routes to add in the form of
             {(method, uri): callback}
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one
 
     """
-    from bottle import run
     from .actionsmap import ActionsMap
     from .interface.api import MoulinetteAPI
 
     amap = ActionsMap('api', namespaces, use_cache)
     moulinette = MoulinetteAPI(amap, routes)
 
-    run(moulinette.app, port=port)
+    moulinette.run(port)
 
 def cli(namespaces, args, use_cache=True):
     """Command line interface

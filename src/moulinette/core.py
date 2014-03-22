@@ -316,6 +316,17 @@ def init_authenticator(_name, _vendor, **kwargs):
     if _vendor == 'ldap':
         return LDAPAuthenticator(name=_name, **kwargs)
 
+def clean_session(session_id, profiles=[]):
+    sessiondir = pkg.get_cachedir('session')
+    if len(profiles) == 0:
+        profiles = os.listdir(sessiondir)
+
+    for p in profiles:
+        try:
+            os.unlink(os.path.join(sessiondir, p, '%s.asc' % session_id))
+        except OSError:
+            pass
+
 
 # Moulinette core classes ----------------------------------------------
 

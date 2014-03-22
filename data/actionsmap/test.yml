@@ -19,6 +19,13 @@ _global:
                 parameters:
                     uri: ldap://localhost:389
                     base_dn: dc=yunohost,dc=org
+            test-profile:
+                vendor: ldap
+                help: Admin Password (profile)
+                parameters:
+                    uri: ldap://localhost:389
+                    base_dn: dc=yunohost,dc=org
+                    user_rdn: cn=admin
         argument_auth: true
 
 #############################
@@ -34,6 +41,11 @@ test:
             api: GET /test/auth
             configuration:
                 authenticate: all
+        auth-profile:
+            api: GET /test/auth-profile
+            configuration:
+                authenticate: all
+                authenticator: test-profile
         auth-cli:
             api: GET /test/auth-cli
             configuration:
