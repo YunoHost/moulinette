@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import errno
 import getpass
 
-from ..core import MoulinetteError
+from moulinette.core import MoulinetteError
 
 # CLI helpers ----------------------------------------------------------
 
@@ -64,7 +65,7 @@ class MoulinetteCLI(object):
     """Moulinette command-line Interface
 
     Initialize an interface connected to the standard input and output
-    stream which allows to process moulinette action.
+    stream which allows to process moulinette actions.
 
     Keyword arguments:
         - actionsmap -- The interface relevant ActionsMap instance
@@ -90,7 +91,7 @@ class MoulinetteCLI(object):
         try:
             ret = self.actionsmap.process(args, timeout=5)
         except KeyboardInterrupt, EOFError:
-            raise MoulinetteError(125, _("Interrupted"))
+            raise MoulinetteError(errno.EINTR, _("Interrupted"))
 
         if isinstance(ret, dict):
             pretty_print_dict(ret)
@@ -100,7 +101,7 @@ class MoulinetteCLI(object):
 
     ## Signals handlers
 
-    def _do_authenticate(self, authenticator, name, help):
+    def _do_authenticate(self, authenticator, help):
         """Process the authentication
 
         Handle the actionsmap._AMapSignals.authenticate signal.
@@ -124,6 +125,6 @@ class MoulinetteCLI(object):
 
         if confirm:
             if prompt(_('Retype %s: ') % message) != value:
-                raise MoulinetteError(22, _("Values don't match"))
+                raise MoulinetteError(errno.EINVAL, _("Values don't match"))
 
         return value

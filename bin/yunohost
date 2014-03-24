@@ -35,11 +35,8 @@ if __name__ == '__main__':
             raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
 
         # Execute the action
-        cli(['yunohost', 'test'], args, use_cache)
-    except MoulinetteError as e:
-        print(e.colorize())
-        sys.exit(e.code)
+        ret = cli(['yunohost', 'test'], args, use_cache)
     except YunoHostError as e:
         print(colorize(_("Error: "), 'red') + e.message)
         sys.exit(e.code)
-    sys.exit(0)
+    sys.exit(ret)

@@ -9,7 +9,7 @@ basedir = os.path.abspath(os.path.dirname(__file__) +'/../')
 if os.path.isdir(basedir +'/src'):
     sys.path.append(basedir +'/src')
 
-from moulinette import init, api
+from moulinette import init, api, MoulinetteError
 
 
 ## Callbacks for additional routes
@@ -40,6 +40,12 @@ if __name__ == '__main__':
         sys.argv.remove('--debug')
     # TODO: Add log argument
 
-    # Rune the server
-    api(['yunohost', 'test'], 6787, {('GET', '/installed'): is_installed}, use_cache)
+    try:
+        # Run the server
+        api(['yunohost', 'test'], 6787,
+            {('GET', '/installed'): is_installed}, use_cache)
+    except MoulinetteError as e:
+        from moulinette.interface.cli import colorize
+        print(_('%s: %s' % (colorize(_('Error'), 'red'), e.strerror)))
+        sys.exit(e.code)
     sys.exit(0)

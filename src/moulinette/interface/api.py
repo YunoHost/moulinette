@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import errno
 from bottle import run, request, response, Bottle, HTTPResponse
 from json import dumps as json_encode
 
-from ..core import MoulinetteError, clean_session
-from ..helpers import YunoHostError, YunoHostLDAP
+from moulinette.core import MoulinetteError, clean_session
+from moulinette.helpers import YunoHostError, YunoHostLDAP
 
 # API helpers ----------------------------------------------------------
 
@@ -159,10 +160,9 @@ class _ActionsMapPlugin(object):
             if len(s_hashes) > 0:
                 try: self.logout(profile)
                 except: pass
-            # TODO: Replace by proper exception
-            if e.code == 13:
-                raise HTTPUnauthorizedResponse(e.message)
-            raise HTTPErrorResponse(e.message)
+            if e.errno == errno.EACCES:
+                raise HTTPUnauthorizedResponse(e.strerror)
+            raise HTTPErrorResponse(e.strerror)
         else:
             # Update dicts with new values
             s_hashes[profile] = s_hash
@@ -210,14 +210,14 @@ class _ActionsMapPlugin(object):
         try:
             ret = self.actionsmap.process(arguments, route=_route)
         except MoulinetteError as e:
-            raise HTTPErrorResponse(e.message)
+            raise HTTPErrorResponse(e.strerror)
         else:
             return ret
 
 
     ## Signals handlers
 
-    def _do_authenticate(self, authenticator, name, help):
+    def _do_authenticate(self, authenticator, help):
         """Process the authentication
 
         Handle the actionsmap._AMapSignals.authenticate signal.
@@ -227,12 +227,12 @@ class _ActionsMapPlugin(object):
         try:
             s_secret = self.secrets[s_id]
             s_hash = request.get_cookie('session.hashes',
-                                        secret=s_secret)[name]
+                                        secret=s_secret)[authenticator.name]
         except KeyError:
-            if name == 'default':
+            if authenticator.name == 'default':
                 msg = _("Needing authentication")
             else:
-                msg = _("Needing authentication to profile '%s'") % name
+                msg = _("Needing authentication to profile '%s'") % authenticator.name
             raise HTTPUnauthorizedResponse(msg)
         else:
             return authenticator(token=(s_id, s_hash))
@@ -287,7 +287,12 @@ class MoulinetteAPI(object):
             - _port -- Port number to run on
 
         """
-        run(self._app, port=_port)
+        try:
+            run(self._app, port=_port)
+        except IOError as e:
+            if e.args[0] == errno.EADDRINUSE:
+                raise MoulinetteError(errno.EADDRINUSE, _("A server is already running"))
+            raise
 
 
     ## Routes handlers

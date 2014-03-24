@@ -29,7 +29,7 @@ __all__ = [
     'MoulinetteError',
 ]
 
-from .core import MoulinetteError
+from moulinette.core import MoulinetteError
 
 
 ## Package functions
@@ -50,7 +50,7 @@ def init(**kwargs):
     """
     import sys
     import __builtin__
-    from .core import Package, install_i18n
+    from moulinette.core import Package, install_i18n
     __builtin__.__dict__['pkg'] = Package(**kwargs)
 
     # Initialize internationalization
@@ -76,8 +76,8 @@ def api(namespaces, port, routes={}, use_cache=True):
             instead of using the cached one
 
     """
-    from .actionsmap import ActionsMap
-    from .interface.api import MoulinetteAPI
+    from moulinette.actionsmap import ActionsMap
+    from moulinette.interface.api import MoulinetteAPI
 
     amap = ActionsMap('api', namespaces, use_cache)
     moulinette = MoulinetteAPI(amap, routes)
@@ -97,10 +97,15 @@ def cli(namespaces, args, use_cache=True):
             instead of using the cached one
 
     """
-    from .actionsmap import ActionsMap
-    from .interface.cli import MoulinetteCLI
+    from moulinette.actionsmap import ActionsMap
+    from moulinette.interface.cli import MoulinetteCLI, colorize
 
-    amap = ActionsMap('cli', namespaces, use_cache)
-    moulinette = MoulinetteCLI(amap)
+    try:
+        amap = ActionsMap('cli', namespaces, use_cache)
+        moulinette = MoulinetteCLI(amap)
 
-    moulinette.run(args)
+        moulinette.run(args)
+    except MoulinetteError as e:
+        print(_('%s: %s' % (colorize(_('Error'), 'red'), e.strerror)))
+        return e.errno
+    return 0
