@@ -1061,7 +1061,8 @@ class ActionsMap(object):
                 arg = parser.add_argument(*names, **argp)
                 if extra:
                     extras[arg.dest] = _get_extra(arg.dest, extra)
-            parser.set_defaults(_extra=extras)
+            if extras:
+                parser.set_defaults(_extra=extras)
 
         # Instantiate parser
         top_parser = self._parser_class()
