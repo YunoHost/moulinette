@@ -12,8 +12,10 @@ class BaseAuthenticator(object):
     """Authenticator base representation
 
     Each authenticators must implement an Authenticator class derived
-    from this class. It implements base methods to authenticate with a
-    password or a session token.
+    from this class which must overrides virtual properties and methods.
+    It is used to authenticate and manage session. It implements base
+    methods to authenticate with a password or a session token.
+
     Authenticators configurations are identified by a profile name which
     must be given on instantiation - with the corresponding vendor
     configuration of the authenticator.

@@ -3,19 +3,17 @@
 import os
 import re
 import errno
+import logging
 import yaml
-import argparse
 import cPickle as pickle
 from collections import OrderedDict
 
-import logging
-
-from moulinette.core import (MoulinetteError, MoulinetteLock,
-    init_authenticator)
+from moulinette.core import (MoulinetteError, MoulinetteLock)
+from moulinette.interfaces import BaseActionsMapParser
 
 ## Actions map Signals -------------------------------------------------
 
-class _AMapSignals(object):
+class ActionsMapSignals(object):
     """Actions map's Signals interface
 
     Allow to easily connect signals of the actions map to handlers. They
@@ -93,533 +91,7 @@ class _AMapSignals(object):
     def _notimplemented(**kwargs):
         raise NotImplementedError("this signal is not handled")
 
-shandler = _AMapSignals()
-
-
-## Interfaces' Actions map Parser --------------------------------------
-
-class _AMapParser(object):
-    """Actions map's base Parser
-
-    Each interfaces must implement a parser class derived from this
-    class. It is used to parse the main parts of the actions map (i.e.
-    global arguments, categories and actions).
-
-    """
-    def __init__(self, parent=None):
-        if parent:
-            self._o = parent
-        else:
-            self._o = self
-            self._global_conf = {}
-            self._conf = {}
-
-
-    ## Virtual properties
-    # Each parser classes must implement these properties.
-
-    """The name of the interface for which it is the parser"""
-    name = None
-
-
-    ## Virtual methods
-    # Each parser classes must implement these methods.
-
-    @staticmethod
-    def format_arg_names(name, full):
-        """Format argument name
-
-        Format agument name depending on its 'full' parameter and return
-        a list of strings which will be used as name or option strings
-        for the argument parser.
-
-        Keyword arguments:
-            - name -- The argument name
-            - full -- The argument's 'full' parameter
-
-        Returns:
-            A list of option strings
-
-        """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                    self.__class__.__name__)
-
-    def add_global_parser(self, **kwargs):
-        """Add a parser for global arguments
-
-        Create and return an argument parser for global arguments.
-
-        Returns:
-            An ArgumentParser based object
-
-        """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                    self.__class__.__name__)
-
-    def add_category_parser(self, name, **kwargs):
-        """Add a parser for a category
-
-        Create a new category and return a parser for it.
-
-        Keyword arguments:
-            - name -- The category name
-
-        Returns:
-            A BaseParser based object
-
-        """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                    self.__class__.__name__)
-
-    def add_action_parser(self, name, tid, **kwargs):
-        """Add a parser for an action
-
-        Create a new action and return an argument parser for it.
-
-        Keyword arguments:
-            - name -- The action name
-            - tid -- The tuple identifier of the action
-
-        Returns:
-            An ArgumentParser based object
-
-        """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                    self.__class__.__name__)
-
-    def parse_args(self, args, **kwargs):
-        """Parse arguments
-
-        Convert argument variables to objects and assign them as
-        attributes of the namespace.
-
-        Keyword arguments:
-            - args -- Arguments string or dict (TODO)
-
-        Returns:
-            The populated namespace
-
-        """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                    self.__class__.__name__)
-
-
-    ## Configuration access
-
-    @property
-    def global_conf(self):
-        """Return the global configuration of the parser"""
-        return self._o._global_conf
-
-    def get_global_conf(self, name, profile='default'):
-        """Get the global value of a configuration
-
-        Return the formated global value of the configuration 'name' for
-        the given profile. If the configuration doesn't provide profile,
-        the formated default value is returned.
-
-        Keyword arguments:
-            - name -- The configuration name
-            - profile -- The profile of the configuration
-
-        """
-        if name == 'authenticator':
-            value = self.global_conf[name][profile]
-        else:
-            value = self.global_conf[name]
-        return self._format_conf(name, value)
-
-    def set_global_conf(self, configuration):
-        """Set global configuration
-
-        Set the global configuration to use for the parser.
-
-        Keyword arguments:
-            - configuration -- The global configuration
-
-        """
-        self._o._global_conf.update(self._validate_conf(configuration, True))
-
-    def get_conf(self, action, name):
-        """Get the value of an action configuration
-
-        Return the formated value of configuration 'name' for the action
-        identified by 'action'. If the configuration for the action is
-        not set, the default one is returned.
-
-        Keyword arguments:
-            - action -- An action identifier
-            - name -- The configuration name
-
-        """
-        try:
-            value = self._o._conf[action][name]
-        except KeyError:
-            return self.get_global_conf(name)
-        else:
-            return self._format_conf(name, value)
-
-    def set_conf(self, action, configuration):
-        """Set configuration for an action
-
-        Set the configuration to use for a given action identified by
-        'action' which is specific to the parser.
-
-        Keyword arguments:
-            - action -- The action identifier
-            - configuration -- The configuration for the action
-
-        """
-        self._o._conf[action] = self._validate_conf(configuration)
-
-
-    def _validate_conf(self, configuration, is_global=False):
-        """Validate configuration for the parser
-
-        Return the validated configuration for the interface's actions
-        map parser.
-
-        Keyword arguments:
-            - configuration -- The configuration to pre-format
-
-        """
-        # TODO: Create a class with a validator method for each configuration
-        conf = {}
-
-        # -- 'authenficate'
-        try:
-            ifaces = configuration['authenticate']
-        except KeyError:
-            pass
-        else:
-            if ifaces == 'all':
-                conf['authenticate'] = ifaces
-            elif ifaces == False:
-                conf['authenticate'] = False
-            elif isinstance(ifaces, list):
-                # Store only if authentication is needed
-                conf['authenticate'] = True if self.name in ifaces else False
-            else:
-                # TODO: Log error instead and tell valid values
-                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'authenticate'" % ifaces)
-
-        # -- 'authenticator'
-        try:
-            auth = configuration['authenticator']
-        except KeyError:
-            pass
-        else:
-            if not is_global and isinstance(auth, str):
-                try:
-                    # Store needed authenticator profile
-                    conf['authenticator'] = self.global_conf['authenticator'][auth]
-                except KeyError:
-                    raise MoulinetteError(errno.EINVAL, "Undefined authenticator '%s' in global configuration" % auth)
-            elif is_global and isinstance(auth, dict):
-                if len(auth) == 0:
-                    logging.warning('no authenticator defined in global configuration')
-                else:
-                    auths = {}
-                    for auth_name, auth_conf in auth.items():
-                        # Add authenticator profile as a 3-tuple
-                        # (identifier, configuration, parameters) with
-                        # - identifier: the authenticator vendor and its
-                        #     profile name as a 2-tuple
-                        # - configuration: a dict of additional global
-                        #     configuration (i.e. 'help')
-                        # - parameters: a dict of arguments for the
-                        #     authenticator profile
-                        auths[auth_name] = ((auth_conf.get('vendor'), auth_name),
-                                            { 'help': auth_conf.get('help', None) },
-                                            auth_conf.get('parameters', {}))
-                    conf['authenticator'] = auths
-            else:
-                # TODO: Log error instead and tell valid values
-                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'authenticator'" % auth)
-
-        # -- 'argument_auth'
-        try:
-            arg_auth = configuration['argument_auth']
-        except KeyError:
-            pass
-        else:
-            if isinstance(arg_auth, bool):
-                conf['argument_auth'] = arg_auth
-            else:
-                # TODO: Log error instead and tell valid values
-                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'argument_auth'" % arg_auth)
-
-        return conf
-
-    def _format_conf(self, name, value):
-        """Format a configuration value
-
-        Return the formated value of the configuration 'name' from its
-        given value.
-
-        Keyword arguments:
-            - name -- The name of the configuration
-            - value -- The value to format
-
-        """
-        if name == 'authenticator' and value:
-            (identifier, configuration, parameters) = value
-
-            # Return global configuration and an authenticator
-            # instanciator as a 2-tuple
-            return (configuration,
-                    lambda: init_authenticator(identifier, parameters))
-
-        return value
-
-# CLI Actions map Parser
-
-class CLIAMapParser(_AMapParser):
-    """Actions map's CLI Parser
-
-    """
-    def __init__(self, parent=None, parser=None):
-        super(CLIAMapParser, self).__init__(parent)
-
-        self._parser = parser or argparse.ArgumentParser()
-        self._subparsers = self._parser.add_subparsers()
-
-
-    ## Implement virtual properties
-
-    name = 'cli'
-
-
-    ## Implement virtual methods
-
-    @staticmethod
-    def format_arg_names(name, full):
-        if name[0] == '-' and full:
-            return [name, full]
-        return [name]
-
-    def add_global_parser(self, **kwargs):
-        return self._parser
-
-    def add_category_parser(self, name, category_help=None, **kwargs):
-        """Add a parser for a category
-
-        Keyword arguments:
-            - category_help -- A brief description for the category
-
-        Returns:
-            A new CLIParser object for the category
-
-        """
-        parser = self._subparsers.add_parser(name, help=category_help)
-        return self.__class__(self, parser)
-
-    def add_action_parser(self, name, tid, action_help=None, **kwargs):
-        """Add a parser for an action
-
-        Keyword arguments:
-            - action_help -- A brief description for the action
-
-        Returns:
-            A new argparse.ArgumentParser object for the action
-
-        """
-        return self._subparsers.add_parser(name, help=action_help)
-
-    def parse_args(self, args, **kwargs):
-        ret = self._parser.parse_args(args)
-
-        # Perform authentication if needed
-        if self.get_conf(ret._tid, 'authenticate'):
-            auth_conf, klass = self.get_conf(ret._tid, 'authenticator')
-
-            # TODO: Catch errors
-            auth = shandler.authenticate(klass(), **auth_conf)
-            if not auth.is_authenticated:
-                # TODO: Set proper error code
-                raise MoulinetteError(errno.EACCES, _("This action need authentication"))
-            if self.get_conf(ret._tid, 'argument_auth') and \
-               self.get_conf(ret._tid, 'authenticate') == 'all':
-                ret.auth = auth
-
-        return ret
-
-# API Actions map Parser
-
-class _HTTPArgumentParser(object):
-    """Argument parser for HTTP requests
-
-    Object for parsing HTTP requests into Python objects. It is based
-    on argparse.ArgumentParser class and implements some of its methods.
-
-    """
-    def __init__(self):
-        # Initialize the ArgumentParser object
-        self._parser = argparse.ArgumentParser(usage='',
-                                               prefix_chars='@',
-                                               add_help=False)
-        self._parser.error = self._error
-
-        self._positional = []   # list(arg_name)
-        self._optional = {}     # dict({arg_name: option_strings})
-
-    def set_defaults(self, **kwargs):
-        return self._parser.set_defaults(**kwargs)
-
-    def get_default(self, dest):
-        return self._parser.get_default(dest)
-
-    def add_argument(self, *args, **kwargs):
-        action = self._parser.add_argument(*args, **kwargs)
-
-        # Append newly created action
-        if len(action.option_strings) == 0:
-            self._positional.append(action.dest)
-        else:
-            self._optional[action.dest] = action.option_strings
-
-        return action
-
-    def parse_args(self, args={}, namespace=None):
-        arg_strings = []
-
-        ## Append an argument to the current one
-        def append(arg_strings, value, option_string=None):
-            # TODO: Process list arguments
-            if isinstance(value, bool):
-                # Append the option string only
-                if option_string is not None:
-                    arg_strings.append(option_string)
-            elif isinstance(value, str):
-                if option_string is not None:
-                    arg_strings.append(option_string)
-                    arg_strings.append(value)
-                else:
-                    arg_strings.append(value)
-
-            return arg_strings
-
-        # Iterate over positional arguments
-        for dest in self._positional:
-            if dest in args:
-                arg_strings = append(arg_strings, args[dest])
-
-        # Iterate over optional arguments
-        for dest, opt in self._optional.items():
-            if dest in args:
-                arg_strings = append(arg_strings, args[dest], opt[0])
-        return self._parser.parse_args(arg_strings, namespace)
-
-    def _error(self, message):
-        # TODO: Raise a proper exception
-        raise MoulinetteError(1, message)
-
-class APIAMapParser(_AMapParser):
-    """Actions map's API Parser
-
-    """
-    def __init__(self):
-        super(APIAMapParser, self).__init__()
-
-        self._parsers = {} # dict({(method, path): _HTTPArgumentParser})
-
-    @property
-    def routes(self):
-        """Get current routes"""
-        return self._parsers.keys()
-
-
-    ## Implement virtual properties
-
-    name = 'api'
-
-    
-    ## Implement virtual methods
-
-    @staticmethod
-    def format_arg_names(name, full):
-        if name[0] != '-':
-            return [name]
-        if full:
-            return [full.replace('--', '@', 1)]
-        if name.startswith('--'):
-            return [name.replace('--', '@', 1)]
-        return [name.replace('-', '@', 1)]
-
-    def add_global_parser(self, **kwargs):
-        raise AttributeError("global arguments are not managed")
-
-    def add_category_parser(self, name, **kwargs):
-        return self
-
-    def add_action_parser(self, name, tid, api=None, **kwargs):
-        """Add a parser for an action
-
-        Keyword arguments:
-            - api -- The action route (e.g. 'GET /' )
-
-        Returns:
-            A new _HTTPArgumentParser object for the route
-
-        """
-        try:
-            # Validate action route
-            m = re.match('(GET|POST|PUT|DELETE) (/\S+)', api)
-        except TypeError:
-            raise AttributeError("the action '%s' doesn't provide api access" % name)
-        if not m:
-            # TODO: Log error
-            raise ValueError("the action '%s' doesn't provide api access" % name)
-
-        # Check if a parser already exists for the route
-        key = (m.group(1), m.group(2))
-        if key in self.routes:
-            raise AttributeError("a parser for '%s' already exists" % key)
-
-        # Create and append parser
-        parser = _HTTPArgumentParser()
-        self._parsers[key] = (tid, parser)
-
-        # Return the created parser
-        return parser
-
-    def parse_args(self, args, route, **kwargs):
-        """Parse arguments
-
-        Keyword arguments:
-            - route -- The action route as a 2-tuple (method, path)
-
-        """
-        try:
-            # Retrieve the tid and the parser for the route
-            tid, parser = self._parsers[route]
-        except KeyError:
-            raise MoulinetteError(errno.EINVAL, "No parser found for route '%s'" % route)
-        ret = argparse.Namespace()
-
-        # Perform authentication if needed
-        if self.get_conf(tid, 'authenticate'):
-            auth_conf, klass = self.get_conf(tid, 'authenticator')
-
-            # TODO: Catch errors
-            auth = shandler.authenticate(klass(), **auth_conf)
-            if not auth.is_authenticated:
-                # TODO: Set proper error code
-                raise MoulinetteError(errno.EACCES, _("This action need authentication"))
-            if self.get_conf(tid, 'argument_auth') and \
-               self.get_conf(tid, 'authenticate') == 'all':
-                ret.auth = auth
-
-        return parser.parse_args(args, ret)
-
-"""
-The dict of interfaces names and their associated parser class.
-
-"""
-actionsmap_parsers = {
-    'api': APIAMapParser,
-    'cli': CLIAMapParser
-}
+shandler = ActionsMapSignals()
 
 
 ## Extra parameters ----------------------------------------------------
@@ -850,35 +322,30 @@ class ExtraArgumentParser(object):
 class ActionsMap(object):
     """Validate and process actions defined into an actions map
 
-    The actions map defines the features and their usage of the main
-    application. It is composed by categories which contain one or more
-    action(s). Moreover, the action can have specific argument(s).
+    The actions map defines the features - and their usage - of an
+    application which will be available through the moulinette.
+    It is composed by categories which contain one or more action(s).
+    Moreover, the action can have specific argument(s).
 
     This class allows to manipulate one or several actions maps
     associated to a namespace. If no namespace is given, it will load
     all available namespaces.
 
     Keyword arguments:
-        - interface -- The type of interface which needs the actions map.
-            Possible values are:
-                - 'cli' for the command line interface
-                - 'api' for an API usage (HTTP requests)
+        - parser -- The BaseActionsMapParser derived class to use for
+            parsing the actions map
         - namespaces -- The list of namespaces to use
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one.
 
     """
-    def __init__(self, interface, namespaces=[], use_cache=True):
+    def __init__(self, parser, namespaces=[], use_cache=True):
         self.use_cache = use_cache
-        self.interface = interface
+        if not issubclass(parser, BaseActionsMapParser):
+            raise MoulinetteError(errno.EINVAL, _("Invalid parser class '%s'" % parser.__name__))
+        self._parser_class = parser
 
-        try:
-            # Retrieve the interface parser
-            self._parser_class = actionsmap_parsers[interface]
-        except KeyError:
-            raise MoulinetteError(errno.EINVAL, _("Unknown interface '%s'" % interface))
-
-        logging.debug("initializing ActionsMap for the '%s' interface" % interface)
+        logging.debug("initializing ActionsMap for the interface '%s'" % parser.interface)
 
         if len(namespaces) == 0:
             namespaces = self.get_namespaces()
@@ -903,7 +370,7 @@ class ActionsMap(object):
                     actionsmaps[n] = yaml.load(f)
 
         # Generate parsers
-        self.extraparser = ExtraArgumentParser(interface)
+        self.extraparser = ExtraArgumentParser(parser.interface)
         self._parser = self._construct_parser(actionsmaps)
 
     @property
@@ -1063,7 +530,7 @@ class ActionsMap(object):
                 parser.set_defaults(_extra=extras)
 
         # Instantiate parser
-        top_parser = self._parser_class()
+        top_parser = self._parser_class(shandler)
 
         # Iterate over actions map namespaces
         for n, actionsmap in actionsmaps.items():

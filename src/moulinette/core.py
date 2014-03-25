@@ -131,7 +131,48 @@ class Package(object):
         return open('%s/%s' % (self.get_cachedir(**kwargs), filename), mode)
 
 
-# Authenticators -------------------------------------------------------
+# Interfaces & Authenticators management -------------------------------
+
+def init_interface(name, kwargs={}, actionsmap={}):
+    """Return a new interface instance
+
+    Retrieve the given interface module and return a new instance of its
+    Interface class. It is initialized with arguments 'kwargs' and
+    connected to 'actionsmap' if it's an ActionsMap object, otherwise
+    a new ActionsMap instance will be initialized with arguments
+    'actionsmap'.
+
+    Keyword arguments:
+        - name -- The interface name
+        - kwargs -- A dict of arguments to pass to Interface
+        - actionsmap -- Either an ActionsMap instance or a dict of
+            arguments to pass to ActionsMap
+
+    """
+    from moulinette.actionsmap import ActionsMap
+
+    try:
+        mod = import_module('moulinette.interfaces.%s' % name)
+    except ImportError:
+        # TODO: List available interfaces
+        raise MoulinetteError(errno.EINVAL, _("Unknown interface '%s'" % name))
+    else:
+        try:
+            # Retrieve interface classes
+            parser = mod.ActionsMapParser
+            interface = mod.Interface
+        except AttributeError as e:
+            raise MoulinetteError(errno.EFAULT, _("Invalid interface '%s': %s") % (name, e))
+
+    # Instantiate or retrieve ActionsMap
+    if isinstance(actionsmap, dict):
+        amap = ActionsMap(actionsmap.pop('parser', parser), **actionsmap)
+    elif isinstance(actionsmap, ActionsMap):
+        amap = actionsmap
+    else:
+        raise MoulinetteError(errno.EINVAL, _("Invalid actions map '%r'" % actionsmap))
+
+    return interface(amap, **kwargs)
 
 def init_authenticator((vendor, name), kwargs={}):
     """Return a new authenticator instance
@@ -148,14 +189,24 @@ def init_authenticator((vendor, name), kwargs={}):
     try:
         mod = import_module('moulinette.authenticators.%s' % vendor)
     except ImportError:
-        # TODO: List available authenticator vendors
+        # TODO: List available authenticators vendors
         raise MoulinetteError(errno.EINVAL, _("Unknown authenticator vendor '%s'" % vendor))
     else:
         return mod.Authenticator(name, **kwargs)
 
 def clean_session(session_id, profiles=[]):
+    """Clean a session cache
+
+    Remove cache for the session 'session_id' and for profiles in
+    'profiles' or for all of them if the list is empty.
+
+    Keyword arguments:
+        - session_id -- The session id to clean
+        - profiles -- A list of profiles to clean
+
+    """
     sessiondir = pkg.get_cachedir('session')
-    if len(profiles) == 0:
+    if not profiles:
         profiles = os.listdir(sessiondir)
 
     for p in profiles:

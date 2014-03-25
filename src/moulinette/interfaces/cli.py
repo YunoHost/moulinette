@@ -2,8 +2,10 @@
 
 import errno
 import getpass
+import argparse
 
 from moulinette.core import MoulinetteError
+from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
 
 # CLI helpers ----------------------------------------------------------
 
@@ -59,16 +61,93 @@ def pretty_print_dict(d, depth=0):
             print(("  ") * depth + "%s: %s" % (str(k), v))
 
 
-# Moulinette Interface -------------------------------------------------
+# CLI Classes Implementation -------------------------------------------
 
-class MoulinetteCLI(object):
-    """Moulinette command-line Interface
+class ActionsMapParser(BaseActionsMapParser):
+    """Actions map's Parser for the CLI
 
-    Initialize an interface connected to the standard input and output
-    stream which allows to process moulinette actions.
+    Provide actions map parsing methods for a CLI usage. The parser for
+    the arguments is represented by a argparse.ArgumentParser object.
 
     Keyword arguments:
-        - actionsmap -- The interface relevant ActionsMap instance
+        - parser -- The argparse.ArgumentParser object to use
+
+    """
+    def __init__(self, shandler, parent=None, parser=None):
+        super(ActionsMapParser, self).__init__(shandler, parent)
+
+        self._parser = parser or argparse.ArgumentParser()
+        self._subparsers = self._parser.add_subparsers()
+
+
+    ## Implement virtual properties
+
+    interface = 'cli'
+
+
+    ## Implement virtual methods
+
+    @staticmethod
+    def format_arg_names(name, full):
+        if name[0] == '-' and full:
+            return [name, full]
+        return [name]
+
+    def add_global_parser(self, **kwargs):
+        return self._parser
+
+    def add_category_parser(self, name, category_help=None, **kwargs):
+        """Add a parser for a category
+
+        Keyword arguments:
+            - category_help -- A brief description for the category
+
+        Returns:
+            A new ActionsMapParser object for the category
+
+        """
+        parser = self._subparsers.add_parser(name, help=category_help)
+        return self.__class__(None, self, parser)
+
+    def add_action_parser(self, name, tid, action_help=None, **kwargs):
+        """Add a parser for an action
+
+        Keyword arguments:
+            - action_help -- A brief description for the action
+
+        Returns:
+            A new argparse.ArgumentParser object for the action
+
+        """
+        return self._subparsers.add_parser(name, help=action_help)
+
+    def parse_args(self, args, **kwargs):
+        ret = self._parser.parse_args(args)
+
+        # Perform authentication if needed
+        if self.get_conf(ret._tid, 'authenticate'):
+            auth_conf, klass = self.get_conf(ret._tid, 'authenticator')
+
+            # TODO: Catch errors
+            auth = self.shandler.authenticate(klass(), **auth_conf)
+            if not auth.is_authenticated:
+                # TODO: Set proper error code
+                raise MoulinetteError(errno.EACCES, _("This action need authentication"))
+            if self.get_conf(ret._tid, 'argument_auth') and \
+               self.get_conf(ret._tid, 'authenticate') == 'all':
+                ret.auth = auth
+
+        return ret
+
+
+class Interface(BaseInterface):
+    """Command-line Interface for the moulinette
+
+    Initialize an interface connected to the standard input/output
+    stream and to a given actions map.
+
+    Keyword arguments:
+        - actionsmap -- The ActionsMap instance to connect to
 
     """
     def __init__(self, actionsmap):

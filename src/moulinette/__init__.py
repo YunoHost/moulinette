@@ -26,10 +26,10 @@ __credits__ = """
     """
 __all__ = [
     'init', 'api', 'cli',
-    'MoulinetteError',
+    'init_interface', 'MoulinetteError',
 ]
 
-from moulinette.core import MoulinetteError
+from moulinette.core import init_interface, MoulinetteError
 
 
 ## Package functions
@@ -76,12 +76,10 @@ def api(namespaces, port, routes={}, use_cache=True):
             instead of using the cached one
 
     """
-    from moulinette.actionsmap import ActionsMap
-    from moulinette.interface.api import MoulinetteAPI
-
-    amap = ActionsMap('api', namespaces, use_cache)
-    moulinette = MoulinetteAPI(amap, routes)
-
+    moulinette = init_interface('api',
+                                kwargs={'routes': routes},
+                                actionsmap={'namespaces': namespaces,
+                                            'use_cache': use_cache})
     moulinette.run(port)
 
 def cli(namespaces, args, use_cache=True):
@@ -97,13 +95,12 @@ def cli(namespaces, args, use_cache=True):
             instead of using the cached one
 
     """
-    from moulinette.actionsmap import ActionsMap
-    from moulinette.interface.cli import MoulinetteCLI, colorize
+    from moulinette.interfaces.cli import colorize
 
     try:
-        amap = ActionsMap('cli', namespaces, use_cache)
-        moulinette = MoulinetteCLI(amap)
-
+        moulinette = init_interface('cli',
+                                    actionsmap={'namespaces': namespaces,
+                                                'use_cache': use_cache})
         moulinette.run(args)
     except MoulinetteError as e:
         print(_('%s: %s' % (colorize(_('Error'), 'red'), e.strerror)))

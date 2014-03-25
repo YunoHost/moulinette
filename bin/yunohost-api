@@ -45,7 +45,7 @@ if __name__ == '__main__':
         api(['yunohost', 'test'], 6787,
             {('GET', '/installed'): is_installed}, use_cache)
     except MoulinetteError as e:
-        from moulinette.interface.cli import colorize
+        from moulinette.interfaces.cli import colorize
         print(_('%s: %s' % (colorize(_('Error'), 'red'), e.strerror)))
-        sys.exit(e.code)
+        sys.exit(e.errno)
     sys.exit(0)
