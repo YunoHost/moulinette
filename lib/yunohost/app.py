@@ -23,6 +23,9 @@
 
     Manage apps
 """
+import logging
+logging.warning('the module yunohost.app has not been revisited and updated yet')
+
 import os
 import sys
 import json

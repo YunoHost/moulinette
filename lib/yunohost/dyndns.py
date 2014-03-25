@@ -23,6 +23,9 @@
 
     Subscribe and Update DynDNS Hosts
 """
+import logging
+logging.warning('the module yunohost.dyndns has not been revisited and updated yet')
+
 import os
 import sys
 import requests

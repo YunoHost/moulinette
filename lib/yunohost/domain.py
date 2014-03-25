@@ -23,6 +23,9 @@
 
     Manage domains
 """
+import logging
+logging.warning('the module yunohost.backup has not been revisited and updated yet')
+
 import os
 import sys
 import datetime

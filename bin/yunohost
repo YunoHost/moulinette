@@ -35,8 +35,9 @@ if __name__ == '__main__':
             raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
 
         # Execute the action
-        ret = cli(['yunohost', 'test'], args, use_cache)
+        ret = cli(['yunohost'], args, use_cache)
     except YunoHostError as e:
+        # TODO: Remove this and associated import when yunohost package has been revisited
         print(colorize(_("Error: "), 'red') + e.message)
         sys.exit(e.code)
     sys.exit(ret)

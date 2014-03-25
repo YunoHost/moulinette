@@ -23,6 +23,9 @@
 
     Manage services
 """
+import logging
+logging.warning('the module yunohost.service has not been revisited and updated yet')
+
 import yaml
 import glob
 import subprocess

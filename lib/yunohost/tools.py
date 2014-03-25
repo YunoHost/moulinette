@@ -23,6 +23,9 @@
 
     Specific tools
 """
+import logging
+logging.warning('the module yunohost.tools has not been revisited and updated yet')
+
 import os
 import sys
 import yaml

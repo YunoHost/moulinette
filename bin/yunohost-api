@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     try:
         # Run the server
-        api(['yunohost', 'test'], 6787,
+        api(['yunohost'], 6787,
             {('GET', '/installed'): is_installed}, use_cache)
     except MoulinetteError as e:
         from moulinette.interfaces.cli import colorize

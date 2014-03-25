@@ -23,6 +23,9 @@
 
     Monitoring functions
 """
+import logging
+logging.warning('the module yunohost.monitor has not been revisited and updated yet')
+
 import re
 import json
 import time

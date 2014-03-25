@@ -23,6 +23,9 @@
 
     Manage firewall rules
 """
+import logging
+logging.warning('the module yunohost.firewall has not been revisited and updated yet')
+
 import os
 import sys
 try:

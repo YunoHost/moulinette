@@ -23,6 +23,9 @@
 
     Manage hooks
 """
+import logging
+logging.warning('the module yunohost.hook has not been revisited and updated yet')
+
 import os
 import sys
 import re

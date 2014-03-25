@@ -23,6 +23,9 @@
 
     Manage users
 """
+import logging
+logging.warning('the module yunohost.user has not been revisited and updated yet')
+
 import os
 import sys
 import ldap
