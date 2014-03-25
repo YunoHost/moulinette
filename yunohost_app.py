@@ -831,7 +831,12 @@ def app_ssowatconf():
         users[user['Username']] = app_map(user=user['Username'])
 
     skipped_urls = []
+    skipped_regex = []
     unprotected_urls = []
+    unprotected_regex = []
+    protected_urls = []
+    protected_regex = []
+    
     apps = {}
     for app in app_list()['Apps']:
         if _is_installed(app['ID']):
@@ -842,32 +847,56 @@ def app_ssowatconf():
                         if item[-1:] == '/':
                             item = item[:-1]
                         skipped_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+                if 'skipped_regex' in app_settings:
+                    for item in app_settings['skipped_regex'].split(','):
+                        skipped_regex.append(item)
                 if 'unprotected_uris' in app_settings:
                     for item in app_settings['unprotected_uris'].split(','):
                         if item[-1:] == '/':
                             item = item[:-1]
                         unprotected_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+                if 'unprotected_regex' in app_settings:
+                    for item in app_settings['unprotected_regex'].split(','):
+                        unprotected_regex.append(item)
+                if 'protected_uris' in app_settings:
+                    for item in app_settings['protected_uris'].split(','):
+                        if item[-1:] == '/':
+                            item = item[:-1]
+                        protected_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+                if 'protected_regex' in app_settings:
+                    for item in app_settings['protected_regex'].split(','):
+                        protected_regex.append(item)
 
     for domain in domains:
         skipped_urls.extend([domain +'/ynhadmin', domain +'/ynhapi'])
 
-    conf_dict = {
-        'portal_domain': main_domain,
-        'portal_path': '/ynhsso/',
-        'portal_port': '443',
-        'portal_scheme': 'https',
-        'additional_headers': {
+    with open('/etc/ssowat/conf.json') as f:
+        conf_dict = json.load(f)
+
+    if not 'portal_domain' in conf_dict:
+        conf_dict['portal_domain'] = main_domain
+    if not 'portal_path' in conf_dict:
+        conf_dict['portal_path'] = '/ynhsso/'
+    if not 'portal_port' in conf_dict:
+        conf_dict['portal_port'] = '443'
+    if not 'portal_scheme' in conf_dict:
+        conf_dict['portal_scheme'] = 'https'
+    if not 'additional_headers' in conf_dict:
+        conf_dict['additional_headers'] = {
             'Auth-User': 'uid',
             'Remote-User': 'uid',
             'Name': 'cn',
             'Email': 'mail'
-        },
-        'domains': domains,
-        'skipped_urls': skipped_urls,
-        'unprotected_urls': unprotected_urls,
-        'users': users
-    }
-
+        }
+    conf_dict['domains'] = domains
+    conf_dict['skipped_urls'] = skipped_urls
+    conf_dict['unprotected_urls'] = unprotected_urls
+    conf_dict['protected_urls'] = protected_urls
+    conf_dict['skipped_regex'] = skipped_regex
+    conf_dict['unprotected_regex'] = unprotected_regex
+    conf_dict['protected_regex'] = protected_regex
+    conf_dict['users'] = users
+        
     with open('/etc/ssowat/conf.json', 'wb') as f:
         json.dump(conf_dict, f)
 
