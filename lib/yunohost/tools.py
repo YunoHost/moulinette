@@ -34,6 +34,7 @@ import getpass
 import subprocess
 import requests
 import json
+from subprocess import Popen, PIPE
 from domain import domain_add, domain_list
 from dyndns import dyndns_subscribe
 from backup import backup_init
@@ -103,7 +104,7 @@ def tools_adminpw(old_password, new_password):
         raise YunoHostError(22, _("Invalid password"))
 
 
-def tools_maindomain(old_domain, new_domain, dyndns=False):
+def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
     """
     Main domain change tool
 
@@ -117,6 +118,9 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         with open('/etc/yunohost/current_host', 'r') as f:
             old_domain = f.readline().rstrip()
 
+        if not new_domain:
+            return { 'current_main_domain': old_domain }
+
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
 
     config_files = [
@@ -124,8 +128,9 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         '/etc/metronome/metronome.cfg.lua',
         '/etc/dovecot/dovecot.conf',
         '/usr/share/yunohost/yunohost-config/others/startup',
-        '/home/yunohost.backup/tahoe/tahoe.cfg'
-        '/etc/amavis/conf.d/05-node_id'
+        '/home/yunohost.backup/tahoe/tahoe.cfg',
+        '/etc/amavis/conf.d/05-node_id',
+        '/etc/amavis/conf.d/50-user'
     ]
 
     config_dir = []
@@ -153,7 +158,8 @@ def tools_maindomain(old_domain, new_domain, dyndns=False):
         'service nginx restart',
         'service metronome restart',
         'service postfix restart',
-        'service dovecot restart'
+        'service dovecot restart',
+        'service amavis restart'
     ]
 
     try:
@@ -221,21 +227,6 @@ def tools_postinstall(domain, password, dyndns=False):
     if os.system('hostname -d') != 0:
         os.system('hostname yunohost.yunohost.org')
 
-    # Activate "full" mode if RAM >= 512MB
-    for L in open("/proc/meminfo"):
-        if "MemTotal" in L:
-            if int(L.split(" ")[-2]) < 500000 or not requests.get('http://ip.yunohost.org/'):
-                os.system('touch /etc/yunohost/light')
-            else:
-                os.system('service dspam stop')
-                os.system('chmod -x /etc/cron.daily/dspam')
-                os.system('update-rc.d dspam remove')
-                os.system('sed -i "s/yes/no/g" /etc/default/dspam')
-                os.system('sed -i "s/dspam=no/dspam=yes/" /etc/yunohost/yunohost.conf')
-                os.system('apt-get install -y -qq yunohost-config-amavis')
-                os.system('service amavis start')
-                os.system('apt-get install --reinstall -y -qq yunohost-config-postfix yunohost-config-dovecot')
-
     # Create SSL CA
     ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
     command_list = [
@@ -276,3 +267,65 @@ def tools_postinstall(domain, password, dyndns=False):
     win_msg(_("YunoHost has been successfully configured"))
 
 
+def tools_update():
+    """
+    Update distribution
+
+    """
+    process = Popen("/usr/bin/checkupdate", stdout=PIPE)
+    stdout, stderr = process.communicate()
+    if process.returncode == 1:
+        win_msg( _("Not upgrade found"))
+    elif process.returncode == 2:
+        raise YunoHostError(17, _("Error during update"))
+    else:
+        return { "Update" : stdout.splitlines() }
+
+
+def tools_changelog():
+    """
+    Show Changelog
+
+    """
+    if os.path.isfile('/tmp/yunohost/update_status'):
+        with open('/tmp/yunohost/changelog', 'r') as f:
+            read_data = f.read()
+            return { "Changelog" : read_data.splitlines() }
+    else:
+        raise YunoHostError(17, _("Launch update before upgrade"))
+
+
+def tools_upgrade():
+    """
+    Upgrade distribution
+
+    """
+    if os.path.isfile('/tmp/yunohost/upgrade.run'):
+        win_msg( _("Upgrade in progress"))
+    else:
+        if os.path.isfile('/tmp/yunohost/upgrade_status'):
+            with open('/tmp/yunohost/upgrade_status', 'r') as f:
+                read_data = f.read()
+                os.system('rm /tmp/yunohost/upgrade_status')
+                if read_data.strip() == "OK":
+                    win_msg( _("YunoHost has been successfully upgraded"))
+                else:
+                    raise YunoHostError(17, _("Error during upgrade"))
+        elif os.path.isfile('/tmp/yunohost/update_status'):
+            os.system('at now -f /usr/share/yunohost/upgrade')
+            win_msg( _("Upgrade in progress"))
+        else:
+            raise YunoHostError(17, _("Launch update before upgrade"))
+
+
+def tools_upgradelog():
+    """
+    Show upgrade log
+
+    """
+    if os.path.isfile('/tmp/yunohost/upgrade.run'):
+        win_msg( _("Upgrade in progress"))
+    else:
+        with open('/tmp/yunohost/update_log', 'r') as f:
+            read_data = f.read()
+            return { "DPKG LOG" : read_data.splitlines() }

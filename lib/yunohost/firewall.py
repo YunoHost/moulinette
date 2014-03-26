@@ -39,6 +39,7 @@ except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
     sys.stderr.write('apt-get install python-yaml\n')
     sys.exit(1)
+from hook import hook_callback
 
 from moulinette.helpers import YunoHostError, win_msg
 

@@ -65,7 +65,19 @@ def monitor_disk(units=None, mountpoint=None, human_readable=False):
 
     # Get mounted block devices
     devices = {}
-    output = subprocess.check_output('lsblk -o NAME,MOUNTPOINT -l -n'.split())
+    try:
+        output = subprocess.check_output('lsblk -o NAME,MOUNTPOINT -l -n'.split())
+    except subprocess.CalledProcessError:
+        output = ''
+
+    # Try to find at least root partition
+    if not output:
+        for p in psutil.disk_partitions(all=True):
+            if p.mountpoint == '/':
+                output = '%s /' % p.device.replace('/dev/', '')
+                break
+
+    # Format results
     for d in output.split('\n'):
         m = re.search(r'([a-z]+[0-9]*)[ ]+(\/\S*)', d) # Extract device name (1) and its mountpoint (2)
         if m and (mountpoint is None or m.group(2) == mountpoint):

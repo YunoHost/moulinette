@@ -70,8 +70,8 @@ def app_fetchlist(url=None, name=None):
     Fetch application list from app server
 
     Keyword argument:
-        name -- Name of the list (default fapp)
-        url -- URL of remote JSON list (default http://fapp.yunohost.org/app/list/raw)
+        name -- Name of the list (default yunohost)
+        url -- URL of remote JSON list (default http://app.yunohost.org/list.json)
 
     """
     # Create app path if not exists
@@ -93,7 +93,7 @@ def app_fetchlist(url=None, name=None):
     os.rename(list_file +'.tmp', list_file)
 
     os.system("touch /etc/cron.d/yunohost-applist-"+ name)
-    os.system("echo '00 00 * * * root yunohost app fetchlist -u "+ url +" -n "+ name +" --no-ldap >> /dev/null' >/etc/cron.d/yunohost-applist-"+ name)
+    os.system("echo '00 00 * * * root yunohost app fetchlist -u "+ url +" -n "+ name +" --no-ldap > /dev/null 2>&1' >/etc/cron.d/yunohost-applist-"+ name)
 
     win_msg(_("List successfully fetched"))
 
@@ -532,7 +532,11 @@ def app_addaccess(apps, users):
         apps
 
     """
-    #TODO: Adapt to SSOwat
+    if not users:
+        users = []
+        for user in user_list()['Users']:
+            users.append(user['Username'])
+
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
 
@@ -568,6 +572,8 @@ def app_addaccess(apps, users):
 
     app_ssowatconf()
 
+    return { 'allowed_users': new_users.split(',') }
+
 
 def app_removeaccess(apps, users):
     """
@@ -578,7 +584,9 @@ def app_removeaccess(apps, users):
         apps
 
     """
-    #TODO: Remove access
+    remove_all = False
+    if not users:
+        remove_all = True
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
     for app in apps:
@@ -591,7 +599,9 @@ def app_removeaccess(apps, users):
             app_settings = yaml.load(f)
 
         if 'skipped_uris' not in app_settings or app_settings['skipped_uris'] != '/':
-            if 'allowed_users' in app_settings:
+            if remove_all:
+                new_users = ''
+            elif 'allowed_users' in app_settings:
                 for allowed_user in app_settings['allowed_users'].split(','):
                     if allowed_user not in users:
                         if new_users == '':
@@ -607,6 +617,34 @@ def app_removeaccess(apps, users):
                         new_users=new_users+','+user['Username']
 
             app_setting(app, 'allowed_users', new_users.strip())
+
+    app_ssowatconf()
+
+    return { 'allowed_users': new_users.split(',') }
+
+
+def app_clearaccess(apps):
+    """
+    Reset access rights for the app
+
+    Keyword argument:
+        apps
+
+    """
+    if not isinstance(apps, list): apps = [apps]
+
+    for app in apps:
+        if not _is_installed(app):
+            raise YunoHostError(22, _("App is not installed"))
+
+        with open(apps_setting_path + app +'/settings.yml') as f:
+            app_settings = yaml.load(f)
+
+        if 'mode' in app_settings:
+            app_setting(app, 'mode', delete=True)
+
+        if 'allowed_users' in app_settings:
+            app_setting(app, 'allowed_users', delete=True)
 
     app_ssowatconf()
 
@@ -797,7 +835,12 @@ def app_ssowatconf():
         users[user['Username']] = app_map(user=user['Username'])
 
     skipped_urls = []
+    skipped_regex = []
     unprotected_urls = []
+    unprotected_regex = []
+    protected_urls = []
+    protected_regex = []
+
     apps = {}
     for app in app_list()['Apps']:
         if _is_installed(app['ID']):
@@ -808,31 +851,55 @@ def app_ssowatconf():
                         if item[-1:] == '/':
                             item = item[:-1]
                         skipped_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+                if 'skipped_regex' in app_settings:
+                    for item in app_settings['skipped_regex'].split(','):
+                        skipped_regex.append(item)
                 if 'unprotected_uris' in app_settings:
                     for item in app_settings['unprotected_uris'].split(','):
                         if item[-1:] == '/':
                             item = item[:-1]
                         unprotected_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+                if 'unprotected_regex' in app_settings:
+                    for item in app_settings['unprotected_regex'].split(','):
+                        unprotected_regex.append(item)
+                if 'protected_uris' in app_settings:
+                    for item in app_settings['protected_uris'].split(','):
+                        if item[-1:] == '/':
+                            item = item[:-1]
+                        protected_urls.append(app_settings['domain'] + app_settings['path'][:-1] + item)
+                if 'protected_regex' in app_settings:
+                    for item in app_settings['protected_regex'].split(','):
+                        protected_regex.append(item)
 
     for domain in domains:
         skipped_urls.extend([domain +'/ynhadmin', domain +'/ynhapi'])
 
-    conf_dict = {
-        'portal_domain': main_domain,
-        'portal_path': '/ynhsso/',
-        'portal_port': '443',
-        'portal_scheme': 'https',
-        'additional_headers': {
+    with open('/etc/ssowat/conf.json') as f:
+        conf_dict = json.load(f)
+
+    if not 'portal_domain' in conf_dict:
+        conf_dict['portal_domain'] = main_domain
+    if not 'portal_path' in conf_dict:
+        conf_dict['portal_path'] = '/ynhsso/'
+    if not 'portal_port' in conf_dict:
+        conf_dict['portal_port'] = '443'
+    if not 'portal_scheme' in conf_dict:
+        conf_dict['portal_scheme'] = 'https'
+    if not 'additional_headers' in conf_dict:
+        conf_dict['additional_headers'] = {
             'Auth-User': 'uid',
             'Remote-User': 'uid',
             'Name': 'cn',
             'Email': 'mail'
-        },
-        'domains': domains,
-        'skipped_urls': skipped_urls,
-        'unprotected_urls': unprotected_urls,
-        'users': users
-    }
+        }
+    conf_dict['domains'] = domains
+    conf_dict['skipped_urls'] = skipped_urls
+    conf_dict['unprotected_urls'] = unprotected_urls
+    conf_dict['protected_urls'] = protected_urls
+    conf_dict['skipped_regex'] = skipped_regex
+    conf_dict['unprotected_regex'] = unprotected_regex
+    conf_dict['protected_regex'] = protected_regex
+    conf_dict['users'] = users
 
     with open('/etc/ssowat/conf.json', 'wb') as f:
         json.dump(conf_dict, f)
