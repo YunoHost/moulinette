@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import os.path
+
+from_source = False
+
+# Run from source
+basedir = os.path.abspath('%s/../' % os.path.dirname(__file__))
+if os.path.isdir('%s/moulinette' % basedir):
+    sys.path.insert(0, basedir)
+    from_source = True
+
+from moulinette import init, cli, MoulinetteError
+from moulinette.helpers import YunoHostError, colorize
+
+
+## Main action
+
+if __name__ == '__main__':
+    # Run from source
+    init(_from_source=from_source)
+
+    # Additional arguments
+    use_cache = True
+    if '--no-cache' in sys.argv:
+        use_cache = False
+        sys.argv.remove('--no-cache')
+
+    try:
+        args = list(sys.argv)
+        args.pop(0)
+
+        # Check that YunoHost is installed
+        if not os.path.isfile('/etc/yunohost/installed') \
+           and (len(args) < 2 or args[1] != 'tools' or args[2] != 'postinstall'):
+            raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
+
+        # Execute the action
+        ret = cli(['yunohost'], args, use_cache)
+    except YunoHostError as e:
+        # TODO: Remove this and associated import when yunohost package has been revisited
+        print(colorize(_("Error: "), 'red') + e.message)
+        sys.exit(e.code)
+    sys.exit(ret)

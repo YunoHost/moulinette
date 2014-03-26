@@ -10,6 +10,7 @@ build
 eggs
 parts
 bin
+cache
 var
 sdist
 develop-eggs
@@ -22,10 +23,12 @@ pip-log.txt
 .coverage
 .tox
 
-#Translations
+# Translations
 *.mo
 
-#Mr Developer
+# Mr Developer
 .mr.developer.cfg
 
+# Moulinette
 doc/*.json
+src/moulinette/package.py

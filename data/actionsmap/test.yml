@@ -1,0 +1,59 @@
+
+#############################
+#     Global parameters     #
+#############################
+_global:
+    configuration:
+        authenticate:
+            - api
+        authenticator:
+            default:
+                vendor: ldap
+                help: Admin Password
+                parameters:
+                    uri: ldap://localhost:389
+                    base_dn: dc=yunohost,dc=org
+                    user_rdn: cn=admin
+            ldap-anonymous:
+                vendor: ldap
+                parameters:
+                    uri: ldap://localhost:389
+                    base_dn: dc=yunohost,dc=org
+            test-profile:
+                vendor: ldap
+                help: Admin Password (profile)
+                parameters:
+                    uri: ldap://localhost:389
+                    base_dn: dc=yunohost,dc=org
+                    user_rdn: cn=admin
+        argument_auth: true
+
+#############################
+#       Test Actions        #
+#############################
+test:
+    actions:
+        non-auth:
+            api: GET /test/non-auth
+            configuration:
+                authenticate: false
+        auth:
+            api: GET /test/auth
+            configuration:
+                authenticate: all
+        auth-profile:
+            api: GET /test/auth-profile
+            configuration:
+                authenticate: all
+                authenticator: test-profile
+        auth-cli:
+            api: GET /test/auth-cli
+            configuration:
+                authenticate:
+                    - cli
+        anonymous:
+            api: GET /test/anon
+            configuration:
+                authenticate: all
+                authenticator: ldap-anonymous
+                argument_auth: false
