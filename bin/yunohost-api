@@ -4,10 +4,13 @@
 import sys
 import os.path
 
+from_source = False
+
 # Run from source
-basedir = os.path.abspath(os.path.dirname(__file__) +'/../')
-if os.path.isdir(basedir +'/src'):
-    sys.path.append(basedir +'/src')
+basedir = os.path.abspath('%s/../' % os.path.dirname(__file__))
+if os.path.isdir('%s/moulinette' % basedir):
+    sys.path.insert(0, basedir)
+    from_source = True
 
 from moulinette import init, api, MoulinetteError
 
@@ -29,15 +32,13 @@ def is_installed():
 
 if __name__ == '__main__':
     # Run from source
-    init(_from_source=True)
+    init(_from_source=from_source)
 
     # Additional arguments
     use_cache = True
     if '--no-cache' in sys.argv:
         use_cache = False
         sys.argv.remove('--no-cache')
-    if '--debug' in sys.argv:
-        sys.argv.remove('--debug')
     # TODO: Add log argument
 
     try:

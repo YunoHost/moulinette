@@ -4,10 +4,13 @@
 import sys
 import os.path
 
+from_source = False
+
 # Run from source
 basedir = os.path.abspath('%s/../' % os.path.dirname(__file__))
-if os.path.isdir('%s/src' % basedir):
-    sys.path.insert(0, '%s/src' % basedir)
+if os.path.isdir('%s/moulinette' % basedir):
+    sys.path.insert(0, basedir)
+    from_source = True
 
 from moulinette import init, cli, MoulinetteError
 from moulinette.helpers import YunoHostError, colorize
@@ -17,7 +20,7 @@ from moulinette.helpers import YunoHostError, colorize
 
 if __name__ == '__main__':
     # Run from source
-    init(_from_source=True)
+    init(_from_source=from_source)
 
     # Additional arguments
     use_cache = True
