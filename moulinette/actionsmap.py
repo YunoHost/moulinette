@@ -519,6 +519,9 @@ class ActionsMap(object):
             for argn, argp in arguments.items():
                 names = top_parser.format_arg_names(argn,
                                                     argp.pop('full', None))
+                try: argp['type'] = eval(argp['type'])
+                except: pass
+
                 try:
                     extra = argp.pop('extra')
                     arg_dest = (parser.add_argument(*names, **argp)).dest
