@@ -28,10 +28,8 @@ import sys
 import crypt
 import random
 import string
-from moulinette.core import MoulinetteError
 
-from yunohost.domain import domain_list
-from yunohost.hook import hook_callback
+from moulinette.core import MoulinetteError
 
 
 def user_list(auth, fields=None, filter=None, limit=None, offset=None):
@@ -60,8 +58,9 @@ def user_list(auth, fields=None, filter=None, limit=None, offset=None):
     if filter is None:
         filter = '(&(objectclass=person)(!(uid=root))(!(uid=nobody)))'
     if fields:
-        for attr in user_attrs.keys():
-            if attr in fields:
+        keys = user_attrs.keys()
+        for attr in fields:
+            if attr in keys:
                 attrs.append(attr)
             else:
                 raise MoulinetteError(22, _("Invalid field '%s'") % attr)
@@ -94,6 +93,9 @@ def user_create(auth, username, firstname, lastname, mail, password):
         password
 
     """
+    from yunohost.domain import domain_list
+    from yunohost.hook import hook_callback
+
     # Validate password length
     if len(password) < 4:
         raise MoulinetteError(22, _("Password is too short"))
@@ -193,6 +195,8 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
         remove_mailalias -- Mail aliases to remove
 
     """
+    from yunohost.domain import domain_list
+
     attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
     new_attr_dict = {}
     domains = domain_list()['Domains']
@@ -269,7 +273,7 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
 
     if auth.update('uid=' + username + ',ou=users', new_attr_dict):
        msignals.display(_("User '%s' successfully updated.") % username, 'success')
-       return user_info(username)
+       return user_info(auth, username)
     else:
        raise MoulinetteError(169, _("An error occurred during user update"))
 
