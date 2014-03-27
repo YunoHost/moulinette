@@ -2,7 +2,7 @@
 
 """ License
 
-    Copyright (C) 2013 YunoHost
+    Copyright (C) 2014 YUNOHOST.ORG
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
@@ -23,22 +23,18 @@
 
     Manage users
 """
-import logging
-logging.warning('the module yunohost.user has not been revisited and updated yet')
-
 import os
 import sys
-import ldap
 import crypt
 import random
 import string
-import getpass
-from domain import domain_list
-from hook import hook_callback
+from moulinette.core import MoulinetteError
 
-from moulinette.helpers import YunoHostError, YunoHostLDAP, win_msg, colorize, validate, get_required_args
+from yunohost.domain import domain_list
+from yunohost.hook import hook_callback
 
-def user_list(fields=None, filter=None, limit=None, offset=None):
+
+def user_list(auth, fields=None, filter=None, limit=None, offset=None):
     """
     List users
 
@@ -49,47 +45,44 @@ def user_list(fields=None, filter=None, limit=None, offset=None):
         fields -- fields to fetch
 
     """
-    with YunoHostLDAP() as yldap:
-        user_attrs = ['uid', 'mail', 'cn', 'maildrop']
-        attrs = []
-        result_list = []
-        if offset: offset = int(offset)
-        else: offset = 0
-        if limit: limit = int(limit)
-        else: limit = 1000
-        if not filter: filter = 'uid=*'
-        if fields:
-            for attr in fields.items():
-                if attr in user_attrs:
-                    attrs.append(attr)
-                    continue
-                else:
-                    raise YunoHostError(22, _("Invalid field : ") + attr)
-        else:
-            attrs = user_attrs
+    user_attrs = { 'uid': 'username',
+                   'cn': 'fullname',
+                   'mail': 'mail',
+                   'maildrop': 'mail-forward' }
+    attrs = []
+    result_list = []
 
-        result = yldap.search('ou=users,dc=yunohost,dc=org', filter, attrs)
+    # Set default arguments values
+    if offset is None:
+        offset = 0
+    if limit is None:
+        limit = 1000
+    if filter is None:
+        filter = '(&(objectclass=person)(!(uid=root))(!(uid=nobody)))'
+    if fields:
+        for attr in user_attrs.keys():
+            if attr in fields:
+                attrs.append(attr)
+            else:
+                raise MoulinetteError(22, _("Invalid field '%s'") % attr)
+    else:
+        attrs = [ 'uid', 'cn', 'mail' ]
 
-        if result and len(result) > (0 + offset) and limit > 0:
-            i = 0 + offset
-            for user in result[i:]:
-                if i - offset < limit:
-                    if user['uid'][0] == 'root' or user['uid'][0] == 'nobody':
-                        continue
-                    entry = {
-                        'Username': user['uid'][0],
-                        'Fullname': user['cn'][0],
-                    }
-                    if 'mail' in user.keys():
-                        entry['Mail'] = user['mail'][0]
+    result = auth.search('ou=users,dc=yunohost,dc=org', filter, attrs)
 
-                    result_list.append(entry)
-                    i += 1
-
-    return { 'Users' : result_list }
+    if len(result) > offset and limit > 0:
+        for user in result[offset:offset+limit]:
+            entry = {}
+            for attr, values in user.items():
+                try:
+                    entry[user_attrs[attr]] = values[0]
+                except:
+                    pass
+            result_list.append(entry)
+    return { 'users' : result_list }
 
 
-def user_create(username, firstname, lastname, mail, password):
+def user_create(auth, username, firstname, lastname, mail, password):
     """
     Create user
 
@@ -101,64 +94,63 @@ def user_create(username, firstname, lastname, mail, password):
         password
 
     """
-    with YunoHostLDAP() as yldap:
-        # Validate password length
-        if len(password) < 4:
-            raise YunoHostError(22, _("Password is too short"))
+    # Validate password length
+    if len(password) < 4:
+        raise MoulinetteError(22, _("Password is too short"))
 
-        yldap.validate_uniqueness({
-            'uid'       : username,
-            'mail'      : mail
-        })
+    auth.validate_uniqueness({
+        'uid'       : username,
+        'mail'      : mail
+    })
 
-        if mail[mail.find('@')+1:] not in domain_list()['Domains']:
-            raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
+    if mail[mail.find('@')+1:] not in domain_list()['Domains']:
+        raise MoulinetteError(22, _("Unknown domain '%s'") % mail[mail.find('@')+1:])
 
-        # Get random UID/GID
+    # Get random UID/GID
 
-        uid_check = gid_check = 0
-        while uid_check == 0 and gid_check == 0:
-            uid = str(random.randint(200, 99999))
-            uid_check = os.system("getent passwd " + uid)
-            gid_check = os.system("getent group " + uid)
+    uid_check = gid_check = 0
+    while uid_check == 0 and gid_check == 0:
+        uid = str(random.randint(200, 99999))
+        uid_check = os.system("getent passwd " + uid)
+        gid_check = os.system("getent group " + uid)
 
-        # Adapt values for LDAP
-        fullname = firstname + ' ' + lastname
-        rdn = 'uid=' + username + ',ou=users'
-        char_set = string.ascii_uppercase + string.digits
-        salt = ''.join(random.sample(char_set,8))
-        salt = '$1$' + salt + '$'
-        pwd = '{CRYPT}' + crypt.crypt(str(password), salt)
-        attr_dict = {
-            'objectClass'   : ['mailAccount', 'inetOrgPerson', 'posixAccount'],
-            'givenName'     : firstname,
-            'sn'            : lastname,
-            'displayName'   : fullname,
-            'cn'            : fullname,
-            'uid'           : username,
-            'mail'          : mail,
-            'maildrop'      : username,
-            'userPassword'  : pwd,
-            'gidNumber'     : uid,
-            'uidNumber'     : uid,
-            'homeDirectory' : '/home/' + username,
-            'loginShell'    : '/bin/false'
+    # Adapt values for LDAP
+    fullname = firstname + ' ' + lastname
+    rdn = 'uid=' + username + ',ou=users'
+    char_set = string.ascii_uppercase + string.digits
+    salt = ''.join(random.sample(char_set,8))
+    salt = '$1$' + salt + '$'
+    pwd = '{CRYPT}' + crypt.crypt(str(password), salt)
+    attr_dict = {
+        'objectClass'   : ['mailAccount', 'inetOrgPerson', 'posixAccount'],
+        'givenName'     : firstname,
+        'sn'            : lastname,
+        'displayName'   : fullname,
+        'cn'            : fullname,
+        'uid'           : username,
+        'mail'          : mail,
+        'maildrop'      : username,
+        'userPassword'  : pwd,
+        'gidNumber'     : uid,
+        'uidNumber'     : uid,
+        'homeDirectory' : '/home/' + username,
+        'loginShell'    : '/bin/false'
 
-        }
+    }
 
-        if yldap.add(rdn, attr_dict):
-            os.system("su - " + username + " -c ''")
-            os.system('yunohost app ssowatconf > /dev/null 2>&1')
-            #TODO: Send a welcome mail to user
-            win_msg(_("User successfully created"))
-            hook_callback('post_user_create', [username, mail, password, firstname, lastname])
+    if auth.add(rdn, attr_dict):
+        os.system("su - " + username + " -c ''")
+        os.system('yunohost app ssowatconf > /dev/null 2>&1')
+        #TODO: Send a welcome mail to user
+        msignals.display(_("User '%s' successfully created.") % username, 'success')
+        hook_callback('post_user_create', [username, mail, password, firstname, lastname])
 
-            return { _("Fullname") : fullname, _("Username") : username, _("Mail") : mail }
-        else:
-            raise YunoHostError(169, _("An error occured during user creation"))
+        return { 'fullname' : fullname, 'username' : username, 'mail' : mail }
+    else:
+        raise MoulinetteError(169, _("An error occurred during user creation"))
 
 
-def user_delete(users, purge=False):
+def user_delete(auth, users, purge=False):
     """
     Delete user
 
@@ -167,27 +159,25 @@ def user_delete(users, purge=False):
         purge
 
     """
-    with YunoHostLDAP() as yldap:
-        result = { 'Users' : [] }
+    if not isinstance(users, list):
+        users = [ users ]
+    deleted = []
 
-        if not isinstance(users, list):
-            users = [ users ]
+    for user in users:
+        if auth.remove('uid=' + user + ',ou=users'):
+            if purge:
+                os.system('rm -rf /home/' + user)
+            deleted.append(user)
+            continue
+        else:
+            raise MoulinetteError(169, _("An error occurred during user deletion"))
 
-        for user in users:
-            if yldap.remove('uid=' + user+ ',ou=users'):
-                if purge:
-                    os.system('rm -rf /home/' + user)
-                result['Users'].append(user)
-                continue
-            else:
-                raise YunoHostError(169, _("An error occured during user deletion"))
-
-        os.system('yunohost app ssowatconf > /dev/null 2>&1')
-        win_msg(_("User(s) successfully deleted"))
-    return result
+    os.system('yunohost app ssowatconf > /dev/null 2>&1')
+    msignals.display(_("User(s) successfully deleted."), 'success')
+    return { 'users': deleted }
 
 
-def user_update(username, firstname=None, lastname=None, mail=None, change_password=None, add_mailforward=None, remove_mailforward=None, add_mailalias=None, remove_mailalias=None):
+def user_update(auth, username, firstname=None, lastname=None, mail=None, change_password=None, add_mailforward=None, remove_mailforward=None, add_mailalias=None, remove_mailalias=None):
     """
     Update user informations
 
@@ -203,90 +193,88 @@ def user_update(username, firstname=None, lastname=None, mail=None, change_passw
         remove_mailalias -- Mail aliases to remove
 
     """
-    with YunoHostLDAP() as yldap:
-        attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
-        new_attr_dict = {}
-        domains = domain_list()['Domains']
+    attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
+    new_attr_dict = {}
+    domains = domain_list()['Domains']
 
-        # Populate user informations
-        result = yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)
-        if not result:
-            raise YunoHostError(167, _("No user found"))
-        user = result[0]
+    # Populate user informations
+    result = auth.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)
+    if not result:
+        raise MoulinetteError(167, _("Unknown username '%s'") % username)
+    user = result[0]
 
-        # Get modifications from arguments
-        if firstname:
-            new_attr_dict['givenName'] = firstname # TODO: Validate
-            new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + user['sn'][0]
+    # Get modifications from arguments
+    if firstname:
+        new_attr_dict['givenName'] = firstname # TODO: Validate
+        new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + user['sn'][0]
 
-        if lastname:
-            new_attr_dict['sn'] = lastname # TODO: Validate
-            new_attr_dict['cn'] = new_attr_dict['displayName'] = user['givenName'][0] + ' ' + lastname
+    if lastname:
+        new_attr_dict['sn'] = lastname # TODO: Validate
+        new_attr_dict['cn'] = new_attr_dict['displayName'] = user['givenName'][0] + ' ' + lastname
 
-        if lastname and firstname:
-            new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + lastname
+    if lastname and firstname:
+        new_attr_dict['cn'] = new_attr_dict['displayName'] = firstname + ' ' + lastname
 
-        if change_password:
-            char_set = string.ascii_uppercase + string.digits
-            salt = ''.join(random.sample(char_set,8))
-            salt = '$1$' + salt + '$'
-            new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(change_password), salt)
+    if change_password:
+        char_set = string.ascii_uppercase + string.digits
+        salt = ''.join(random.sample(char_set,8))
+        salt = '$1$' + salt + '$'
+        new_attr_dict['userPassword'] = '{CRYPT}' + crypt.crypt(str(change_password), salt)
 
-        if mail:
-            yldap.validate_uniqueness({ 'mail': mail })
+    if mail:
+        auth.validate_uniqueness({ 'mail': mail })
+        if mail[mail.find('@')+1:] not in domains:
+            raise MoulinetteError(22, _("Unknown domain '%s'") % mail[mail.find('@')+1:])
+        del user['mail'][0]
+        new_attr_dict['mail'] = [mail] + user['mail']
+
+    if add_mailalias:
+        if not isinstance(add_mailalias, list):
+            add_mailalias = [ add_mailalias ]
+        for mail in add_mailalias:
+            auth.validate_uniqueness({ 'mail': mail })
             if mail[mail.find('@')+1:] not in domains:
-                raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
-            del user['mail'][0]
-            new_attr_dict['mail'] = [mail] + user['mail']
+                raise MoulinetteError(22, _("Unknown domain '%s'") % mail[mail.find('@')+1:])
+            user['mail'].append(mail)
+        new_attr_dict['mail'] = user['mail']
 
-        if add_mailalias:
-            if not isinstance(add_mailalias, list):
-                add_mailalias = [ add_mailalias ]
-            for mail in add_mailalias:
-                yldap.validate_uniqueness({ 'mail': mail })
-                if mail[mail.find('@')+1:] not in domains:
-                    raise YunoHostError(22, _("Domain not found : ")+ mail[mail.find('@')+1:])
-                user['mail'].append(mail)
-            new_attr_dict['mail'] = user['mail']
+    if remove_mailalias:
+        if not isinstance(remove_mailalias, list):
+            remove_mailalias = [ remove_mailalias ]
+        for mail in remove_mailalias:
+            if len(user['mail']) > 1 and mail in user['mail'][1:]:
+                user['mail'].remove(mail)
+            else:
+                raise MoulinetteError(22, _("Invalid mail alias '%s'") % mail)
+        new_attr_dict['mail'] = user['mail']
 
-        if remove_mailalias:
-            if not isinstance(remove_mailalias, list):
-                remove_mailalias = [ remove_mailalias ]
-            for mail in remove_mailalias:
-                if len(user['mail']) > 1 and mail in user['mail'][1:]:
-                    user['mail'].remove(mail)
-                else:
-                    raise YunoHostError(22, _("Invalid mail alias : ") + mail)
-            new_attr_dict['mail'] = user['mail']
+    if add_mailforward:
+        if not isinstance(add_mailforward, list):
+            add_mailforward = [ add_mailforward ]
+        for mail in add_mailforward:
+            if mail in user['maildrop'][1:]:
+                continue
+            user['maildrop'].append(mail)
+        new_attr_dict['maildrop'] = user['maildrop']
 
-        if add_mailforward:
-            if not isinstance(add_mailforward, list):
-                add_mailforward = [ add_mailforward ]
-            for mail in add_mailforward:
-		if mail in user['maildrop'][1:]:
-		    continue
-                user['maildrop'].append(mail)
-            new_attr_dict['maildrop'] = user['maildrop']
+    if remove_mailforward:
+        if not isinstance(remove_mailforward, list):
+            remove_mailforward = [ remove_mailforward ]
+        for mail in remove_mailforward:
+            if len(user['maildrop']) > 1 and mail in user['maildrop'][1:]:
+                user['maildrop'].remove(mail)
+            else:
+                raise MoulinetteError(22, _("Invalid mail forward '%s'") % mail)
+        new_attr_dict['maildrop'] = user['maildrop']
 
-        if remove_mailforward:
-            if not isinstance(remove_mailforward, list):
-                remove_mailforward = [ remove_mailforward ]
-            for mail in remove_mailforward:
-                if len(user['maildrop']) > 1 and mail in user['maildrop'][1:]:
-                    user['maildrop'].remove(mail)
-                else:
-                    raise YunoHostError(22, _("Invalid mail forward : ") + mail)
-            new_attr_dict['maildrop'] = user['maildrop']
-
-        if yldap.update('uid=' + username + ',ou=users', new_attr_dict):
-           win_msg(_("User successfully updated"))
-           return user_info(username)
-        else:
-           raise YunoHostError(169, _("An error occured during user update"))
+    if auth.update('uid=' + username + ',ou=users', new_attr_dict):
+       msignals.display(_("User '%s' successfully updated.") % username, 'success')
+       return user_info(username)
+    else:
+       raise MoulinetteError(169, _("An error occurred during user update"))
 
 
-
-def user_info(username):
+def user_info(auth, username):
     """
     Get user informations
 
@@ -294,37 +282,35 @@ def user_info(username):
         username -- Username or mail to get informations
 
     """
-    with YunoHostLDAP() as yldap:
-        user_attrs = ['cn', 'mail', 'uid', 'maildrop', 'givenName', 'sn']
+    user_attrs = ['cn', 'mail', 'uid', 'maildrop', 'givenName', 'sn']
 
-        if len(username.split('@')) is 2:
-            filter = 'mail='+ username
-        else:
-            filter = 'uid='+ username
+    if len(username.split('@')) is 2:
+        filter = 'mail='+ username
+    else:
+        filter = 'uid='+ username
 
-        result = yldap.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)
+    result = auth.search('ou=users,dc=yunohost,dc=org', filter, user_attrs)
 
-        if result:
-            user = result[0]
-        else:
-            raise YunoHostError(22, _("Unknown user/mail : ") + username)
+    if result:
+        user = result[0]
+    else:
+        raise MoulinetteError(22, _("Unknown username/mail '%s'") % username)
 
-        result_dict = {
-            'Username': user['uid'][0],
-            'Fullname': user['cn'][0],
-            'Firstname': user['givenName'][0],
-            'Lastname': user['sn'][0],
-            'Mail': user['mail'][0]
-        }
+    result_dict = {
+        'username': user['uid'][0],
+        'fullname': user['cn'][0],
+        'firstname': user['givenName'][0],
+        'lastname': user['sn'][0],
+        'mail': user['mail'][0]
+    }
 
-        if len(user['mail']) > 1:
-            result_dict['Mail Aliases'] = user['mail'][1:]
+    if len(user['mail']) > 1:
+        result_dict['mail-aliases'] = user['mail'][1:]
 
-        if len(user['maildrop']) > 1:
-            result_dict['Mail Forward'] = user['maildrop'][1:]
+    if len(user['maildrop']) > 1:
+        result_dict['mail-forward'] = user['maildrop'][1:]
 
-        if result:
-            return result_dict
-        else:
-            raise YunoHostError(167, _("No user found"))
-
+    if result:
+        return result_dict
+    else:
+        raise MoulinetteError(167, _("No user found"))

@@ -49,6 +49,7 @@ _global:
                 parameters:
                     uri: ldap://localhost:389
                     base_dn: dc=yunohost,dc=org
+        argument_auth: true
     arguments:
         -v:
             full: --version
@@ -67,6 +68,8 @@ user:
         list:
             action_help: List users
             api: GET /users
+            configuration:
+                authenticate: all
             arguments:
                --fields:
                     help: fields to fetch
@@ -77,14 +80,18 @@ user:
                -l:
                     full: --limit
                     help: Maximum number of user fetched
+                    type: int
                -o:
                     full: --offset
                     help: Starting number for user fetching
+                    type: int
 
         ### user_create()
         create:
             action_help: Create user
             api: POST /users
+            configuration:
+                authenticate: all
             arguments:
                 -u:
                     full: --username
@@ -119,6 +126,8 @@ user:
         delete:
             action_help: Delete user
             api: 'DELETE /users/<users>'
+            configuration:
+                authenticate: all
             arguments:
                 -u:
                     full: --users
@@ -136,6 +145,8 @@ user:
         update:
             action_help: Update user informations
             api: 'PUT /users/<username>'
+            configuration:
+                authenticate: all
             arguments:
                 username:
                     help: Username of user to update
@@ -170,6 +181,8 @@ user:
         info:
             action_help: Get user informations
             api: 'GET /users/<username>'
+            configuration:
+                authenticate: all
             arguments:
                 username:
                     help: Username or mail to get informations
