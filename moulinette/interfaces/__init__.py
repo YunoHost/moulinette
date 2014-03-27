@@ -17,16 +17,13 @@ class BaseActionsMapParser(object):
     the global and actions configuration.
 
     Keyword arguments:
-        - shandler -- A actionsmap.ActionsMapSignals instance
         - parent -- A parent BaseActionsMapParser derived object
 
     """
-    def __init__(self, shandler, parent=None):
+    def __init__(self, parent=None):
         if parent:
-            self.shandler = parent.shandler
             self._o = parent
         else:
-            self.shandler = shandler
             self._o = self
             self._global_conf = {}
             self._conf = {}

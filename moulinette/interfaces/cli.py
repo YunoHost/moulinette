@@ -13,8 +13,10 @@ colors_codes = {
     'red'   : 31,
     'green' : 32,
     'yellow': 33,
-    'cyan'  : 34,
-    'purple': 35
+    'blue'  : 34,
+    'purple': 35,
+    'cyan'  : 36,
+    'white' : 37
 }
 
 def colorize(astr, color):
@@ -73,8 +75,8 @@ class ActionsMapParser(BaseActionsMapParser):
         - parser -- The argparse.ArgumentParser object to use
 
     """
-    def __init__(self, shandler, parent=None, parser=None):
-        super(ActionsMapParser, self).__init__(shandler, parent)
+    def __init__(self, parent=None, parser=None):
+        super(ActionsMapParser, self).__init__(parent)
 
         self._parser = parser or argparse.ArgumentParser()
         self._subparsers = self._parser.add_subparsers()
@@ -107,7 +109,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
         """
         parser = self._subparsers.add_parser(name, help=category_help)
-        return self.__class__(None, self, parser)
+        return self.__class__(self, parser)
 
     def add_action_parser(self, name, tid, action_help=None, **kwargs):
         """Add a parser for an action
@@ -129,7 +131,7 @@ class ActionsMapParser(BaseActionsMapParser):
             auth_conf, klass = self.get_conf(ret._tid, 'authenticator')
 
             # TODO: Catch errors
-            auth = self.shandler.authenticate(klass(), **auth_conf)
+            auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
                 # TODO: Set proper error code
                 raise MoulinetteError(errno.EACCES, _("This action need authentication"))
@@ -152,8 +154,9 @@ class Interface(BaseInterface):
     """
     def __init__(self, actionsmap):
         # Connect signals to handlers
-        actionsmap.connect('authenticate', self._do_authenticate)
-        actionsmap.connect('prompt', self._do_prompt)
+        msignals.set_handler('authenticate', self._do_authenticate)
+        msignals.set_handler('display', self._do_display)
+        msignals.set_handler('prompt', self._do_prompt)
 
         self.actionsmap = actionsmap
 
@@ -183,7 +186,7 @@ class Interface(BaseInterface):
     def _do_authenticate(self, authenticator, help):
         """Process the authentication
 
-        Handle the actionsmap._AMapSignals.authenticate signal.
+        Handle the core.MoulinetteSignals.authenticate signal.
 
         """
         # TODO: Allow token authentication?
@@ -193,17 +196,30 @@ class Interface(BaseInterface):
     def _do_prompt(self, message, is_password, confirm):
         """Prompt for a value
 
-        Handle the actionsmap._AMapSignals.prompt signal.
+        Handle the core.MoulinetteSignals.prompt signal.
 
         """
         if is_password:
-            prompt = lambda m: getpass.getpass(colorize(_('%s: ') % m, 'cyan'))
+            prompt = lambda m: getpass.getpass(colorize(_('%s: ') % m, 'blue'))
         else:
-            prompt = lambda m: raw_input(colorize(_('%s: ') % m, 'cyan'))
+            prompt = lambda m: raw_input(colorize(_('%s: ') % m, 'blue'))
         value = prompt(message)
 
         if confirm:
-            if prompt(_('Retype %s: ') % message) != value:
+            if prompt(_('Retype %s') % message) != value:
                 raise MoulinetteError(errno.EINVAL, _("Values don't match"))
 
         return value
+
+    def _do_display(self, message, style):
+        """Display a message
+
+        Handle the core.MoulinetteSignals.display signal.
+
+        """
+        if style == 'success':
+            print('%s %s' % (colorize(_("Success!"), 'green'), message))
+        elif style == 'warning':
+            print('%s %s' % (colorize(_("Warning!"), 'yellow'), message))
+        else:
+            print(message)

@@ -50,8 +50,9 @@ def init(**kwargs):
     """
     import sys
     import __builtin__
-    from moulinette.core import Package, install_i18n
+    from moulinette.core import Package, MoulinetteSignals, install_i18n
     __builtin__.__dict__['pkg'] = Package(**kwargs)
+    __builtin__.__dict__['msignals'] = MoulinetteSignals()
 
     # Initialize internationalization
     install_i18n()

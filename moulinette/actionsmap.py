@@ -11,89 +11,6 @@ from collections import OrderedDict
 from moulinette.core import (MoulinetteError, MoulinetteLock)
 from moulinette.interfaces import BaseActionsMapParser
 
-## Actions map Signals -------------------------------------------------
-
-class ActionsMapSignals(object):
-    """Actions map's Signals interface
-
-    Allow to easily connect signals of the actions map to handlers. They
-    can be given as arguments in the form of { signal: handler }.
-
-    """
-    def __init__(self, **kwargs):
-        # Initialize handlers
-        for s in self.signals:
-            self.clear_handler(s)
-
-        # Iterate over signals to connect
-        for s, h in kwargs.items():
-            self.set_handler(s, h)
-
-    def set_handler(self, signal, handler):
-        """Set the handler for a signal"""
-        if signal not in self.signals:
-            raise ValueError("unknown signal '%s'" % signal)
-        setattr(self, '_%s' % signal, handler)
-
-    def clear_handler(self, signal):
-        """Clear the handler of a signal"""
-        if signal not in self.signals:
-            raise ValueError("unknown signal '%s'" % signal)
-        setattr(self, '_%s' % signal, self._notimplemented)
-
-
-    ## Signals definitions
-
-    """The list of available signals"""
-    signals = { 'authenticate', 'prompt' }
-
-    def authenticate(self, authenticator, help):
-        """Process the authentication
-
-        Attempt to authenticate to the given authenticator and return
-        it.
-        It is called when authentication is needed (e.g. to process an
-        action).
-
-        Keyword arguments:
-            - authenticator -- The authenticator object to use
-            - help -- A help message for the authenticator
-
-        Returns:
-            The authenticator object
-
-        """
-        if authenticator.is_authenticated:
-            return authenticator
-        return self._authenticate(authenticator, help)
-
-    def prompt(self, message, is_password=False, confirm=False):
-        """Prompt for a value
-
-        Prompt the interface for a parameter value which is a password
-        if 'is_password' and must be confirmed if 'confirm'.
-        Is is called when a parameter value is needed and when the
-        current interface should allow user interaction (e.g. to parse
-        extra parameter 'ask' in the cli).
-
-        Keyword arguments:
-            - message -- The message to display
-            - is_password -- True if the parameter is a password
-            - confirm -- True if the value must be confirmed
-
-        Returns:
-            The collected value
-
-        """
-        return self._prompt(message, is_password, confirm)
-
-    @staticmethod
-    def _notimplemented(**kwargs):
-        raise NotImplementedError("this signal is not handled")
-
-shandler = ActionsMapSignals()
-
-
 ## Extra parameters ----------------------------------------------------
 
 # Extra parameters definition
@@ -176,7 +93,7 @@ class AskParameter(_ExtraParameter):
 
         try:
             # Ask for the argument value
-            return shandler.prompt(message)
+            return msignals.prompt(message)
         except NotImplementedError:
             return arg_value
 
@@ -208,7 +125,7 @@ class PasswordParameter(AskParameter):
 
         try:
             # Ask for the password
-            return shandler.prompt(message, True, True)
+            return msignals.prompt(message, True, True)
         except NotImplementedError:
             return arg_value
 
@@ -398,20 +315,6 @@ class ActionsMap(object):
         else:
             return auth()
 
-    def connect(self, signal, handler):
-        """Connect a signal to a handler
-
-        Connect a signal emitted by actions map while processing to a
-        handler. Note that some signals need a return value.
-
-        Keyword arguments:
-            - signal -- The name of the signal
-            - handler -- The method to handle the signal
-
-        """
-        global shandler
-        shandler.set_handler(signal, handler)
-
     def process(self, args, timeout=0, **kwargs):
         """
         Parse arguments and process the proper action
@@ -533,7 +436,7 @@ class ActionsMap(object):
                 parser.set_defaults(_extra=extras)
 
         # Instantiate parser
-        top_parser = self._parser_class(shandler)
+        top_parser = self._parser_class()
 
         # Iterate over actions map namespaces
         for n, actionsmap in actionsmaps.items():

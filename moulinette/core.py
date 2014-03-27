@@ -130,6 +130,109 @@ class Package(object):
                                         True if mode[0] == 'w' else False)
         return open('%s/%s' % (self.get_cachedir(**kwargs), filename), mode)
 
+class MoulinetteSignals(object):
+    """Signals connector for the moulinette
+
+    Allow to easily connect signals from the moulinette to handlers. A
+    signal is emitted by calling the relevant method which call the
+    handler.
+    For the moment, a return value can be requested by a signal to its
+    connected handler - make them not real-signals.
+
+    Keyword arguments:
+        - kwargs -- A dict of {signal: handler} to connect
+
+    """
+    def __init__(self, **kwargs):
+        # Initialize handlers
+        for s in self.signals:
+            self.clear_handler(s)
+
+        # Iterate over signals to connect
+        for s, h in kwargs.items():
+            self.set_handler(s, h)
+
+    def set_handler(self, signal, handler):
+        """Set the handler for a signal"""
+        if signal not in self.signals:
+            raise ValueError("unknown signal '%s'" % signal)
+        setattr(self, '_%s' % signal, handler)
+
+    def clear_handler(self, signal):
+        """Clear the handler of a signal"""
+        if signal not in self.signals:
+            raise ValueError("unknown signal '%s'" % signal)
+        setattr(self, '_%s' % signal, self._notimplemented)
+
+
+    ## Signals definitions
+
+    """The list of available signals"""
+    signals = { 'authenticate', 'prompt', 'display' }
+
+    def authenticate(self, authenticator, help):
+        """Process the authentication
+
+        Attempt to authenticate to the given authenticator and return
+        it.
+        It is called when authentication is needed (e.g. to process an
+        action).
+
+        Keyword arguments:
+            - authenticator -- The authenticator object to use
+            - help -- A help message for the authenticator
+
+        Returns:
+            The authenticator object
+
+        """
+        if authenticator.is_authenticated:
+            return authenticator
+        return self._authenticate(authenticator, help)
+
+    def prompt(self, message, is_password=False, confirm=False):
+        """Prompt for a value
+
+        Prompt the interface for a parameter value which is a password
+        if 'is_password' and must be confirmed if 'confirm'.
+        Is is called when a parameter value is needed and when the
+        current interface should allow user interaction (e.g. to parse
+        extra parameter 'ask' in the cli).
+
+        Keyword arguments:
+            - message -- The message to display
+            - is_password -- True if the parameter is a password
+            - confirm -- True if the value must be confirmed
+
+        Returns:
+            The collected value
+
+        """
+        return self._prompt(message, is_password, confirm)
+
+    def display(self, message, style='info'):
+        """Display a message
+
+        Display a message with a given style to the user.
+        It is called when a message should be printed to the user if the
+        current interface allows user interaction (e.g. print a success
+        message to the user).
+
+        Keyword arguments:
+            - message -- The message to display
+            - style -- The type of the message. Possible values are:
+                info, success, warning
+
+        """
+        try:
+            self._display(message, style)
+        except NotImplementedError:
+            pass
+
+    @staticmethod
+    def _notimplemented(**kwargs):
+        raise NotImplementedError("this signal is not handled")
+
 
 # Interfaces & Authenticators management -------------------------------
 

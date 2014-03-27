@@ -100,7 +100,7 @@ class _ActionsMapPlugin(object):
 
     def __init__(self, actionsmap):
         # Connect signals to handlers
-        actionsmap.connect('authenticate', self._do_authenticate)
+        msignals.set_handler('authenticate', self._do_authenticate)
 
         self.actionsmap = actionsmap
         # TODO: Save and load secrets?
@@ -268,7 +268,7 @@ class _ActionsMapPlugin(object):
     def _do_authenticate(self, authenticator, help):
         """Process the authentication
 
-        Handle the actionsmap._AMapSignals.authenticate signal.
+        Handle the core.MoulinetteSignals.authenticate signal.
 
         """
         s_id = request.get_cookie('session.id')
@@ -314,8 +314,8 @@ class ActionsMapParser(BaseActionsMapParser):
     the arguments is represented by a argparse.ArgumentParser object.
 
     """
-    def __init__(self, shandler, parent=None):
-        super(ActionsMapParser, self).__init__(shandler, parent)
+    def __init__(self, parent=None):
+        super(ActionsMapParser, self).__init__(parent)
 
         self._parsers = {} # dict({(method, path): _HTTPArgumentParser})
 
@@ -398,7 +398,7 @@ class ActionsMapParser(BaseActionsMapParser):
             auth_conf, klass = self.get_conf(tid, 'authenticator')
 
             # TODO: Catch errors
-            auth = self.shandler.authenticate(klass(), **auth_conf)
+            auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
                 # TODO: Set proper error code
                 raise MoulinetteError(errno.EACCES, _("This action need authentication"))
