@@ -73,16 +73,18 @@ class Authenticator(BaseAuthenticator):
     # TODO: Review these methods
 
     def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
-        """
-        Search in LDAP base
+        """Search in LDAP base
+
+        Perform an LDAP search operation with given arguments and return
+        results as a list.
 
         Keyword arguments:
-            base    -- Base to search into
-            filter  -- LDAP filter
-            attrs   -- Array of attributes to fetch
+            - base -- The dn to search into
+            - filter -- A string representation of the filter to apply
+            - attrs -- A list of attributes to fetch
 
         Returns:
-            Boolean | Dict
+            A list of all results
 
         """
         if not base:
@@ -93,16 +95,14 @@ class Authenticator(BaseAuthenticator):
         except:
             raise MoulinetteError(169, _('An error occured during LDAP search'))
 
-        if result:
-            result_list = []
-            for dn, entry in result:
-                if attrs != None:
-                    if 'dn' in attrs:
-                        entry['dn'] = [dn]
-                result_list.append(entry)
-            return result_list
+        result_list = []
+        if not attrs or 'dn' not in attrs:
+            result_list = [entry for dn, entry in result]
         else:
-            return False
+            for dn, entry in result:
+                entry['dn'] = [dn]
+                result_list.append(entry)
+        return result_list
 
     def add(self, rdn, attr_dict):
         """
