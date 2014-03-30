@@ -534,7 +534,7 @@ def app_addaccess(apps, users):
     """
     if not users:
         users = []
-        for user in user_list()['users']:
+        for user in user_list(YunoHostLDAP())['users']:
             users.append(user['username'])
 
     if not isinstance(users, list): users = [users]
@@ -610,7 +610,7 @@ def app_removeaccess(apps, users):
                             new_users = new_users +','+ allowed_user
             else:
                 new_users=''
-                for user in user_list()['users']:
+                for user in user_list(YunoHostLDAP())['users']:
                     if user['username'] not in users:
                         if new_users == '':
                             new_users = user['username']
@@ -831,7 +831,7 @@ def app_ssowatconf():
     domains = domain_list(YunoHostLDAP())['domains']
 
     users = {}
-    for user in user_list()['users']:
+    for user in user_list(YunoHostLDAP())['users']:
         users[user['username']] = app_map(user=user['username'])
 
     skipped_urls = []
