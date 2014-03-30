@@ -32,6 +32,7 @@ import subprocess
 import os.path
 
 from moulinette.helpers import YunoHostError, win_msg
+from moulinette.core import MoulinetteError
 
 
 def service_start(names):
@@ -46,9 +47,11 @@ def service_start(names):
         names = [names]
     for name in names:
         if _run_service_command('start', name):
-            win_msg(_("'%s' service started") % name)
+            msignals.display(_("Service successfully started."), 'success')
         else:
-            raise YunoHostError(1, _("Service starting failed for '%s'") % name)
+            if service_status(name)['status'] != 'running':
+                raise MoulinetteError(1, _("Starting of service '%s' failed") % name)
+            msignals.display(_("Service already started."))
 
 
 def service_stop(names):
@@ -63,9 +66,11 @@ def service_stop(names):
         names = [names]
     for name in names:
         if _run_service_command('stop', name):
-            win_msg(_("'%s' service stopped") % name)
+            msignals.display(_("Service successfully stopped."), 'success')
         else:
-            raise YunoHostError(1, _("Service stopping failed for '%s'") % name)
+            if service_status(name)['status'] != 'inactive':
+                raise MoulinetteError(1, _("Stopping of service '%s' failed") % name)
+            msignals.display(_("Service already stopped."))
 
 
 def service_enable(names):
@@ -80,9 +85,9 @@ def service_enable(names):
         names = [names]
     for name in names:
         if _run_service_command('enable', name):
-            win_msg(_("'%s' service enabled") % name)
+            msignals.display(_("Service successfully enabled."), 'success')
         else:
-            raise YunoHostError(1, _("Service enabling failed for '%s'") % name)
+            raise MoulinetteError(1, _("Enabling of service '%s' failed") % name)
 
 
 def service_disable(names):
@@ -97,9 +102,9 @@ def service_disable(names):
         names = [names]
     for name in names:
         if _run_service_command('disable', name):
-            win_msg(_("'%s' service disabled") % name)
+            msignals.display(_("Service successfully disabled."), 'success')
         else:
-            raise YunoHostError(1, _("Service disabling failed for '%s'") % name)
+            raise MoulinetteError(1, _("Disabling of service '%s' failed") % name)
 
 
 def service_status(names=[]):
@@ -122,7 +127,7 @@ def service_status(names=[]):
 
     for name in names:
         if check_names and name not in services.keys():
-            raise YunoHostError(1, _("Unknown service '%s'") % name)
+            raise MoulinetteError(1, _("Unknown service '%s'") % name)
 
         status = None
         if services[name]['status'] == 'service':
@@ -140,20 +145,23 @@ def service_status(names=[]):
         try:
             ret = subprocess.check_output(status.split(), stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            # TODO: log error
             if 'usage:' not in e.output.lower():
-                result[name]['status'] = _("inactive")
+                result[name]['status'] = 'inactive'
+            else:
+                # TODO: Log output?
+                msignals.display(_("Could not determine status of service '%s'.") % \
+                                     name, 'warning')
         else:
-            result[name]['status'] = _("running")
+            result[name]['status'] = 'running'
 
         # Retrieve service loading
         rc_path = glob.glob("/etc/rc%d.d/S[0-9][0-9]%s" % (runlevel, name))
         if len(rc_path) == 1 and os.path.islink(rc_path[0]):
-            result[name]['loaded'] = _("enabled")
+            result[name]['loaded'] = 'enabled'
         elif os.path.isfile("/etc/init.d/%s" % name):
-            result[name]['loaded'] = _("disabled")
+            result[name]['loaded'] = 'disabled'
         else:
-            result[name]['loaded'] = _("not-found")
+            result[name]['loaded'] = 'not-found'
 
     if len(names) == 1:
         return result[names[0]]
@@ -172,7 +180,7 @@ def service_log(name, number=50):
     services = _get_services()
 
     if name not in services.keys():
-        raise YunoHostError(1, _("Unknown service '%s'") % service)
+        raise MoulinetteError(1, _("Unknown service '%s'") % service)
 
     if 'log' in services[name]:
         log_list = services[name]['log']
@@ -187,7 +195,7 @@ def service_log(name, number=50):
             else:
                 result[log_path] = _tail(log_path, int(number))
     else:
-        raise YunoHostError(1, _("Nothing to log for service '%s'") % name)
+        raise MoulinetteError(1, _("Nothing to log for service '%s'") % name)
 
     return result
 
@@ -202,7 +210,7 @@ def _run_service_command(action, service):
 
     """
     if service not in _get_services().keys():
-        raise YunoHostError(1, _("Unknown service '%s'") % service)
+        raise MoulinetteError(1, _("Unknown service '%s'") % service)
 
     cmd = None
     if action in ['start', 'stop']:
@@ -211,17 +219,15 @@ def _run_service_command(action, service):
         arg = 'defaults' if action == 'enable' else 'remove'
         cmd = 'update-rc.d %s %s' % (service, arg)
     else:
-        raise YunoHostError(1, _("Unknown action '%s'") % service)
+        raise MoulinetteError(1, _("Unknown action '%s'") % action)
 
     try:
         ret = subprocess.check_output(cmd.split(), stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        # TODO: log error instead
-        if os.isatty(1):
-            err = e.output.rstrip()
-            print(_("'%s' has returned:\n%s") % (' '.join(e.cmd), err))
-            return False
-
+        # TODO: Log output?
+        msignals.display(_("Execution of command '%s' failed.") % \
+                             ' '.join(e.cmd), 'warning')
+        return False
     return True
 
 
