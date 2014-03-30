@@ -23,15 +23,11 @@
 
     Manage services
 """
-import logging
-logging.warning('the module yunohost.service has not been revisited and updated yet')
-
 import yaml
 import glob
 import subprocess
 import os.path
 
-from moulinette.helpers import YunoHostError, win_msg
 from moulinette.core import MoulinetteError
 
 
