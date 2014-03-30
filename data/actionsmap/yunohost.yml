@@ -199,6 +199,8 @@ domain:
         list:
             action_help: List domains
             api: GET /domains
+            configuration:
+                authenticate: all
             arguments:
                 -f:
                     full: --filter
@@ -206,14 +208,18 @@ domain:
                 -l:
                     full: --limit
                     help: Maximum number of domain fetched
+                    type: int
                 -o:
                     full: --offset
                     help: Starting number for domain fetching
+                    type: int
 
         ### domain_add()
         add:
             action_help: Create a custom domain
             api: POST /domains
+            configuration:
+                authenticate: all
             arguments:
                 domains:
                     help: Domain name to add
@@ -235,6 +241,8 @@ domain:
         remove:
             action_help: Delete domains
             api: 'DELETE /domains/{domains}'
+            configuration:
+                authenticate: all
             arguments:
                 domains:
                     help: Domain(s) to delete
@@ -245,16 +253,16 @@ domain:
                             - "Must be a valid domain name (e.g. my-domain.org)"
 
         ### domain_info()
-        info:
-            action_help: Get domain informations
-            api: 'GET /domains/<domain>'
-            arguments:
-                domain:
-                    help: ""
-                    extra:
-                        pattern:
-                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
-                            - "Must be a valid domain name (e.g. my-domain.org)"
+#        info:
+#            action_help: Get domain informations
+#            api: 'GET /domains/<domain>'
+#            arguments:
+#                domain:
+#                    help: ""
+#                    extra:
+#                        pattern:
+#                            - '^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$'
+#                            - "Must be a valid domain name (e.g. my-domain.org)"
 
 
 #############################

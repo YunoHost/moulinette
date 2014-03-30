@@ -105,7 +105,7 @@ def user_create(auth, username, firstname, lastname, mail, password):
         'mail'      : mail
     })
 
-    if mail[mail.find('@')+1:] not in domain_list()['Domains']:
+    if mail[mail.find('@')+1:] not in domain_list(auth)['domains']:
         raise MoulinetteError(22, _("Unknown domain '%s'") % mail[mail.find('@')+1:])
 
     # Get random UID/GID
@@ -199,7 +199,7 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
 
     attrs_to_fetch = ['givenName', 'sn', 'mail', 'maildrop']
     new_attr_dict = {}
-    domains = domain_list()['Domains']
+    domains = domain_list(auth)['domains']
 
     # Populate user informations
     result = auth.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)

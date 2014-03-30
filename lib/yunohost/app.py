@@ -534,8 +534,8 @@ def app_addaccess(apps, users):
     """
     if not users:
         users = []
-        for user in user_list()['Users']:
-            users.append(user['Username'])
+        for user in user_list()['users']:
+            users.append(user['username'])
 
     if not isinstance(users, list): users = [users]
     if not isinstance(apps, list): apps = [apps]
@@ -610,11 +610,11 @@ def app_removeaccess(apps, users):
                             new_users = new_users +','+ allowed_user
             else:
                 new_users=''
-                for user in user_list()['Users']:
-                    if user['Username'] not in users:
+                for user in user_list()['users']:
+                    if user['username'] not in users:
                         if new_users == '':
-                            new_users = user['Username']
-                        new_users=new_users+','+user['Username']
+                            new_users = user['username']
+                        new_users=new_users+','+user['username']
 
             app_setting(app, 'allowed_users', new_users.strip())
 
@@ -771,7 +771,7 @@ def app_checkurl(url, app=None):
     apps_map = app_map(raw=True)
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', domain)
 
-    if domain not in domain_list()['Domains']:
+    if domain not in domain_list(YunoHostLDAP())['domains']:
         raise YunoHostError(22, _("Domain doesn't exists"))
 
     if domain in apps_map:
@@ -828,11 +828,11 @@ def app_ssowatconf():
     with open('/etc/yunohost/current_host', 'r') as f:
         main_domain = f.readline().rstrip()
 
-    domains = domain_list()['Domains']
+    domains = domain_list(YunoHostLDAP())['domains']
 
     users = {}
-    for user in user_list()['Users']:
-        users[user['Username']] = app_map(user=user['Username'])
+    for user in user_list()['users']:
+        users[user['username']] = app_map(user=user['username'])
 
     skipped_urls = []
     skipped_regex = []
