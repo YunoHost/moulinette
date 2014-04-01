@@ -256,8 +256,13 @@ def domain_remove(auth, domains):
         # Check if apps are installed on the domain
         for app in os.listdir('/etc/yunohost/apps/'):
             with open('/etc/yunohost/apps/' + app +'/settings.yml') as f:
-                if yaml.load(f)['domain'] == domain:
-                    raise MoulinetteError(1, _("One or more apps are installed on this domain, please uninstall them before proceed to domain removal"))
+                try:
+                    app_domain = yaml.load(f)['domain']
+                except:
+                    continue
+                else:
+                    if app_domain == domain:
+                        raise MoulinetteError(1, _("One or more apps are installed on this domain, please uninstall them before proceed to domain removal"))
 
         if auth.remove('virtualdomain=' + domain + ',ou=domains'):
             try:
