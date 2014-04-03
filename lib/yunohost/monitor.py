@@ -23,9 +23,6 @@
 
     Monitoring functions
 """
-import logging
-logging.warning('the module yunohost.monitor has not been revisited and updated yet')
-
 import re
 import json
 import time
@@ -37,14 +34,13 @@ import os.path
 import cPickle as pickle
 from urllib import urlopen
 from datetime import datetime, timedelta
-from service import (service_enable, service_disable,
-    service_start, service_stop, service_status)
 
-from moulinette.helpers import YunoHostError, win_msg
+from moulinette.core import MoulinetteError
 
 glances_uri  = 'http://127.0.0.1:61209'
 stats_path   = '/var/lib/yunohost/stats'
 crontab_path = '/etc/cron.d/yunohost-monitor'
+
 
 def monitor_disk(units=None, mountpoint=None, human_readable=False):
     """
@@ -63,67 +59,79 @@ def monitor_disk(units=None, mountpoint=None, human_readable=False):
     if units is None:
         units = ['io', 'filesystem']
 
-    # Get mounted block devices
+    _format_dname = lambda d: (os.path.realpath(d)).replace('/dev/', '')
+
+    # Get mounted devices
     devices = {}
-    try:
-        output = subprocess.check_output('lsblk -o NAME,MOUNTPOINT -l -n'.split())
-    except subprocess.CalledProcessError:
-        output = ''
-
-    # Try to find at least root partition
-    if not output:
-        for p in psutil.disk_partitions(all=True):
-            if p.mountpoint == '/':
-                output = '%s /' % p.device.replace('/dev/', '')
-                break
-
-    # Format results
-    for d in output.split('\n'):
-        m = re.search(r'([a-z]+[0-9]*)[ ]+(\/\S*)', d) # Extract device name (1) and its mountpoint (2)
-        if m and (mountpoint is None or m.group(2) == mountpoint):
-            (dn, dm) = (m.group(1), m.group(2))
-            devices[dn] = dm
-            result[dn] = {} if len(units) > 1 else []
-            result_dname = dn if mountpoint is not None else None
-    if len(devices) == 0:
+    for p in psutil.disk_partitions(all=True):
+        if not p.device.startswith('/dev/') or not p.mountpoint:
+            continue
         if mountpoint is None:
-            raise YunoHostError(1, _("No mounted block device found"))
-        raise YunoHostError(1, _("Unknown mountpoint '%s'") % mountpoint)
+            devices[_format_dname(p.device)] = p.mountpoint
+        elif mountpoint == p.mountpoint:
+            dn = _format_dname(p.device)
+            devices[dn] = p.mountpoint
+            result_dname = dn
+    if len(devices) == 0:
+        if mountpoint is not None:
+            raise MoulinetteError(1, _("Unknown mountpoint '%s'") % mountpoint)
+        return result
 
     # Retrieve monitoring for unit(s)
     for u in units:
         if u == 'io':
+            ## Define setter
+            if len(units) > 1:
+                def _set(dn, dvalue):
+                    try:
+                        result[dn][u] = dvalue
+                    except KeyError:
+                        result[dn] = { u: dvalue }
+            else:
+                def _set(dn, dvalue):
+                    result[dn] = dvalue
+
+            # Iterate over values
+            devices_names = devices.keys()
             for d in json.loads(glances.getDiskIO()):
-                dname = d['disk_name']
-                if dname in devices.keys():
-                    del d['disk_name']
-                    if len(units) > 1:
-                        result[dname][u] = d
-                    else:
-                        d['mnt_point'] = devices[dname]
-                        result[dname] = d
-            for dname in devices.keys():
-                if len(units) > 1 and u not in result[dname]:
-                    result[dname][u] = 'not-available'
-                elif len(result[dname]) == 0:
-                    result[dname] = 'not-available'
+                dname = d.pop('disk_name')
+                try:
+                    devices_names.remove(dname)
+                except:
+                    continue
+                else:
+                    _set(dname, d)
+            for dname in devices_names:
+                _set(dname, 'not-available')
         elif u == 'filesystem':
+            ## Define setter
+            if len(units) > 1:
+                def _set(dn, dvalue):
+                    try:
+                        result[dn][u] = dvalue
+                    except KeyError:
+                        result[dn] = { u: dvalue }
+            else:
+                def _set(dn, dvalue):
+                    result[dn] = dvalue
+
+            # Iterate over values
+            devices_names = devices.keys()
             for d in json.loads(glances.getFs()):
-                dmount = d['mnt_point']
-                for (dn, dm) in devices.items():
-                    # TODO: Show non-block filesystems?
-                    if dm != dmount:
-                        continue
-                    del d['device_name']
+                dname = _format_dname(d.pop('device_name'))
+                try:
+                    devices_names.remove(dname)
+                except:
+                    continue
+                else:
                     if human_readable:
                         for i in ['used', 'avail', 'size']:
                             d[i] = _binary_to_human(d[i]) + 'B'
-                    if len(units) > 1:
-                        result[dn][u] = d
-                    else:
-                        result[dn] = d
+                    _set(dname, d)
+            for dname in devices_names:
+                _set(dname, 'not-available')
         else:
-            raise YunoHostError(1, _("Unknown unit '%s'") % u)
+            raise MoulinetteError(1, _("Unknown unit '%s'") % u)
 
     if result_dname is not None:
         return result[result_dname]
@@ -195,7 +203,7 @@ def monitor_network(units=None, human_readable=False):
                 'gateway': gateway
             }
         else:
-            raise YunoHostError(1, _("Unknown unit '%s'") % u)
+            raise MoulinetteError(1, _("Unknown unit '%s'") % u)
 
     if len(units) == 1:
         return result[units[0]]
@@ -245,7 +253,7 @@ def monitor_system(units=None, human_readable=False):
         elif u == 'infos':
             result[u] = json.loads(glances.getSystem())
         else:
-            raise YunoHostError(1, _("Unknown unit '%s'") % u)
+            raise MoulinetteError(1, _("Unknown unit '%s'") % u)
 
     if len(units) == 1 and type(result[units[0]]) is not str:
         return result[units[0]]
@@ -261,7 +269,7 @@ def monitor_update_stats(period):
 
     """
     if period not in ['day', 'week', 'month']:
-        raise YunoHostError(22, _("Invalid period"))
+        raise MoulinetteError(22, _("Invalid period"))
 
     stats = _retrieve_stats(period)
     if not stats:
@@ -279,7 +287,7 @@ def monitor_update_stats(period):
         else:
             monitor = _monitor_all(p, 0)
     if not monitor:
-        raise YunoHostError(1, _("No monitoring statistics to update"))
+        raise MoulinetteError(1, _("No monitoring statistics to update"))
 
     stats['timestamp'].append(time.time())
 
@@ -344,13 +352,13 @@ def monitor_show_stats(period, date=None):
 
     """
     if period not in ['day', 'week', 'month']:
-        raise YunoHostError(22, _("Invalid period"))
+        raise MoulinetteError(22, _("Invalid period"))
 
     result = _retrieve_stats(period, date)
     if result is False:
-        raise YunoHostError(167, _("Stats file not found"))
+        raise MoulinetteError(167, _("Stats file not found"))
     elif result is None:
-        raise YunoHostError(1, _("No available stats for the given period"))
+        raise MoulinetteError(1, _("No available stats for the given period"))
     return result
 
 
@@ -362,15 +370,14 @@ def monitor_enable(no_stats=False):
         no_stats -- Disable monitoring statistics
 
     """
+    from yunohost.service import (service_status, service_enable,
+        service_start)
+
     glances = service_status('glances')
     if glances['status'] != 'running':
         service_start('glances')
     if glances['loaded'] != 'enabled':
-        try:
-            service_enable('glances')
-        except:
-            # TODO: log error
-            pass
+        service_enable('glances')
 
     # Install crontab
     if not no_stats:
@@ -382,7 +389,7 @@ def monitor_enable(no_stats=False):
         os.system("touch %s" % crontab_path)
         os.system("echo '%s' >%s" % (rules, crontab_path))
 
-    win_msg(_("Server monitoring enabled"))
+    msignals.display(_("Server monitoring successfully enabled."), 'success')
 
 
 def monitor_disable():
@@ -390,15 +397,17 @@ def monitor_disable():
     Disable server monitoring
 
     """
+    from yunohost.service import (service_status, service_disable,
+        service_stop)
+
     glances = service_status('glances')
     if glances['status'] != 'inactive':
         service_stop('glances')
     if glances['loaded'] != 'disabled':
         try:
             service_disable('glances')
-        except:
-            # TODO: log error
-            pass
+        except MoulinetteError as e:
+            msignals.display('%s.' % e.strerror, 'warning')
 
     # Remove crontab
     try:
@@ -406,7 +415,7 @@ def monitor_disable():
     except:
         pass
 
-    win_msg(_("Server monitoring disabled"))
+    msignals.display(_("Server monitoring successfully disabled."), 'success')
 
 
 def _get_glances_api():
@@ -422,9 +431,11 @@ def _get_glances_api():
     else:
         return p
 
+    from yunohost.service import service_status
+
     if service_status('glances')['status'] != 'running':
-        raise YunoHostError(1, _("Monitoring is disabled"))
-    raise YunoHostError(1, _("Connection to Glances server failed"))
+        raise MoulinetteError(1, _("Monitoring is disabled"))
+    raise MoulinetteError(1, _("Connection to Glances server failed"))
 
 
 def _extract_inet(string, skip_netmask=False, skip_loopback=True):
@@ -445,7 +456,7 @@ def _extract_inet(string, skip_netmask=False, skip_loopback=True):
     ip4_pattern = '((25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'
     ip6_pattern = '(((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)'
     ip4_pattern += '/[0-9]{1,2})' if not skip_netmask else ')'
-    ip6_pattern += '/[0-9]{1,2})' if not skip_netmask else ')'
+    ip6_pattern += '/[0-9]{1,3})' if not skip_netmask else ')'
     result = {}
 
     for m in re.finditer(ip4_pattern, string):
