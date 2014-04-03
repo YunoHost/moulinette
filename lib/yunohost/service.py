@@ -43,11 +43,11 @@ def service_start(names):
         names = [names]
     for name in names:
         if _run_service_command('start', name):
-            msignals.display(_("Service successfully started."), 'success')
+            msignals.display(_("Service '%s' successfully started.") % name, 'success')
         else:
             if service_status(name)['status'] != 'running':
                 raise MoulinetteError(1, _("Starting of service '%s' failed") % name)
-            msignals.display(_("Service already started."))
+            msignals.display(_("Service '%s' already started.") % name)
 
 
 def service_stop(names):
@@ -62,11 +62,11 @@ def service_stop(names):
         names = [names]
     for name in names:
         if _run_service_command('stop', name):
-            msignals.display(_("Service successfully stopped."), 'success')
+            msignals.display(_("Service '%s' successfully stopped.") % name, 'success')
         else:
             if service_status(name)['status'] != 'inactive':
                 raise MoulinetteError(1, _("Stopping of service '%s' failed") % name)
-            msignals.display(_("Service already stopped."))
+            msignals.display(_("Service '%s' already stopped.") % name)
 
 
 def service_enable(names):
@@ -81,7 +81,7 @@ def service_enable(names):
         names = [names]
     for name in names:
         if _run_service_command('enable', name):
-            msignals.display(_("Service successfully enabled."), 'success')
+            msignals.display(_("Service '%s' successfully enabled.") % name, 'success')
         else:
             raise MoulinetteError(1, _("Enabling of service '%s' failed") % name)
 
@@ -98,7 +98,7 @@ def service_disable(names):
         names = [names]
     for name in names:
         if _run_service_command('disable', name):
-            msignals.display(_("Service successfully disabled."), 'success')
+            msignals.display(_("Service '%s' successfully disabled.") % name, 'success')
         else:
             raise MoulinetteError(1, _("Disabling of service '%s' failed") % name)
 
