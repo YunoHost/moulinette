@@ -113,12 +113,12 @@ def user_create(auth, username, firstname, lastname, mail, password):
     uid_check = gid_check = 0
     while uid_check == 0 and gid_check == 0:
         uid = str(random.randint(200, 99999))
-        uid_check = os.system("getent passwd " + uid)
-        gid_check = os.system("getent group " + uid)
+        uid_check = os.system("getent passwd %s" % uid)
+        gid_check = os.system("getent group %s" % uid)
 
     # Adapt values for LDAP
-    fullname = firstname + ' ' + lastname
-    rdn = 'uid=' + username + ',ou=users'
+    fullname = '%s %s' % (firstname, lastname)
+    rdn = 'uid=%s,ou=users' % username
     char_set = string.ascii_uppercase + string.digits
     salt = ''.join(random.sample(char_set,8))
     salt = '$1$' + salt + '$'
@@ -141,7 +141,7 @@ def user_create(auth, username, firstname, lastname, mail, password):
     }
 
     if auth.add(rdn, attr_dict):
-        os.system("su - " + username + " -c ''")
+        os.system("su - %s -c ''" % username)
         os.system('yunohost app ssowatconf > /dev/null 2>&1')
         #TODO: Send a welcome mail to user
         msignals.display(_("User '%s' successfully created.") % username, 'success')
@@ -166,9 +166,9 @@ def user_delete(auth, users, purge=False):
     deleted = []
 
     for user in users:
-        if auth.remove('uid=' + user + ',ou=users'):
+        if auth.remove('uid=%s,ou=users' % user):
             if purge:
-                os.system('rm -rf /home/' + user)
+                os.system('rm -rf /home/%s' % user)
             deleted.append(user)
             continue
         else:
@@ -271,7 +271,7 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
                 raise MoulinetteError(22, _("Invalid mail forward '%s'") % mail)
         new_attr_dict['maildrop'] = user['maildrop']
 
-    if auth.update('uid=' + username + ',ou=users', new_attr_dict):
+    if auth.update('uid=%s,ou=users' % username, new_attr_dict):
        msignals.display(_("User '%s' successfully updated.") % username, 'success')
        return user_info(auth, username)
     else:
