@@ -221,7 +221,7 @@ def domain_add(auth, domains, main=False, dyndns=False):
         # Nginx
         os.system('cp /usr/share/yunohost/yunohost-config/nginx/template.conf /etc/nginx/conf.d/%s.conf' % domain)
         os.system('mkdir /etc/nginx/conf.d/%s.d/' % domain)
-        os.system('sed -i s/yunohost.org/%s/g /etc/nginx/conf.d/%s.conf', (domain, domain))
+        os.system('sed -i s/yunohost.org/%s/g /etc/nginx/conf.d/%s.conf' % (domain, domain))
         os.system('service nginx reload')
 
         if auth.add('virtualdomain=%s,ou=domains' % domain, attr_dict):
