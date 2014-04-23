@@ -105,26 +105,28 @@ def domain_add(auth, domains, main=False, dyndns=False):
 
         # Commands
         ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
-        ssl_domain_path  = '/etc/yunohost/certs/'+ domain
-        with open(ssl_dir +'/serial', 'r') as f:
+        ssl_domain_path  = '/etc/yunohost/certs/%s' % domain
+        with open('%s/serial' % ssl_dir, 'r') as f:
             serial = f.readline().rstrip()
         try: os.listdir(ssl_domain_path)
         except OSError: os.makedirs(ssl_domain_path)
 
         command_list = [
-            'cp '+ ssl_dir +'/openssl.cnf '+ ssl_domain_path,
-            'sed -i "s/yunohost.org/' + domain + '/g" '+ ssl_domain_path +'/openssl.cnf',
-            'openssl req -new -config '+ ssl_domain_path +'/openssl.cnf -days 3650 -out '+ ssl_dir +'/certs/yunohost_csr.pem -keyout '+ ssl_dir +'/certs/yunohost_key.pem -nodes -batch',
-            'openssl ca -config '+ ssl_domain_path +'/openssl.cnf -days 3650 -in '+ ssl_dir +'/certs/yunohost_csr.pem -out '+ ssl_dir +'/certs/yunohost_crt.pem -batch',
-            'ln -s /etc/ssl/certs/ca-yunohost_crt.pem   '+ ssl_domain_path +'/ca.pem',
-            'cp '+ ssl_dir +'/certs/yunohost_key.pem    '+ ssl_domain_path +'/key.pem',
-            'cp '+ ssl_dir +'/newcerts/'+ serial +'.pem '+ ssl_domain_path +'/crt.pem',
-            'chmod 755 '+ ssl_domain_path,
-            'chmod 640 '+ ssl_domain_path +'/key.pem',
-            'chmod 640 '+ ssl_domain_path +'/crt.pem',
-            'chmod 600 '+ ssl_domain_path +'/openssl.cnf',
-            'chown root:metronome '+ ssl_domain_path +'/key.pem',
-            'chown root:metronome '+ ssl_domain_path +'/crt.pem'
+            'cp %s/openssl.cnf %s'                               % (ssl_dir, ssl_domain_path),
+            'sed -i "s/yunohost.org/%s/g" %s/openssl.cnf'        % (domain, ssl_domain_path),
+            'openssl req -new -config %s/openssl.cnf -days 3650 -out %s/certs/yunohost_csr.pem -keyout %s/certs/yunohost_key.pem -nodes -batch'
+            % (ssl_domain_path, ssl_dir, ssl_dir),
+            'openssl ca -config %s/openssl.cnf -days 3650 -in %s/certs/yunohost_csr.pem -out %s/certs/yunohost_crt.pem -batch'
+            % (ssl_domain_path, ssl_dir, ssl_dir),
+            'ln -s /etc/ssl/certs/ca-yunohost_crt.pem %s/ca.pem' % ssl_domain_path,
+            'cp %s/certs/yunohost_key.pem    %s/key.pem'         % (ssl_dir, ssl_domain_path),
+            'cp %s/newcerts/%s.pem %s/crt.pem'                   % (ssl_dir, serial, ssl_domain_path),
+            'chmod 755 %s'                                       % ssl_domain_path,
+            'chmod 640 %s/key.pem'                               % ssl_domain_path,
+            'chmod 640 %s/crt.pem'                               % ssl_domain_path,
+            'chmod 600 %s/openssl.cnf'                           % ssl_domain_path,
+            'chown root:metronome %s/key.pem'                    % ssl_domain_path,
+            'chown root:metronome %s/crt.pem'                    % ssl_domain_path
         ]
 
         for command in command_list:
@@ -140,39 +142,39 @@ def domain_add(auth, domains, main=False, dyndns=False):
         attr_dict['virtualdomain'] = domain
 
         try:
-            with open('/var/lib/bind/'+ domain +'.zone') as f: pass
+            with open('/var/lib/bind/%s.zone' % domain) as f: pass
         except IOError as e:
             zone_lines = [
              '$TTL    38400',
-             domain +'.      IN   SOA   ns.'+ domain +'. root.'+ domain +'. '+ timestamp +' 10800 3600 604800 38400',
-             domain +'.      IN   NS    ns.'+ domain +'.',
-             domain +'.      IN   A     '+ ip,
-             domain +'.      IN   MX    5 '+ domain +'.',
-             domain +'.      IN   TXT   "v=spf1 mx a -all"',
-             'ns.'+ domain +'.   IN   A     '+ ip,
-             '_xmpp-client._tcp.'+ domain +'.  IN   SRV   0  5   5222  '+ domain +'.',
-             '_xmpp-server._tcp.'+ domain +'.  IN   SRV   0  5   5269  '+ domain +'.',
-             '_jabber._tcp.'+ domain +'.       IN   SRV   0  5   5269  '+ domain +'.',
+             '%s.      IN   SOA   ns.%s. root.%s. %s 10800 3600 604800 38400' % (domain, domain, domain, timestamp),
+             '%s.      IN   NS    ns.%s.'                         % (domain, domain),
+             '%s.      IN   A     %s'                             % (domain, ip),
+             '%s.      IN   MX    5 %s.'                          % (domain, domain),
+             '%s.      IN   TXT   "v=spf1 mx a -all"'             % domain,
+             'ns.%s.   IN   A     %s'                             % (domain, ip),
+             '_xmpp-client._tcp.%s.  IN   SRV   0  5   5222  %s.' % (domain, domain),
+             '_xmpp-server._tcp.%s.  IN   SRV   0  5   5269  %s.' % (domain, domain),
+             '_jabber._tcp.%s.       IN   SRV   0  5   5269  %s.' % (domain, domain),
             ]
             if main:
                 zone_lines.extend([
-                    'pubsub.'+ domain +'.   IN   A     '+ ip,
-                    'muc.'+ domain +'.      IN   A     '+ ip,
-                    'vjud.'+ domain +'.     IN   A     '+ ip
+                    'pubsub.%s.   IN   A     %s' % (domain, ip),
+                    'muc.%s.      IN   A     %s' % (domain, ip),
+                    'vjud.%s.     IN   A     %s' % (domain, ip)
                 ])
-            with open('/var/lib/bind/' + domain + '.zone', 'w') as zone:
+            with open('/var/lib/bind/%s.zone' % domain, 'w') as zone:
                 for line in zone_lines:
                     zone.write(line + '\n')
 
-            os.system('chown bind /var/lib/bind/' + domain + '.zone')
+            os.system('chown bind /var/lib/bind/%s.zone' % domain)
 
         else:
-            raise MoulinetteError(17, _("Zone file already exists for ") + domain)
+            raise MoulinetteError(17, _("Zone file already exists for %s") % domain)
 
         conf_lines = [
-            'zone "'+ domain +'" {',
+            'zone "%s" {' % domain,
             '    type master;',
-            '    file "/var/lib/bind/'+ domain +'.zone";',
+            '    file "/var/lib/bind/%s.zone";' % domain,
             '    allow-transfer {',
             '        127.0.0.1;',
             '        localnets;',
@@ -187,42 +189,42 @@ def domain_add(auth, domains, main=False, dyndns=False):
 
         # XMPP
         try:
-            with open('/etc/metronome/conf.d/'+ domain +'.cfg.lua') as f: pass
+            with open('/etc/metronome/conf.d/%s.cfg.lua' % domain) as f: pass
         except IOError as e:
             conf_lines = [
-                'VirtualHost "'+ domain +'"',
+                'VirtualHost "%s"' % domain,
                 '  ssl = {',
-                '        key = "'+ ssl_domain_path +'/key.pem";',
-                '        certificate = "'+ ssl_domain_path +'/crt.pem";',
+                '        key = "%s/key.pem";' % ssl_domain_path,
+                '        certificate = "%s/crt.pem";' % ssl_domain_path,
                 '  }',
                 '  authentication = "ldap2"',
                 '  ldap = {',
                 '     hostname      = "localhost",',
                 '     user = {',
                 '       basedn        = "ou=users,dc=yunohost,dc=org",',
-                '       filter        = "(&(objectClass=posixAccount)(mail=*@'+ domain +'))",',
+                '       filter        = "(&(objectClass=posixAccount)(mail=*@%s))",' % domain,
                 '       usernamefield = "mail",',
                 '       namefield     = "cn",',
                 '       },',
                 '  }',
             ]
-            with open('/etc/metronome/conf.d/' + domain + '.cfg.lua', 'w') as conf:
+            with open('/etc/metronome/conf.d/%s.cfg.lua' % domain, 'w') as conf:
                 for line in conf_lines:
                     conf.write(line + '\n')
 
-        os.system('mkdir -p /var/lib/metronome/'+ domain.replace('.', '%2e') +'/pep')
+        os.system('mkdir -p /var/lib/metronome/%s/pep' % domain.replace('.', '%2e'))
         os.system('chown -R metronome: /var/lib/metronome/')
         os.system('chown -R metronome: /etc/metronome/conf.d/')
         os.system('service metronome restart')
 
 
         # Nginx
-        os.system('cp /usr/share/yunohost/yunohost-config/nginx/template.conf /etc/nginx/conf.d/'+ domain +'.conf')
-        os.system('mkdir /etc/nginx/conf.d/'+ domain +'.d/')
-        os.system('sed -i s/yunohost.org/'+ domain +'/g /etc/nginx/conf.d/'+ domain +'.conf')
+        os.system('cp /usr/share/yunohost/yunohost-config/nginx/template.conf /etc/nginx/conf.d/%s.conf' % domain)
+        os.system('mkdir /etc/nginx/conf.d/%s.d/' % domain)
+        os.system('sed -i s/yunohost.org/%s/g /etc/nginx/conf.d/%s.conf', (domain, domain))
         os.system('service nginx reload')
 
-        if auth.add('virtualdomain=' + domain + ',ou=domains', attr_dict):
+        if auth.add('virtualdomain=%s,ou=domains' % domain, attr_dict):
             result.append(domain)
             continue
         else:
@@ -266,12 +268,12 @@ def domain_remove(auth, domains):
 
         if auth.remove('virtualdomain=' + domain + ',ou=domains'):
             try:
-                shutil.rmtree('/etc/yunohost/certs/'+ domain)
-                os.remove('/var/lib/bind/'+ domain +'.zone')
-                shutil.rmtree('/var/lib/metronome/'+ domain.replace('.', '%2e'))
-                os.remove('/etc/metronome/conf.d/'+ domain +'.cfg.lua')
-                shutil.rmtree('/etc/nginx/conf.d/'+ domain +'.d')
-                os.remove('/etc/nginx/conf.d/'+ domain +'.conf')
+                shutil.rmtree('/etc/yunohost/certs/%s' % domain)
+                os.remove('/var/lib/bind/%s.zone' % domain)
+                shutil.rmtree('/var/lib/metronome/%s' % domain.replace('.', '%2e'))
+                os.remove('/etc/metronome/conf.d/%s.cfg.lua' % domain)
+                shutil.rmtree('/etc/nginx/conf.d/%s.d' % domain)
+                os.remove('/etc/nginx/conf.d/%s.conf' % domain)
             except:
                 pass
             with open('/etc/bind/named.conf.local', 'r') as conf:
@@ -279,7 +281,7 @@ def domain_remove(auth, domains):
             with open('/etc/bind/named.conf.local', 'w') as conf:
                 in_block = False
                 for line in conf_lines:
-                    if re.search(r'^zone "'+ domain, line):
+                    if re.search(r'^zone "%s' % domain, line):
                         in_block = True
                     if in_block:
                         if re.search(r'^};$', line):
