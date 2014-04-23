@@ -359,6 +359,8 @@ app:
         install:
             action_help: Install apps
             api: POST /app
+            configuration:
+                authenticate: all
             arguments:
                 app:
                     help: App to install
@@ -446,6 +448,8 @@ app:
         checkurl:
             action_help: Check availability of a web path
             api: GET /app/checkurl
+            configuration:
+                authenticate: all
             arguments:
                 url:
                     help: Url to check
@@ -474,11 +478,15 @@ app:
         ssowatconf:
             action_help: Regenerate SSOwat configuration file
             api: PUT /ssowatconf
+            configuration:
+                authenticate: all
 
         ### app_addaccess() TODO: Write help
         addaccess:
             action_help: Grant access right to users (everyone by default)
             api: PUT /app/access
+            configuration:
+                authenticate: all
             arguments:
                 apps:
                     nargs: "+"
@@ -490,6 +498,8 @@ app:
         removeaccess:
             action_help: Revoke access right to users (everyone by default)
             api: DELETE /app/access
+            configuration:
+                authenticate: all
             arguments:
                 apps:
                     nargs: "+"
@@ -501,6 +511,8 @@ app:
         clearaccess:
             action_help: Reset access rights for the app
             api: POST /app/access
+            configuration:
+                authenticate: all
             arguments:
                 apps:
                     nargs: "+"
