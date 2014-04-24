@@ -142,7 +142,7 @@ class PatternParameter(_ExtraParameter):
     def __call__(self, arguments, arg_name, arg_value):
         pattern, message = (arguments[0], arguments[1])
 
-        if not re.match(pattern, arg_value or ''):
+        if arg_value and not re.match(pattern, arg_value or ''):
             raise MoulinetteError(errno.EINVAL, message)
         return arg_value
 
