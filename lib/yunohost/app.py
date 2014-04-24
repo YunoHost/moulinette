@@ -872,7 +872,7 @@ def app_ssowatconf(auth):
                         protected_regex.append(item)
 
     for domain in domains:
-        skipped_urls.extend([domain +'/ynhadmin', domain +'/ynhapi'])
+        skipped_urls.extend([domain +'/yunohost/admin', domain +'/yunohost/api'])
 
     with open('/etc/ssowat/conf.json') as f:
         conf_dict = json.load(f)
@@ -901,8 +901,8 @@ def app_ssowatconf(auth):
     conf_dict['protected_regex'] = protected_regex
     conf_dict['users'] = users
 
-    with open('/etc/ssowat/conf.json', 'wb') as f:
-        json.dump(conf_dict, f)
+    with open('/etc/ssowat/conf.json', 'w+') as f:
+        json.dump(conf_dict, f, sort_keys=True, indent=4)
 
     msignals.display(_('SSOwat configuration generated'), 'success')
 
