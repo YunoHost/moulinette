@@ -23,9 +23,6 @@
 
     Manage firewall rules
 """
-import logging
-logging.warning('the module yunohost.firewall has not been revisited and updated yet')
-
 import os
 import sys
 try:
@@ -39,9 +36,8 @@ except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
     sys.stderr.write('apt-get install python-yaml\n')
     sys.exit(1)
-from hook import hook_callback
 
-from moulinette.helpers import YunoHostError, win_msg
+from moulinette.core import MoulinetteError
 
 
 def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
@@ -67,10 +63,10 @@ def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
         else:
             update_yml(port, protocol, 'a', ipv6, upnp)
 
-        win_msg(_("Port successfully openned"))
+        msignals.display(_("Port successfully openned"), 'success')
 
     else:
-        raise YunoHostError(22, _("Port not between 1 and 65535:") + str(port))
+        raise MoulinetteError(22, _("Port not between 1 and 65535:") + str(port))
 
     return firewall_reload(upnp)
 
@@ -93,7 +89,7 @@ def firewall_disallow(protocol=None, port=None, ipv6=None, upnp=False):
         update_yml(port, 'UDP', 'r', ipv6, upnp)
     else:
         update_yml(port, protocol, 'r', ipv6, upnp)
-    win_msg(_("Port successfully closed"))
+    msignals.display(_("Port successfully closed"), 'success')
 
     return firewall_reload(upnp)
 
@@ -117,6 +113,8 @@ def firewall_reload(upnp=False):
         upnp -- upnp
 
     """
+    from yunohost.hook import hook_callback
+
     with open('/etc/yunohost/firewall.yml', 'r') as f:
         firewall = yaml.load(f)
 
@@ -161,7 +159,7 @@ def firewall_reload(upnp=False):
         os.system("ip6tables -P INPUT DROP")
 
     os.system("service fail2ban restart")
-    win_msg(_("Firewall successfully reloaded"))
+    msignals.display(_("Firewall successfully reloaded"), 'success')
 
     return firewall_list()
 
@@ -196,10 +194,10 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
             if port not in firewall['UPNP']['ports'][protocol]:
                 firewall['UPNP']['ports'][protocol].append(port)
             else:
-                raise YunoHostError(22, _("Port already openned :") + str(port))
+                raise MoulinetteError(22, _("Port already openned :") + str(port))
 
         else:
-            raise YunoHostError(22, _("Port already openned :") + str(port))
+            raise MoulinetteError(22, _("Port already openned :") + str(port))
 
     else:
         if not ipv6 and upnp:
@@ -207,7 +205,7 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
                 firewall['UPNP']['ports'][protocol].remove(port)
 
             else:
-                raise YunoHostError(22, _("Upnp redirection already deleted :") + str(port))
+                raise MoulinetteError(22, _("Upnp redirection already deleted :") + str(port))
         elif not ipv6:
             if port in firewall['UPNP']['ports'][protocol]:
                 firewall['UPNP']['ports'][protocol].remove(port)
@@ -216,13 +214,13 @@ def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
                 firewall[ip][protocol].remove(port)
 
             else:
-                raise YunoHostError(22, _("Port already closed :") + str(port))
+                raise MoulinetteError(22, _("Port already closed :") + str(port))
         else:
             if port in firewall[ip][protocol]:
                 firewall[ip][protocol].remove(port)
 
             else:
-                raise YunoHostError(22, _("Port already closed :") + str(port))
+                raise MoulinetteError(22, _("Port already closed :") + str(port))
 
     firewall[ip][protocol].sort()
     firewall['UPNP']['ports'][protocol].sort()
@@ -293,10 +291,10 @@ def remove_portmapping():
             upnp.selectigd()
         except:
             firewall_reload(False)
-            raise YunoHostError(167, _("No upnp devices found"))
+            raise MoulinetteError(167, _("No upnp devices found"))
     else:
         firewall_reload(False)
-        raise YunoHostError(22, _("Can't connect to the igd device"))
+        raise MoulinetteError(22, _("Can't connect to the igd device"))
 
     # list the redirections :
     for i in xrange(100):
@@ -320,7 +318,7 @@ def firewall_installupnp():
 
     os.system("touch /etc/cron.d/yunohost-firewall")
     os.system("echo '*/50 * * * * root yunohost firewall reload -u --no-ldap >>/dev/null'>/etc/cron.d/yunohost-firewall")
-    win_msg(_("UPNP cron installed"))
+    msignals.display(_("UPNP cron installed"), 'success')
 
     os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
 
@@ -342,9 +340,9 @@ def firewall_removeupnp():
     try:
         os.remove("/etc/cron.d/yunohost-firewall")
     except:
-        raise YunoHostError(167, _("UPNP cron was not installed!"))
+        raise MoulinetteError(167, _("UPNP cron was not installed!"))
 
-    win_msg(_("UPNP cron removed"))
+    msignals.display(_("UPNP cron removed"), 'success')
 
     os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
 
@@ -362,9 +360,9 @@ def firewall_checkupnp():
         firewall = yaml.load(f)
 
         if firewall['UPNP']['cron']:
-            win_msg(_("UPNP is activated"))
+            msignals.display(_("UPNP is activated"), 'success')
         else:
-            raise YunoHostError(167, _("UPNP not activated!"))
+            raise MoulinetteError(167, _("UPNP not activated!"))
 
 
 def firewall_stop():
