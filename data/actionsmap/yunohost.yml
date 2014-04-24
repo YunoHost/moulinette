@@ -947,6 +947,9 @@ tools:
         postinstall:
             action_help: YunoHost post-install
             api: POST /postinstall
+            configuration:
+                authenticate: all
+                lock: false
             arguments:
                 -d:
                     full: --domain

@@ -48,14 +48,14 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
             domain = f.readline().rstrip()
 
     # Verify if domain is available
-    if requests.get('http://'+ subscribe_host +'/test/'+ domain).status_code != 200:
+    if requests.get('http://%s/test/%s' % (subscribe_host, domain)).status_code != 200:
         raise MoulinetteError(17, _("DynDNS domain is already taken"))
 
     if key is None:
         if len(glob.glob('/etc/yunohost/dyndns/*.key')) == 0:
             os.makedirs('/etc/yunohost/dyndns')
             print(_("DNS key is being generated, it may take a while..."))
-            os.system('cd /etc/yunohost/dyndns && dnssec-keygen -a hmac-md5 -b 128 -n USER '+ domain)
+            os.system('cd /etc/yunohost/dyndns && dnssec-keygen -a hmac-md5 -b 128 -n USER %s' % domain)
             os.system('chmod 600 /etc/yunohost/dyndns/*.key /etc/yunohost/dyndns/*.private')
 
         key_file = glob.glob('/etc/yunohost/dyndns/*.key')[0]
@@ -63,7 +63,7 @@ def dyndns_subscribe(subscribe_host="dyndns.yunohost.org", domain=None, key=None
             key = f.readline().strip().split(' ')[-1]
 
     # Send subscription
-    r = requests.post('http://'+ subscribe_host +'/key/'+ base64.b64encode(key), data={ 'subdomain': domain })
+    r = requests.post('http://%s/key/%s' % (subscribe_host, base64.b64encode(key)), data={ 'subdomain': domain })
     if r.status_code != 201:
         try:    error = json.loads(r.text)['error']
         except: error = "Server error"
@@ -104,24 +104,24 @@ def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=Non
         host = domain.split('.')[1:]
         host = '.'.join(host)
         lines = [
-            'server '+ dyn_host,
-            'zone '+ host,
-            'update delete '+ domain +'. A',
-            'update delete '+ domain +'. MX',
-            'update delete '+ domain +'. TXT',
-            'update delete pubsub.'+ domain +'. A',
-            'update delete muc.'+ domain +'. A',
-            'update delete vjud.'+ domain +'. A',
-            'update delete _xmpp-client._tcp.'+ domain +'. SRV',
-            'update delete _xmpp-server._tcp.'+ domain +'. SRV',
-            'update add '+ domain +'. 1800 A '+ new_ip,
-            'update add '+ domain +'. 14400 MX 5 '+ domain +'.',
-            'update add '+ domain +'. 14400 TXT "v=spf1 a mx -all"',
-            'update add pubsub.'+ domain +'. 1800 A '+ new_ip,
-            'update add muc.'+ domain +'. 1800 A '+ new_ip,
-            'update add vjud.'+ domain +'. 1800 A '+ new_ip,
-            'update add _xmpp-client._tcp.'+ domain +'. 14400 SRV 0 5 5222 '+ domain +'.',
-            'update add _xmpp-server._tcp.'+ domain +'. 14400 SRV 0 5 5269 '+ domain +'.',
+            'server %s' % dyn_host,
+            'zone %s' % host,
+            'update delete %s. A'        % domain,
+            'update delete %s. MX'       % domain,
+            'update delete %s. TXT'      % domain,
+            'update delete pubsub.%s. A' % domain,
+            'update delete muc.%s. A'    % domain,
+            'update delete vjud.%s. A'   % domain,
+            'update delete _xmpp-client._tcp.%s. SRV' % domain,
+            'update delete _xmpp-server._tcp.%s. SRV' % domain,
+            'update add %s. 1800 A %s'      % (domain, new_ip),
+            'update add %s. 14400 MX 5 %s.' % (domain, domain),
+            'update add %s. 14400 TXT "v=spf1 a mx -all"' % domain,
+            'update add pubsub.%s. 1800 A %s' % (domain, new_ip),
+            'update add muc.%s. 1800 A %s'    % (domain, new_ip),
+            'update add vjud.%s. 1800 A %s'   % (domain, new_ip),
+            'update add _xmpp-client._tcp.%s. 14400 SRV 0 5 5222 %s.' % (domain, domain),
+            'update add _xmpp-server._tcp.%s. 14400 SRV 0 5 5269 %s.' % (domain, domain),
             'show',
             'send'
         ]
@@ -133,7 +133,7 @@ def dyndns_update(dyn_host="dynhost.yunohost.org", domain=None, key=None, ip=Non
             private_key_file = glob.glob('/etc/yunohost/dyndns/*.private')[0]
         else:
             private_key_file = key
-        if os.system('/usr/bin/nsupdate -k '+ private_key_file +' /etc/yunohost/dyndns/zone') == 0:
+        if os.system('/usr/bin/nsupdate -k %s /etc/yunohost/dyndns/zone' % private_key_file) == 0:
             msignals.display(_("IP successfully updated."), 'success')
             with open('/etc/yunohost/dyndns/old_ip', 'w') as f:
                 f.write(new_ip)
@@ -148,8 +148,9 @@ def dyndns_installcron():
 
 
     """
-    os.system("touch /etc/cron.d/yunohost-dyndns")
-    os.system("echo '*/2 * * * * root yunohost dyndns update --no-ldap >> /dev/null' >/etc/cron.d/yunohost-dyndns")
+    with open('/etc/cron.d/yunohost-dyndns', 'w+') as f:
+        f.write('*/2 * * * * root yunohost dyndns update >> /dev/null')
+
     msignals.display(_("DynDNS cron installed."), 'success')
 
 
