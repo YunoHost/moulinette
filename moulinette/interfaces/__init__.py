@@ -263,6 +263,17 @@ class BaseActionsMapParser(object):
                 # TODO: Log error instead and tell valid values
                 raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'argument_auth'" % arg_auth)
 
+        # -- 'lock'
+        try:
+            lock = configuration['lock']
+        except KeyError:
+            pass
+        else:
+            if isinstance(lock, bool):
+                conf['lock'] = lock
+            else:
+                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'lock'" % lock)
+
         return conf
 
     def _format_conf(self, name, value):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import errno
 import getpass
 import argparse
@@ -125,6 +126,9 @@ class ActionsMapParser(BaseActionsMapParser):
 
     def parse_args(self, args, **kwargs):
         ret = self._parser.parse_args(args)
+
+        if not self.get_conf(ret._tid, 'lock'):
+            os.environ['BYPASS_LOCK'] = 'yes'
 
         # Perform authentication if needed
         if self.get_conf(ret._tid, 'authenticate'):

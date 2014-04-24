@@ -347,6 +347,7 @@ class MoulinetteLock(object):
 
         self._lockfile = '/var/run/moulinette_%s.lock' % namespace
         self._locked = False
+        self._bypass = False
 
     def acquire(self):
         """Attempt to acquire the lock for the moulinette instance
@@ -359,9 +360,16 @@ class MoulinetteLock(object):
         start_time = time.time()
 
         while True:
+            if 'BYPASS_LOCK' in os.environ and os.environ['BYPASS_LOCK'] == 'yes':
+                self._bypass = True
+                break
+
             if not os.path.isfile(self._lockfile):
                 # Create the lock file
-                (open(self._lockfile, 'w')).close()
+                try:
+                    (open(self._lockfile, 'w')).close()
+                except IOError:
+                    raise MoulinetteError(errno.EPERM, _("Permission denied, did you forget 'sudo' ?"))
                 break
 
             if (time.time() - start_time) > self.timeout:
@@ -378,7 +386,8 @@ class MoulinetteLock(object):
 
         """
         if self._locked:
-            os.unlink(self._lockfile)
+            if not self._bypass:
+                os.unlink(self._lockfile)
             self._locked = False
 
     def __enter__(self):

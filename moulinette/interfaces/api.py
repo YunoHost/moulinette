@@ -393,6 +393,10 @@ class ActionsMapParser(BaseActionsMapParser):
             raise MoulinetteError(errno.EINVAL, "No parser found for route '%s'" % route)
         ret = argparse.Namespace()
 
+        
+        if not self.get_conf(tid, 'lock'):
+            os.environ['BYPASS_LOCK'] = 'yes'
+
         # Perform authentication if needed
         if self.get_conf(tid, 'authenticate'):
             auth_conf, klass = self.get_conf(tid, 'authenticator')

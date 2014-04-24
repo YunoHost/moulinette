@@ -50,6 +50,7 @@ _global:
                     uri: ldap://localhost:389
                     base_dn: dc=yunohost,dc=org
         argument_auth: true
+        lock: true
     arguments:
         -v:
             full: --version
@@ -70,6 +71,7 @@ user:
             api: GET /users
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                --fields:
                     help: fields to fetch
@@ -183,6 +185,7 @@ user:
             api: 'GET /users/<username>'
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 username:
                     help: Username or mail to get informations
@@ -201,6 +204,7 @@ domain:
             api: GET /domains
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 -f:
                     full: --filter
@@ -361,6 +365,8 @@ app:
             api: POST /app
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
+                lock: false
             arguments:
                 app:
                     help: App to install
@@ -375,6 +381,9 @@ app:
         remove:
             action_help: Remove app
             api: DELETE /app
+            configuration:
+                authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 app:
                     help: App(s) to delete
@@ -383,6 +392,9 @@ app:
         upgrade:
             action_help: Upgrade app
             api: PUT /app
+            configuration:
+                authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 app:
                     help: App(s) to upgrade (default all)
@@ -450,6 +462,7 @@ app:
             api: GET /app/checkurl
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 url:
                     help: Url to check
@@ -480,6 +493,7 @@ app:
             api: PUT /ssowatconf
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
 
         ### app_addaccess() TODO: Write help
         addaccess:
@@ -487,6 +501,7 @@ app:
             api: PUT /app/access
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 apps:
                     nargs: "+"
@@ -500,6 +515,7 @@ app:
             api: DELETE /app/access
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 apps:
                     nargs: "+"
@@ -513,6 +529,7 @@ app:
             api: POST /app/access
             configuration:
                 authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 apps:
                     nargs: "+"
