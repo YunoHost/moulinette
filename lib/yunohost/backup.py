@@ -23,16 +23,13 @@
 
     Manage backups
 """
-import logging
-logging.warning('the module yunohost.backup has not been revisited and updated yet')
-
 import os
 import sys
 import json
 import yaml
 import glob
 
-from moulinette.helpers import YunoHostError, YunoHostLDAP, validate, colorize, win_msg
+from moulinette.core import MoulinetteError
 
 def backup_init(helper=False):
     """
@@ -49,11 +46,7 @@ def backup_init(helper=False):
         configure_cmd = '/configure_tahoe.sh'
 
     os.system('tahoe create-client /home/yunohost.backup/tahoe')
-    os.system('/bin/bash '+ tahoe_cfg_dir + configure_cmd)
-    os.system('cp '+ tahoe_cfg_dir +'/tahoe.cfg /home/yunohost.backup/tahoe/')
-    try:
-        with open('/etc/yunohost/light') as f: pass
-    except IOError:
-        pass
-        #os.system('update-rc.d tahoe-lafs defaults')
-        #os.system('service tahoe-lafs restart')
+    os.system('/bin/bash %s%s' % (tahoe_cfg_dir, configure_cmd))
+    os.system('cp %s/tahoe.cfg /home/yunohost.backup/tahoe/' % tahoe_cfg_dir)
+    #os.system('update-rc.d tahoe-lafs defaults')
+    #os.system('service tahoe-lafs restart')
