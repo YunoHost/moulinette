@@ -28,6 +28,7 @@ import sys
 import crypt
 import random
 import string
+import json
 
 from moulinette.core import MoulinetteError
 
@@ -137,19 +138,48 @@ def user_create(auth, username, firstname, lastname, mail, password):
         'uidNumber'     : uid,
         'homeDirectory' : '/home/' + username,
         'loginShell'    : '/bin/false'
-
     }
 
-    if auth.add(rdn, attr_dict):
-        os.system("su - %s -c ''" % username)
-        os.system('yunohost app ssowatconf > /dev/null 2>&1')
-        #TODO: Send a welcome mail to user
-        msignals.display(_("User '%s' successfully created.") % username, 'success')
-        hook_callback('post_user_create', [username, mail, password, firstname, lastname])
+    # If it is the first user, add some aliases
+    if not yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=*'):
+        with open('/etc/yunohost/current_host') as f:
+            main_domain = f.readline().rstrip()
+        aliases = [
+            'root@'+ main_domain,
+            'admin@'+ main_domain,
+            'webmaster@'+ main_domain,
+            'postmaster@'+ main_domain,
+        ]
+        attr_dict['mail'] = [ attr_dict['mail'] ] + aliases
 
-        return { 'fullname' : fullname, 'username' : username, 'mail' : mail }
-    else:
-        raise MoulinetteError(169, _("An error occurred during user creation"))
+        # If exists, remove the redirection from the SSO
+        try:
+            with open('/etc/ssowat/conf.json.persistent') as json_conf:
+                ssowat_conf = json.loads(str(json_conf.read()))
+
+            if 'redirected_urls' in ssowat_conf and '/' in ssowat_conf['redirected_urls']:
+                del ssowat_conf['redirected_urls']['/']
+
+            with open('/etc/ssowat/conf.json.persistent', 'w+') as f:
+                json.dump(ssowat_conf, f, sort_keys=True, indent=4)
+
+        except IOError: pass
+
+    
+    if auth.add(rdn, attr_dict):
+        # Update SFTP user group
+        memberlist = auth.search(filter='cn=sftpusers', attrs=['memberUid'])[0]['memberUid']
+        memberlist.append(username)
+        if auth.update('cn=sftpusers,ou=groups', { 'memberUid': memberlist }):
+            os.system("su - %s -c ''" % username)
+            os.system('yunohost app ssowatconf > /dev/null 2>&1')
+            #TODO: Send a welcome mail to user
+            msignals.display(_("User '%s' successfully created.") % username, 'success')
+            hook_callback('post_user_create', [username, mail, password, firstname, lastname])
+
+            return { 'fullname' : fullname, 'username' : username, 'mail' : mail }
+
+    raise MoulinetteError(169, _("An error occurred during user creation"))
 
 
 def user_delete(auth, users, purge=False):
@@ -167,10 +197,15 @@ def user_delete(auth, users, purge=False):
 
     for user in users:
         if auth.remove('uid=%s,ou=users' % user):
-            if purge:
-                os.system('rm -rf /home/%s' % user)
-            deleted.append(user)
-            continue
+            # Update SFTP user group
+            memberlist = auth.search(filter='cn=sftpusers', attrs=['memberUid'])[0]['memberUid']
+            try: memberlist.remove(user)
+            except: pass
+            if auth.update('cn=sftpusers,ou=groups', { 'memberUid': memberlist }):
+                if purge:
+                    os.system('rm -rf /home/%s' % user)
+                deleted.append(user)
+                continue
         else:
             raise MoulinetteError(169, _("An error occurred during user deletion"))
 

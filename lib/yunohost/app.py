@@ -644,6 +644,48 @@ def app_clearaccess(auth, apps):
 
     app_ssowatconf(auth)
 
+def app_makedefault(app, domain=None):
+    """
+    Redirect domain root to an app
+
+    Keyword argument:
+        app
+        domain
+
+    """
+    if not _is_installed(app):
+        raise MoulinetteError(22, _("App is not installed"))
+
+    app_domain = app_setting(app, 'domain')
+    app_path   = app_setting(app, 'path')
+
+    if domain is None:
+        domain = app_domain
+    elif domain not in domain_list()['Domains']:
+        raise MoulinetteError(22, _("Domain doesn't exists"))
+
+    if '/' in app_map(raw=True)[domain]:
+        raise MoulinetteError(1, _("An app is already installed on this location"))
+
+    try:
+        with open('/etc/ssowat/conf.json.persistent') as json_conf:
+            ssowat_conf = json.loads(str(json_conf.read()))
+    except IOError:
+        ssowat_conf = {}
+
+    if 'redirected_urls' not in ssowat_conf:
+        ssowat_conf['redirected_urls'] = {}
+
+    ssowat_conf['redirected_urls'][domain +'/'] = app_domain + app_path
+
+    with open('/etc/ssowat/conf.json.persistent', 'w+') as f:
+        json.dump(ssowat_conf, f, sort_keys=True, indent=4)
+
+    os.system('chmod 644 /etc/ssowat/conf.json.persistent')
+
+    win_msg('SSOwat persistent configuration has been updated')
+
+
 
 def app_setting(app, key, value=None, delete=False):
     """
@@ -840,6 +882,7 @@ def app_ssowatconf(auth):
     unprotected_regex = []
     protected_urls = []
     protected_regex = []
+    redirected_regex = { main_domain +'/yunohost[\/]?$': 'https://'+ main_domain +'/yunohost/sso/' }
 
     apps = {}
     for app in app_list()['Apps']:
@@ -880,7 +923,7 @@ def app_ssowatconf(auth):
     if not 'portal_domain' in conf_dict:
         conf_dict['portal_domain'] = main_domain
     if not 'portal_path' in conf_dict:
-        conf_dict['portal_path'] = '/ynhsso/'
+        conf_dict['portal_path'] = '/yunohost/sso/'
     if not 'portal_port' in conf_dict:
         conf_dict['portal_port'] = '443'
     if not 'portal_scheme' in conf_dict:
@@ -899,6 +942,7 @@ def app_ssowatconf(auth):
     conf_dict['skipped_regex'] = skipped_regex
     conf_dict['unprotected_regex'] = unprotected_regex
     conf_dict['protected_regex'] = protected_regex
+    conf_dict['redirected_regex'] = redirected_regex
     conf_dict['users'] = users
 
     with open('/etc/ssowat/conf.json', 'w+') as f:

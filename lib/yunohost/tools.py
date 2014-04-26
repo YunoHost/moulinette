@@ -225,6 +225,23 @@ def tools_postinstall(domain, password, dyndns=False):
     if os.system('hostname -d') != 0:
         os.system('hostname yunohost.yunohost.org')
 
+    # Add a temporary SSOwat rule to redirect SSO to admin page
+    try:
+        with open('/etc/ssowat/conf.json.persistent') as json_conf:
+            ssowat_conf = json.loads(str(json_conf.read()))
+    except IOError:
+        ssowat_conf = {}
+
+    if 'redirected_urls' not in ssowat_conf:
+        ssowat_conf['redirected_urls'] = {}
+
+    ssowat_conf['redirected_urls']['/'] = domain +'/yunohost/admin'
+
+    with open('/etc/ssowat/conf.json.persistent', 'w+') as f:
+        json.dump(ssowat_conf, f, sort_keys=True, indent=4)
+
+    os.system('chmod 644 /etc/ssowat/conf.json.persistent')
+
     # Create SSL CA
     ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
     command_list = [

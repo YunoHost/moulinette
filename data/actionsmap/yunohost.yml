@@ -487,6 +487,17 @@ app:
                     full: --sql
                     help: Initial SQL file
 
+       ### app_makedefault()
+        makedefault:
+            action_help: Redirect domain root to an app
+            api: PUT /app/default
+            arguments:
+                app:
+                    help: App name to put on domain root
+                -d:
+                    full: --domain
+                    help: Specific domain to put app on (the app domain by default)
+
         ### app_ssowatconf()
         ssowatconf:
             action_help: Regenerate SSOwat configuration file
