@@ -656,8 +656,11 @@ def app_makedefault(app, domain=None):
     if not _is_installed(app):
         raise MoulinetteError(22, _("App is not installed"))
 
-    app_domain = app_setting(app, 'domain')
-    app_path   = app_setting(app, 'path')
+    with open(apps_setting_path + app +'/settings.yml') as f:
+        app_settings = yaml.load(f)
+
+    app_domain = app_settings['domain']
+    app_path   = app_settings['path']
 
     if domain is None:
         domain = app_domain
