@@ -909,6 +909,8 @@ tools:
         ldapinit:
             action_help: YunoHost LDAP initialization
             api: POST /ldap
+            configuration:
+                authenticate: all
 
         ### tools_adminpw()
         adminpw:
@@ -928,6 +930,8 @@ tools:
         maindomain:
             action_help: Main domain change tool
             api: PUT /domain/main
+            configuration:
+                authenticate: all
             arguments:
                 -o:
                     full: --old-domain
@@ -971,22 +975,26 @@ tools:
         ### tools_update()
         update:
             action_help: YunoHost update
-            api: POST /update
-
-        ### tools_changelog()
-        changelog:
-            action_help: YunoHost changelog
-            api: POST /changelog
+            api: PUT /update
+            arguments:
+                --ignore-apps:
+                    help: Ignore apps cache update and changelog
+                    action: store_true
+                --ignore-packages:
+                    help: Ignore APT cache update and changelog
+                    action: store_true
 
         ### tools_upgrade()
         upgrade:
             action_help: YunoHost upgrade
-            api: POST /upgrade
-
-        ### tools_upgradelog()
-        upgradelog:
-            action_help: Show dpkg log
-            api: POST /upgradelog
+            api: PUT /upgrade
+            arguments:
+                --ignore-apps:
+                    help: Ignore apps upgrade
+                    action: store_true
+                --ignore-packages:
+                    help: Ignore APT packages upgrade
+                    action: store_true
 
 
 #############################

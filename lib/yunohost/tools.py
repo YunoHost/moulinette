@@ -23,60 +23,53 @@
 
     Specific tools
 """
-import logging
-logging.warning('the module yunohost.tools has not been revisited and updated yet')
-
 import os
 import sys
 import yaml
 import re
 import getpass
-import subprocess
 import requests
 import json
-from subprocess import Popen, PIPE
-from domain import domain_add, domain_list
-from dyndns import dyndns_subscribe
-from backup import backup_init
-from app import app_ssowatconf
+import apt
+import apt.progress
 
-from moulinette.helpers import YunoHostError, YunoHostLDAP, validate, colorize, get_required_args, win_msg
+from moulinette.helpers import validate
+from moulinette.core import MoulinetteError
 
+apps_setting_path= '/etc/yunohost/apps/'
 
-def tools_ldapinit(password=None):
+def tools_ldapinit(auth):
     """
     YunoHost LDAP initialization
 
 
     """
-    with YunoHostLDAP() as yldap:
+    with open('ldap_scheme.yml') as f:
+        ldap_map = yaml.load(f)
 
-        with open('ldap_scheme.yml') as f:
-            ldap_map = yaml.load(f)
+    for rdn, attr_dict in ldap_map['parents'].items():
+        try: auth.add(rdn, attr_dict)
+        except: pass
 
-        for rdn, attr_dict in ldap_map['parents'].items():
-            try: yldap.add(rdn, attr_dict)
-            except: pass
+    for rdn, attr_dict in ldap_map['children'].items():
+        try: auth.add(rdn, attr_dict)
+        except: pass
 
-        for rdn, attr_dict in ldap_map['children'].items():
-            try: yldap.add(rdn, attr_dict)
-            except: pass
+    admin_dict = {
+        'cn': 'admin',
+        'uid': 'admin',
+        'description': 'LDAP Administrator',
+        'gidNumber': '1007',
+        'uidNumber': '1007',
+        'homeDirectory': '/home/admin',
+        'loginShell': '/bin/bash',
+        'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject'],
+        'userPassword': 'yunohost'
+    }
 
-        admin_dict = {
-            'cn': 'admin',
-            'uid': 'admin',
-            'description': 'LDAP Administrator',
-            'gidNumber': '1007',
-            'uidNumber': '1007',
-            'homeDirectory': '/home/admin',
-            'loginShell': '/bin/bash',
-            'objectClass': ['organizationalRole', 'posixAccount', 'simpleSecurityObject'],
-            'userPassword': 'yunohost'
-        }
+    auth.update('cn=admin', admin_dict)
 
-        yldap.update('cn=admin', admin_dict)
-
-    win_msg(_("LDAP has been successfully initialized"))
+    msignals.display(_("LDAP has been successfully initialized"), 'success')
 
 
 def tools_adminpw(old_password, new_password):
@@ -90,21 +83,21 @@ def tools_adminpw(old_password, new_password):
     """
     # Validate password length
     if len(new_password) < 4:
-        raise YunoHostError(22, _("Password is too short"))
+        raise MoulinetteError(22, _("Password is too short"))
 
     old_password.replace('"', '\\"')
     old_password.replace('&', '\\&')
     new_password.replace('"', '\\"')
     new_password.replace('&', '\\&')
-    result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "'+ old_password +'" -a "'+ old_password +'" -s "' + new_password + '"')
+    result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "%s" -a "%s" -s "%s"' % (old_password, old_password, new_password))
 
     if result == 0:
-        win_msg(_("Admin password has been changed"))
+        msignals.display(_("Admin password has been changed"), 'success')
     else:
-        raise YunoHostError(22, _("Invalid password"))
+        raise MoulinetteError(22, _("Invalid password"))
 
 
-def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
+def tools_maindomain(auth, old_domain=None, new_domain=None, dyndns=False):
     """
     Main domain change tool
 
@@ -113,6 +106,8 @@ def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
         old_domain
 
     """
+    from yunohost.domain import domain_add
+    from yunohost.dyndns import dyndns_subscribe
 
     if not old_domain:
         with open('/etc/yunohost/current_host', 'r') as f:
@@ -146,15 +141,15 @@ def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
             for line in lines:
                 sources.write(re.sub(r''+ old_domain +'', new_domain, line))
 
-    domain_add([new_domain], main=True)
+    domain_add(auth, [new_domain], main=True)
 
     os.system('rm /etc/ssl/private/yunohost_key.pem')
     os.system('rm /etc/ssl/certs/yunohost_crt.pem')
 
     command_list = [
-        'ln -s /etc/yunohost/certs/'+ new_domain +'/key.pem /etc/ssl/private/yunohost_key.pem',
-        'ln -s /etc/yunohost/certs/'+ new_domain +'/crt.pem /etc/ssl/certs/yunohost_crt.pem',
-        'echo '+ new_domain +' > /etc/yunohost/current_host',
+        'ln -s /etc/yunohost/certs/%s/key.pem /etc/ssl/private/yunohost_key.pem' % new_domain,
+        'ln -s /etc/yunohost/certs/%s/crt.pem /etc/ssl/certs/yunohost_crt.pem'   % new_domain,
+        'echo %s > /etc/yunohost/current_host' % new_domain,
         'service nginx restart',
         'service metronome restart',
         'service postfix restart',
@@ -170,7 +165,7 @@ def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
 
     for command in command_list:
         if os.system(command) != 0:
-            raise YunoHostError(17, _("There were a problem during domain changing"))
+            raise MoulinetteError(17, _("There were a problem during domain changing"))
 
     if dyndns: dyndns_subscribe(domain=new_domain)
     elif len(new_domain.split('.')) >= 3:
@@ -180,7 +175,7 @@ def tools_maindomain(old_domain=None, new_domain=None, dyndns=False):
         if dyndomain in dyndomains:
             dyndns_subscribe(domain=new_domain)
 
-    win_msg(_("Main domain has been successfully changed"))
+    msignals.display(_("Main domain has been successfully changed"), 'success')
 
 
 def tools_postinstall(domain, password, dyndns=False):
@@ -193,22 +188,25 @@ def tools_postinstall(domain, password, dyndns=False):
         password -- YunoHost admin password
 
     """
+    from yunohost.backup import backup_init
+    from yunohost.app import app_ssowatconf
+
     try:
         with open('/etc/yunohost/installed') as f: pass
     except IOError:
         print('Installing YunoHost')
     else:
-        raise YunoHostError(17, _("YunoHost is already installed"))
+        raise MoulinetteError(17, _("YunoHost is already installed"))
 
     if len(domain.split('.')) >= 3:
         r = requests.get('http://dyndns.yunohost.org/domains')
         dyndomains = json.loads(r.text)
         dyndomain  = '.'.join(domain.split('.')[1:])
         if dyndomain in dyndomains:
-            if requests.get('http://dyndns.yunohost.org/test/'+ domain).status_code == 200:
+            if requests.get('http://dyndns.yunohost.org/test/%s' % domain).status_code == 200:
                 dyndns=True
             else:
-                raise YunoHostError(17, _("Domain is already taken"))
+                raise MoulinetteError(17, _("Domain is already taken"))
 
     # Create required folders
     folders_to_create = [
@@ -230,102 +228,143 @@ def tools_postinstall(domain, password, dyndns=False):
     # Create SSL CA
     ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
     command_list = [
-        'echo "01" > '+ ssl_dir +'/serial',
-        'rm '+ ssl_dir +'/index.txt',
-        'touch '+ ssl_dir +'/index.txt',
-        'cp '+ ssl_dir +'/openssl.cnf '+ ssl_dir +'/openssl.ca.cnf ',
-        'sed -i "s/yunohost.org/'+ domain +'/g" '+ ssl_dir +'/openssl.ca.cnf ',
-        'openssl req -x509 -new -config '+ ssl_dir +'/openssl.ca.cnf -days 3650 -out '+ ssl_dir +'/ca/cacert.pem -keyout '+ ssl_dir +'/ca/cakey.pem -nodes -batch',
-        'cp '+ ssl_dir +'/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem',
+        'echo "01" > %s/serial' % ssl_dir,
+        'rm %s/index.txt'       % ssl_dir,
+        'touch %s/index.txt'    % ssl_dir,
+        'cp %s/openssl.cnf %s/openssl.ca.cnf' % (ssl_dir, ssl_dir),
+        'sed -i "s/yunohost.org/%s/g" %s/openssl.ca.cnf ' % (domain, ssl_dir),
+        'openssl req -x509 -new -config %s/openssl.ca.cnf -days 3650 -out %s/ca/cacert.pem -keyout %s/ca/cakey.pem -nodes -batch' % (ssl_dir, ssl_dir, ssl_dir),
+        'cp %s/ca/cacert.pem /etc/ssl/certs/ca-yunohost_crt.pem' % ssl_dir,
         'update-ca-certificates'
     ]
 
     for command in command_list:
         if os.system(command) != 0:
-            raise YunoHostError(17, _("There were a problem during CA creation"))
+            raise MoulinetteError(17, _("There were a problem during CA creation"))
 
-    with YunoHostLDAP(password='yunohost') as yldap:
+    # Initialize YunoHost LDAP base
+    tools_ldapinit(auth)
 
-        # Initialize YunoHost LDAP base
-        tools_ldapinit(password)
+    # Initialize backup system
+    backup_init()
 
-        # Initialize backup system
-        backup_init()
+    # New domain config
+    tools_maindomain(auth, old_domain='yunohost.org', new_domain=domain, dyndns=dyndns)
 
-        # New domain config
-        tools_maindomain(old_domain='yunohost.org', new_domain=domain, dyndns=dyndns)
+    # Generate SSOwat configuration file
+    app_ssowatconf(auth)
 
-        # Generate SSOwat configuration file
-        app_ssowatconf()
+    # Change LDAP admin password
+    tools_adminpw(old_password='yunohost', new_password=password)
 
-        # Change LDAP admin password
-        tools_adminpw(old_password='yunohost', new_password=password)
+    os.system('touch /etc/yunohost/installed')
+    os.system('service yunohost-api restart &')
 
-        os.system('touch /etc/yunohost/installed')
-        os.system('service yunohost-api restart &')
-
-    win_msg(_("YunoHost has been successfully configured"))
+    msignals.display(_("YunoHost has been successfully configured"), 'success')
 
 
-def tools_update():
+def tools_update(ignore_apps=False, ignore_packages=False):
     """
-    Update distribution
+    Update apps & package cache, then display changelog
 
-    """
-    process = Popen("/usr/bin/checkupdate", stdout=PIPE)
-    stdout, stderr = process.communicate()
-    if process.returncode == 1:
-        win_msg( _("Not upgrade found"))
-    elif process.returncode == 2:
-        raise YunoHostError(17, _("Error during update"))
-    else:
-        return { "Update" : stdout.splitlines() }
-
-
-def tools_changelog():
-    """
-    Show Changelog
+    Keyword arguments:
+        ignore_apps -- Ignore app list update and changelog
+        ignore_packages -- Ignore apt cache update and changelog
 
     """
-    if os.path.isfile('/tmp/yunohost/update_status'):
-        with open('/tmp/yunohost/changelog', 'r') as f:
-            read_data = f.read()
-            return { "Changelog" : read_data.splitlines() }
-    else:
-        raise YunoHostError(17, _("Launch update before upgrade"))
+    from yunohost.app import app_fetchlist, app_info
 
+    packages = []
+    if not ignore_packages:
+        cache = apt.Cache()
+        # Update APT cache
+        if not cache.update():
+            raise MoulinetteError(1, _("An error occured during APT cache update"))
 
-def tools_upgrade():
-    """
-    Upgrade distribution
+        cache.open(None)
+        cache.upgrade(True)
 
-    """
-    if os.path.isfile('/tmp/yunohost/upgrade.run'):
-        win_msg( _("Upgrade in progress"))
-    else:
-        if os.path.isfile('/tmp/yunohost/upgrade_status'):
-            with open('/tmp/yunohost/upgrade_status', 'r') as f:
-                read_data = f.read()
-                os.system('rm /tmp/yunohost/upgrade_status')
-                if read_data.strip() == "OK":
-                    win_msg( _("YunoHost has been successfully upgraded"))
+        # Add changelogs to the result
+        for pkg in cache.get_changes():
+            packages.append({
+                'name': pkg.name,
+                'fullname': pkg.fullname,
+                'changelog': pkg.get_changelog()
+            })
+        
+    apps = []
+    if not ignore_apps:
+        app_fetchlist()
+        app_list = os.listdir(apps_setting_path)
+        if len(app_list) > 0:
+            for app_id in app_list:
+                if '__' in app_id:
+                    original_app_id = app_id[:app_id.index('__')]
                 else:
-                    raise YunoHostError(17, _("Error during upgrade"))
-        elif os.path.isfile('/tmp/yunohost/update_status'):
-            os.system('at now -f /usr/share/yunohost/upgrade')
-            win_msg( _("Upgrade in progress"))
-        else:
-            raise YunoHostError(17, _("Launch update before upgrade"))
+                    original_app_id = app_id
+
+                current_app_dict = app_info(app_id,  raw=True)
+                new_app_dict     = app_info(original_app_id, raw=True)
+
+                # Custom app
+                if 'lastUpdate' not in new_app_dict or 'git' not in new_app_dict:
+                    continue
+
+                if (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) \
+                      or ('update_time' not in current_app_dict['settings'] \
+                           and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) \
+                      or ('update_time' in current_app_dict['settings'] \
+                           and (new_app_dict['lastUpdate'] > current_app_dict['settings']['update_time'])):
+                    apps.append({
+                        'id': app_id,
+                        'label': current_app_dict['settings']['label']
+                    })
+    
+    if len(apps) == 0 and len(packages) == 0:
+        msignals.display(_("There is nothing to upgrade right now"), 'success')
+
+    return { 'packages': packages, 'apps': apps }
 
 
-def tools_upgradelog():
+
+def tools_upgrade(ignore_apps=False, ignore_packages=False):
     """
-    Show upgrade log
+    Update apps & package cache, then display changelog
+
+    Keyword arguments:
+        ignore_apps -- Ignore apps upgrade
+        ignore_packages -- Ignore APT packages upgrade
 
     """
-    if os.path.isfile('/tmp/yunohost/upgrade.run'):
-        win_msg( _("Upgrade in progress"))
-    else:
-        with open('/tmp/yunohost/update_log', 'r') as f:
-            read_data = f.read()
-            return { "DPKG LOG" : read_data.splitlines() }
+    from yunohost.app import app_upgrade
+
+    if not ignore_packages:
+        cache = apt.Cache()
+        cache.open(None)
+        cache.upgrade(True)
+        
+        # If API call
+        if not os.isatty(1):
+            critical_packages = ["yunohost-cli", "yunohost-admin", "yunohost-config-nginx", "ssowat", "python"]
+            for pkg in cache.get_changes():
+                if pkg.name in critical_packages:
+                    # Temporarily keep package ...
+                    pkg.mark_keep()
+                    # ... and set a hourly cron up to upgrade critical packages
+                    with open('/etc/cron.d/yunohost-upgrade', 'w+') as f:
+                        f.write('00 * * * * root PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin apt-get install '+ ' '.join(critical_packages) + ' -y && rm -f /etc/cron.d/yunohost-upgrade')
+        try:
+            # Apply APT changes
+            cache.commit(apt.progress.text.AcquireProgress(), apt.progress.base.InstallProgress())
+        except: pass
+
+    if not ignore_apps:
+        try:
+            app_upgrade()
+        except: pass
+
+    msignals.display(_("System successfully upgraded"), 'success')
+
+    # Return API logs if it is an API call
+    if not os.isatty(1):
+        return { "log": service_log('yunohost-api', number="100").values()[0] }
