@@ -97,8 +97,8 @@ def firewall_disallow(port=None, protocol='TCP', ipv6=False):
         protocols = ['UDP', 'TCP']
 
     for protocol in protocols:
-        if port in firewall['uPnP']['ports'][protocol]:
-            firewall['uPnP']['ports'][protocol].remove(port)
+        if port in firewall['uPnP'][protocol]:
+            firewall['uPnP'][protocol].remove(port)
         if port in firewall[ipv][protocol]:
             firewall[ipv][protocol].remove(port)
         else:
@@ -124,7 +124,7 @@ def firewall_list(raw=False):
     if raw:
         return firewall
     else:
-        return firewall['ipv4']
+        return { "openned_ports": firewall['ipv4']['TCP'] }
 
 
 def firewall_reload():
@@ -139,17 +139,19 @@ def firewall_reload():
     upnp = firewall['uPnP']['enabled']
 
     # IPv4
-    os.system("iptables -P INPUT ACCEPT")
+    if os.system("iptables -P INPUT ACCEPT") != 0:
+        raise MoulinetteError(1, _("You cannot play with iptables here. You are either in a container or your kernel does not support it."))
     if upnp:
         try:
             upnpc = miniupnpc.UPnP()
             upnpc.discoverdelay = 200
             if upnpc.discover() == 1:
                 upnpc.selectigd()
-                for port in firewall['uPnP']['TCP']:
-                    upnpc.addportmapping(port, 'TCP', upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
-                for port in firewall['uPnP']['UDP']:
-                    upnpc.addportmapping(port, 'UDP', upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
+                for protocol in ['TCP', 'UDP']:
+                    if upnpc.getspecificportmapping(port, protocol):
+                        try: upnpc.deleteportmapping(port, protocol)
+                        except: pass
+                    upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
             else:
                 raise MoulinetteError(1, _("No uPnP device found"))
         except:
@@ -163,12 +165,11 @@ def firewall_reload():
         firewall_allow(22)
 
     # Loop
-    for port in firewall['ipv4']['TCP']:
-        os.system("iptables -A INPUT -p TCP --dport %d -j ACCEPT" % port)
-    for port in firewall['ipv4']['UDP']:
-        os.system("iptables -A INPUT -p UDP --dport %d -j ACCEPT" % port)
+    for protocol in ['TCP', 'UDP']:
+        for port in firewall['ipv4'][protocol]:
+            os.system("iptables -A INPUT -p %s --dport %d -j ACCEPT" % (protocol, port))
 
-    hook_callback('post_iptable_rules', [upnp, ipv6])
+    hook_callback('post_iptable_rules', [upnp, os.path.exists("/proc/net/if_inet6")])
 
     os.system("iptables -A INPUT -i lo -j ACCEPT")
     os.system("iptables -A INPUT -p icmp -j ACCEPT")
@@ -185,10 +186,9 @@ def firewall_reload():
             firewall_allow(22, ipv6=True)
 
         # Loop v6
-        for port in firewall['ipv6']['TCP']:
-            os.system("ip6tables -A INPUT -p TCP --dport %d -j ACCEPT" % port)
-        for port in firewall['ipv6']['UDP']:
-            os.system("ip6tables -A INPUT -p UDP --dport %d -j ACCEPT" % port)
+        for protocol in ['TCP', 'UDP']:
+            for port in firewall['ipv6'][protocol]:
+                os.system("ip6tables -A INPUT -p %s --dport %d -j ACCEPT" % (protocol, port))
     
         os.system("ip6tables -A INPUT -i lo -j ACCEPT")
         os.system("ip6tables -A INPUT -p icmpv6 -j ACCEPT")
@@ -200,65 +200,55 @@ def firewall_reload():
     return firewall_list()
 
 
-def firewall_upnp(action='enable'):
+def firewall_upnp(action=None):
     """
-    Add upnp cron and enable
+    Add uPnP cron and enable uPnP in firewall.yml, or the opposite.
 
-
-    """
-
-    with open('/etc/yunohost/firewall.yml', 'r') as f:
-        firewall = yaml.load(f)
-
-    firewall['UPNP']['cron'] = True
-
-    os.system("touch /etc/cron.d/yunohost-firewall")
-    os.system("echo '*/50 * * * * root yunohost firewall reload -u --no-ldap >>/dev/null'>/etc/cron.d/yunohost-firewall")
-    msignals.display(_("UPNP cron installed"), 'success')
-
-    os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
-
-    with open('/etc/yunohost/firewall.yml', 'w') as f:
-        yaml.dump(firewall, f)
-
-
-def firewall_removeupnp():
-    """
-    Remove upnp cron
-
+    Keyword argument:
+        action -- enable/disable
 
     """
-    with open('/etc/yunohost/firewall.yml', 'r') as f:
-        firewall = yaml.load(f)
 
-    firewall['UPNP']['cron'] = False
+    firewall = firewall_list(raw=True)
 
-    try:
-        os.remove("/etc/cron.d/yunohost-firewall")
-    except:
-        raise MoulinetteError(167, _("UPNP cron was not installed!"))
+    if action:
+        action = action[0]
 
-    msignals.display(_("UPNP cron removed"), 'success')
+    if action == 'enable':
+        firewall['uPnP']['enabled'] = True
+        
+        with open('/etc/cron.d/yunohost-firewall', 'w+') as f:
+            f.write('*/50 * * * * root PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin yunohost firewall reload >>/dev/null')
 
-    os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
+        msignals.display(_("uPnP successfully enabled"), 'success')
 
-    with open('/etc/yunohost/firewall.yml', 'w') as f:
-        yaml.dump(firewall, f)
+    if action == 'disable':
+        firewall['uPnP']['enabled'] = False
 
+        try:
+            upnpc = miniupnpc.UPnP()
+            upnpc.discoverdelay = 200
+            if upnpc.discover() == 1:
+                upnpc.selectigd()
+                for protocol in ['TCP', 'UDP']:
+                    for port in firewall['uPnP'][protocol]:
+                        if upnpc.getspecificportmapping(port, protocol):
+                            try: upnpc.deleteportmapping(port, protocol)
+                            except: pass
+        except: pass
+                
 
-def firewall_checkupnp():
-    """
-    check if UPNP is install or not (0 yes 1 no)
+        try: os.remove('/etc/cron.d/yunohost-firewall')
+        except: pass
 
+        msignals.display(_("uPnP successfully disabled"), 'success')
 
-    """
-    with open('/etc/yunohost/firewall.yml', 'r') as f:
-        firewall = yaml.load(f)
+    if action:
+        os.system("cp /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
+        with open('/etc/yunohost/firewall.yml', 'w') as f:
+            yaml.safe_dump(firewall, f, default_flow_style=False)
 
-        if firewall['UPNP']['cron']:
-            msignals.display(_("UPNP is activated"), 'success')
-        else:
-            raise MoulinetteError(167, _("UPNP not activated!"))
+    return { "enabled": firewall['uPnP']['enabled'] }
 
 
 def firewall_stop():
@@ -268,12 +258,16 @@ def firewall_stop():
 
     """
 
-    os.system("iptables -P INPUT ACCEPT")
+    if os.system("iptables -P INPUT ACCEPT") != 0:
+        raise MoulinetteError(1, _("You cannot play with iptables here. You are either in a container or your kernel does not support it."))
+
     os.system("iptables -F")
     os.system("iptables -X")
 
-    os.system("ip6tables -P INPUT ACCEPT")
-    os.system("ip6tables -F")
-    os.system("ip6tables -X")
-    if(os.path.exists("/etc/cron.d/yunohost-firewall")):
-        firewall_removeupnp()
+    if os.path.exists("/proc/net/if_inet6"):
+        os.system("ip6tables -P INPUT ACCEPT")
+        os.system("ip6tables -F")
+        os.system("ip6tables -X")
+
+    if os.path.exists("/etc/cron.d/yunohost-firewall"):
+        firewall_upnp('disable')

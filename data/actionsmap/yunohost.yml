@@ -774,16 +774,17 @@ firewall:
         list:
             action_help: List all firewall rules
             api: GET /firewall/list
+            arguments:
+                -r:
+                    full: --raw
+                    help: Return the complete YAML dict
+                    action: store_true
 
         ### firewall_reload()
         reload:
             action_help: Reload all firewall rules
             api: PUT /firewall/list
-            arguments:
-                -u:
-                    full: --upnp
-                    help: upnp
-                    action: store_true
+
         ### firewall_allow()
         allow:
             action_help: Allow connection port/protocol
@@ -801,12 +802,12 @@ firewall:
                         - UDP
                         - TCP
                         - Both
-                -i:
-                    full: --ipv6
-                    help: ipv6
+                        - []
+                    nargs: "*"
+                    default: TCP
+                --ipv6:
                     action: store_true
                 --no-upnp:
-                    help: upnp
                     action: store_true
 
 
@@ -816,45 +817,42 @@ firewall:
             api: DELETE /firewall/port
             arguments:
                 port:
-                    help: Port to open
+                    help: Port to close
+                    extra:
+                        pattern:
+                            - '^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$'
+                            - "Must be a valid port number (i.e. 0-65535)"
                 protocol:
                     help: Protocol associated with port
                     choices:
                         - UDP
                         - TCP
                         - Both
-                -i:
-                    full: --ipv6
-                    help: ipv6
-                    action: store_true
-                -u:
-                    full: --upnp
-                    help: upnp
+                        - []
+                    nargs: "*"
+                    default: TCP
+                --ipv6:
                     action: store_true
 
 
-        ### firewall_installupnp()
-        installupnp:
-            action_help: Add upnp cron
-            api: POST /firewall/upnp
-
-
-        ### firewall_removeupnp()
-        removeupnp:
-            action_help: Remove upnp cron
-            api: DELETE /firewall/upnp
-
+        ### firewall_upnp()
+        upnp:
+            action_help: Add uPnP cron and enable uPnP in firewall.yml, or the opposite.
+            api: GET /firewall/upnp
+            arguments:
+                action:
+                    help: enable/disable
+                    choices:
+                        - enable
+                        - disable
+                        - []
+                    nargs: "*"
 
         ### firewall_stop()
         stop:
             action_help: Stop iptables and ip6tables
             api: DELETE /firewall
 
-
-        ### firewall_checkupnp()
-        checkupnp:
-            action_help: check if UPNP is install or not (0 yes 1 no)
-            api: GET /firewall/upnp
 
 
 #############################
