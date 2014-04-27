@@ -25,135 +25,171 @@
 """
 import os
 import sys
+import yaml
 try:
     import miniupnpc
 except ImportError:
     sys.stderr.write('Error: Yunohost CLI Require miniupnpc lib\n')
     sys.exit(1)
-try:
-    import yaml
-except ImportError:
-    sys.stderr.write('Error: Yunohost CLI Require yaml lib\n')
-    sys.stderr.write('apt-get install python-yaml\n')
-    sys.exit(1)
 
 from moulinette.core import MoulinetteError
 
 
-def firewall_allow(protocol=None, port=None, ipv6=None, upnp=False):
+def firewall_allow(port=None, protocol='TCP', ipv6=False, no_upnp=False):
     """
     Allow connection port/protocol
 
     Keyword argument:
         port -- Port to open
         protocol -- Protocol associated with port
-        upnp -- upnp
         ipv6 -- ipv6
+        no_upnp -- Do not request for uPnP
 
     """
     port = int(port)
-    if upnp:
-        add_portmapping(protocol, upnp, ipv6, 'a')
+    ipv  = "ipv4"
+    protocols = [protocol]
 
-    if 0 < port < 65536:
-        if protocol == "Both":
-            update_yml(port, 'TCP', 'a', ipv6, upnp)
-            update_yml(port, 'UDP', 'a', ipv6, upnp)
+    firewall = firewall_list(raw=True)
 
+    upnp = not no_upnp and firewall['uPnP']['enabled']
+
+    if ipv6:
+        ipv = "ipv6"
+
+    if protocol == "Both":
+        protocols = ['UDP', 'TCP']
+
+    for protocol in protocols:
+        if upnp and port not in firewall['uPnP'][protocol]:
+            firewall['uPnP'][protocol].append(port)
+        if port not in firewall[ipv][protocol]:
+            firewall[ipv][protocol].append(port)
         else:
-            update_yml(port, protocol, 'a', ipv6, upnp)
+            msignals.display(_("Port already openned: %d" % port), 'warning')
 
-        msignals.display(_("Port successfully openned"), 'success')
+    with open('/etc/yunohost/firewall.yml', 'w') as f:
+        yaml.safe_dump(firewall, f, default_flow_style=False)
 
-    else:
-        raise MoulinetteError(22, _("Port not between 1 and 65535:") + str(port))
-
-    return firewall_reload(upnp)
+    return firewall_reload()
 
 
-def firewall_disallow(protocol=None, port=None, ipv6=None, upnp=False):
+def firewall_disallow(port=None, protocol='TCP', ipv6=False):
     """
-    Disallow connection
+    Allow connection port/protocol
 
     Keyword argument:
         port -- Port to open
         protocol -- Protocol associated with port
-        upnp -- upnp
         ipv6 -- ipv6
 
     """
-
     port = int(port)
+    ipv  = "ipv4"
+    protocols = [protocol]
+
+    firewall = firewall_list(raw=True)
+
+    if ipv6:
+        ipv = "ipv6"
+
     if protocol == "Both":
-        update_yml(port, 'TCP', 'r', ipv6, upnp)
-        update_yml(port, 'UDP', 'r', ipv6, upnp)
-    else:
-        update_yml(port, protocol, 'r', ipv6, upnp)
-    msignals.display(_("Port successfully closed"), 'success')
+        protocols = ['UDP', 'TCP']
 
-    return firewall_reload(upnp)
+    for protocol in protocols:
+        if port in firewall['uPnP']['ports'][protocol]:
+            firewall['uPnP']['ports'][protocol].remove(port)
+        if port in firewall[ipv][protocol]:
+            firewall[ipv][protocol].remove(port)
+        else:
+            msignals.display(_("Port already closed: %d" % port), 'warning')
+
+    with open('/etc/yunohost/firewall.yml', 'w') as f:
+        yaml.safe_dump(firewall, f, default_flow_style=False)
+
+    return firewall_reload()
 
 
-def firewall_list():
+def firewall_list(raw=False):
     """
     List all firewall rules
 
+    Keyword argument:
+        raw -- Return the complete YAML dict
 
     """
     with open('/etc/yunohost/firewall.yml') as f:
         firewall = yaml.load(f)
-    return firewall
+
+    if raw:
+        return firewall
+    else:
+        return firewall['ipv4']
 
 
-def firewall_reload(upnp=False):
+def firewall_reload():
     """
     Reload all firewall rules
 
-    Keyword argument:
-        upnp -- upnp
 
     """
     from yunohost.hook import hook_callback
 
-    with open('/etc/yunohost/firewall.yml', 'r') as f:
-        firewall = yaml.load(f)
+    firewall = firewall_list(raw=True)
+    upnp = firewall['uPnP']['enabled']
 
+    # IPv4
     os.system("iptables -P INPUT ACCEPT")
+    if upnp:
+        try:
+            upnpc = miniupnpc.UPnP()
+            upnpc.discoverdelay = 200
+            if upnpc.discover() == 1:
+                upnpc.selectigd()
+                for port in firewall['uPnP']['TCP']:
+                    upnpc.addportmapping(port, 'TCP', upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
+                for port in firewall['uPnP']['UDP']:
+                    upnpc.addportmapping(port, 'UDP', upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
+            else:
+                raise MoulinetteError(1, _("No uPnP device found"))
+        except:
+            msignals.display(_("An error occured during uPnP port openning"), 'warning')
+
     os.system("iptables -F")
     os.system("iptables -X")
     os.system("iptables -A INPUT -m state --state ESTABLISHED -j ACCEPT")
 
     if 22 not in firewall['ipv4']['TCP']:
-        update_yml(22, 'TCP', 'a', False)
+        firewall_allow(22)
 
-    if os.path.exists("/proc/net/if_inet6"):
-        os.system("ip6tables -P INPUT ACCEPT")
-        os.system("ip6tables -F")
-        os.system("ip6tables -X")
-        os.system("ip6tables -A INPUT -m state --state ESTABLISHED -j ACCEPT")
+    # Loop
+    for port in firewall['ipv4']['TCP']:
+        os.system("iptables -A INPUT -p TCP --dport %d -j ACCEPT" % port)
+    for port in firewall['ipv4']['UDP']:
+        os.system("iptables -A INPUT -p UDP --dport %d -j ACCEPT" % port)
 
-    if 22 not in firewall['ipv6']['TCP']:
-        update_yml(22, 'TCP', 'a', False)
-
-    if upnp:
-        remove_portmapping()
-
-    add_portmapping('TCP', upnp, False, 'r')
-    add_portmapping('UDP', upnp, False, 'r')
-    ipv6 = False
-
-    if os.path.exists("/proc/net/if_inet6"):
-        add_portmapping('TCP', upnp, True, 'r')
-        add_portmapping('UDP', upnp, True, 'r')
-        ipv6 = True
-    
     hook_callback('post_iptable_rules', [upnp, ipv6])
 
     os.system("iptables -A INPUT -i lo -j ACCEPT")
     os.system("iptables -A INPUT -p icmp -j ACCEPT")
     os.system("iptables -P INPUT DROP")
 
+    # IPv6
     if os.path.exists("/proc/net/if_inet6"):
+        os.system("ip6tables -P INPUT ACCEPT")
+        os.system("ip6tables -F")
+        os.system("ip6tables -X")
+        os.system("ip6tables -A INPUT -m state --state ESTABLISHED -j ACCEPT")
+
+        if 22 not in firewall['ipv6']['TCP']:
+            firewall_allow(22, ipv6=True)
+
+        # Loop v6
+        for port in firewall['ipv6']['TCP']:
+            os.system("ip6tables -A INPUT -p TCP --dport %d -j ACCEPT" % port)
+        for port in firewall['ipv6']['UDP']:
+            os.system("ip6tables -A INPUT -p UDP --dport %d -j ACCEPT" % port)
+    
         os.system("ip6tables -A INPUT -i lo -j ACCEPT")
         os.system("ip6tables -A INPUT -p icmpv6 -j ACCEPT")
         os.system("ip6tables -P INPUT DROP")
@@ -164,149 +200,9 @@ def firewall_reload(upnp=False):
     return firewall_list()
 
 
-def update_yml(port=None, protocol=None, mode=None, ipv6=None, upnp=False):
+def firewall_upnp(action='enable'):
     """
-    Update firewall.yml
-    Keyword arguments:
-        protocol -- Protocol used
-        port -- Port to open
-        mode -- a=append r=remove
-        ipv6 -- Boolean ipv6
-        upnp -- Boolean upnp
-
-    Return
-        None
-    """
-    if ipv6:
-        ip = 'ipv6'
-    else:
-        ip = 'ipv4'
-
-    with open('/etc/yunohost/firewall.yml', 'r') as f:
-        firewall = yaml.load(f)
-
-    if mode == 'a':
-        if port not in firewall[ip][protocol]:
-            firewall[ip][protocol].append(port)
-            if not ipv6 and upnp:
-                firewall['UPNP']['ports'][protocol].append(port)
-        elif not ipv6 and upnp:
-            if port not in firewall['UPNP']['ports'][protocol]:
-                firewall['UPNP']['ports'][protocol].append(port)
-            else:
-                raise MoulinetteError(22, _("Port already openned :") + str(port))
-
-        else:
-            raise MoulinetteError(22, _("Port already openned :") + str(port))
-
-    else:
-        if not ipv6 and upnp:
-            if port in firewall['UPNP']['ports'][protocol]:
-                firewall['UPNP']['ports'][protocol].remove(port)
-
-            else:
-                raise MoulinetteError(22, _("Upnp redirection already deleted :") + str(port))
-        elif not ipv6:
-            if port in firewall['UPNP']['ports'][protocol]:
-                firewall['UPNP']['ports'][protocol].remove(port)
-
-            if port in firewall[ip][protocol]:
-                firewall[ip][protocol].remove(port)
-
-            else:
-                raise MoulinetteError(22, _("Port already closed :") + str(port))
-        else:
-            if port in firewall[ip][protocol]:
-                firewall[ip][protocol].remove(port)
-
-            else:
-                raise MoulinetteError(22, _("Port already closed :") + str(port))
-
-    firewall[ip][protocol].sort()
-    firewall['UPNP']['ports'][protocol].sort()
-
-    os.system("mv /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
-
-    with open('/etc/yunohost/firewall.yml', 'w') as f:
-        yaml.dump(firewall, f)
-
-
-def add_portmapping(protocol=None, upnp=False, ipv6=None, mode=None,):
-    """
-    Send a port mapping rules to igd device
-    Keyword arguments:
-        protocol -- Protocol used
-        upnp -- Boolean upnp
-        ipv6 -- Boolean ipv6
-        mode -- Add a rule (a) or reload all rules (r)
-
-    Return
-        None
-    """
-    if ipv6:
-        os.system("ip6tables -P INPUT ACCEPT")
-    else:
-        os.system("iptables -P INPUT ACCEPT")
-
-    if upnp and not ipv6  and mode == 'a':
-        remove_portmapping()
-
-    if ipv6:
-        ip = 'ipv6'
-    else:
-        ip = 'ipv4'
-    with open('/etc/yunohost/firewall.yml', 'r') as f:
-        firewall = yaml.load(f)
-
-    for i, port in enumerate(firewall[ip][protocol]):
-        if ipv6:
-            os.system("ip6tables -A INPUT -p " + protocol + " --dport " + str(port) + " -j ACCEPT")
-        else:
-            os.system("iptables -A INPUT -p " + protocol + " --dport " + str(port) + " -j ACCEPT")
-        if upnp and not ipv6:
-            if port in firewall['UPNP']['ports'][protocol]:
-                upnpc = miniupnpc.UPnP()
-                upnpc.discoverdelay = 200
-                nbigd = upnpc.discover()
-                if nbigd:
-                    upnpc.selectigd()
-                    upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %u' % port, '')
-
-    os.system("iptables -P INPUT DROP")
-
-
-def remove_portmapping():
-    """
-    Remove all portmapping rules in the igd device
-    Keyword arguments:
-        None
-    Return
-        None
-    """
-    upnp = miniupnpc.UPnP()
-    upnp.discoverdelay = 200
-    nbigd = upnp.discover()
-    if nbigd:
-        try:
-            upnp.selectigd()
-        except:
-            firewall_reload(False)
-            raise MoulinetteError(167, _("No upnp devices found"))
-    else:
-        firewall_reload(False)
-        raise MoulinetteError(22, _("Can't connect to the igd device"))
-
-    # list the redirections :
-    for i in xrange(100):
-        p = upnp.getgenericportmapping(i)
-        if p is None:
-            break
-        upnp.deleteportmapping(p[0], p[1])
-
-
-def firewall_installupnp():
-    """
-    Add upnp cron
+    Add upnp cron and enable
 
 
     """

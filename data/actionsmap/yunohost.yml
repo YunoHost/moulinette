@@ -805,8 +805,7 @@ firewall:
                     full: --ipv6
                     help: ipv6
                     action: store_true
-                -u:
-                    full: --upnp
+                --no-upnp:
                     help: upnp
                     action: store_true
 
