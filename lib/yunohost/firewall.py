@@ -148,10 +148,11 @@ def firewall_reload():
             if upnpc.discover() == 1:
                 upnpc.selectigd()
                 for protocol in ['TCP', 'UDP']:
-                    if upnpc.getspecificportmapping(port, protocol):
-                        try: upnpc.deleteportmapping(port, protocol)
-                        except: pass
-                    upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
+                    for port in firewall['uPnP'][protocol]:
+                        if upnpc.getspecificportmapping(port, protocol):
+                            try: upnpc.deleteportmapping(port, protocol)
+                            except: pass
+                        upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
             else:
                 raise MoulinetteError(1, _("No uPnP device found"))
         except:
