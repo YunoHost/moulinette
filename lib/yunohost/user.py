@@ -141,7 +141,7 @@ def user_create(auth, username, firstname, lastname, mail, password):
     }
 
     # If it is the first user, add some aliases
-    if not yldap.search(base='ou=users,dc=yunohost,dc=org', filter='uid=*'):
+    if not auth.search(base='ou=users,dc=yunohost,dc=org', filter='uid=*'):
         with open('/etc/yunohost/current_host') as f:
             main_domain = f.readline().rstrip()
         aliases = [
