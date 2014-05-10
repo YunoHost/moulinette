@@ -858,7 +858,7 @@ def app_initdb(user, password=None, db=None, sql=None):
             raise MoulinetteError(1, _("MySQL DB init failed"))
 
     if not return_pwd:
-        msignals.display(_("Database initiliazed"), 'success')
+        msignals.display(_("Database initialized"), 'success')
 
 
 def app_ssowatconf(auth):
