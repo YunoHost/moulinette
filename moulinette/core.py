@@ -291,9 +291,9 @@ def init_authenticator((vendor, name), kwargs={}):
     """
     try:
         mod = import_module('moulinette.authenticators.%s' % vendor)
-    except ImportError:
+    except ImportError as e:
         # TODO: List available authenticators vendors
-        raise MoulinetteError(errno.EINVAL, _("Unknown authenticator vendor '%s'" % vendor))
+        raise MoulinetteError(errno.EINVAL, _("Unable to load authenticator vendor '%s': %s") % (vendor, str(e)))
     else:
         return mod.Authenticator(name, **kwargs)
 
