@@ -93,7 +93,7 @@ class BaseAuthenticator(object):
                 s_id, s_hash = token
             except TypeError:
                 if not password:
-                    raise MoulinetteError(errno.EINVAL, _("Invalid format for token"))
+                    raise ValueError("Invalid token format")
                 else:
                     # TODO: Log error
                     store_session = False
@@ -108,9 +108,9 @@ class BaseAuthenticator(object):
         except MoulinetteError:
             raise
         except Exception as e:
-            logging.error("authentication (name: '%s', type: '%s') fails: %s" % \
-                              (self.name, self.vendor, e))
-            raise MoulinetteError(errno.EACCES, _("Unable to authenticate"))
+            logging.error("authentication (name: '%s', type: '%s') fails: %s" \
+                    % (self.name, self.vendor, e))
+            raise MoulinetteError(errno.EACCES, m18n.g('unable_authenticate'))
 
         # Store session
         if store_session:
@@ -140,8 +140,8 @@ class BaseAuthenticator(object):
             with self._open_sessionfile(session_id, 'r') as f:
                 enc_pwd = f.read()
         except IOError:
-            # TODO: Set proper error code
-            raise MoulinetteError(167, _("Unable to retrieve session"))
+            raise MoulinetteError(errno.ENOENT,
+                                  m18r.g('unable_retrieve_session'))
         else:
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'

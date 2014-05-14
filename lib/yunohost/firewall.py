@@ -26,6 +26,7 @@
 import os
 import sys
 import yaml
+import errno
 try:
     import miniupnpc
 except ImportError:
@@ -66,7 +67,7 @@ def firewall_allow(port=None, protocol='TCP', ipv6=False, no_upnp=False):
         if port not in firewall[ipv][protocol]:
             firewall[ipv][protocol].append(port)
         else:
-            msignals.display(_("Port already openned: %d" % port), 'warning')
+            msignals.display(m18n.n('port_already_opened') % port, 'warning')
 
     with open('/etc/yunohost/firewall.yml', 'w') as f:
         yaml.safe_dump(firewall, f, default_flow_style=False)
@@ -102,7 +103,7 @@ def firewall_disallow(port=None, protocol='TCP', ipv6=False):
         if port in firewall[ipv][protocol]:
             firewall[ipv][protocol].remove(port)
         else:
-            msignals.display(_("Port already closed: %d" % port), 'warning')
+            msignals.display(m18n.n('port_already_closed') % port, 'warning')
 
     with open('/etc/yunohost/firewall.yml', 'w') as f:
         yaml.safe_dump(firewall, f, default_flow_style=False)
@@ -140,7 +141,7 @@ def firewall_reload():
 
     # IPv4
     if os.system("iptables -P INPUT ACCEPT") != 0:
-        raise MoulinetteError(1, _("You cannot play with iptables here. You are either in a container or your kernel does not support it."))
+        raise MoulinetteError(errno.ESRCH, m18n.n('iptables_unavailable'))
     if upnp:
         try:
             upnpc = miniupnpc.UPnP()
@@ -154,9 +155,9 @@ def firewall_reload():
                             except: pass
                         upnpc.addportmapping(port, protocol, upnpc.lanaddr, port, 'yunohost firewall : port %d' % port, '')
             else:
-                raise MoulinetteError(1, _("No uPnP device found"))
+                raise MoulinetteError(errno.ENXIO, m18n.n('upnp_dev_not_found'))
         except:
-            msignals.display(_("An error occured during uPnP port openning"), 'warning')
+            msignals.display(m18n.n('upnp_port_open_failed'), 'warning')
 
     os.system("iptables -F")
     os.system("iptables -X")
@@ -196,7 +197,7 @@ def firewall_reload():
         os.system("ip6tables -P INPUT DROP")
 
     os.system("service fail2ban restart")
-    msignals.display(_("Firewall successfully reloaded"), 'success')
+    msignals.display(m18n.n('firewall_reloaded'), 'success')
 
     return firewall_list()
 
@@ -209,7 +210,6 @@ def firewall_upnp(action=None):
         action -- enable/disable
 
     """
-
     firewall = firewall_list(raw=True)
 
     if action:
@@ -221,7 +221,7 @@ def firewall_upnp(action=None):
         with open('/etc/cron.d/yunohost-firewall', 'w+') as f:
             f.write('*/50 * * * * root PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin yunohost firewall reload >>/dev/null')
 
-        msignals.display(_("uPnP successfully enabled"), 'success')
+        msignals.display(m18n.n('upnp_enabled'), 'success')
 
     if action == 'disable':
         firewall['uPnP']['enabled'] = False
@@ -242,7 +242,7 @@ def firewall_upnp(action=None):
         try: os.remove('/etc/cron.d/yunohost-firewall')
         except: pass
 
-        msignals.display(_("uPnP successfully disabled"), 'success')
+        msignals.display(m18n.n('upnp_disabled'), 'success')
 
     if action:
         os.system("cp /etc/yunohost/firewall.yml /etc/yunohost/firewall.yml.old")
@@ -260,7 +260,7 @@ def firewall_stop():
     """
 
     if os.system("iptables -P INPUT ACCEPT") != 0:
-        raise MoulinetteError(1, _("You cannot play with iptables here. You are either in a container or your kernel does not support it."))
+        raise MoulinetteError(errno.ESRCH, m18n.n('iptables_unavailable'))
 
     os.system("iptables -F")
     os.system("iptables -X")

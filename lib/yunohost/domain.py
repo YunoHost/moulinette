@@ -30,6 +30,7 @@ import re
 import shutil
 import json
 import yaml
+import errno
 from urllib import urlopen
 
 from moulinette.core import MoulinetteError
@@ -89,7 +90,7 @@ def domain_add(auth, domains, main=False, dyndns=False):
         # DynDNS domain
         if dyndns:
             if len(domain.split('.')) < 3:
-                raise MoulinetteError(22, _("Invalid domain '%s' for DynDNS" % domain))
+                raise MoulinetteError(errno.EINVAL, m18n.n('domain_dyndns_invalid'))
             import requests
             from yunohost.dyndns import dyndns_subscribe
 
@@ -98,10 +99,12 @@ def domain_add(auth, domains, main=False, dyndns=False):
             dyndomain  = '.'.join(domain.split('.')[1:])
             if dyndomain in dyndomains:
                 if os.path.exists('/etc/cron.d/yunohost-dyndns'):
-                    raise MoulinetteError(22, _("You already have a DynDNS domain"))
+                    raise MoulinetteError(errno.EPERM,
+                                          m18n.n('domain_dyndns_already_subscribed'))
                 dyndns_subscribe(domain=domain)
             else:
-                raise MoulinetteError(22, _("Unknown DynDNS domain '%s'" % dyndomain))
+                raise MoulinetteError(errno.EINVAL,
+                                      m18n.n('domain_dyndns_root_unknown'))
 
         # Commands
         ssl_dir = '/usr/share/yunohost/yunohost-config/ssl/yunoCA'
@@ -131,12 +134,13 @@ def domain_add(auth, domains, main=False, dyndns=False):
 
         for command in command_list:
             if os.system(command) != 0:
-                raise MoulinetteError(17, _("An error occurred during certificate generation"))
+                raise MoulinetteError(errno.EIO,
+                                      m18n.n('domain_cert_gen_failed'))
 
         try:
             auth.validate_uniqueness({ 'virtualdomain': domain })
         except MoulinetteError:
-            raise MoulinetteError(17, _("Domain already created"))
+            raise MoulinetteError(errno.EEXIST, m18n.n('domain_exists'))
 
 
         attr_dict['virtualdomain'] = domain
@@ -169,7 +173,8 @@ def domain_add(auth, domains, main=False, dyndns=False):
             os.system('chown bind /var/lib/bind/%s.zone' % domain)
 
         else:
-            raise MoulinetteError(17, _("Zone file already exists for %s") % domain)
+            raise MoulinetteError(errno.EEXIST,
+                                  m18n.n('domain_zone_exists'))
 
         conf_lines = [
             'zone "%s" {' % domain,
@@ -228,12 +233,12 @@ def domain_add(auth, domains, main=False, dyndns=False):
             result.append(domain)
             continue
         else:
-            raise MoulinetteError(169, _("An error occurred during domain creation"))
+            raise MoulinetteError(errno.EIO, m18n.n('domain_creation_failed'))
 
 
     os.system('yunohost app ssowatconf > /dev/null 2>&1')
 
-    msignals.display(_("Domain(s) successfully created."), 'success')
+    msignals.display(m18n.n('domain_created'), 'success')
     return { 'domains': result }
 
 
@@ -253,7 +258,7 @@ def domain_remove(auth, domains):
 
     for domain in domains:
         if domain not in domains_list:
-            raise MoulinetteError(22, _("Unknown domain '%s'") % domain)
+            raise MoulinetteError(errno.EINVAL, m18n.n('domain_unknown'))
 
         # Check if apps are installed on the domain
         for app in os.listdir('/etc/yunohost/apps/'):
@@ -264,7 +269,8 @@ def domain_remove(auth, domains):
                     continue
                 else:
                     if app_domain == domain:
-                        raise MoulinetteError(1, _("One or more apps are installed on this domain, please uninstall them before proceed to domain removal"))
+                        raise MoulinetteError(errno.EPERM,
+                                              m18n.n('domain_uninstall_app_first'))
 
         if auth.remove('virtualdomain=' + domain + ',ou=domains'):
             try:
@@ -291,13 +297,12 @@ def domain_remove(auth, domains):
             result.append(domain)
             continue
         else:
-            raise MoulinetteError(169, _("An error occurred during domain deletion"))
+            raise MoulinetteError(errno.EIO, m18n.n('domain_deletion_failed'))
 
     os.system('yunohost app ssowatconf > /dev/null 2>&1')
     os.system('service nginx reload')
     os.system('service bind9 reload')
     os.system('service metronome restart')
 
-    msignals.display(_("Domain(s) successfully deleted."), 'success')
+    msignals.display(m18n.n('domain_deleted'), 'success')
     return { 'domains': result }
-

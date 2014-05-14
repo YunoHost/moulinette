@@ -29,6 +29,7 @@ import crypt
 import random
 import string
 import json
+import errno
 
 from moulinette.core import MoulinetteError
 
@@ -64,7 +65,8 @@ def user_list(auth, fields=None, filter=None, limit=None, offset=None):
             if attr in keys:
                 attrs.append(attr)
             else:
-                raise MoulinetteError(22, _("Invalid field '%s'") % attr)
+                raise MoulinetteError(errno.EINVAL,
+                                      m18n.n('field_invalid') % attr)
     else:
         attrs = [ 'uid', 'cn', 'mail' ]
 
@@ -99,7 +101,7 @@ def user_create(auth, username, firstname, lastname, mail, password):
 
     # Validate password length
     if len(password) < 4:
-        raise MoulinetteError(22, _("Password is too short"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('password_too_short'))
 
     auth.validate_uniqueness({
         'uid'       : username,
@@ -107,10 +109,11 @@ def user_create(auth, username, firstname, lastname, mail, password):
     })
 
     if mail[mail.find('@')+1:] not in domain_list(auth)['domains']:
-        raise MoulinetteError(22, _("Unknown domain '%s'") % mail[mail.find('@')+1:])
+        raise MoulinetteError(errno.EINVAL,
+                              m18n.n('mail_domain_unknown')
+                                      % mail[mail.find('@')+1:])
 
     # Get random UID/GID
-
     uid_check = gid_check = 0
     while uid_check == 0 and gid_check == 0:
         uid = str(random.randint(200, 99999))
@@ -174,12 +177,12 @@ def user_create(auth, username, firstname, lastname, mail, password):
             os.system("su - %s -c ''" % username)
             os.system('yunohost app ssowatconf > /dev/null 2>&1')
             #TODO: Send a welcome mail to user
-            msignals.display(_("User '%s' successfully created.") % username, 'success')
+            msignals.display(m18n.n('user_created'), 'success')
             hook_callback('post_user_create', [username, mail, password, firstname, lastname])
 
             return { 'fullname' : fullname, 'username' : username, 'mail' : mail }
 
-    raise MoulinetteError(169, _("An error occurred during user creation"))
+    raise MoulinetteError(169, m18n.n('user_creation_failed'))
 
 
 def user_delete(auth, users, purge=False):
@@ -207,10 +210,10 @@ def user_delete(auth, users, purge=False):
                 deleted.append(user)
                 continue
         else:
-            raise MoulinetteError(169, _("An error occurred during user deletion"))
+            raise MoulinetteError(169, m18n.n('user_deletion_failed'))
 
     os.system('yunohost app ssowatconf > /dev/null 2>&1')
-    msignals.display(_("User(s) successfully deleted."), 'success')
+    msignals.display(m18n.n('user_deleted'), 'success')
     return { 'users': deleted }
 
 
@@ -239,7 +242,7 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
     # Populate user informations
     result = auth.search(base='ou=users,dc=yunohost,dc=org', filter='uid=' + username, attrs=attrs_to_fetch)
     if not result:
-        raise MoulinetteError(167, _("Unknown username '%s'") % username)
+        raise MoulinetteError(errno.EINVAL, m18n.n('user_unknown'))
     user = result[0]
 
     # Get modifications from arguments
@@ -263,7 +266,9 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
     if mail:
         auth.validate_uniqueness({ 'mail': mail })
         if mail[mail.find('@')+1:] not in domains:
-            raise MoulinetteError(22, _("Unknown domain '%s'") % mail[mail.find('@')+1:])
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.n('mail_domain_unknown')
+                                          % mail[mail.find('@')+1:])
         del user['mail'][0]
         new_attr_dict['mail'] = [mail] + user['mail']
 
@@ -273,7 +278,9 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
         for mail in add_mailalias:
             auth.validate_uniqueness({ 'mail': mail })
             if mail[mail.find('@')+1:] not in domains:
-                raise MoulinetteError(22, _("Unknown domain '%s'") % mail[mail.find('@')+1:])
+                raise MoulinetteError(errno.EINVAL,
+                                      m18n.n('mail_domain_unknown')
+                                              % mail[mail.find('@')+1:])
             user['mail'].append(mail)
         new_attr_dict['mail'] = user['mail']
 
@@ -284,7 +291,8 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
             if len(user['mail']) > 1 and mail in user['mail'][1:]:
                 user['mail'].remove(mail)
             else:
-                raise MoulinetteError(22, _("Invalid mail alias '%s'") % mail)
+                raise MoulinetteError(errno.EINVAL,
+                                      m18n.n('mail_alias_remove_failed') % mail)
         new_attr_dict['mail'] = user['mail']
 
     if add_mailforward:
@@ -303,14 +311,15 @@ def user_update(auth, username, firstname=None, lastname=None, mail=None, change
             if len(user['maildrop']) > 1 and mail in user['maildrop'][1:]:
                 user['maildrop'].remove(mail)
             else:
-                raise MoulinetteError(22, _("Invalid mail forward '%s'") % mail)
+                raise MoulinetteError(errno.EINVAL,
+                                      m18n.n('mail_forward_remove_failed') % mail)
         new_attr_dict['maildrop'] = user['maildrop']
 
     if auth.update('uid=%s,ou=users' % username, new_attr_dict):
-       msignals.display(_("User '%s' successfully updated.") % username, 'success')
+       msignals.display(m18n.n('user_updated'), 'success')
        return user_info(auth, username)
     else:
-       raise MoulinetteError(169, _("An error occurred during user update"))
+       raise MoulinetteError(169, m18n.n('user_update_failed'))
 
 
 def user_info(auth, username):
@@ -333,7 +342,7 @@ def user_info(auth, username):
     if result:
         user = result[0]
     else:
-        raise MoulinetteError(22, _("Unknown username/mail '%s'") % username)
+        raise MoulinetteError(errno.EINVAL, m18n.n('user_unknown'))
 
     result_dict = {
         'username': user['uid'][0],
@@ -352,4 +361,4 @@ def user_info(auth, username):
     if result:
         return result_dict
     else:
-        raise MoulinetteError(167, _("No user found"))
+        raise MoulinetteError(167, m18n.n('user_info_failed'))

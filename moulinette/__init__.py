@@ -50,12 +50,10 @@ def init(**kwargs):
     """
     import sys
     import __builtin__
-    from moulinette.core import Package, MoulinetteSignals, install_i18n
+    from moulinette.core import Package, Moulinette18n, MoulinetteSignals
     __builtin__.__dict__['pkg'] = Package(**kwargs)
+    __builtin__.__dict__['m18n'] = Moulinette18n(pkg)
     __builtin__.__dict__['msignals'] = MoulinetteSignals()
-
-    # Initialize internationalization
-    install_i18n()
 
     # Add library directory to python path
     sys.path.insert(0, pkg.libdir)
@@ -104,6 +102,6 @@ def cli(namespaces, args, use_cache=True):
                                                 'use_cache': use_cache})
         moulinette.run(args)
     except MoulinetteError as e:
-        print(_('%s: %s' % (colorize(_('Error'), 'red'), e.strerror)))
+        print('%s %s' % (colorize(m18n.g('error'), 'red'), e.strerror))
         return e.errno
     return 0

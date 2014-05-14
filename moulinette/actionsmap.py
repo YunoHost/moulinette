@@ -259,7 +259,7 @@ class ActionsMap(object):
     def __init__(self, parser, namespaces=[], use_cache=True):
         self.use_cache = use_cache
         if not issubclass(parser, BaseActionsMapParser):
-            raise MoulinetteError(errno.EINVAL, _("Invalid parser class '%s'" % parser.__name__))
+            raise ValueError("Invalid parser class '%s'" % parser.__name__)
         self._parser_class = parser
 
         logging.debug("initializing ActionsMap for the interface '%s'" % parser.interface)
@@ -311,7 +311,7 @@ class ActionsMap(object):
         try:
             auth = self.parser.get_global_conf('authenticator', profile)[1]
         except KeyError:
-            raise MoulinetteError(errno.EINVAL, _("Unknown authenticator profile '%s'") % profile)
+            raise ValueError("Unknown authenticator profile '%s'" % profile)
         else:
             return auth()
 
@@ -343,9 +343,11 @@ class ActionsMap(object):
                                  fromlist=[func_name])
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
-                raise MoulinetteError(errno.ENOSYS, _('Function is not defined'))
+                raise ImportError("Unable to load function %s.%s/%s"
+                        % (namespace, category, func_name))
             else:
-                # Process the action
+                # Load translation and process the action
+                m18n.load_namespace(namespace)
                 return func(**arguments)
 
     @staticmethod

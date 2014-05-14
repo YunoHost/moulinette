@@ -3,34 +3,13 @@
 import os
 import sys
 import time
+import json
 import errno
-import gettext
 import logging
 
 from importlib import import_module
 
 # Package manipulation -------------------------------------------------
-
-def install_i18n(namespace=None):
-    """Install internationalization
-
-    Install translation based on the package's default gettext domain or
-    on 'namespace' if provided.
-
-    Keyword arguments:
-        - namespace -- The namespace to initialize i18n for
-
-    """
-    if namespace:
-        try:
-            t = gettext.translation(namespace, pkg.localedir)
-        except IOError:
-            # TODO: Log error
-            return
-        else:
-            t.install()
-    else:
-        gettext.install('moulinette', pkg.localedir)
 
 class Package(object):
     """Package representation and easy access methods
@@ -51,7 +30,7 @@ class Package(object):
             # Set local directories
             self._datadir = '%s/data' % basedir
             self._libdir = '%s/lib' % basedir
-            self._localedir = '%s/po' % basedir
+            self._localedir = '%s/locales' % basedir
             self._cachedir = '%s/cache' % basedir
         else:
             import package
@@ -129,6 +108,189 @@ class Package(object):
         kwargs['make_dir'] = kwargs.get('make_dir',
                                         True if mode[0] == 'w' else False)
         return open('%s/%s' % (self.get_cachedir(**kwargs), filename), mode)
+
+
+# Internationalization -------------------------------------------------
+
+class Translator(object):
+    """Internationalization class
+
+    Provide an internationalization mechanism based on JSON files to
+    translate a key in the proper locale.
+
+    Keyword arguments:
+        - locale_dir -- The directory where locale files are located
+        - default_locale -- The default locale to use
+
+    """
+    def __init__(self, locale_dir, default_locale='en'):
+        self.locale_dir = locale_dir
+        self.locale = default_locale
+        self._translations = {}
+
+        # Attempt to load default translations
+        if not self._load_translations(default_locale):
+            raise ValueError("Unable to load locale '%s' from '%s'"
+                    % (default_locale, locale_dir))
+        self.default_locale = default_locale
+
+    def get_locales(self):
+        """Return a list of the avalaible locales"""
+        locales = []
+
+        for f in os.listdir(self.locale_dir):
+            if f.endswith('.json'):
+                # TODO: Validate locale
+                locales.append(f[:-5])
+        return locales
+
+    def set_locale(self, locale):
+        """Set the locale to use
+
+        Set the locale to use at first. If the locale is not available,
+        the default locale is used.
+
+        Keyword arguments:
+            - locale -- The locale to use
+
+        Returns:
+            True if the locale has been set, otherwise False
+
+        """
+        if locale not in self._translations:
+            if not self._load_translations(locale):
+                logging.info("unable to load locale '%s' from '%s'"
+                        % (self.default_locale, self.locale_dir))
+
+                # Revert to default locale
+                self.locale = self.default_locale
+                return False
+
+        # Set current locale
+        self.locale = locale
+        return True
+
+    def translate(self, key):
+        """Retrieve proper translation for a key
+
+        Attempt to retrieve translation for a key using the current locale
+        or the default locale if 'key' is not found.
+
+        Keyword arguments:
+            - key -- The key to translate
+
+        """
+        try:
+            value = self._translations[self.locale][key]
+        except KeyError:
+            try:
+                value = self._translations[self.default_locale][key]
+                logging.info("untranslated key '%s' for locale '%s'" %
+                        (key, self.locale))
+            except KeyError:
+                logging.warning("unknown key '%s' for locale '%s'" %
+                        (key, self.default_locale))
+                return key
+        return value
+
+    def _load_translations(self, locale, overwrite=False):
+        """Load translations for a locale
+
+        Attempt to load translations for a given locale. If 'overwrite' is
+        True, translations will be loaded again.
+
+        Keyword arguments:
+            - locale -- The locale to load
+            - overwrite -- True to overwrite existing translations
+
+        Returns:
+            True if the translations have been loaded, otherwise False
+
+        """
+        if not overwrite and locale in self._translations:
+            return True
+
+        try:
+            with open('%s/%s.json' % (self.locale_dir, locale), 'r') as f:
+                j = json.load(f)
+        except IOError:
+            return False
+        else:
+            self._translations[locale] = j
+        return True
+
+
+class Moulinette18n(object):
+    """Internationalization service for the moulinette
+
+    Manage internationalization and access to the proper keys translation
+    used in the moulinette and libraries.
+
+    Keyword arguments:
+        - package -- The current Package instance
+        - default_locale -- The default locale to use
+
+    """
+    def __init__(self, package, default_locale='en'):
+        self.default_locale = default_locale
+        self.locale = default_locale
+        self.pkg = package
+
+        # Init translators
+        self._global = Translator(self.pkg.localedir, default_locale)
+        self._namespace = None
+
+    def load_namespace(self, namespace):
+        """Load the namespace to use
+
+        Load and set translations of a given namespace. Those translations
+        are accessible with Moulinette18n.n().
+
+        Keyword arguments:
+            - namespace -- The namespace to load
+
+        """
+        if self._namespace and self._namespace[0] == namespace:
+            return
+
+        self._namespace = (namespace, Translator('%s/%s/locales'
+                % (self.pkg.libdir, namespace), self.default_locale))
+        self._namespace[1].set_locale(self.locale)
+
+    def set_locale(self, locale):
+        """Set the locale to use"""
+        self.locale = locale
+
+        self._global.set_locale(locale)
+        if self._namespace:
+            self._namespace[1].set_locale(locale)
+
+    def g(self, key):
+        """Retrieve proper translation for a moulinette key
+
+        Attempt to retrieve value for a key from moulinette translations
+        using the current locale or the default locale if 'key' is not found.
+
+        Keyword arguments:
+            - key -- The key to translate
+
+        """
+        return self._global.translate(key)
+
+    def n(self, key):
+        """Retrieve proper translation for a moulinette key
+
+        Attempt to retrieve value for a key from loaded namespace translations
+        using the current locale or the default locale if 'key' is not found.
+
+        Keyword arguments:
+            - key -- The key to translate
+
+        """
+        if not self._namespace:
+            raise RuntimeError("No namespace loaded for translation")
+        return self._namespace[1].translate(key)
+
 
 class MoulinetteSignals(object):
     """Signals connector for the moulinette
@@ -256,16 +418,16 @@ def init_interface(name, kwargs={}, actionsmap={}):
 
     try:
         mod = import_module('moulinette.interfaces.%s' % name)
-    except ImportError:
+    except ImportError as e:
         # TODO: List available interfaces
-        raise MoulinetteError(errno.EINVAL, _("Unknown interface '%s'" % name))
+        raise ImportError("Unable to load interface '%s': %s" % (name, str(e)))
     else:
         try:
             # Retrieve interface classes
             parser = mod.ActionsMapParser
             interface = mod.Interface
         except AttributeError as e:
-            raise MoulinetteError(errno.EFAULT, _("Invalid interface '%s': %s") % (name, e))
+            raise ImportError("Invalid interface '%s': %s" % (name, e))
 
     # Instantiate or retrieve ActionsMap
     if isinstance(actionsmap, dict):
@@ -273,7 +435,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
     elif isinstance(actionsmap, ActionsMap):
         amap = actionsmap
     else:
-        raise MoulinetteError(errno.EINVAL, _("Invalid actions map '%r'" % actionsmap))
+        raise ValueError("Invalid actions map '%r'" % actionsmap)
 
     return interface(amap, **kwargs)
 
@@ -293,7 +455,8 @@ def init_authenticator((vendor, name), kwargs={}):
         mod = import_module('moulinette.authenticators.%s' % vendor)
     except ImportError as e:
         # TODO: List available authenticators vendors
-        raise MoulinetteError(errno.EINVAL, _("Unable to load authenticator vendor '%s': %s") % (vendor, str(e)))
+        raise ImportError("Unable to load authenticator vendor '%s': %s"
+                % (vendor, str(e)))
     else:
         return mod.Authenticator(name, **kwargs)
 
@@ -369,12 +532,13 @@ class MoulinetteLock(object):
                 try:
                     (open(self._lockfile, 'w')).close()
                 except IOError:
-                    raise MoulinetteError(errno.EPERM, _("Permission denied, did you forget 'sudo' ?"))
+                    raise MoulinetteError(errno.EPERM,
+                                          '%s. %s.' % (m18n.g('permission_denied'), m18n.g('root_required')))
                 break
 
             if (time.time() - start_time) > self.timeout:
-                raise MoulinetteError(errno.EBUSY, _("An instance is already running for '%s'") \
-                                          % self.namespace)
+                raise MoulinetteError(errno.EBUSY,
+                                      m18n.g('instance_already_running'))
             # Wait before checking again
             time.sleep(self.interval)
         self._locked = True

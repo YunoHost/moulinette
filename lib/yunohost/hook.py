@@ -27,6 +27,7 @@ import os
 import sys
 import re
 import json
+import errno
 
 from moulinette.helpers import colorize
 from moulinette.core import MoulinetteError
@@ -111,7 +112,7 @@ def hook_check(file):
         with open(file[:file.index('scripts/')] + 'manifest.json') as f:
             manifest = json.loads(str(f.read()))
     except:
-        raise MoulinetteError(22, _("Invalid app package"))
+        raise MoulinetteError(errno.EIO, m18n.n('app_manifest_invalid'))
 
     action = file[file.index('scripts/') + 8:]
     if 'arguments' in manifest and action in manifest['arguments']:
@@ -140,7 +141,9 @@ def hook_exec(file, args=None):
         for arg in required_args:
             if arg['name'] in args:
                 if 'choices' in arg and args[arg['name']] not in arg['choices']:
-                    raise MoulinetteError(22, _("Invalid choice") + ': ' + args[arg['name']])
+                    raise MoulinetteError(errno.EINVAL,
+                                          m18n.n('hook_choice_invalid')
+                                                  % args[arg['name']])
                 arg_list.append(args[arg['name']])
             else:
                 if os.isatty(1) and 'ask' in arg:
@@ -159,7 +162,9 @@ def hook_exec(file, args=None):
                 elif 'default' in arg:
                     arg_list.append(arg['default'])
                 else:
-                    raise MoulinetteError(22, _("Missing argument : %s") % arg['name'])
+                    raise MoulinetteError(errno.EINVAL,
+                                          m18n.n('hook_argument_missing')
+                                                  % arg['name'])
 
     file_path = "./"
     if "/" in file and file[0:2] != file_path:

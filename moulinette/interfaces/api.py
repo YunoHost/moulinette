@@ -122,7 +122,7 @@ class _ActionsMapPlugin(object):
                 try:
                     kwargs['password'] = request.POST['password']
                 except KeyError:
-                    raise HTTPBadRequestResponse(_("Missing password parameter"))
+                    raise HTTPBadRequestResponse("Missing password parameter")
                 try:
                     kwargs['profile'] = request.POST['profile']
                 except KeyError:
@@ -235,7 +235,7 @@ class _ActionsMapPlugin(object):
         try:
             del self.secrets[s_id]
         except KeyError:
-            raise HTTPUnauthorizedResponse(_("You are not logged in"))
+            raise HTTPUnauthorizedResponse(m18n.g('not_logged_in'))
         else:
             # TODO: Clean the session for profile only
             # Delete cookie and clean the session
@@ -278,9 +278,9 @@ class _ActionsMapPlugin(object):
                                         secret=s_secret)[authenticator.name]
         except KeyError:
             if authenticator.name == 'default':
-                msg = _("Needing authentication")
+                msg = m18n.g('authentication_required')
             else:
-                msg = _("Needing authentication to profile '%s'") % authenticator.name
+                msg = m18n.g('authentication_profile_required') % authenticator.name
             raise HTTPUnauthorizedResponse(msg)
         else:
             return authenticator(token=(s_id, s_hash))
@@ -405,7 +405,7 @@ class ActionsMapParser(BaseActionsMapParser):
             auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
                 # TODO: Set proper error code
-                raise MoulinetteError(errno.EACCES, _("This action need authentication"))
+                raise MoulinetteError(errno.EACCES, m18n.g('authentication_required_long'))
             if self.get_conf(tid, 'argument_auth') and \
                self.get_conf(tid, 'authenticate') == 'all':
                 ret.auth = auth
@@ -466,7 +466,8 @@ class Interface(BaseInterface):
             run(self._app, port=_port)
         except IOError as e:
             if e.args[0] == errno.EADDRINUSE:
-                raise MoulinetteError(errno.EADDRINUSE, _("A server is already running"))
+                raise MoulinetteError(errno.EADDRINUSE,
+                                      m18n.g('server_already_running'))
             raise
 
 

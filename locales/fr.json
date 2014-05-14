@@ -1,0 +1,26 @@
+{
+    "colon" : "%s : ",
+
+    "success" : "Succès !",
+    "warning" : "Attention :",
+    "error" : "Erreur :",
+    "permission_denied" : "Permission refusée",
+    "root_required" : "Vous devez avoir les droits super-utilisateur pour exécuter cette action",
+    "instance_already_running" : "Une instance est déjà en cours d'exécution",
+
+    "unable_authenticate" : "Impossible de vous authentifier",
+    "unable_retrieve_session" : "Impossible de récupérer la session",
+    "error_ldap_operation" : "Une erreur est survenue lors de l'opération LDAP",
+
+    "password" : "Mot de passe",
+    "invalid_password" : "Mot de passe incorrect",
+    "confirm" : "Confirmez",
+    "values_mismatch" : "Les valeurs ne correspondent pas",
+    "authentication_required_long" : "L'authentification est requise pour exécuter cette action",
+    "authentication_required" : "Authentification requise",
+    "authentication_profile_required" : "Authentification au profile '%s' requise",
+    "operation_interrupted" : "Opération interrompue",
+
+    "not_logged_in" : "Vous n'êtes pas connecté",
+    "server_already_running" : "Un server est déjà en cours d'exécution sur ce port"
+}

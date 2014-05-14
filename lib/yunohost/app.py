@@ -33,6 +33,7 @@ import time
 import re
 import socket
 import urlparse
+import errno
 
 from moulinette.helpers import win_msg, random_password, is_true, validate
 from moulinette.core import MoulinetteError
@@ -55,7 +56,7 @@ def app_listlists():
             if '.json' in filename:
                 list_list.append(filename[:len(filename)-5])
     except OSError:
-        raise MoulinetteError(1, _("No list found"))
+        raise MoulinetteError(1, m18n.n('no_list_found'))
 
     return { 'Lists' : list_list }
 
@@ -77,12 +78,14 @@ def app_fetchlist(url=None, name=None):
         url = 'http://app.yunohost.org/list.json'
         name = 'yunohost'
     else:
-        if name is None: raise MoulinetteError(22, _("You must indicate a name for your custom list"))
+        if name is None:
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.n('custom_list_name_required'))
 
     list_file = '%s/%s.json' % (repo_path, name)
     if os.system('wget "%s" -O "%s.tmp"' % (url, list_file)) != 0:
         os.remove('%s.tmp' % list_file)
-        raise MoulinetteError(1, _("List server connection failed"))
+        raise MoulinetteError(errno.EBADR, m18n.n('list_retrieve_error'))
 
     # Rename fetched temp list
     os.rename('%s.tmp' % list_file, list_file)
@@ -90,7 +93,7 @@ def app_fetchlist(url=None, name=None):
     os.system("touch /etc/cron.d/yunohost-applist-%s" % name)
     os.system("echo '00 00 * * * root yunohost app fetchlist -u %s -n %s --no-ldap > /dev/null 2>&1' >/etc/cron.d/yunohost-applist-%s" % (url, name, name))
 
-    msignals.display(_("List successfully fetched"), 'success')
+    msignals.display(m18n.n('list_fetched'), 'success')
 
 
 def app_removelist(name):
@@ -105,9 +108,9 @@ def app_removelist(name):
         os.remove('%s/%s.json' % (repo_path, name))
         os.remove("/etc/cron.d/yunohost-applist-%s" % name)
     except OSError:
-        raise MoulinetteError(22, _("Unknown list"))
+        raise MoulinetteError(errno.ENOENT, m18n.n('unknown_list'))
 
-    msignals.display(_("List successfully removed"), 'success')
+    msignals.display(m18n.n('list_removed'), 'success')
 
 
 def app_list(offset=None, limit=None, filter=None, raw=False):
@@ -268,7 +271,7 @@ def app_upgrade(auth, app, url=None, file=None):
     try:
         app_list()
     except MoulinetteError:
-        raise MoulinetteError(1, _("No app to upgrade"))
+        raise MoulinetteError(errno.ENODATA, m18n.n('app_no_upgrade'))
 
     upgraded_apps = []
 
@@ -281,7 +284,8 @@ def app_upgrade(auth, app, url=None, file=None):
     for app_id in app:
         installed = _is_installed(app_id)
         if not installed:
-            raise MoulinetteError(1, _("%s is not installed") % app_id)
+            raise MoulinetteError(errno.ENOPKG,
+                                  m18n.n('app_not_installed') % app_id)
 
         if app_id in upgraded_apps:
             continue
@@ -299,7 +303,8 @@ def app_upgrade(auth, app, url=None, file=None):
         elif url:
             manifest = _fetch_app_from_git(url)
         elif 'lastUpdate' not in new_app_dict or 'git' not in new_app_dict:
-            raise MoulinetteError(22, _("%s is a custom app, please provide an URL manually in order to upgrade it") % app_id)
+            raise MoulinetteError(errno.EDESTADDRREQ,
+                                  m18n.n('custom_app_url_required') % app_id)
         elif (new_app_dict['lastUpdate'] > current_app_dict['lastUpdate']) \
               or ('update_time' not in current_app_dict['settings'] \
                    and (new_app_dict['lastUpdate'] > current_app_dict['settings']['install_time'])) \
@@ -311,7 +316,8 @@ def app_upgrade(auth, app, url=None, file=None):
 
         # Check min version
         if 'min_version' in manifest and __version__ < manifest['min_version']:
-            raise MoulinetteError(1, _("%s requires a more recent version of the moulinette") % app_id)
+            raise MoulinetteError(errno.EPERM,
+                                  m18n.n('app_recent_version_required') % app_id)
 
         app_setting_path = apps_setting_path +'/'+ app_id
 
@@ -355,12 +361,12 @@ def app_upgrade(auth, app, url=None, file=None):
 
         # So much win
         upgraded_apps.append(app_id)
-        msignals.display(_("%s upgraded successfully") % app_id, 'success')
+        msignals.display(m18n.n('app_upgraded') % app_id, 'success')
 
     if not upgraded_apps:
-        raise MoulinetteError(1, _("No app to upgrade"))
+        raise MoulinetteError(errno.ENODATA, m18n.n('no_app_upgrade'))
 
-    msignals.display(_("Upgrade complete"), 'success')
+    msignals.display(m18n.n('upgrade_complete'), 'success')
 
 
 def app_install(auth, app, label=None, args=None):
@@ -386,19 +392,21 @@ def app_install(auth, app, label=None, args=None):
 
     # Check ID
     if 'id' not in manifest or '__' in manifest['id']:
-        raise MoulinetteError(22, _("App id is invalid"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('app_id_invalid'))
 
     app_id = manifest['id']
 
     # Check min version
     if 'min_version' in manifest and __version__ < manifest['min_version']:
-        raise MoulinetteError(1, _("%s requires a more recent version of the moulinette") % app_id)
+        raise MoulinetteError(errno.EPERM,
+                              m18n.n('app_recent_version_required') % app_id)
 
     # Check if app can be forked
     instance_number = _installed_instance_number(app_id, last=True) + 1
     if instance_number > 1 :
         if 'multi_instance' not in manifest or not is_true(manifest['multi_instance']):
-            raise MoulinetteError(1, _("App is already installed"))
+            raise MoulinetteError(errno.EEXIST,
+                                  m18n.n('app_already_installed') % app_id)
 
         app_id_forked = app_id + '__' + str(instance_number)
 
@@ -467,18 +475,18 @@ def app_install(auth, app, label=None, args=None):
             os.system('chown -R root: %s' % app_setting_path)
             os.system('chown -R admin: %s/scripts' % app_setting_path)
             app_ssowatconf(auth)
-            msignals.display(_("Installation complete"), 'success')
+            msignals.display(m18n.n('installation_complete'), 'success')
         else:
             #TODO: display script fail messages
             hook_remove(app_id)
             shutil.rmtree(app_setting_path)
             shutil.rmtree(app_tmp_folder)
-            raise MoulinetteError(1, _("Installation failed"))
+            raise MoulinetteError(errno.EIO, m18n.n('installation_failed'))
     except KeyboardInterrupt, EOFError:
         hook_remove(app_id)
         shutil.rmtree(app_setting_path)
         shutil.rmtree(app_tmp_folder)
-        raise MoulinetteError(125, _("Interrupted"))
+        raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 
 
 def app_remove(app):
@@ -492,7 +500,7 @@ def app_remove(app):
     from yunohost.hook import hook_exec, hook_remove
 
     if not _is_installed(app):
-        raise MoulinetteError(22, _("App is not installed"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('app_not_installed') % app)
 
     app_setting_path = apps_setting_path + app
 
@@ -512,7 +520,7 @@ def app_remove(app):
     shutil.rmtree('/tmp/yunohost_remove')
     hook_remove(app)
     app_ssowatconf()
-    msignals.display(_("App removed: %s") % app, 'success')
+    msignals.display(m18n.n('app_removed') % app, 'success')
 
 
 def app_addaccess(auth, apps, users):
@@ -536,7 +544,8 @@ def app_addaccess(auth, apps, users):
 
     for app in apps:
         if not _is_installed(app):
-            raise MoulinetteError(22, _("App is not installed"))
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.n('app_not_installed') % app)
 
         with open(apps_setting_path + app +'/settings.yml') as f:
             app_settings = yaml.load(f)
@@ -589,7 +598,8 @@ def app_removeaccess(auth, apps, users):
         new_users = ''
 
         if not _is_installed(app):
-            raise MoulinetteError(22, _("App is not installed"))
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.n('app_not_installed') % app)
 
         with open(apps_setting_path + app +'/settings.yml') as f:
             app_settings = yaml.load(f)
@@ -631,7 +641,8 @@ def app_clearaccess(auth, apps):
 
     for app in apps:
         if not _is_installed(app):
-            raise MoulinetteError(22, _("App is not installed"))
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.n('app_not_installed') % app)
 
         with open(apps_setting_path + app +'/settings.yml') as f:
             app_settings = yaml.load(f)
@@ -654,7 +665,7 @@ def app_makedefault(app, domain=None):
 
     """
     if not _is_installed(app):
-        raise MoulinetteError(22, _("App is not installed"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('app_not_installed') % app)
 
     with open(apps_setting_path + app +'/settings.yml') as f:
         app_settings = yaml.load(f)
@@ -665,10 +676,11 @@ def app_makedefault(app, domain=None):
     if domain is None:
         domain = app_domain
     elif domain not in domain_list()['Domains']:
-        raise MoulinetteError(22, _("Domain doesn't exists"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('domain_unknown'))
 
     if '/' in app_map(raw=True)[domain]:
-        raise MoulinetteError(1, _("An app is already installed on this location"))
+        raise MoulinetteError(errno.EEXIST,
+                              m18n.n('app_location_already_used'))
 
     try:
         with open('/etc/ssowat/conf.json.persistent') as json_conf:
@@ -686,7 +698,7 @@ def app_makedefault(app, domain=None):
 
     os.system('chmod 644 /etc/ssowat/conf.json.persistent')
 
-    win_msg('SSOwat persistent configuration has been updated')
+    msignals.display(m18n.n('ssowat_conf_updated'), 'success')
 
 
 
@@ -780,10 +792,10 @@ def app_checkport(port):
         s.connect(("localhost", int(port)))
         s.close()
     except socket.error:
-        msignals.display(_("Port available: %s") % str(port), 'success')
+        msignals.display(m18n.n('port_available') % int(port), 'success')
     else:
-        raise MoulinetteError(22, _("Port not available: %s") % str(port))
-
+        raise MoulinetteError(errno.EINVAL,
+                              m18n.n('port_unavailable') % int(port))
 
 
 def app_checkurl(auth, url, app=None):
@@ -815,14 +827,15 @@ def app_checkurl(auth, url, app=None):
     validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', domain)
 
     if domain not in domain_list(auth)['domains']:
-        raise MoulinetteError(22, _("Domain doesn't exists"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('domain_unknown'))
 
     if domain in apps_map:
         if path in apps_map[domain]:
-            raise MoulinetteError(1, _("An app is already installed on this location"))
+            raise MoulinetteError(errno.EINVAL, m18n.n('app_location_already_used'))
         for app_path, v in apps_map[domain].items():
             if app_path in path and app_path.count('/') < path.count('/'):
-                raise MoulinetteError(1, _("Unable to install app at this location"))
+                raise MoulinetteError(errno.EPERM,
+                                      m18n.n('app_location_install_failed'))
 
     if app is not None:
         app_setting(app, 'domain', value=domain)
@@ -852,13 +865,13 @@ def app_initdb(user, password=None, db=None, sql=None):
     mysql_root_pwd = open('/etc/yunohost/mysql').read().rstrip()
     mysql_command = 'mysql -u root -p%s -e "CREATE DATABASE %s ; GRANT ALL PRIVILEGES ON %s.* TO \'%s\'@localhost IDENTIFIED BY \'%s\';"' % (mysql_root_pwd, db, db, user, password)
     if os.system(mysql_command) != 0:
-        raise MoulinetteError(1, _("MySQL DB creation failed"))
+        raise MoulinetteError(errno.EIO, m18n.n('mysql_db_creation_failed'))
     if sql is not None:
         if os.system('mysql -u %s -p%s %s < %s' % (user, password, db, sql)) != 0:
-            raise MoulinetteError(1, _("MySQL DB init failed"))
+            raise MoulinetteError(errno.EIO, m18n.n('mysql_db_init_failed'))
 
     if not return_pwd:
-        msignals.display(_("Database initiliazed"), 'success')
+        msignals.display(m18n.n('mysql_db_initialized'), 'success')
 
 
 def app_ssowatconf(auth):
@@ -951,7 +964,7 @@ def app_ssowatconf(auth):
     with open('/etc/ssowat/conf.json', 'w+') as f:
         json.dump(conf_dict, f, sort_keys=True, indent=4)
 
-    msignals.display(_('SSOwat configuration generated'), 'success')
+    msignals.display(m18n.n('ssowat_conf_generated'), 'success')
 
 
 def _extract_app_from_file(path, remove=False):
@@ -968,7 +981,7 @@ def _extract_app_from_file(path, remove=False):
     """
     global app_tmp_folder
 
-    print(_('Extracting...'))
+    msignals.display(m18n.n('extracting'))
 
     if os.path.exists(app_tmp_folder): shutil.rmtree(app_tmp_folder)
     os.makedirs(app_tmp_folder)
@@ -988,7 +1001,7 @@ def _extract_app_from_file(path, remove=False):
         extract_result = 1
 
     if extract_result != 0:
-        raise MoulinetteError(22, _("Invalid install file"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('app_extraction_failed'))
 
     try:
         if len(os.listdir(app_tmp_folder)) == 1:
@@ -998,9 +1011,9 @@ def _extract_app_from_file(path, remove=False):
             manifest = json.loads(str(json_manifest.read()))
             manifest['lastUpdate'] = int(time.time())
     except IOError:
-        raise MoulinetteError(1, _("Invalid App file"))
+        raise MoulinetteError(errno.EIO, m18n.n('app_install_files_invalid'))
 
-    print(_('OK'))
+    msignals.display(m18n.n('done'))
 
     return manifest
 
@@ -1018,7 +1031,7 @@ def _fetch_app_from_git(app):
     """
     global app_tmp_folder
 
-    print(_('Downloading...'))
+    msignals.display(m18n.n('downloading'))
 
     if ('@' in app) or ('http://' in app) or ('https://' in app):
         if "github.com" in app:
@@ -1036,7 +1049,7 @@ def _fetch_app_from_git(app):
                 manifest = json.loads(str(json_manifest.read()))
                 manifest['lastUpdate'] = int(time.time())
         except IOError:
-            raise MoulinetteError(1, _("Invalid App manifest"))
+            raise MoulinetteError(errno.EIO, m18n.n('app_manifest_invalid'))
 
     else:
         app_dict = app_list(raw=True)
@@ -1046,7 +1059,7 @@ def _fetch_app_from_git(app):
             app_info['manifest']['lastUpdate'] = app_info['lastUpdate']
             manifest = app_info['manifest']
         else:
-            raise MoulinetteError(22, _("App doesn't exists"))
+            raise MoulinetteError(errno.EINVAL, m18n.n('app_unknown'))
 
         if "github.com" in app_info['git']['url']:
             url = app_info['git']['url'].replace("git@github.com:", "https://github.com/")
@@ -1063,9 +1076,9 @@ def _fetch_app_from_git(app):
         git_result_2 = os.system('cd %s && git reset --hard %s' % (app_tmp_folder, str(app_info['git']['revision'])))
 
     if not git_result == git_result_2 == 0:
-        raise MoulinetteError(22, _("Sources fetching failed"))
+        raise MoulinetteError(errno.EIO, m18n.n('app_sources_fetch_failed'))
 
-    print(_('OK'))
+    msignals.display(m18n.n('done'))
 
     return manifest
 
@@ -1134,4 +1147,3 @@ def _is_installed(app):
             continue
 
     return False
-

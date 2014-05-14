@@ -137,8 +137,8 @@ class ActionsMapParser(BaseActionsMapParser):
             # TODO: Catch errors
             auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
-                # TODO: Set proper error code
-                raise MoulinetteError(errno.EACCES, _("This action need authentication"))
+                raise MoulinetteError(errno.EACCES,
+                                      m18n.g('authentication_required_long'))
             if self.get_conf(ret._tid, 'argument_auth') and \
                self.get_conf(ret._tid, 'authenticate') == 'all':
                 ret.auth = auth
@@ -157,6 +157,12 @@ class Interface(BaseInterface):
 
     """
     def __init__(self, actionsmap):
+        import locale
+
+        # Set user locale
+        lang = locale.getdefaultlocale()[0]
+        m18n.set_locale(lang[:2])
+
         # Connect signals to handlers
         msignals.set_handler('authenticate', self._do_authenticate)
         msignals.set_handler('display', self._do_display)
@@ -177,7 +183,7 @@ class Interface(BaseInterface):
         try:
             ret = self.actionsmap.process(args, timeout=5)
         except KeyboardInterrupt, EOFError:
-            raise MoulinetteError(errno.EINTR, _("Interrupted"))
+            raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 
         if isinstance(ret, dict):
             pretty_print_dict(ret)
@@ -194,7 +200,7 @@ class Interface(BaseInterface):
 
         """
         # TODO: Allow token authentication?
-        msg = help or _("Password")
+        msg = help or m18n.g('password')
         return authenticator(password=self._do_prompt(msg, True, False))
 
     def _do_prompt(self, message, is_password, confirm):
@@ -204,14 +210,15 @@ class Interface(BaseInterface):
 
         """
         if is_password:
-            prompt = lambda m: getpass.getpass(colorize(_('%s: ') % m, 'blue'))
+            prompt = lambda m: getpass.getpass(colorize(m18n.g('colon') % m,
+                                                        'blue'))
         else:
-            prompt = lambda m: raw_input(colorize(_('%s: ') % m, 'blue'))
+            prompt = lambda m: raw_input(colorize(m18n.g('colon') % m, 'blue'))
         value = prompt(message)
 
         if confirm:
-            if prompt(_('Retype %s') % message) != value:
-                raise MoulinetteError(errno.EINVAL, _("Values don't match"))
+            if prompt('%s %s' % (m18n.g('confirm'), message)) != value:
+                raise MoulinetteError(errno.EINVAL, m18n.g('values_mismatch'))
 
         return value
 
@@ -222,8 +229,8 @@ class Interface(BaseInterface):
 
         """
         if style == 'success':
-            print('%s %s' % (colorize(_("Success!"), 'green'), message))
+            print('%s %s' % (colorize(m18n.g('success'), 'green'), message))
         elif style == 'warning':
-            print('%s %s' % (colorize(_("Warning!"), 'yellow'), message))
+            print('%s %s' % (colorize(m18n.g('warning'), 'yellow'), message))
         else:
             print(message)

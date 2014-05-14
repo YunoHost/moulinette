@@ -30,6 +30,7 @@ import re
 import getpass
 import requests
 import json
+import errno
 import apt
 import apt.progress
 
@@ -69,7 +70,7 @@ def tools_ldapinit(auth):
 
     auth.update('cn=admin', admin_dict)
 
-    msignals.display(_("LDAP has been successfully initialized"), 'success')
+    msignals.display(m18n.n('ldap_ initialized'), 'success')
 
 
 def tools_adminpw(old_password, new_password):
@@ -83,7 +84,7 @@ def tools_adminpw(old_password, new_password):
     """
     # Validate password length
     if len(new_password) < 4:
-        raise MoulinetteError(22, _("Password is too short"))
+        raise MoulinetteError(errno.EINVAL, m18n.n('password_too_short'))
 
     old_password.replace('"', '\\"')
     old_password.replace('&', '\\&')
@@ -92,9 +93,10 @@ def tools_adminpw(old_password, new_password):
     result = os.system('ldappasswd -h localhost -D cn=admin,dc=yunohost,dc=org -w "%s" -a "%s" -s "%s"' % (old_password, old_password, new_password))
 
     if result == 0:
-        msignals.display(_("Admin password has been changed"), 'success')
+        msignals.display(m18n.n('admin_password_changed'), 'success')
     else:
-        raise MoulinetteError(22, _("Invalid password"))
+        raise MoulinetteError(errno.EPERM,
+                              m18n.n('admin_password_change_failed'))
 
 
 def tools_maindomain(auth, old_domain=None, new_domain=None, dyndns=False):
@@ -165,7 +167,8 @@ def tools_maindomain(auth, old_domain=None, new_domain=None, dyndns=False):
 
     for command in command_list:
         if os.system(command) != 0:
-            raise MoulinetteError(17, _("There were a problem during domain changing"))
+            raise MoulinetteError(errno.EPERM,
+                                  m18n.n('maindomain_change_failed'))
 
     if dyndns: dyndns_subscribe(domain=new_domain)
     elif len(new_domain.split('.')) >= 3:
@@ -175,7 +178,7 @@ def tools_maindomain(auth, old_domain=None, new_domain=None, dyndns=False):
         if dyndomain in dyndomains:
             dyndns_subscribe(domain=new_domain)
 
-    msignals.display(_("Main domain has been successfully changed"), 'success')
+    msignals.display(m18n.n('maindomain_changed'), 'success')
 
 
 def tools_postinstall(domain, password, dyndns=False):
@@ -194,9 +197,9 @@ def tools_postinstall(domain, password, dyndns=False):
     try:
         with open('/etc/yunohost/installed') as f: pass
     except IOError:
-        print('Installing YunoHost')
+        msignals.display(m18n.n('yunohost_installing'))
     else:
-        raise MoulinetteError(17, _("YunoHost is already installed"))
+        raise MoulinetteError(errno.EPERM, m18n.n('yunohost_already_installed'))
 
     if len(domain.split('.')) >= 3:
         r = requests.get('http://dyndns.yunohost.org/domains')
@@ -206,7 +209,8 @@ def tools_postinstall(domain, password, dyndns=False):
             if requests.get('http://dyndns.yunohost.org/test/%s' % domain).status_code == 200:
                 dyndns=True
             else:
-                raise MoulinetteError(17, _("Domain is already taken"))
+                raise MoulinetteError(errno.EEXIST,
+                                      m18n.n('dyndns_unavailable'))
 
     # Create required folders
     folders_to_create = [
@@ -257,7 +261,8 @@ def tools_postinstall(domain, password, dyndns=False):
 
     for command in command_list:
         if os.system(command) != 0:
-            raise MoulinetteError(17, _("There were a problem during CA creation"))
+            raise MoulinetteError(errno.EPERM,
+                                  m18n.n('yunohost_ca_creation_failed'))
 
     # Initialize YunoHost LDAP base
     tools_ldapinit(auth)
@@ -277,7 +282,7 @@ def tools_postinstall(domain, password, dyndns=False):
     os.system('touch /etc/yunohost/installed')
     os.system('service yunohost-api restart &')
 
-    msignals.display(_("YunoHost has been successfully configured"), 'success')
+    msignals.display(m18n.n('yunohost_configured'), 'success')
 
 
 def tools_update(ignore_apps=False, ignore_packages=False):
@@ -296,7 +301,7 @@ def tools_update(ignore_apps=False, ignore_packages=False):
         cache = apt.Cache()
         # Update APT cache
         if not cache.update():
-            raise MoulinetteError(1, _("An error occured during APT cache update"))
+            raise MoulinetteError(errno.EPERM, m18n.n('update_cache_failed'))
 
         cache.open(None)
         cache.upgrade(True)
@@ -338,10 +343,9 @@ def tools_update(ignore_apps=False, ignore_packages=False):
                     })
     
     if len(apps) == 0 and len(packages) == 0:
-        msignals.display(_("There is nothing to upgrade right now"), 'success')
+        msignals.display(m18n.n('system_no_upgrade'), 'success')
 
     return { 'packages': packages, 'apps': apps }
-
 
 
 def tools_upgrade(ignore_apps=False, ignore_packages=False):
@@ -380,7 +384,7 @@ def tools_upgrade(ignore_apps=False, ignore_packages=False):
             app_upgrade()
         except: pass
 
-    msignals.display(_("System successfully upgraded"), 'success')
+    msignals.display(m18n.n('system_upgraded'), 'success')
 
     # Return API logs if it is an API call
     if not os.isatty(1):
