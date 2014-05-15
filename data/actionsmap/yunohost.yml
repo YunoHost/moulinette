@@ -487,10 +487,13 @@ app:
                     full: --sql
                     help: Initial SQL file
 
-       ### app_makedefault()
+        ### app_makedefault()
         makedefault:
             action_help: Redirect domain root to an app
             api: PUT /app/default
+            configuration:
+                authenticate: all
+                authenticator: ldap-anonymous
             arguments:
                 app:
                     help: App name to put on domain root

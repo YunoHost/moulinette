@@ -58,7 +58,7 @@ def app_listlists():
     except OSError:
         raise MoulinetteError(1, m18n.n('no_list_found'))
 
-    return { 'Lists' : list_list }
+    return { 'lists' : list_list }
 
 
 def app_fetchlist(url=None, name=None):
@@ -173,16 +173,16 @@ def app_list(offset=None, limit=None, filter=None, raw=False):
                         list_dict[app_id] = app_info
                     else:
                         list_dict.append({
-                            'ID': app_id,
-                            'Name': app_info['manifest']['name'],
-                            'Description': app_info['manifest']['description'],
-                            'Installed': installed
+                            'id': app_id,
+                            'name': app_info['manifest']['name'],
+                            'description': app_info['manifest']['description'],
+                            'installed': installed
                         })
                     i += 1
             else:
                break
     if not raw:
-        list_dict = { 'Apps': list_dict }
+        list_dict = { 'apps': list_dict }
     return list_dict
 
 
@@ -208,8 +208,8 @@ def app_info(app, raw=False):
             return app_info
         else:
             return {
-                'Name': app_info['manifest']['name'],
-                'Description': app_info['manifest']['description']['en'],
+                'name': app_info['manifest']['name'],
+                'description': app_info['manifest']['description']['en'],
                 #TODO: Add more infos
             }
 
@@ -655,7 +655,8 @@ def app_clearaccess(auth, apps):
 
     app_ssowatconf(auth)
 
-def app_makedefault(app, domain=None):
+
+def app_makedefault(auth, app, domain=None):
     """
     Redirect domain root to an app
 
@@ -664,6 +665,8 @@ def app_makedefault(app, domain=None):
         domain
 
     """
+    from yunohost.domain import domain_list
+
     if not _is_installed(app):
         raise MoulinetteError(errno.EINVAL, m18n.n('app_not_installed') % app)
 
@@ -675,7 +678,7 @@ def app_makedefault(app, domain=None):
 
     if domain is None:
         domain = app_domain
-    elif domain not in domain_list()['Domains']:
+    elif domain not in domain_list(auth)['domains']:
         raise MoulinetteError(errno.EINVAL, m18n.n('domain_unknown'))
 
     if '/' in app_map(raw=True)[domain]:
@@ -699,7 +702,6 @@ def app_makedefault(app, domain=None):
     os.system('chmod 644 /etc/ssowat/conf.json.persistent')
 
     msignals.display(m18n.n('ssowat_conf_updated'), 'success')
-
 
 
 def app_setting(app, key, value=None, delete=False):
@@ -901,9 +903,9 @@ def app_ssowatconf(auth):
     redirected_regex = { main_domain +'/yunohost[\/]?$': 'https://'+ main_domain +'/yunohost/sso/' }
 
     apps = {}
-    for app in app_list()['Apps']:
-        if _is_installed(app['ID']):
-            with open(apps_setting_path + app['ID'] +'/settings.yml') as f:
+    for app in app_list()['apps']:
+        if _is_installed(app['id']):
+            with open(apps_setting_path + app['id'] +'/settings.yml') as f:
                 app_settings = yaml.load(f)
                 if 'skipped_uris' in app_settings:
                     for item in app_settings['skipped_uris'].split(','):
