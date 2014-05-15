@@ -29,7 +29,6 @@ import re
 import json
 import errno
 
-from moulinette.helpers import colorize
 from moulinette.core import MoulinetteError
 
 hook_folder = '/usr/share/yunohost/hooks/'
@@ -147,13 +146,23 @@ def hook_exec(file, args=None):
                 arg_list.append(args[arg['name']])
             else:
                 if os.isatty(1) and 'ask' in arg:
-                    ask_string = arg['ask']['en'] #TODO: I18n
-                    if 'choices' in arg:
-                        ask_string = ask_string +' ('+ '|'.join(arg['choices']) +')'
-                    if 'default' in arg:
-                        ask_string = ask_string +' (default: '+ arg['default'] +')'
+                    # Retrieve proper ask string
+                    ask_string = None
+                    for lang in [m18n.locale, m18n.default_locale]:
+                        if lang in arg['ask']:
+                            ask_string = arg['ask'][lang]
+                            break
+                    if not ask_string:
+                        # Fallback to en
+                        ask_string = arg['ask']['en']
 
-                    input_string = raw_input(colorize(ask_string + ': ', 'cyan'))
+                    # Append extra strings
+                    if 'choices' in arg:
+                        ask_string += ' (%s)' % '|'.join(arg['choices'])
+                    if 'default' in arg:
+                        ask_string += ' (default: %s)' % arg['default']
+
+                    input_string = msignals.prompt(ask_string)
 
                     if input_string == '' and 'default' in arg:
                         input_string = arg['default']

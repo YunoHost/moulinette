@@ -34,7 +34,6 @@ import errno
 import apt
 import apt.progress
 
-from moulinette.helpers import validate
 from moulinette.core import MoulinetteError
 
 apps_setting_path= '/etc/yunohost/apps/'
@@ -117,8 +116,6 @@ def tools_maindomain(auth, old_domain=None, new_domain=None, dyndns=False):
 
         if not new_domain:
             return { 'current_main_domain': old_domain }
-
-    validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', old_domain)
 
     config_files = [
         '/etc/postfix/main.cf',

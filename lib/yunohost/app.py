@@ -35,7 +35,6 @@ import socket
 import urlparse
 import errno
 
-from moulinette.helpers import win_msg, random_password, is_true, validate
 from moulinette.core import MoulinetteError
 
 repo_path        = '/var/cache/yunohost/repo'
@@ -826,7 +825,6 @@ def app_checkurl(auth, url, app=None):
         path = path + '/'
 
     apps_map = app_map(raw=True)
-    validate(r'^([a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)(\.[a-zA-Z0-9]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)*(\.[a-zA-Z]{1}([a-zA-Z0-9\-]*[a-zA-Z0-9])*)$', domain)
 
     if domain not in domain_list(auth)['domains']:
         raise MoulinetteError(errno.EINVAL, m18n.n('domain_unknown'))
@@ -1149,3 +1147,35 @@ def _is_installed(app):
             continue
 
     return False
+
+
+def is_true(arg):
+    """
+    Convert a string into a boolean
+
+    Keyword arguments:
+        arg -- The string to convert
+
+    Returns:
+        Boolean
+
+    """
+    true_list = ['yes', 'Yes', 'true', 'True' ]
+    for string in true_list:
+        if arg == string:
+            return True
+    return False
+
+
+def random_password(length=8):
+    """
+    Generate a random string
+
+    Keyword arguments:
+        length -- The string length to generate
+
+    """
+    import string, random
+
+    char_set = string.ascii_uppercase + string.digits + string.ascii_lowercase
+    return ''.join(random.sample(char_set, length))
