@@ -2,7 +2,7 @@ Moulinette
 ==========
 
 The *moulinette* is a Python package that allows to quickly and easily
-deploy an application for different interfaces.
+prototype interfaces for your application.
 
 
 Overview
@@ -46,4 +46,4 @@ Requirements
 * python-bottle (>= 0.10)
 * python-gnupg (>= 0.3)
 * python-ldap (>= 2.4)
-* python-importlib
+* PyYAML

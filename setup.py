@@ -36,7 +36,7 @@ if "install" in sys.argv:
 
 setup(name='Moulinette',
       version='2.0.0',
-      description='',
+      description='Prototype interfaces quickly and easily',
       author='Yunohost Team',
       author_email='yunohost@yunohost.org',
       url='http://yunohost.org',
