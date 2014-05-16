@@ -399,7 +399,10 @@ class ActionsMapParser(BaseActionsMapParser):
 
         # Perform authentication if needed
         if self.get_conf(tid, 'authenticate'):
-            auth_conf, klass = self.get_conf(tid, 'authenticator')
+            # TODO: Clean this hard fix and find a way to set an authenticator
+            # to use for the api only
+            # auth_conf, klass = self.get_conf(tid, 'authenticator')
+            auth_conf, klass = self.get_global_conf('authenticator', 'default')
 
             # TODO: Catch errors
             auth = msignals.authenticate(klass(), **auth_conf)
