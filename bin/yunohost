@@ -28,19 +28,23 @@ if __name__ == '__main__':
         use_cache = False
         sys.argv.remove('--no-cache')
 
-    try:
-        args = list(sys.argv)
-        args.pop(0)
+    args = list(sys.argv)
+    args.pop(0)
 
-        # Check that YunoHost is installed
-        if not os.path.isfile('/etc/yunohost/installed') \
-           and (len(args) < 2 or args[1] != 'tools' or args[2] != 'postinstall'):
-            raise YunoHostError(17, _("YunoHost is not correctly installed, please execute 'yunohost tools postinstall'"))
+    # Check that YunoHost is installed
+    if not os.path.isfile('/etc/yunohost/installed') and \
+       (len(args) < 2 or args[1] != 'tools' or args[2] != 'postinstall'):
+        from moulinette.interfaces.cli import colorize, get_locale
 
-        # Execute the action
-        ret = cli(['yunohost'], args, use_cache)
-    except YunoHostError as e:
-        # TODO: Remove this and associated import when yunohost package has been revisited
-        print(colorize(_("Error: "), 'red') + e.message)
-        sys.exit(e.code)
+        # Init i18n
+        m18n.load_namespace('yunohost')
+        m18n.set_locale(get_locale())
+
+        # Print error and exit
+        print('%s %s' % (colorize(m18n.g('error'), 'red'),
+                         m18n.n('yunohost_not_installed')))
+        sys.exit(1)
+
+    # Execute the action
+    ret = cli(['yunohost'], args, use_cache)
     sys.exit(ret)

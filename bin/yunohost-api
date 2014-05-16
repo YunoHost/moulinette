@@ -47,6 +47,6 @@ if __name__ == '__main__':
             {('GET', '/installed'): is_installed}, use_cache)
     except MoulinetteError as e:
         from moulinette.interfaces.cli import colorize
-        print(_('%s: %s' % (colorize(_('Error'), 'red'), e.strerror)))
+        print('%s %s' % (colorize(m18n.g('error'), 'red'), e.strerror))
         sys.exit(e.errno)
     sys.exit(0)

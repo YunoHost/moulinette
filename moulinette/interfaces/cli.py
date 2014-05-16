@@ -4,6 +4,7 @@ import os
 import errno
 import getpass
 import argparse
+import locale
 
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
@@ -63,6 +64,10 @@ def pretty_print_dict(d, depth=0):
                 v = str(v)
             print(("  ") * depth + "%s: %s" % (str(k), v))
 
+def get_locale():
+    """Return current user locale"""
+    lang = locale.getdefaultlocale()[0]
+    return lang[:2]
 
 # CLI Classes Implementation -------------------------------------------
 
@@ -157,11 +162,8 @@ class Interface(BaseInterface):
 
     """
     def __init__(self, actionsmap):
-        import locale
-
         # Set user locale
-        lang = locale.getdefaultlocale()[0]
-        m18n.set_locale(lang[:2])
+        m18n.set_locale(get_locale())
 
         # Connect signals to handlers
         msignals.set_handler('authenticate', self._do_authenticate)
