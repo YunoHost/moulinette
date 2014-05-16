@@ -67,6 +67,8 @@ def pretty_print_dict(d, depth=0):
 def get_locale():
     """Return current user locale"""
     lang = locale.getdefaultlocale()[0]
+    if not lang:
+        return ''
     return lang[:2]
 
 # CLI Classes Implementation -------------------------------------------

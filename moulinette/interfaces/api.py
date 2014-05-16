@@ -165,12 +165,6 @@ class _ActionsMapPlugin(object):
             context -- An instance of Route
 
         """
-        try:
-            # Attempt to retrieve and set locale
-            m18n.set_locale(request.params.pop('locale'))
-        except:
-            pass
-
         def wrapper(*args, **kwargs):
             # Bring arguments together
             params = kwargs
@@ -449,8 +443,17 @@ class Interface(BaseInterface):
                 return json_encode(callback(*args, **kwargs))
             return wrapper
 
+        ## Attempt to retrieve and set locale
+        def api18n(callback):
+            try:
+                m18n.set_locale(request.params.pop('locale'))
+            except:
+                pass
+            return callback
+
         # Install plugins
         app.install(apiheader)
+        app.install(api18n)
         app.install(_ActionsMapPlugin(actionsmap))
 
         # Append default routes
