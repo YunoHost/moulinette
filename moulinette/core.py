@@ -392,7 +392,7 @@ class MoulinetteSignals(object):
             pass
 
     @staticmethod
-    def _notimplemented(**kwargs):
+    def _notimplemented(*args, **kwargs):
         raise NotImplementedError("this signal is not handled")
 
 
