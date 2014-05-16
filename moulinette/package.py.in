@@ -3,13 +3,13 @@
 # Public constants defined during build
 
 """Package's data directory (e.g. /usr/share/moulinette)"""
-datadir = %PKGDATADIR%
+datadir = '%PKGDATADIR%'
 
 """Package's library directory (e.g. /usr/lib/moulinette)"""
-libdir = %PKGLIBDIR%
+libdir = '%PKGLIBDIR%'
 
-"""Locale directory for the package (e.g. /usr/lib/moulinette/locale)"""
-localedir = %PKGLOCALEDIR%
+"""Locale directory for the package (e.g. /usr/share/moulinette/locale)"""
+localedir = '%PKGLOCALEDIR%'
 
 """Cache directory for the package (e.g. /var/cache/moulinette)"""
-cachedir = %PKGCACHEDIR%
+cachedir = '%PKGCACHEDIR%'
