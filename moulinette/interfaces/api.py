@@ -64,7 +64,9 @@ class _HTTPArgumentParser(object):
             elif isinstance(value, str):
                 if option_string is not None:
                     arg_strings.append(option_string)
-                    arg_strings.append(value)
+                    # TODO: Review this fix
+                    if value:
+                        arg_strings.append(value)
                 else:
                     arg_strings.append(value)
 
@@ -79,6 +81,7 @@ class _HTTPArgumentParser(object):
         for dest, opt in self._optional.items():
             if dest in args:
                 arg_strings = append(arg_strings, args[dest], opt[0])
+
         return self._parser.parse_args(arg_strings, namespace)
 
     def _error(self, message):
@@ -333,7 +336,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
     ## Implement virtual properties
 
-    name = 'api'
+    interface = 'api'
 
 
     ## Implement virtual methods
