@@ -39,7 +39,7 @@ class _ExtraParameter(object):
     # Each extra parameters classes can overwrite these variables.
 
     """A list of interface for which the parameter doesn't apply"""
-    skipped_iface = {}
+    skipped_iface = []
 
 
     ## Virtual methods
@@ -84,7 +84,7 @@ class AskParameter(_ExtraParameter):
 
     """
     name = 'ask'
-    skipped_iface = { 'api' }
+    skipped_iface = [ 'api' ]
 
     def __call__(self, message, arg_name, arg_value):
         # TODO: Fix asked arguments ordering
