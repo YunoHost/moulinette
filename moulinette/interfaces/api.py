@@ -162,6 +162,12 @@ class _ActionsMapPlugin(object):
             context -- An instance of Route
 
         """
+        try:
+            # Attempt to retrieve and set locale
+            m18n.set_locale(request.params.pop('locale'))
+        except:
+            pass
+
         def wrapper(*args, **kwargs):
             # Bring arguments together
             params = kwargs
