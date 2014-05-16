@@ -228,7 +228,7 @@ class _ActionsMapPlugin(object):
             response.set_cookie('session.id', s_id, secure=True)
             response.set_cookie('session.hashes', s_hashes, secure=True,
                                 secret=s_secret)
-            raise HTTPOKResponse(m18n.g('logged_in'))
+            return m18n.g('logged_in')
 
     def logout(self, profile=None):
         """Log out from an authenticator profile
@@ -250,7 +250,7 @@ class _ActionsMapPlugin(object):
             # Delete cookie and clean the session
             response.set_cookie('session.hashes', '', max_age=-1)
             clean_session(s_id)
-        raise HTTPOKResponse(m18n.g('logged_out'))
+        return m18n.g('logged_out')
 
     def process(self, _route, arguments={}):
         """Process the relevant action for the route
