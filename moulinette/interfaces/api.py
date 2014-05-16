@@ -219,7 +219,7 @@ class _ActionsMapPlugin(object):
             response.set_cookie('session.id', s_id, secure=True)
             response.set_cookie('session.hashes', s_hashes, secure=True,
                                 secret=s_secret)
-            raise HTTPOKResponse()
+            raise HTTPOKResponse(m18n.g('logged_in'))
 
     def logout(self, profile=None):
         """Log out from an authenticator profile
@@ -241,7 +241,7 @@ class _ActionsMapPlugin(object):
             # Delete cookie and clean the session
             response.set_cookie('session.hashes', '', max_age=-1)
             clean_session(s_id)
-        raise HTTPOKResponse()
+        raise HTTPOKResponse(m18n.g('logged_out'))
 
     def process(self, _route, arguments={}):
         """Process the relevant action for the route
@@ -445,8 +445,8 @@ class Interface(BaseInterface):
         app.install(_ActionsMapPlugin(actionsmap))
 
         # Append default routes
-        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
-                  callback=self.doc, skip=['actionsmap'])
+#        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
+#                  callback=self.doc, skip=['actionsmap'])
 
         # Append additional routes
         # TODO: Add optional authentication to those routes?

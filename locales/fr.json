@@ -21,6 +21,8 @@
     "authentication_profile_required" : "Authentification au profile '%s' requise",
     "operation_interrupted" : "Opération interrompue",
 
+    "logged_in" : "Connecté",
+    "logged_out" : "Déconnecté",
     "not_logged_in" : "Vous n'êtes pas connecté",
     "server_already_running" : "Un server est déjà en cours d'exécution sur ce port"
 }
