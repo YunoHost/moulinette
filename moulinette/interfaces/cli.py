@@ -168,9 +168,10 @@ class Interface(BaseInterface):
         m18n.set_locale(get_locale())
 
         # Connect signals to handlers
-        msignals.set_handler('authenticate', self._do_authenticate)
         msignals.set_handler('display', self._do_display)
-        msignals.set_handler('prompt', self._do_prompt)
+        if os.isatty(1):
+            msignals.set_handler('authenticate', self._do_authenticate)
+            msignals.set_handler('prompt', self._do_prompt)
 
         self.actionsmap = actionsmap
 
