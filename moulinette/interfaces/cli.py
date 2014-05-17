@@ -174,7 +174,7 @@ class Interface(BaseInterface):
 
         self.actionsmap = actionsmap
 
-    def run(self, args):
+    def run(self, args, print_json=False):
         """Run the moulinette
 
         Process the action corresponding to the given arguments 'args'
@@ -182,6 +182,7 @@ class Interface(BaseInterface):
 
         Keyword arguments:
             - args -- A list of argument strings
+            - print_json -- True to print result as a JSON encoded string
 
         """
         try:
@@ -189,9 +190,16 @@ class Interface(BaseInterface):
         except KeyboardInterrupt, EOFError:
             raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 
-        if isinstance(ret, dict):
+        if ret is None:
+            return
+
+        # Format and print result
+        if print_json:
+            import json
+            print(json.dumps(ret))
+        elif isinstance(ret, dict):
             pretty_print_dict(ret)
-        elif ret:
+        else:
             print(ret)
 
 
