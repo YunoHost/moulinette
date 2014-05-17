@@ -10,7 +10,8 @@
 
     "unable_authenticate" : "Unable to authenticate",
     "unable_retrieve_session" : "Unable to retrieve the session",
-    "error_ldap_operation" : "An error occured during LDAP operation",
+    "ldap_server_down" : "Unable to reach LDAP server",
+    "ldap_operation_error" : "An error occured during LDAP operation",
 
     "password" : "Password",
     "invalid_password" : "Invalid password",

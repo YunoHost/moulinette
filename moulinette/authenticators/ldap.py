@@ -66,6 +66,8 @@ class Authenticator(BaseAuthenticator):
                 con.simple_bind_s()
         except ldap.INVALID_CREDENTIALS:
             raise MoulinetteError(errno.EACCES, m18n.g('invalid_password'))
+        except ldap.SERVER_DOWN:
+            raise MoulinetteError(169, m18n.g('ldap_server_down'))
         else:
             self.con = con
 
@@ -94,7 +96,7 @@ class Authenticator(BaseAuthenticator):
         try:
             result = self.con.search_s(base, ldap.SCOPE_SUBTREE, filter, attrs)
         except:
-            raise MoulinetteError(169, m18n.g('error_ldap_operation'))
+            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
 
         result_list = []
         if not attrs or 'dn' not in attrs:
@@ -123,7 +125,7 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.add_s(dn, ldif)
         except:
-            raise MoulinetteError(169, m18n.g('error_ldap_operation'))
+            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
 
@@ -142,7 +144,7 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.delete_s(dn)
         except:
-            raise MoulinetteError(169, m18n.g('error_ldap_operation'))
+            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
 
@@ -170,7 +172,7 @@ class Authenticator(BaseAuthenticator):
 
             self.con.modify_ext_s(dn, ldif)
         except:
-            raise MoulinetteError(169, m18n.g('error_ldap_operation'))
+            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
 
