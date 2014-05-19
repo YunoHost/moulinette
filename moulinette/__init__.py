@@ -61,16 +61,19 @@ def init(**kwargs):
 
 ## Easy access to interfaces
 
-def api(namespaces, port, routes={}, use_cache=True):
+def api(namespaces, host='localhost', port=80, routes={},
+        use_websocket=True, use_cache=True):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
 
     Keyword arguments:
         - namespaces -- The list of namespaces to use
-        - port -- Port number to run on
+        - host -- Server address to bind to
+        - port -- Server port to bind to
         - routes -- A dict of additional routes to add in the form of
             {(method, uri): callback}
+        - use_websocket -- Serve via WSGI to handle asynchronous responses
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one
 
@@ -79,7 +82,7 @@ def api(namespaces, port, routes={}, use_cache=True):
                                 kwargs={'routes': routes},
                                 actionsmap={'namespaces': namespaces,
                                             'use_cache': use_cache})
-    moulinette.run(port)
+    moulinette.run(host, port, use_websocket)
 
 def cli(namespaces, args, print_json=False, use_cache=True):
     """Command line interface

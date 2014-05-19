@@ -7,7 +7,10 @@ import logging
 import binascii
 import argparse
 from json import dumps as json_encode
+
 from bottle import run, request, response, Bottle, HTTPResponse
+from gevent.queue import Queue
+from geventwebsocket import WebSocketError
 
 from moulinette.core import MoulinetteError, clean_session
 from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
@@ -105,10 +108,12 @@ class _ActionsMapPlugin(object):
     def __init__(self, actionsmap):
         # Connect signals to handlers
         msignals.set_handler('authenticate', self._do_authenticate)
+        msignals.set_handler('display', self._do_display)
 
         self.actionsmap = actionsmap
         # TODO: Save and load secrets?
         self.secrets = {}
+        self.queues = {}
 
     def setup(self, app):
         """Setup plugin on the application
@@ -150,6 +155,10 @@ class _ActionsMapPlugin(object):
                   callback=self.login, skip=['actionsmap'], apply=_login)
         app.route('/logout', name='logout', method='GET',
                   callback=self.logout, skip=['actionsmap'], apply=_logout)
+
+        # Append messages route
+        app.route('/messages', name='messages',
+                  callback=self.messages, skip=['actionsmap'])
 
         # Append routes from the actions map
         for (m, p) in self.actionsmap.parser.routes:
@@ -247,6 +256,33 @@ class _ActionsMapPlugin(object):
             clean_session(s_id)
         return m18n.g('logged_out')
 
+    def messages(self):
+        """Listen to the messages WebSocket stream
+
+        Retrieve the WebSocket stream and send to it each messages displayed by
+        the core.MoulinetteSignals.display signal. They are JSON encoded as a
+        dict { style: message }.
+
+        """
+        s_id = request.get_cookie('session.id')
+        try:
+            queue = self.queues[s_id]
+        except KeyError:
+            # Create a new queue for the session
+            queue = Queue()
+            self.queues[s_id] = queue
+
+        wsock = request.environ.get('wsgi.websocket')
+        if not wsock:
+            return HTTPErrorResponse(m18n.g('websocket_request_excepted'))
+
+        while True:
+            style, message = queue.get()
+            try:
+                wsock.send(json_encode({ style: message }))
+            except WebSocketError:
+                break
+
     def process(self, _route, arguments={}):
         """Process the relevant action for the route
 
@@ -288,6 +324,21 @@ class _ActionsMapPlugin(object):
             raise HTTPUnauthorizedResponse(msg)
         else:
             return authenticator(token=(s_id, s_hash))
+
+    def _do_display(self, message, style):
+        """Display a message
+
+        Handle the core.MoulinetteSignals.display signal.
+
+        """
+        s_id = request.get_cookie('session.id')
+        try:
+            queue = self.queues[s_id]
+        except KeyError:
+            return
+
+        # Put the message as a 2-tuple in the queue
+        queue.put_nowait((style, message))
 
 
 # HTTP Responses -------------------------------------------------------
@@ -498,18 +549,28 @@ class Interface(BaseInterface):
 
         self._app = app
 
-    def run(self, _port):
+    def run(self, host='localhost', port=80, use_websocket=True):
         """Run the moulinette
 
         Start a server instance on the given port to serve moulinette
         actions.
 
         Keyword arguments:
-            - _port -- Port number to run on
+            - host -- Server address to bind to
+            - port -- Server port to bind to
+            - use_websocket -- Serve via WSGI to handle asynchronous responses
 
         """
         try:
-            run(self._app, port=_port)
+            if use_websocket:
+                from gevent.pywsgi import WSGIServer
+                from geventwebsocket.handler import WebSocketHandler
+
+                server = WSGIServer((host, port), self._app,
+                                    handler_class=WebSocketHandler)
+                server.serve_forever()
+            else:
+                run(self._app, host=host, port=port)
         except IOError as e:
             if e.args[0] == errno.EADDRINUSE:
                 raise MoulinetteError(errno.EADDRINUSE,

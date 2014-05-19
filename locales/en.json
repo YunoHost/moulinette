@@ -25,5 +25,6 @@
     "logged_in" : "Logged in",
     "logged_out" : "Logged out",
     "not_logged_in" : "You are not logged in",
-    "server_already_running" : "A server is already running on that port"
+    "server_already_running" : "A server is already running on that port",
+    "websocket_request_excepted" : "Excepted a WebSocket request"
 }

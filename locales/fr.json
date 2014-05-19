@@ -25,5 +25,6 @@
     "logged_in" : "Connecté",
     "logged_out" : "Déconnecté",
     "not_logged_in" : "Vous n'êtes pas connecté",
-    "server_already_running" : "Un server est déjà en cours d'exécution sur ce port"
+    "server_already_running" : "Un server est déjà en cours d'exécution sur ce port",
+    "websocket_request_excepted" : "Requête WebSocket attendue"
 }
