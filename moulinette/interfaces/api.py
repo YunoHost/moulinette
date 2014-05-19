@@ -3,6 +3,7 @@
 import os
 import re
 import errno
+import logging
 import binascii
 import argparse
 from json import dumps as json_encode
@@ -321,6 +322,7 @@ class ActionsMapParser(BaseActionsMapParser):
         super(ActionsMapParser, self).__init__(parent)
 
         self._parsers = {} # dict({(method, path): _HTTPArgumentParser})
+        self._route_re = re.compile(r'(GET|POST|PUT|DELETE) (/\S+)')
 
     @property
     def routes(self):
@@ -361,23 +363,29 @@ class ActionsMapParser(BaseActionsMapParser):
             A new _HTTPArgumentParser object for the route
 
         """
+        keys = []
         try:
-            # Validate action route
-            m = re.match('(GET|POST|PUT|DELETE) (/\S+)', api)
+            # Extract action route
+            keys.append(self._extract_route(api))
         except TypeError:
-            raise AttributeError("the action '%s' doesn't provide api access" % name)
-        if not m:
-            # TODO: Log error
-            raise ValueError("the action '%s' doesn't provide api access" % name)
-
-        # Check if a parser already exists for the route
-        key = (m.group(1), m.group(2))
-        if key in self.routes:
-            raise AttributeError("a parser for '%s' already exists" % key)
+            if isinstance(api, list):
+                # Iterate over action routes
+                for r in api:
+                    try:
+                        keys.append(self._extract_route(r))
+                    except ValueError as e:
+                        logging.warning("cannot add api route '%s' for " \
+                                        "action '%s': %s" % (r, tid, str(e)))
+                        continue
+                if len(keys) == 0:
+                    raise ValueError("no valid api route found")
+            else:
+                raise AttributeError("no api route for action '%s'" % name)
 
         # Create and append parser
         parser = _HTTPArgumentParser()
-        self._parsers[key] = (tid, parser)
+        for k in keys:
+            self._parsers[k] = (tid, parser)
 
         # Return the created parser
         return parser
@@ -417,6 +425,29 @@ class ActionsMapParser(BaseActionsMapParser):
                 ret.auth = auth
 
         return parser.parse_args(args, ret)
+
+
+    ## Private methods
+
+    def _extract_route(self, string):
+        """Extract action route from a string
+
+        Extract, validate and return an action route as a 2-tuple (method, path)
+        from a string.
+
+        Keyword arguments:
+            - string -- An action route string (e.g. 'GET /')
+
+        """
+        m = self._route_re.match(string)
+        if not m:
+            raise ValueError("invalid route string '%s'" % string)
+
+        key = (m.group(1), m.group(2))
+        if key in self.routes:
+            raise ValueError("route '%s' already defined" % string)
+
+        return key
 
 
 class Interface(BaseInterface):
