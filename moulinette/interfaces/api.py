@@ -8,9 +8,11 @@ import binascii
 import argparse
 from json import dumps as json_encode
 
-from bottle import run, request, response, Bottle, HTTPResponse
+from gevent import sleep
 from gevent.queue import Queue
 from geventwebsocket import WebSocketError
+
+from bottle import run, request, response, Bottle, HTTPResponse
 
 from moulinette.core import MoulinetteError, clean_session
 from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
@@ -339,6 +341,10 @@ class _ActionsMapPlugin(object):
 
         # Put the message as a 2-tuple in the queue
         queue.put_nowait((style, message))
+
+        # Put the current greenlet to sleep for 0 second in order to
+        # populate the new message in the queue
+        sleep(0)
 
 
 # HTTP Responses -------------------------------------------------------
