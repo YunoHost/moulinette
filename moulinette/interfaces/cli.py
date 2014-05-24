@@ -31,7 +31,10 @@ def colorize(astr, color):
         - color -- Name of the color
 
     """
-    return '\033[{:d}m\033[1m{:s}\033[m'.format(colors_codes[color], astr)
+    if os.isatty(1):
+        return '\033[{:d}m\033[1m{:s}\033[m'.format(colors_codes[color], astr)
+    else:
+        return astr
 
 def pretty_print_dict(d, depth=0):
     """Print a dictionary recursively
