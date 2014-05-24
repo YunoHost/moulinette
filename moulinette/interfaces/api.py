@@ -279,11 +279,23 @@ class _ActionsMapPlugin(object):
             return HTTPErrorResponse(m18n.g('websocket_request_excepted'))
 
         while True:
-            style, message = queue.get()
+            item = queue.get()
             try:
-                wsock.send(json_encode({ style: message }))
-            except WebSocketError:
-                break
+                # Retrieve the message
+                style, message = item
+            except TypeError:
+                if item == StopIteration:
+                    # Delete the current queue and break
+                    del self.queues[s_id]
+                    break
+                logging.warning("invalid item in the messages queue: %r" % item)
+            else:
+                try:
+                    # Send the message
+                    wsock.send(json_encode({ style: message }))
+                except WebSocketError:
+                    break
+            sleep(0)
 
     def process(self, _route, arguments={}):
         """Process the relevant action for the route
@@ -303,6 +315,14 @@ class _ActionsMapPlugin(object):
             raise HTTPErrorResponse(e.strerror)
         else:
             return ret
+        finally:
+            # Close opened WebSocket by putting StopIteration in the queue
+            try:
+                queue = self.queues[request.get_cookie('session.id')]
+            except KeyError:
+                pass
+            else:
+                queue.put(StopIteration)
 
 
     ## Signals handlers
