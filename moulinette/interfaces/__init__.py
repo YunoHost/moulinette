@@ -24,6 +24,8 @@ class BaseActionsMapParser(object):
         if parent:
             self._o = parent
         else:
+            msettings['interface'] = self.interface
+
             self._o = self
             self._global_conf = {}
             self._conf = {}

@@ -50,10 +50,13 @@ def init(**kwargs):
     """
     import sys
     import __builtin__
-    from moulinette.core import Package, Moulinette18n, MoulinetteSignals
+    from moulinette.core import (
+        Package, Moulinette18n, MoulinetteSignals
+    )
     __builtin__.__dict__['pkg'] = Package(**kwargs)
     __builtin__.__dict__['m18n'] = Moulinette18n(pkg)
     __builtin__.__dict__['msignals'] = MoulinetteSignals()
+    __builtin__.__dict__['msettings'] = dict()
 
     # Add library directory to python path
     sys.path.insert(0, pkg.libdir)
