@@ -554,9 +554,10 @@ class Interface(BaseInterface):
         ## Attempt to retrieve and set locale
         def api18n(callback):
             try:
-                m18n.set_locale(request.params.pop('locale'))
-            except:
-                pass
+                locale = request.params.pop('locale')
+            except KeyError:
+                locale = m18n.default_locale
+            m18n.set_locale(locale)
             return callback
 
         # Install plugins
