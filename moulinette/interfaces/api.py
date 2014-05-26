@@ -276,7 +276,7 @@ class _ActionsMapPlugin(object):
 
         wsock = request.environ.get('wsgi.websocket')
         if not wsock:
-            return HTTPErrorResponse(m18n.g('websocket_request_excepted'))
+            raise HTTPErrorResponse(m18n.g('websocket_request_expected'))
 
         while True:
             item = queue.get()
