@@ -191,5 +191,7 @@ class Authenticator(BaseAuthenticator):
             if not self.search(filter=attr + '=' + value):
                 continue
             else:
-                raise MoulinetteError(17, 'Attribute already exists "%s=%s"' % (attr, value))
+                raise MoulinetteError(errno.EEXIST,
+                                      m18n.g('ldap_attribute_already_exists')
+                                          % (attr, value))
         return True
