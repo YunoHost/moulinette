@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# TODO: Switch to python3!
+from __future__ import print_function
+
 import os
 import errno
 import getpass
@@ -32,7 +35,7 @@ def colorize(astr, color):
 
     """
     if os.isatty(1):
-        return '\033[{:d}m\033[1m{:s}\033[m'.format(colors_codes[color], astr)
+        return u'\033[{:d}m\033[1m{:s}\033[m'.format(colors_codes[color], astr)
     else:
         return astr
 
@@ -226,10 +229,13 @@ class Interface(BaseInterface):
 
         """
         if is_password:
-            prompt = lambda m: getpass.getpass(colorize(m18n.g('colon') % m,
-                                                        'blue'))
+            def prompt(m):
+                print(colorize(m18n.g('colon') % m, 'blue'), end='')
+                return getpass.getpass()
         else:
-            prompt = lambda m: raw_input(colorize(m18n.g('colon') % m, 'blue'))
+            def prompt(m):
+                print(colorize(m18n.g('colon') % m, 'blue'), end='')
+                return raw_input()
         value = prompt(message)
 
         if confirm:

@@ -191,7 +191,7 @@ class Translator(object):
                 logging.warning("unknown key '%s' for locale '%s'" %
                         (key, self.default_locale))
                 return key
-        return value.encode('utf-8')
+        return value
 
     def _load_translations(self, locale, overwrite=False):
         """Load translations for a locale
@@ -212,7 +212,7 @@ class Translator(object):
 
         try:
             with open('%s/%s.json' % (self.locale_dir, locale), 'r') as f:
-                j = json.load(f)
+                j = json.load(f, 'utf-8')
         except IOError:
             return False
         else:
