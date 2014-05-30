@@ -251,8 +251,8 @@ class Interface(BaseInterface):
 
         """
         if style == 'success':
-            print('%s %s' % (colorize(m18n.g('success'), 'green'), message))
+            print(u'%s %s' % (colorize(m18n.g('success'), 'green'), message))
         elif style == 'warning':
-            print('%s %s' % (colorize(m18n.g('warning'), 'yellow'), message))
+            print(u'%s %s' % (colorize(m18n.g('warning'), 'yellow'), message))
         else:
             print(message)
