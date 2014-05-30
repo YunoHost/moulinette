@@ -170,7 +170,7 @@ class Translator(object):
         self.locale = locale
         return True
 
-    def translate(self, key):
+    def translate(self, key, *args, **kwargs):
         """Retrieve proper translation for a key
 
         Attempt to retrieve translation for a key using the current locale
@@ -191,7 +191,7 @@ class Translator(object):
                 logging.warning("unknown key '%s' for locale '%s'" %
                         (key, self.default_locale))
                 return key
-        return value
+        return value.format(*args, **kwargs).encode('utf-8')
 
     def _load_translations(self, locale, overwrite=False):
         """Load translations for a locale
@@ -265,7 +265,7 @@ class Moulinette18n(object):
         if self._namespace:
             self._namespace[1].set_locale(locale)
 
-    def g(self, key):
+    def g(self, key, *args, **kwargs):
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from moulinette translations
@@ -275,9 +275,9 @@ class Moulinette18n(object):
             - key -- The key to translate
 
         """
-        return self._global.translate(key)
+        return self._global.translate(key, *args, **kwargs)
 
-    def n(self, key):
+    def n(self, key, *args, **kwargs):
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from loaded namespace translations
@@ -289,7 +289,7 @@ class Moulinette18n(object):
         """
         if not self._namespace:
             raise RuntimeError("No namespace loaded for translation")
-        return self._namespace[1].translate(key)
+        return self._namespace[1].translate(key, *args, **kwargs)
 
 
 class MoulinetteSignals(object):

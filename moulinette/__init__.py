@@ -109,6 +109,6 @@ def cli(namespaces, args, print_json=False, use_cache=True):
                                                 'use_cache': use_cache})
         moulinette.run(args, print_json)
     except MoulinetteError as e:
-        print(u'%s %s' % (colorize(m18n.g('error'), 'red'), e.strerror))
+        print('%s %s' % (colorize(m18n.g('error'), 'red'), e.strerror))
         return e.errno
     return 0

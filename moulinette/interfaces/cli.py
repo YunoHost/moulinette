@@ -35,7 +35,7 @@ def colorize(astr, color):
 
     """
     if os.isatty(1):
-        return u'\033[{:d}m\033[1m{:s}\033[m'.format(colors_codes[color], astr)
+        return '\033[{:d}m\033[1m{:s}\033[m'.format(colors_codes[color], astr)
     else:
         return astr
 
@@ -230,11 +230,11 @@ class Interface(BaseInterface):
         """
         if is_password:
             def prompt(m):
-                print(colorize(m18n.g('colon') % m, 'blue'), end='')
+                print(colorize(m18n.g('colon', m), 'blue'), end='')
                 return getpass.getpass()
         else:
             def prompt(m):
-                print(colorize(m18n.g('colon') % m, 'blue'), end='')
+                print(colorize(m18n.g('colon', m), 'blue'), end='')
                 return raw_input()
         value = prompt(message)
 
@@ -250,9 +250,11 @@ class Interface(BaseInterface):
         Handle the core.MoulinetteSignals.display signal.
 
         """
+        if isinstance(message, unicode):
+            message = message.encode('utf-8')
         if style == 'success':
-            print(u'%s %s' % (colorize(m18n.g('success'), 'green'), message))
+            print('{} {}'.format(colorize(m18n.g('success'), 'green'), message))
         elif style == 'warning':
-            print(u'%s %s' % (colorize(m18n.g('warning'), 'yellow'), message))
+            print('{} {}'.format(colorize(m18n.g('warning'), 'yellow'), message))
         else:
             print(message)

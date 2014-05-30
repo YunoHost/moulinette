@@ -192,6 +192,6 @@ class Authenticator(BaseAuthenticator):
                 continue
             else:
                 raise MoulinetteError(errno.EEXIST,
-                                      m18n.g('ldap_attribute_already_exists')
-                                          % (attr, value))
+                                      m18n.g('ldap_attribute_already_exists',
+                                             attr, value))
         return True

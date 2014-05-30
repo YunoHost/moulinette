@@ -1,5 +1,5 @@
 {
-    "colon" : "%s: ",
+    "colon" : "{}: ",
 
     "success" : "Success!",
     "warning" : "Warning:",
@@ -12,7 +12,7 @@
     "unable_retrieve_session" : "Unable to retrieve the session",
     "ldap_server_down" : "Unable to reach LDAP server",
     "ldap_operation_error" : "An error occured during LDAP operation",
-    "ldap_attribute_already_exists" : "Attribute already exists: '%s=%s'",
+    "ldap_attribute_already_exists" : "Attribute already exists: '{:s}={:s}'",
 
     "password" : "Password",
     "invalid_password" : "Invalid password",
@@ -20,7 +20,7 @@
     "values_mismatch" : "Values don't match",
     "authentication_required_long" : "Authentication is required to perform this action",
     "authentication_required" : "Authentication required",
-    "authentication_profile_required" : "Authentication to profile '%s' required",
+    "authentication_profile_required" : "Authentication to profile '{:s}' required",
     "operation_interrupted" : "Operation interrupted",
 
     "logged_in" : "Logged in",
