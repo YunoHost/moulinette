@@ -17,7 +17,7 @@
     "argument_required" : "Argument {:s} is required",
     "password" : "Password",
     "invalid_password" : "Invalid password",
-    "confirm" : "Confirm",
+    "confirm" : "Confirm {:s}",
     "values_mismatch" : "Values don't match",
     "authentication_required_long" : "Authentication is required to perform this action",
     "authentication_required" : "Authentication required",

@@ -17,7 +17,7 @@
     "argument_required" : "L'argument {:s} est requis",
     "password" : "Mot de passe",
     "invalid_password" : "Mot de passe incorrect",
-    "confirm" : "Confirmez",
+    "confirm" : "Confirmez le {:s}",
     "values_mismatch" : "Les valeurs ne correspondent pas",
     "authentication_required_long" : "L'authentification est requise pour exécuter cette action",
     "authentication_required" : "Authentification requise",

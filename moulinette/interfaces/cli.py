@@ -239,7 +239,8 @@ class Interface(BaseInterface):
         value = prompt(message)
 
         if confirm:
-            if prompt('%s %s' % (m18n.g('confirm'), message)) != value:
+            m = message[0].lower() + message[1:]
+            if prompt(m18n.g('confirm', m)) != value:
                 raise MoulinetteError(errno.EINVAL, m18n.g('values_mismatch'))
 
         return value
