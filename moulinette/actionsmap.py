@@ -96,7 +96,7 @@ class AskParameter(_ExtraParameter):
 
         try:
             # Ask for the argument value
-            return msignals.prompt(message)
+            return msignals.prompt(m18n.n(message))
         except NotImplementedError:
             return arg_value
 
@@ -128,7 +128,7 @@ class PasswordParameter(AskParameter):
 
         try:
             # Ask for the password
-            return msignals.prompt(message, True, True)
+            return msignals.prompt(m18n.n(message), True, True)
         except NotImplementedError:
             return arg_value
 
@@ -146,7 +146,7 @@ class PatternParameter(_ExtraParameter):
         pattern, message = (arguments[0], arguments[1])
 
         if arg_value and not re.match(pattern, arg_value or ''):
-            raise MoulinetteError(errno.EINVAL, message)
+            raise MoulinetteError(errno.EINVAL, m18n.n(message))
         return arg_value
 
     @staticmethod
@@ -339,6 +339,10 @@ class ActionsMap(object):
             else:
                 with open('%s/actionsmap/%s.yml' % (pkg.datadir, n)) as f:
                     actionsmaps[n] = yaml.load(f)
+
+            # Load translations
+            # FIXME: Allow several namespaces in m18n
+            m18n.load_namespace(n)
 
         # Generate parsers
         self.extraparser = ExtraArgumentParser(parser.interface)

@@ -291,6 +291,10 @@ class BaseActionsMapParser(object):
         """
         if name == 'authenticator' and value:
             (identifier, configuration, parameters) = value
+            # Translate help
+            h = configuration['help']
+            if h:
+                configuration['help'] = m18n.n(h)
 
             # Return global configuration and an authenticator
             # instanciator as a 2-tuple
