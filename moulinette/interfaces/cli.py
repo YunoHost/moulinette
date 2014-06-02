@@ -219,19 +219,23 @@ class Interface(BaseInterface):
         """
         # TODO: Allow token authentication?
         msg = help or m18n.g('password')
-        return authenticator(password=self._do_prompt(msg, True, False))
+        return authenticator(password=self._do_prompt(msg, True, False,
+                                                      color='yellow'))
 
-    def _do_prompt(self, message, is_password, confirm):
+    def _do_prompt(self, message, is_password, confirm, color='blue'):
         """Prompt for a value
 
         Handle the core.MoulinetteSignals.prompt signal.
 
+        Keyword arguments:
+            - color -- The color to use for prompting message
+
         """
         if is_password:
             prompt = lambda m: getpass.getpass(colorize(m18n.g('colon', m),
-                                                        'blue'))
+                                                        color))
         else:
-            prompt = lambda m: raw_input(colorize(m18n.g('colon', m), 'blue'))
+            prompt = lambda m: raw_input(colorize(m18n.g('colon', m), color))
         value = prompt(message)
 
         if confirm:
