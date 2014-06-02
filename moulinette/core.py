@@ -191,7 +191,7 @@ class Translator(object):
                 logging.warning("unknown key '%s' for locale '%s'" %
                         (key, self.default_locale))
                 return key
-        return value.format(*args, **kwargs).encode('utf-8')
+        return value.encode('utf-8').format(*args, **kwargs)
 
     def _load_translations(self, locale, overwrite=False):
         """Load translations for a locale
