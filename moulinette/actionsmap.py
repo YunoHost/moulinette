@@ -290,7 +290,8 @@ class ExtraArgumentParser(object):
                     arg_value = parser(extra_value, arg_name, arg_value)
 
                 # Update argument value
-                args[arg_name] = arg_value
+                if arg_value is not None:
+                    args[arg_name] = arg_value
         return args
 
 
