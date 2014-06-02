@@ -237,6 +237,11 @@ class BaseActionsMapParser(object):
                 else:
                     auths = {}
                     for auth_name, auth_conf in auth.items():
+                        # Retrieve translations
+                        auth_help = auth_conf.get('help', None)
+                        if auth_help:
+                            auth_help = m18n.n(auth_help)
+
                         # Add authenticator profile as a 3-tuple
                         # (identifier, configuration, parameters) with
                         # - identifier: the authenticator vendor and its
@@ -291,10 +296,6 @@ class BaseActionsMapParser(object):
         """
         if name == 'authenticator' and value:
             (identifier, configuration, parameters) = value
-            # Translate help
-            h = configuration['help']
-            if h:
-                configuration['help'] = m18n.n(h)
 
             # Return global configuration and an authenticator
             # instanciator as a 2-tuple
