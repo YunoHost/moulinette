@@ -14,6 +14,7 @@
     "ldap_operation_error" : "Une erreur est survenue lors de l'opération LDAP",
     "ldap_attribute_already_exists" : "L'attribut existe déjà : '{:s}={:s}'",
 
+    "argument_required" : "L'argument {:s} est requis",
     "password" : "Mot de passe",
     "invalid_password" : "Mot de passe incorrect",
     "confirm" : "Confirmez",

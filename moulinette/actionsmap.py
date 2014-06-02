@@ -11,6 +11,9 @@ from collections import OrderedDict
 from moulinette.core import (MoulinetteError, MoulinetteLock)
 from moulinette.interfaces import BaseActionsMapParser
 
+GLOBAL_ARGUMENT = '_global'
+
+
 ## Extra parameters ----------------------------------------------------
 
 # Extra parameters definition
@@ -156,12 +159,34 @@ class PatternParameter(_ExtraParameter):
             raise TypeError("Invalid type of 'pattern' extra parameter for '%s' argument" % arg_name)
         return value
 
+class RequiredParameter(_ExtraParameter):
+    """
+    Check if a required argument is defined or not.
+
+    The value of this parameter must be a boolean which is set to False by
+    default.
+    """
+    name = 'required'
+
+    def __call__(self, required, arg_name, arg_value):
+        if required and (arg_value is None or arg_value == ''):
+            raise MoulinetteError(errno.EINVAL, m18n.g('argument_required',
+                                                       arg_name))
+        return arg_value
+
+    @staticmethod
+    def validate(value, arg_name):
+        if not isinstance(value, bool):
+            raise TypeError("Invalid type of 'required' extra parameter for '%s' argument" % arg_name)
+        return value
+
 """
 The list of available extra parameters classes. It will keep to this list
 order on argument parsing.
 
 """
-extraparameters_list = [AskParameter, PasswordParameter, PatternParameter]
+extraparameters_list = [ AskParameter, PasswordParameter, RequiredParameter,
+                         PatternParameter ]
 
 # Extra parameters argument Parser
 
@@ -176,6 +201,7 @@ class ExtraArgumentParser(object):
     def __init__(self, iface):
         self.iface = iface
         self.extra = OrderedDict()
+        self._extra_params = { GLOBAL_ARGUMENT: {} }
 
         # Append available extra parameters for the current interface
         for klass in extraparameters_list:
@@ -204,34 +230,62 @@ class ExtraArgumentParser(object):
 
         return parameters
 
-    def parse(self, arg_name, arg_value, parameters):
+    def add_argument(self, tid, arg_name, parameters, validate=True):
         """
-        Parse argument with extra parameters
+        Add extra parameters to apply on an action argument
 
         Keyword arguments:
+            - tid -- The tuple identifier of the action or GLOBAL_ARGUMENT
+                for global extra parameters
             - arg_name -- The argument name
-            - arg_value -- The argument value
             - parameters -- A dict of extra parameters with their values
+            - validate -- False to not validate extra parameters values
 
         """
-        # Iterate over available parameters
-        for p, klass in self.extra.items():
-            if p not in parameters.keys():
-                continue
+        if validate:
+            parameters = self.validate(arg_name, parameters)
+        try:
+            self._extra_params[tid][arg_name] = parameters
+        except KeyError:
+            self._extra_params[tid] = { arg_name: parameters }
 
-            # Initialize the extra parser
-            parser = klass(self.iface)
+    def parse_args(self, tid, args):
+        """
+        Parse arguments for an action with extra parameters
 
-            # Parse the argument
-            if isinstance(arg_value, list):
-                for v in arg_value:
-                    r = parser(parameters[p], arg_name, v)
-                    if r not in arg_value:
-                        arg_value.append(r)
-            else:
-                arg_value = parser(parameters[p], arg_name, arg_value)
+        Keyword arguments:
+            - tid -- The tuple identifier of the action
+            - args -- A dict of argument name associated to their value
 
-        return arg_value
+        """
+        extra_args = self._extra_params.get(GLOBAL_ARGUMENT, {})
+        extra_args.update(self._extra_params.get(tid, {}))
+
+        # Iterate over action arguments with extra parameters
+        for arg_name, extra_params in extra_args.items():
+            # Iterate over available extra parameters
+            for p, cls in self.extra.items():
+                try:
+                    extra_value = extra_params[p]
+                except KeyError:
+                    continue
+                arg_value = args.get(arg_name, None)
+
+                # Initialize the extra parser
+                parser = cls(self.iface)
+
+                # Parse the argument
+                if isinstance(arg_value, list):
+                    for v in arg_value:
+                        r = parser(extra_value, arg_name, v)
+                        if r not in arg_value:
+                            arg_value.append(r)
+                else:
+                    arg_value = parser(extra_value, arg_name, arg_value)
+
+                # Update argument value
+                args[arg_name] = arg_value
+        return args
 
 
 ## Main class ----------------------------------------------------------
@@ -328,11 +382,13 @@ class ActionsMap(object):
         """
         # Parse arguments
         arguments = vars(self.parser.parse_args(args, **kwargs))
-        for an, parameters in (arguments.pop('_extra', {})).items():
-            arguments[an] = self.extraparser.parse(an, arguments[an], parameters)
+
+        # Retrieve tid and parse arguments with extra parameters
+        tid = arguments.pop('_tid')
+        arguments = self.extraparser.parse_args(tid, arguments)
 
         # Retrieve action information
-        namespace, category, action = arguments.pop('_tid')
+        namespace, category, action = tid
         func_name = '%s_%s' % (category, action.replace('-', '_'))
 
         # Lock the moulinette for the namespace
@@ -414,13 +470,12 @@ class ActionsMap(object):
         """
         ## Get extra parameters
         if not self.use_cache:
-            _get_extra = lambda an, e: self.extraparser.validate(an, e)
+            validate_extra = True
         else:
-            _get_extra = lambda an, e: e
+            validate_extra = False
 
         ## Add arguments to the parser
-        def _add_arguments(parser, arguments):
-            extras = {}
+        def _add_arguments(tid, parser, arguments):
             for argn, argp in arguments.items():
                 names = top_parser.format_arg_names(argn,
                                                     argp.pop('full', None))
@@ -430,12 +485,11 @@ class ActionsMap(object):
                 try:
                     extra = argp.pop('extra')
                     arg_dest = (parser.add_argument(*names, **argp)).dest
-                    extras[arg_dest] = _get_extra(arg_dest, extra)
+                    self.extraparser.add_argument(tid, arg_dest, extra,
+                                                  validate_extra)
                 except KeyError:
                     # No extra parameters
                     parser.add_argument(*names, **argp)
-            if extras:
-                parser.set_defaults(_extra=extras)
 
         # Instantiate parser
         top_parser = self._parser_class()
@@ -460,7 +514,8 @@ class ActionsMap(object):
                     pass
                 else:
                     # Add arguments
-                    _add_arguments(parser, _global['arguments'])
+                    _add_arguments(GLOBAL_ARGUMENT, parser,
+                                   _global['arguments'])
 
             # -- Parse categories
             for cn, cp in actionsmap.items():
@@ -497,7 +552,7 @@ class ActionsMap(object):
                     else:
                         # Store action identifier and add arguments
                         parser.set_defaults(_tid=tid)
-                        _add_arguments(parser, args)
+                        _add_arguments(tid, parser, args)
                         _set_conf(cat_parser)
 
         return top_parser
