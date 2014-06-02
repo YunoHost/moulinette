@@ -145,7 +145,13 @@ class PatternParameter(_ExtraParameter):
     def __call__(self, arguments, arg_name, arg_value):
         pattern, message = (arguments[0], arguments[1])
 
-        if arg_value and not re.match(pattern, arg_value or ''):
+        # Use temporarly utf-8 encoded value
+        try:
+            v = unicode(arg_value, 'utf-8')
+        except:
+            v = arg_value
+
+        if v and not re.match(pattern, v or '', re.UNICODE):
             raise MoulinetteError(errno.EINVAL, m18n.n(message))
         return arg_value
 
