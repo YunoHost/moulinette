@@ -237,11 +237,6 @@ class BaseActionsMapParser(object):
                 else:
                     auths = {}
                     for auth_name, auth_conf in auth.items():
-                        # Retrieve translations
-                        auth_help = auth_conf.get('help', None)
-                        if auth_help:
-                            auth_help = m18n.n(auth_help)
-
                         # Add authenticator profile as a 3-tuple
                         # (identifier, configuration, parameters) with
                         # - identifier: the authenticator vendor and its

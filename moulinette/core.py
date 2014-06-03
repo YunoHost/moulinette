@@ -350,6 +350,13 @@ class MoulinetteSignals(object):
         """
         if authenticator.is_authenticated:
             return authenticator
+
+        # Retrieve help translation since it's not loaded yet
+        if help:
+            try:
+                help = m18n.n(help)
+            except: pass
+
         return self._authenticate(authenticator, help)
 
     def prompt(self, message, is_password=False, confirm=False):
