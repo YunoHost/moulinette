@@ -288,7 +288,9 @@ class Moulinette18n(object):
 
         """
         if not self._namespace:
-            raise RuntimeError("No namespace loaded for translation")
+            logging.error("attempt to retrieve translation for key '%s' " \
+                          "but no namespace is loaded" % key)
+            return key
         return self._namespace[1].translate(key, *args, **kwargs)
 
 
@@ -353,10 +355,7 @@ class MoulinetteSignals(object):
 
         # Retrieve help translation since it's not loaded yet
         if help:
-            try:
-                help = m18n.n(help)
-            except: pass
-
+            help = m18n.n(help)
         return self._authenticate(authenticator, help)
 
     def prompt(self, message, is_password=False, confirm=False):
