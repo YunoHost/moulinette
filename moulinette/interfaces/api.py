@@ -579,7 +579,7 @@ class Interface(BaseInterface):
     """
     def __init__(self, actionsmap, routes={}):
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
-        app = Bottle(autojson=False)
+        app = Bottle(autojson=True)
 
         ## Wrapper which sets proper header
         def apiheader(callback):
