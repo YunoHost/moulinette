@@ -223,9 +223,7 @@ class _ActionsMapPlugin(object):
             if len(s_hashes) > 0:
                 try: self.logout(profile)
                 except: pass
-            if e.errno == errno.EACCES:
-                raise HTTPUnauthorizedResponse(e.strerror)
-            raise HTTPErrorResponse(e.strerror)
+            raise error_to_response(e)
         else:
             # Update dicts with new values
             s_hashes[profile] = s_hash
@@ -312,9 +310,9 @@ class _ActionsMapPlugin(object):
         try:
             ret = self.actionsmap.process(arguments, route=_route)
         except MoulinetteError as e:
-            raise HTTPErrorResponse(e.strerror)
+            raise error_to_response(e)
         else:
-            return ret
+            return format_for_response(ret)
         finally:
             # Close opened WebSocket by putting StopIteration in the queue
             try:
@@ -382,9 +380,49 @@ class HTTPUnauthorizedResponse(HTTPResponse):
     def __init__(self, output=''):
         super(HTTPUnauthorizedResponse, self).__init__(output, 401)
 
+class HTTPForbiddenResponse(HTTPResponse):
+    def __init__(self, output=''):
+        super(HTTPForbiddenResponse, self).__init__(output, 403)
+
 class HTTPErrorResponse(HTTPResponse):
     def __init__(self, output=''):
         super(HTTPErrorResponse, self).__init__(output, 500)
+
+def error_to_response(error):
+    """Convert a MoulinetteError to relevant HTTP response."""
+    if error.errno == errno.EPERM:
+        return HTTPForbiddenResponse(error.strerror)
+    elif error.errno == errno.EACCESS:
+        return HTTPUnauthorizedResponse(error.strerror)
+    # Client-side error
+    elif error.errno in [ errno.ENOENT, errno.ESRCH, errno.ENXIO, errno.EEXIST,
+            errno.ENODEV, errno.EINVAL, errno.ENOPKG, errno.EDESTADDRREQ ]:
+        return HTTPBadRequestResponse(error.strerror)
+    # Server-side error
+    elif error.errno in [ errno.EIO, errno.EBUSY, errno.ENODATA, errno.EINTR,
+            errno.ENETUNREACH ]:
+        return HTTPErrorResponse(error.strerror)
+    else:
+        logging.debug('unknown relevant response for error number %d - %s'
+            % (error.errno, error.strerror))
+        return HTTPErrorResponse(error.strerror)
+
+def format_for_response(content):
+    """Format the resulted content of a request for the HTTP response."""
+    if request.method == 'POST':
+        response.status = 201  # Created
+    elif request.method == 'GET':
+        response.status = 200  # Ok
+    else:
+        # Return empty string if no content
+        if content is None or len(content) == 0:
+            response.status = 204  # No Content
+            return ''
+        response.status = 200
+
+    # Return JSON-style response
+    response.content_type = 'application/json'
+    return json_encode(content)
 
 
 # API Classes Implementation -------------------------------------------
@@ -482,7 +520,6 @@ class ActionsMapParser(BaseActionsMapParser):
             raise MoulinetteError(errno.EINVAL, "No parser found for route '%s'" % route)
         ret = argparse.Namespace()
 
-        
         if not self.get_conf(tid, 'lock'):
             os.environ['BYPASS_LOCK'] = 'yes'
 
@@ -547,9 +584,8 @@ class Interface(BaseInterface):
         ## Wrapper which sets proper header
         def apiheader(callback):
             def wrapper(*args, **kwargs):
-                response.content_type = 'application/json'
                 response.set_header('Access-Control-Allow-Origin', '*')
-                return json_encode(callback(*args, **kwargs))
+                return callback(*args, **kwargs)
             return wrapper
 
         ## Attempt to retrieve and set locale
