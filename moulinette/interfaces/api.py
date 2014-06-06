@@ -392,7 +392,7 @@ def error_to_response(error):
     """Convert a MoulinetteError to relevant HTTP response."""
     if error.errno == errno.EPERM:
         return HTTPForbiddenResponse(error.strerror)
-    elif error.errno == errno.EACCESS:
+    elif error.errno == errno.EACCES:
         return HTTPUnauthorizedResponse(error.strerror)
     # Client-side error
     elif error.errno in [ errno.ENOENT, errno.ESRCH, errno.ENXIO, errno.EEXIST,
