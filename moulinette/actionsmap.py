@@ -152,7 +152,8 @@ class PatternParameter(_ExtraParameter):
             v = arg_value
 
         if v and not re.match(pattern, v or '', re.UNICODE):
-            raise MoulinetteError(errno.EINVAL, m18n.n(message))
+            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_argument',
+                                        arg_name, m18n.n(message)))
         return arg_value
 
     @staticmethod
