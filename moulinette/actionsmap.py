@@ -264,7 +264,7 @@ class ExtraArgumentParser(object):
             - args -- A dict of argument name associated to their value
 
         """
-        extra_args = self._extra_params.get(GLOBAL_ARGUMENT, {})
+        extra_args = dict(self._extra_params.get(GLOBAL_ARGUMENT, {}))
         extra_args.update(self._extra_params.get(tid, {}))
 
         # Iterate over action arguments with extra parameters
