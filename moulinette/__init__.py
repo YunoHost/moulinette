@@ -82,10 +82,11 @@ def api(namespaces, host='localhost', port=80, routes={},
 
     """
     moulinette = init_interface('api',
-                                kwargs={'routes': routes},
-                                actionsmap={'namespaces': namespaces,
-                                            'use_cache': use_cache})
-    moulinette.run(host, port, use_websocket)
+                                kwargs={ 'routes': routes,
+                                         'use_websocket': use_websocket },
+                                actionsmap={ 'namespaces': namespaces,
+                                             'use_cache': use_cache })
+    moulinette.run(host, port)
 
 def cli(namespaces, args, print_json=False, use_cache=True):
     """Command line interface

@@ -102,17 +102,21 @@ class _ActionsMapPlugin(object):
 
     Keyword arguments:
         - actionsmap -- An ActionsMap instance
+        - use_websocket -- If true, install a WebSocket on /messages in order
+            to serve messages coming from the 'display' signal
 
     """
     name = 'actionsmap'
     api = 2
 
-    def __init__(self, actionsmap):
+    def __init__(self, actionsmap, use_websocket):
         # Connect signals to handlers
         msignals.set_handler('authenticate', self._do_authenticate)
-        msignals.set_handler('display', self._do_display)
+        if use_websocket:
+            msignals.set_handler('display', self._do_display)
 
         self.actionsmap = actionsmap
+        self.use_websocket = use_websocket
         # TODO: Save and load secrets?
         self.secrets = {}
         self.queues = {}
@@ -159,8 +163,9 @@ class _ActionsMapPlugin(object):
                   callback=self.logout, skip=['actionsmap'], apply=_logout)
 
         # Append messages route
-        app.route('/messages', name='messages',
-                  callback=self.messages, skip=['actionsmap'])
+        if self.use_websocket:
+            app.route('/messages', name='messages',
+                      callback=self.messages, skip=['actionsmap'])
 
         # Append routes from the actions map
         for (m, p) in self.actionsmap.parser.routes:
@@ -575,9 +580,12 @@ class Interface(BaseInterface):
         - actionsmap -- The ActionsMap instance to connect to
         - routes -- A dict of additional routes to add in the form of
             {(method, path): callback}
+        - use_websocket -- Serve via WSGI to handle asynchronous responses
 
     """
-    def __init__(self, actionsmap, routes={}):
+    def __init__(self, actionsmap, routes={}, use_websocket=True):
+        self.use_websocket = use_websocket
+
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
 
@@ -600,7 +608,7 @@ class Interface(BaseInterface):
         # Install plugins
         app.install(apiheader)
         app.install(api18n)
-        app.install(_ActionsMapPlugin(actionsmap))
+        app.install(_ActionsMapPlugin(actionsmap, use_websocket))
 
         # Append default routes
 #        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
@@ -613,7 +621,7 @@ class Interface(BaseInterface):
 
         self._app = app
 
-    def run(self, host='localhost', port=80, use_websocket=True):
+    def run(self, host='localhost', port=80):
         """Run the moulinette
 
         Start a server instance on the given port to serve moulinette
@@ -622,11 +630,10 @@ class Interface(BaseInterface):
         Keyword arguments:
             - host -- Server address to bind to
             - port -- Server port to bind to
-            - use_websocket -- Serve via WSGI to handle asynchronous responses
 
         """
         try:
-            if use_websocket:
+            if self.use_websocket:
                 from gevent.pywsgi import WSGIServer
                 from geventwebsocket.handler import WebSocketHandler
 
