@@ -254,7 +254,7 @@ class ExtraArgumentParser(object):
         try:
             self._extra_params[tid][arg_name] = parameters
         except KeyError:
-            self._extra_params[tid] = { arg_name: parameters }
+            self._extra_params[tid] = OrderedDict({ arg_name: parameters })
 
     def parse_args(self, tid, args):
         """
@@ -265,7 +265,7 @@ class ExtraArgumentParser(object):
             - args -- A dict of argument name associated to their value
 
         """
-        extra_args = dict(self._extra_params.get(GLOBAL_ARGUMENT, {}))
+        extra_args = OrderedDict(self._extra_params.get(GLOBAL_ARGUMENT, {}))
         extra_args.update(self._extra_params.get(tid, {}))
 
         # Iterate over action arguments with extra parameters
@@ -297,6 +297,15 @@ class ExtraArgumentParser(object):
 
 
 ## Main class ----------------------------------------------------------
+
+def ordered_yaml_load(stream):
+    class OrderedLoader(yaml.Loader):
+        pass
+    OrderedLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+        lambda loader, node: OrderedDict(loader.construct_pairs(node)))
+    return yaml.load(stream, OrderedLoader)
+
 
 class ActionsMap(object):
     """Validate and process actions defined into an actions map
@@ -346,7 +355,7 @@ class ActionsMap(object):
                     break
             else:
                 with open('%s/actionsmap/%s.yml' % (pkg.datadir, n)) as f:
-                    actionsmaps[n] = yaml.load(f)
+                    actionsmaps[n] = ordered_yaml_load(f)
 
             # Load translations
             # FIXME: Allow several namespaces in m18n
