@@ -52,4 +52,7 @@ class NonBlockingStreamReader:
 
     def close(self):
         """Close the stream"""
-        self._s.close()
+        try:
+            self._s.close()
+        except IOError:
+            pass
