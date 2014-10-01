@@ -145,4 +145,10 @@ class BaseAuthenticator(object):
         else:
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'
-            return str(gpg.decrypt(enc_pwd, passphrase=session_hash))
+
+            decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
+            if decrypted.ok != True:
+                # TODO: Log decrypted.status
+                raise MoulinetteError(errno.EINVAL,
+                                      m18r.g('unable_retrieve_session'))
+            return decrypted.data
