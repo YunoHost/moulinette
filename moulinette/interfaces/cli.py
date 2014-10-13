@@ -257,5 +257,7 @@ class Interface(BaseInterface):
             print('{} {}'.format(colorize(m18n.g('success'), 'green'), message))
         elif style == 'warning':
             print('{} {}'.format(colorize(m18n.g('warning'), 'yellow'), message))
+        elif style == 'error':
+            print('{} {}'.format(colorize(m18n.g('error'), 'red'), message))
         else:
             print(message)
