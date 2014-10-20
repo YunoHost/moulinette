@@ -34,7 +34,7 @@ from moulinette.core import init_interface, MoulinetteError
 
 ## Package functions
 
-def init(**kwargs):
+def init(logging_config=None, **kwargs):
     """Package initialization
 
     Initialize directories and global variables. It must be called
@@ -42,6 +42,7 @@ def init(**kwargs):
     functions.
 
     Keyword arguments:
+        - logging_config -- A dict containing logging configuration to load
         - **kwargs -- See core.Package
 
     At the end, the global variable 'pkg' will contain a Package
@@ -53,6 +54,11 @@ def init(**kwargs):
     from moulinette.core import (
         Package, Moulinette18n, MoulinetteSignals
     )
+    from moulinette.utils.log import configure_logging
+
+    configure_logging(logging_config)
+
+    # Define and instantiate global objects
     __builtin__.__dict__['pkg'] = Package(**kwargs)
     __builtin__.__dict__['m18n'] = Moulinette18n(pkg)
     __builtin__.__dict__['msignals'] = MoulinetteSignals()

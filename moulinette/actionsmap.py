@@ -6,12 +6,16 @@ import errno
 import logging
 import yaml
 import cPickle as pickle
+from time import time
 from collections import OrderedDict
 
 from moulinette.core import (MoulinetteError, MoulinetteLock)
 from moulinette.interfaces import BaseActionsMapParser
+from moulinette.utils.log import start_action_logging
 
 GLOBAL_ARGUMENT = '_global'
+
+logger = logging.getLogger('moulinette.actionsmap')
 
 
 ## Extra parameters ----------------------------------------------------
@@ -423,9 +427,19 @@ class ActionsMap(object):
                 raise ImportError("Unable to load function %s.%s/%s"
                         % (namespace, category, func_name))
             else:
+                log_id = start_action_logging()
+                logger.info('processing action [%s]: %s.%s.%s with args=%s',
+                            log_id, namespace, category, action, arguments)
+
                 # Load translation and process the action
                 m18n.load_namespace(namespace)
-                return func(**arguments)
+                start = time()
+                try:
+                    return func(**arguments)
+                finally:
+                    stop = time()
+                    logger.debug('action [%s] ended after %.3fs',
+                                 log_id, stop - start)
 
     @staticmethod
     def get_namespaces():
