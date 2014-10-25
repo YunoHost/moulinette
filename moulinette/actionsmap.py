@@ -94,7 +94,6 @@ class AskParameter(_ExtraParameter):
     skipped_iface = [ 'api' ]
 
     def __call__(self, message, arg_name, arg_value):
-        # TODO: Fix asked arguments ordering
         if arg_value:
             return arg_value
 
@@ -106,14 +105,14 @@ class AskParameter(_ExtraParameter):
 
     @classmethod
     def validate(klass, value, arg_name):
-        # Allow boolean or empty string
+        # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logging.debug("value of '%s' extra parameter for '%s' argument should be a string" \
-                % (klass.name, arg_name))
+            logger.warning("expecting a string for extra parameter '%s' of " \
+                           "argument '%s'", klass.name, arg_name)
             value = arg_name
         elif not isinstance(value, str):
-            raise TypeError("Invalid type of '%s' extra parameter for '%s' argument" \
-                % (klass.name, arg_name))
+            raise TypeError("parameter value must be a string, got %r" \
+                                % value)
         return value
 
 class PasswordParameter(AskParameter):
@@ -156,18 +155,28 @@ class PatternParameter(_ExtraParameter):
             v = arg_value
 
         if v and not re.match(pattern, v or '', re.UNICODE):
+            logger.debug("argument value '%s' for '%s' doesn't match pattern '%s'",
+                         v, arg_name, pattern)
+
+            # Attempt to retrieve message translation
+            msg = m18n.n(message)
+            if msg == message:
+                msg = m18n.g(message)
+
             raise MoulinetteError(errno.EINVAL, m18n.g('invalid_argument',
-                                        arg_name, m18n.n(message)))
+                                        arg_name, msg))
         return arg_value
 
     @staticmethod
     def validate(value, arg_name):
-        # Tolerate string type
+        # Deprecated string type
         if isinstance(value, str):
-            logging.warning("value of 'pattern' extra parameter for '%s' argument should be a list" % arg_name)
-            value = [value, _("'%s' argument is not matching the pattern") % arg_name]
+            logger.warning("expecting a list for extra parameter 'pattern' of " \
+                           "argument '%s'", arg_name)
+            value = [value, 'pattern_not_match']
         elif not isinstance(value, list) or len(value) != 2:
-            raise TypeError("Invalid type of 'pattern' extra parameter for '%s' argument" % arg_name)
+            raise TypeError("parameter value must be a list, got %r" \
+                                % value)
         return value
 
 class RequiredParameter(_ExtraParameter):
@@ -181,6 +190,8 @@ class RequiredParameter(_ExtraParameter):
 
     def __call__(self, required, arg_name, arg_value):
         if required and (arg_value is None or arg_value == ''):
+            logger.debug("argument '%s' is required",
+                         v, arg_name, pattern)
             raise MoulinetteError(errno.EINVAL, m18n.g('argument_required',
                                                        arg_name))
         return arg_value
@@ -188,7 +199,8 @@ class RequiredParameter(_ExtraParameter):
     @staticmethod
     def validate(value, arg_name):
         if not isinstance(value, bool):
-            raise TypeError("Invalid type of 'required' extra parameter for '%s' argument" % arg_name)
+            raise TypeError("parameter value must be a list, got %r" \
+                                % value)
         return value
 
 """
@@ -219,6 +231,7 @@ class ExtraArgumentParser(object):
             if iface in klass.skipped_iface:
                 continue
             self.extra[klass.name] = klass
+        logger.debug('extra parameter classes loaded: %s', self.extra.keys())
 
     def validate(self, arg_name, parameters):
         """
@@ -236,8 +249,13 @@ class ExtraArgumentParser(object):
                 # Remove unknown parameters
                 del parameters[p]
             else:
-                # Validate parameter value
-                parameters[p] = klass.validate(v, arg_name)
+                try:
+                    # Validate parameter value
+                    parameters[p] = klass.validate(v, arg_name)
+                except Exception as e:
+                    logger.error("unable to validate extra parameter '%s' " \
+                                 "for argument '%s': %s", p, arg_name, e)
+                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         return parameters
 
@@ -332,12 +350,10 @@ class ActionsMap(object):
 
     """
     def __init__(self, parser, namespaces=[], use_cache=True):
-        self.use_cache = use_cache
         if not issubclass(parser, BaseActionsMapParser):
             raise ValueError("Invalid parser class '%s'" % parser.__name__)
         self._parser_class = parser
-
-        logging.debug("initializing ActionsMap for the interface '%s'" % parser.interface)
+        self.use_cache = use_cache
 
         if len(namespaces) == 0:
             namespaces = self.get_namespaces()
@@ -345,7 +361,7 @@ class ActionsMap(object):
 
         # Iterate over actions map namespaces
         for n in namespaces:
-            logging.debug("loading '%s' actions map namespace" % n)
+            logger.debug("loading actions map namespace '%s'", n)
 
             if use_cache:
                 try:
@@ -424,12 +440,18 @@ class ActionsMap(object):
                                  fromlist=[func_name])
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
-                raise ImportError("Unable to load function %s.%s/%s"
-                        % (namespace, category, func_name))
+                logger.exception("unable to load function %s.%s.%s",
+                                 namespace, category, func_name)
+                raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
             else:
                 log_id = start_action_logging()
-                logger.info('processing action [%s]: %s.%s.%s with args=%s',
-                            log_id, namespace, category, action, arguments)
+                if logger.isEnabledFor(logging.DEBUG):
+                    # Log arguments in debug mode only for safety reasons
+                    logger.info('processing action [%s]: %s.%s.%s with args=%s',
+                                log_id, namespace, category, action, arguments)
+                else:
+                    logger.info('processing action [%s]: %s.%s.%s',
+                                log_id, namespace, category, action)
 
                 # Load translation and process the action
                 m18n.load_namespace(namespace)
@@ -475,7 +497,7 @@ class ActionsMap(object):
 
         # Iterate over actions map namespaces
         for n in namespaces:
-            logging.debug("generating cache for '%s' actions map namespace" % n)
+            logger.debug("generating cache for actions map namespace '%s'", n)
 
             # Read actions map from yaml file
             am_file = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
@@ -558,7 +580,8 @@ class ActionsMap(object):
                     actions = cp.pop('actions')
                 except KeyError:
                     # Invalid category without actions
-                    logging.warning("no actions found in category '%s'" % cn)
+                    logger.warning("no actions found in category '%s' in " \
+                                   "namespace '%s'", cn, n)
                     continue
 
                 # Get category parser
@@ -582,7 +605,8 @@ class ActionsMap(object):
                         # No parser for the action
                         continue
                     except ValueError as e:
-                        logging.warning("cannot add action (%s, %s, %s): %s" % (n, cn, an, e))
+                        logger.warning("cannot add action (%s, %s, %s): %s",
+                                       n, cn, an, e)
                         continue
                     else:
                         # Store action identifier and add arguments

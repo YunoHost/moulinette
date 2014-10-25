@@ -5,6 +5,9 @@ import logging
 
 from moulinette.core import (init_authenticator, MoulinetteError)
 
+logger = logging.getLogger('moulinette.interface')
+
+
 # Base Class -----------------------------------------------------------
 
 class BaseActionsMapParser(object):
@@ -24,6 +27,8 @@ class BaseActionsMapParser(object):
         if parent:
             self._o = parent
         else:
+            logger.debug('initializing base actions map parser for %s',
+                         self.interface)
             msettings['interface'] = self.interface
 
             self._o = self
@@ -216,8 +221,9 @@ class BaseActionsMapParser(object):
                 # Store only if authentication is needed
                 conf['authenticate'] = True if self.interface in ifaces else False
             else:
-                # TODO: Log error instead and tell valid values
-                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'authenticate'" % ifaces)
+                logger.error("expecting 'all', 'False' or a list for " \
+                             "configuration 'authenticate', got %r", ifaces)
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         # -- 'authenticator'
         try:
@@ -230,10 +236,13 @@ class BaseActionsMapParser(object):
                     # Store needed authenticator profile
                     conf['authenticator'] = self.global_conf['authenticator'][auth]
                 except KeyError:
-                    raise MoulinetteError(errno.EINVAL, "Undefined authenticator '%s' in global configuration" % auth)
+                    logger.error("requesting profile '%s' which is undefined in " \
+                                 "global configuration of 'authenticator'", auth)
+                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
             elif is_global and isinstance(auth, dict):
                 if len(auth) == 0:
-                    logging.warning('no authenticator defined in global configuration')
+                    logger.warning('no profile defined in global configuration ' \
+                                   "for 'authenticator'")
                 else:
                     auths = {}
                     for auth_name, auth_conf in auth.items():
@@ -250,8 +259,9 @@ class BaseActionsMapParser(object):
                                             auth_conf.get('parameters', {}))
                     conf['authenticator'] = auths
             else:
-                # TODO: Log error instead and tell valid values
-                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'authenticator'" % auth)
+                logger.error("expecting a dict of profile(s) or a profile name " \
+                             "for configuration 'authenticator', got %r", auth)
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         # -- 'argument_auth'
         try:
@@ -262,8 +272,9 @@ class BaseActionsMapParser(object):
             if isinstance(arg_auth, bool):
                 conf['argument_auth'] = arg_auth
             else:
-                # TODO: Log error instead and tell valid values
-                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'argument_auth'" % arg_auth)
+                logger.error("expecting a boolean for configuration " \
+                             "'argument_auth', got %r", arg_auth)
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         # -- 'lock'
         try:
@@ -274,7 +285,9 @@ class BaseActionsMapParser(object):
             if isinstance(lock, bool):
                 conf['lock'] = lock
             else:
-                raise MoulinetteError(errno.EINVAL, "Invalid value '%r' for configuration 'lock'" % lock)
+                logger.error("expecting a boolean for configuration 'lock', " \
+                             "got %r", lock)
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         return conf
 

@@ -17,6 +17,9 @@ from bottle import run, request, response, Bottle, HTTPResponse
 from moulinette.core import MoulinetteError, clean_session
 from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
 
+logger = logging.getLogger('moulinette.interface.api')
+
+
 # API helpers ----------------------------------------------------------
 
 def random_ascii(length=20):
@@ -291,7 +294,7 @@ class _ActionsMapPlugin(object):
                     # Delete the current queue and break
                     del self.queues[s_id]
                     break
-                logging.warning("invalid item in the messages queue: %r" % item)
+                logger.exception("invalid item in the messages queue: %r", item)
             else:
                 try:
                     # Send the message
@@ -408,8 +411,8 @@ def error_to_response(error):
             errno.ENETUNREACH ]:
         return HTTPErrorResponse(error.strerror)
     else:
-        logging.debug('unknown relevant response for error number %d - %s'
-            % (error.errno, error.strerror))
+        logger.debug('unknown relevant response for error [%s] %s',
+                     error.errno, error.strerror)
         return HTTPErrorResponse(error.strerror)
 
 def format_for_response(content):
@@ -495,8 +498,8 @@ class ActionsMapParser(BaseActionsMapParser):
                     try:
                         keys.append(self._extract_route(r))
                     except ValueError as e:
-                        logging.warning("cannot add api route '%s' for " \
-                                        "action '%s': %s" % (r, tid, str(e)))
+                        logger.warning("cannot add api route '%s' for " \
+                                       "action %s: %s", r, tid, e)
                         continue
                 if len(keys) == 0:
                     raise ValueError("no valid api route found")
@@ -522,7 +525,8 @@ class ActionsMapParser(BaseActionsMapParser):
             # Retrieve the tid and the parser for the route
             tid, parser = self._parsers[route]
         except KeyError:
-            raise MoulinetteError(errno.EINVAL, "No parser found for route '%s'" % route)
+            logger.error("no argument parser found for route '%s'", route)
+            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
         ret = argparse.Namespace()
 
         if not self.get_conf(tid, 'lock'):
@@ -538,7 +542,6 @@ class ActionsMapParser(BaseActionsMapParser):
             # TODO: Catch errors
             auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
-                # TODO: Set proper error code
                 raise MoulinetteError(errno.EACCES, m18n.g('authentication_required_long'))
             if self.get_conf(tid, 'argument_auth') and \
                self.get_conf(tid, 'authenticate') == 'all':
@@ -632,6 +635,9 @@ class Interface(BaseInterface):
             - port -- Server port to bind to
 
         """
+        logger.debug("starting the server instance in %s:%d with websocket=%s",
+                     host, port, self.use_websocket)
+
         try:
             if self.use_websocket:
                 from gevent.pywsgi import WSGIServer
@@ -643,10 +649,12 @@ class Interface(BaseInterface):
             else:
                 run(self._app, host=host, port=port)
         except IOError as e:
+            logger.exception("unable to start the server instance on %s:%d",
+                             host, port)
             if e.args[0] == errno.EADDRINUSE:
                 raise MoulinetteError(errno.EADDRINUSE,
                                       m18n.g('server_already_running'))
-            raise
+            raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
 
 
     ## Routes handlers

@@ -3,11 +3,15 @@
 # TODO: Use Python3 to remove this fix!
 from __future__ import absolute_import
 import errno
+import logging
 import ldap
 import ldap.modlist as modlist
 
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
+
+logger = logging.getLogger('moulinette.authenticator.ldap')
+
 
 # LDAP Class Implementation --------------------------------------------
 
@@ -25,6 +29,8 @@ class Authenticator(BaseAuthenticator):
 
     """
     def __init__(self, name, uri, base_dn, user_rdn=None):
+        logger.debug("initialize authenticator '%s' with: uri='%s', " \
+                     "base_dn='%s', user_rdn='%s'", name, uri, base_dn, user_rdn)
         super(Authenticator, self).__init__(name)
 
         self.uri = uri
@@ -67,6 +73,7 @@ class Authenticator(BaseAuthenticator):
         except ldap.INVALID_CREDENTIALS:
             raise MoulinetteError(errno.EACCES, m18n.g('invalid_password'))
         except ldap.SERVER_DOWN:
+            logger.exception('unable to reach the server to authenticate')
             raise MoulinetteError(169, m18n.g('ldap_server_down'))
         else:
             self.con = con
@@ -96,6 +103,8 @@ class Authenticator(BaseAuthenticator):
         try:
             result = self.con.search_s(base, ldap.SCOPE_SUBTREE, filter, attrs)
         except:
+            logger.exception("error during LDAP search operation with: base='%s', " \
+                             "filter='%s', attrs=%s", base, filter, attrs)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
 
         result_list = []
@@ -125,6 +134,8 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.add_s(dn, ldif)
         except:
+            logger.exception("error during LDAP add operation with: rdn='%s', " \
+                             "attr_dict=%s", rdn, attr_dict)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
@@ -144,6 +155,7 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.delete_s(dn)
         except:
+            logger.exception("error during LDAP delete operation with: rdn='%s'", rdn)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
@@ -172,6 +184,8 @@ class Authenticator(BaseAuthenticator):
 
             self.con.modify_ext_s(dn, ldif)
         except:
+            logger.exception("error during LDAP update operation with: rdn='%s', " \
+                             "attr_dict=%s, new_rdn=%s", rdn, attr_dict, new_rdn)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
@@ -191,6 +205,8 @@ class Authenticator(BaseAuthenticator):
             if not self.search(filter=attr + '=' + value):
                 continue
             else:
+                logger.info("attribute '%s' with value '%s' is not unique",
+                            attr, value)
                 raise MoulinetteError(errno.EEXIST,
                                       m18n.g('ldap_attribute_already_exists',
                                              attr, value))

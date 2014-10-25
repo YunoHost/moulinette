@@ -9,6 +9,9 @@ import logging
 
 from importlib import import_module
 
+logger = logging.getLogger('moulinette.core')
+
+
 # Package manipulation -------------------------------------------------
 
 class Package(object):
@@ -25,6 +28,10 @@ class Package(object):
     def __init__(self, _from_source=False):
         if _from_source:
             import sys
+
+            logger.debug('initialize Package object running from source')
+
+            # Retrieve source's base directory
             basedir = os.path.abspath(os.path.dirname(sys.argv[0]) +'/../')
 
             # Set local directories
@@ -44,7 +51,8 @@ class Package(object):
     def __setattr__(self, name, value):
         if name[0] == '_' and self.__dict__.has_key(name):
             # Deny reassignation of package directories
-            raise TypeError("cannot reassign constant '%s'")
+            logger.error("cannot reassign Package variable '%s'", name)
+            return
         self.__dict__[name] = value
 
 
@@ -130,8 +138,8 @@ class Translator(object):
 
         # Attempt to load default translations
         if not self._load_translations(default_locale):
-            raise ValueError("Unable to load locale '%s' from '%s'"
-                    % (default_locale, locale_dir))
+            logger.error("unable to load locale '%s' from '%s'",
+                         default_locale, locale_dir)
         self.default_locale = default_locale
 
     def get_locales(self):
@@ -159,8 +167,8 @@ class Translator(object):
         """
         if locale not in self._translations:
             if not self._load_translations(locale):
-                logging.info("unable to load locale '%s' from '%s'"
-                        % (self.default_locale, self.locale_dir))
+                logger.debug("unable to load locale '%s' from '%s'",
+                             self.default_locale, self.locale_dir)
 
                 # Revert to default locale
                 self.locale = self.default_locale
@@ -180,18 +188,23 @@ class Translator(object):
             - key -- The key to translate
 
         """
+        def _load_key(locale):
+            value = self._translations[locale][key]
+            return value.encode('utf-8').format(*args, **kwargs)
+
         try:
-            value = self._translations[self.locale][key]
+            return _load_key(self.locale)
         except KeyError:
-            try:
-                value = self._translations[self.default_locale][key]
-                logging.info("untranslated key '%s' for locale '%s'" %
-                        (key, self.locale))
-            except KeyError:
-                logging.warning("unknown key '%s' for locale '%s'" %
-                        (key, self.default_locale))
-                return key
-        return value.encode('utf-8').format(*args, **kwargs)
+            if self.default_locale != self.locale:
+                logger.info("untranslated key '%s' for locale '%s'",
+                            key, self.locale)
+                try:
+                    return _load_key(self.default_locale)
+                except:
+                    pass
+        logger.warning("unable to retrieve key '%s' for default locale '%s'",
+                       key, self.default_locale)
+        return key
 
     def _load_translations(self, locale, overwrite=False):
         """Load translations for a locale
@@ -288,8 +301,8 @@ class Moulinette18n(object):
 
         """
         if not self._namespace:
-            logging.error("attempt to retrieve translation for key '%s' " \
-                          "but no namespace is loaded" % key)
+            logger.error("unable to retrieve translation for key '%s' without " \
+                         "loaded namespace", key)
             return key
         return self._namespace[1].translate(key, *args, **kwargs)
 
@@ -319,13 +332,15 @@ class MoulinetteSignals(object):
     def set_handler(self, signal, handler):
         """Set the handler for a signal"""
         if signal not in self.signals:
-            raise ValueError("unknown signal '%s'" % signal)
+            logger.error("unknown signal '%s'", signal)
+            return
         setattr(self, '_%s' % signal, handler)
 
     def clear_handler(self, signal):
         """Clear the handler of a signal"""
         if signal not in self.signals:
-            raise ValueError("unknown signal '%s'" % signal)
+            logger.error("unknown signal '%s'", signal)
+            return
         setattr(self, '_%s' % signal, self._notimplemented)
 
 
@@ -424,16 +439,17 @@ def init_interface(name, kwargs={}, actionsmap={}):
 
     try:
         mod = import_module('moulinette.interfaces.%s' % name)
-    except ImportError as e:
-        # TODO: List available interfaces
-        raise ImportError("Unable to load interface '%s': %s" % (name, str(e)))
+    except ImportError:
+        logger.exception("unable to load interface '%s'", name)
+        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
     else:
         try:
             # Retrieve interface classes
             parser = mod.ActionsMapParser
             interface = mod.Interface
-        except AttributeError as e:
-            raise ImportError("Invalid interface '%s': %s" % (name, e))
+        except AttributeError:
+            logger.exception("unable to retrieve classes of interface '%s'", name)
+            raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
 
     # Instantiate or retrieve ActionsMap
     if isinstance(actionsmap, dict):
@@ -441,7 +457,8 @@ def init_interface(name, kwargs={}, actionsmap={}):
     elif isinstance(actionsmap, ActionsMap):
         amap = actionsmap
     else:
-        raise ValueError("Invalid actions map '%r'" % actionsmap)
+        logger.error("invalid actionsmap value %r", actionsmap)
+        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
     return interface(amap, **kwargs)
 
@@ -459,10 +476,9 @@ def init_authenticator((vendor, name), kwargs={}):
     """
     try:
         mod = import_module('moulinette.authenticators.%s' % vendor)
-    except ImportError as e:
-        # TODO: List available authenticators vendors
-        raise ImportError("Unable to load authenticator vendor '%s': %s"
-                % (vendor, str(e)))
+    except ImportError:
+        logger.exception("unable to load authenticator vendor '%s'", vendor)
+        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
     else:
         return mod.Authenticator(name, **kwargs)
 
@@ -547,6 +563,8 @@ class MoulinetteLock(object):
                                       m18n.g('instance_already_running'))
             # Wait before checking again
             time.sleep(self.interval)
+
+        logger.debug('lock has been acquired')
         self._locked = True
 
     def release(self):
@@ -558,6 +576,8 @@ class MoulinetteLock(object):
         if self._locked:
             if not self._bypass:
                 os.unlink(self._lockfile)
+
+            logger.debug('lock has been released')
             self._locked = False
 
     def __enter__(self):

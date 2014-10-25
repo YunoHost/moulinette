@@ -7,6 +7,7 @@
     "permission_denied" : "Permission denied",
     "root_required" : "You must be root to perform this action",
     "instance_already_running" : "An instance is already running",
+    "error_see_log" : "An error occured. Please see the log for details.",
 
     "unable_authenticate" : "Unable to authenticate",
     "unable_retrieve_session" : "Unable to retrieve the session",
@@ -16,6 +17,7 @@
 
     "argument_required" : "Argument {:s} is required",
     "invalid_argument": "Invalid argument '{:s}': {:s}",
+    "pattern_not_match": "Does not match pattern",
     "password" : "Password",
     "invalid_password" : "Invalid password",
     "confirm" : "Confirm {:s}",
