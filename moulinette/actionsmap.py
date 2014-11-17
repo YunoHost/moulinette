@@ -372,13 +372,11 @@ class ActionsMap(object):
                 except IOError:
                     self.use_cache = False
                     actionsmaps = self.generate_cache(namespaces)
-                    break
-            else:
+            elif n not in actionsmap:
                 with open('%s/actionsmap/%s.yml' % (pkg.datadir, n)) as f:
                     actionsmaps[n] = ordered_yaml_load(f)
 
             # Load translations
-            # FIXME: Allow several namespaces in m18n
             m18n.load_namespace(n)
 
         # Generate parsers
