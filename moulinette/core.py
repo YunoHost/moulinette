@@ -249,9 +249,17 @@ class Moulinette18n(object):
         self.locale = default_locale
         self.pkg = package
 
-        # Init translators
+        # Init global translator
         self._global = Translator(self.pkg.localedir, default_locale)
-        self._namespace = None
+
+        # Define namespace related variables
+        self._namespaces = {}
+        self._current_namespace = None
+
+    @property
+    def _namespace(self):
+        """Return current namespace's Translator object"""
+        return self._namespaces[self._current_namespace]
 
     def load_namespace(self, namespace):
         """Load the namespace to use
@@ -263,20 +271,23 @@ class Moulinette18n(object):
             - namespace -- The namespace to load
 
         """
-        if self._namespace and self._namespace[0] == namespace:
-            return
+        if namespace not in self._namespaces:
+            # Create new Translator object
+            n = Translator('%s/%s/locales' % (self.pkg.libdir, namespace),
+                           self.default_locale)
+            n.set_locale(self.locale)
+            self._namespaces[namespace] = n
 
-        self._namespace = (namespace, Translator('%s/%s/locales'
-                % (self.pkg.libdir, namespace), self.default_locale))
-        self._namespace[1].set_locale(self.locale)
+        # Set current namespace
+        self._current_namespace = namespace
 
     def set_locale(self, locale):
         """Set the locale to use"""
         self.locale = locale
 
         self._global.set_locale(locale)
-        if self._namespace:
-            self._namespace[1].set_locale(locale)
+        for n in self._namespaces.values():
+            n.set_locale(locale)
 
     def g(self, key, *args, **kwargs):
         """Retrieve proper translation for a moulinette key
@@ -293,18 +304,20 @@ class Moulinette18n(object):
     def n(self, key, *args, **kwargs):
         """Retrieve proper translation for a moulinette key
 
-        Attempt to retrieve value for a key from loaded namespace translations
-        using the current locale or the default locale if 'key' is not found.
+        Attempt to retrieve value for a key from current loaded namespace
+        translations using the current locale or the default one if 'key' is
+        not found.
 
         Keyword arguments:
             - key -- The key to translate
 
         """
-        if not self._namespace:
-            logger.error("unable to retrieve translation for key '%s' without " \
-                         "loaded namespace", key)
+        try:
+            return self._namespace.translate(key, *args, **kwargs)
+        except:
+            logger.exception("cannot translate key '%s' for namespace '%s'",
+                             key, self._current_namespace)
             return key
-        return self._namespace[1].translate(key, *args, **kwargs)
 
 
 class MoulinetteSignals(object):
