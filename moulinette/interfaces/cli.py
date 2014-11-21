@@ -218,7 +218,7 @@ class Interface(BaseInterface):
 
         """
         # TODO: Allow token authentication?
-        msg = help or m18n.g('password')
+        msg = m18n.n(help) if help else m18n.g('password')
         return authenticator(password=self._do_prompt(msg, True, False,
                                                       color='yellow'))
 

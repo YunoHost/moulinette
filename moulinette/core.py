@@ -372,7 +372,7 @@ class MoulinetteSignals(object):
 
         Keyword arguments:
             - authenticator -- The authenticator object to use
-            - help -- A help message for the authenticator
+            - help -- The translation key of the authenticator's help message
 
         Returns:
             The authenticator object
@@ -380,10 +380,6 @@ class MoulinetteSignals(object):
         """
         if authenticator.is_authenticated:
             return authenticator
-
-        # Retrieve help translation since it's not loaded yet
-        if help:
-            help = m18n.n(help)
         return self._authenticate(authenticator, help)
 
     def prompt(self, message, is_password=False, confirm=False):
