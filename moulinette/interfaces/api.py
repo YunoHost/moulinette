@@ -65,7 +65,6 @@ class _HTTPArgumentParser(object):
 
         ## Append an argument to the current one
         def append(arg_strings, value, option_string=None):
-            # TODO: Process list arguments
             if isinstance(value, bool):
                 # Append the option string only
                 if option_string is not None:
@@ -78,6 +77,19 @@ class _HTTPArgumentParser(object):
                         arg_strings.append(value)
                 else:
                     arg_strings.append(value)
+            elif isinstance(value, list):
+                if option_string is not None:
+                    arg_strings.append(option_string)
+                for v in value:
+                    if isinstance(v, str):
+                        arg_strings.append(value)
+                    else:
+                        logger.warning("unsupported argument value type %r " \
+                                       "in %s for option string %s", v, value,
+                                       option_string)
+            else:
+                logger.warning("unsupported argument type %r for option " \
+                               "string %s", value, option_string)
 
             return arg_strings
 
@@ -185,13 +197,33 @@ class _ActionsMapPlugin(object):
             context -- An instance of Route
 
         """
+        def _format(value):
+            if isinstance(value, list) and len(value) == 1:
+                return value[0]
+            return value
+
         def wrapper(*args, **kwargs):
-            # Bring arguments together
             params = kwargs
+            # Format boolean params
             for a in args:
                 params[a] = True
-            for k, v in request.params.items():
-                params[k] = v
+            # Append other request params
+            for k, v in request.params.dict.items():
+                v = _format(v)
+                try:
+                    curr_v = params[k]
+                except KeyError:
+                    params[k] = v
+                else:
+                    # Append param value to the list
+                    if not isinstance(curr_v, list):
+                        curr_v = [curr_v]
+                    if isinstance(v, list):
+                        for i in v:
+                            curr_v.append(i)
+                    else:
+                        curr_v.append(v)
+                    params[k] = curr_v
 
             # Process the action
             return callback((request.method, context.rule), params)
