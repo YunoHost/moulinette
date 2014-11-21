@@ -82,7 +82,7 @@ class _HTTPArgumentParser(object):
                     arg_strings.append(option_string)
                 for v in value:
                     if isinstance(v, str):
-                        arg_strings.append(value)
+                        arg_strings.append(v)
                     else:
                         logger.warning("unsupported argument value type %r " \
                                        "in %s for option string %s", v, value,
