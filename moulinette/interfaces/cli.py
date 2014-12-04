@@ -48,6 +48,8 @@ def pretty_print_dict(d, depth=0):
     """
     for k,v in sorted(d.items(), key=lambda x: x[0]):
         k = colorize(str(k), 'purple')
+        if isinstance(v, (tuple, set)):
+            v = list(v)
         if isinstance(v, list) and len(v) == 1:
             v = v[0]
         if isinstance(v, dict):
@@ -202,7 +204,8 @@ class Interface(BaseInterface):
         # Format and print result
         if print_json:
             import json
-            print(json.dumps(ret))
+            from moulinette.utils.serialize import JSONExtendedEncoder
+            print(json.dumps(ret, cls=JSONExtendedEncoder))
         elif isinstance(ret, dict):
             pretty_print_dict(ret)
         else:

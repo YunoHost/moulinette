@@ -16,6 +16,7 @@ from bottle import run, request, response, Bottle, HTTPResponse
 
 from moulinette.core import MoulinetteError, clean_session
 from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
+from moulinette.utils.serialize import JSONExtendedEncoder
 
 logger = logging.getLogger('moulinette.interface.api')
 
@@ -462,7 +463,7 @@ def format_for_response(content):
 
     # Return JSON-style response
     response.content_type = 'application/json'
-    return json_encode(content)
+    return json_encode(content, cls=JSONExtendedEncoder)
 
 
 # API Classes Implementation -------------------------------------------
