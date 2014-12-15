@@ -120,7 +120,7 @@ def main():
                             allow_multiple = True
                             required = False
                         if arg_params['nargs'] == '+':
-                            allow_multiple = False
+                            allow_multiple = True
                             required = True
                     else:
                         allow_multiple = False
