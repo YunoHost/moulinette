@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
-
 from threading import Thread
 from Queue import Queue, Empty
+
+
+# Read from a stream ---------------------------------------------------
 
 class NonBlockingStreamReader:
     """A non-blocking stream reader
