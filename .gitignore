@@ -15,6 +15,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+log
 
 # Installer logs
 pip-log.txt
@@ -31,4 +32,9 @@ pip-log.txt
 
 # Moulinette
 doc/*.json
-src/moulinette/package.py
+moulinette/package.py
+# track only test namespace
+lib/**
+!lib/test
+data/actionsmap/**
+!data/actionsmap/test.yml

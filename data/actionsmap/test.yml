@@ -27,6 +27,7 @@ _global:
                     base_dn: dc=yunohost,dc=org
                     user_rdn: cn=admin
         argument_auth: true
+        lock: false
 
 #############################
 #       Test Actions        #
