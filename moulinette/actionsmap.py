@@ -372,7 +372,7 @@ class ActionsMap(object):
                 except IOError:
                     self.use_cache = False
                     actionsmaps = self.generate_cache(namespaces)
-            elif n not in actionsmap:
+            elif n not in actionsmaps:
                 with open('%s/actionsmap/%s.yml' % (pkg.datadir, n)) as f:
                     actionsmaps[n] = ordered_yaml_load(f)
 
@@ -532,7 +532,7 @@ class ActionsMap(object):
         ## Add arguments to the parser
         def _add_arguments(tid, parser, arguments):
             for argn, argp in arguments.items():
-                names = top_parser.format_arg_names(argn,
+                names = top_parser.format_arg_names(str(argn),
                                                     argp.pop('full', None))
                 try: argp['type'] = eval(argp['type'])
                 except: pass
