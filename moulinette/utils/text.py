@@ -2,7 +2,7 @@ import re
 import mmap
 
 
-# Searching helpers ----------------------------------------------------
+# Pattern searching ----------------------------------------------------
 
 def search(pattern, text, count=0, flags=0):
     """Search for pattern in a text
@@ -48,3 +48,11 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
         match = search(pattern, data, count, flags)
         data.close()
     return match
+
+
+# Text formatting ------------------------------------------------------
+
+def prependlines(text, prepend):
+    """Prepend a string to each line of a text"""
+    lines = text.splitlines(True)
+    return "%s%s" % (prepend, prepend.join(lines))
