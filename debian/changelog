@@ -1,0 +1,369 @@
+moulinette (2.0-rc~megusta11) megusta; urgency=low
+
+  * Production build: Bump version
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Thu, 31 Jul 2014 12:02:27 +0200
+
+moulinette (2.0-rc~megusta10) test; urgency=low
+
+  * Test build: Update from git 19b28d43d
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 28 Jul 2014 22:08:17 +0200
+
+moulinette (2.0-rc~megusta9) test; urgency=low
+
+  * Test build: Fix preinst script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 28 Jul 2014 19:34:58 +0200
+
+moulinette (2.0-rc~megusta8) test; urgency=low
+
+  * Test build: Add preinst script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 28 Jul 2014 19:02:17 +0200
+
+moulinette (2.0-rc~megusta7) test; urgency=low
+
+  * Test build: Update from git 56c1cfec0
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 28 Jul 2014 18:03:43 +0200
+
+moulinette (2.0-rc~megusta6) megusta; urgency=low
+
+  * Production build: Update from git 8c3203a106
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Tue, 01 Jul 2014 19:05:32 +0200
+
+moulinette (2.0-rc~megusta5) test; urgency=low
+
+  * Test build: Keep actions map arguments's order 8c3203a106
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Tue, 01 Jul 2014 17:36:27 +0200
+
+moulinette (2.0-rc~megusta4) megusta; urgency=low
+
+  * Production build: Backport fixes
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 16 Jun 2014 17:00:32 +0200
+
+moulinette (2.0-rc~megusta3) megusta; urgency=low
+
+  * Production build: [fix] Do not install /messages route if WebSocket
+    is disabled
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Thu, 12 Jun 2014 19:09:02 +0200
+
+moulinette (2.0-rc~megusta2) megusta; urgency=low
+
+  * Production build: Bump version
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 09 Jun 2014 01:45:18 +0200
+
+moulinette (2.0-rc~megusta1) test; urgency=low
+
+  * Bump version
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 07 Jun 2014 15:31:00 +0200
+
+moulinette (2.0-beta4~megusta50) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 07 Jun 2014 15:30:00 +0200
+
+moulinette (2.0-beta4~megusta49) test; urgency=low
+
+  * Test build: [fix] Restart yunohost-api
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 07 Jun 2014 14:25:37 +0200
+
+moulinette (2.0-beta4~megusta48) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 07 Jun 2014 14:14:43 +0200
+
+moulinette (2.0-beta4~megusta47) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 06 Jun 2014 12:27:44 +0200
+
+moulinette (2.0-beta4~megusta46) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Tue, 03 Jun 2014 14:43:10 +0200
+
+moulinette (2.0-beta4~megusta45) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Tue, 03 Jun 2014 14:17:19 +0200
+
+moulinette (2.0-beta4~megusta44) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 02 Jun 2014 23:45:07 +0200
+
+moulinette (2.0-beta4~megusta43) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 02 Jun 2014 22:01:53 +0200
+
+moulinette (2.0-beta4~megusta42) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 31 May 2014 12:56:08 +0200
+
+moulinette (2.0-beta4~megusta41) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 31 May 2014 11:33:11 +0200
+
+moulinette (2.0-beta4~megusta40) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 30 May 2014 15:33:02 +0200
+
+moulinette (2.0-beta4~megusta39) test; urgency=low
+
+  * Test build: [fix] Do not restart old API
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 30 May 2014 14:01:40 +0200
+
+moulinette (2.0-beta4~megusta38) test; urgency=low
+
+  * Test build: [fix] Kill twisted API before restarting it
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 30 May 2014 13:52:50 +0200
+
+moulinette (2.0-beta4~megusta37) test; urgency=low
+
+  * Test build: [fix] Dependencies
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 30 May 2014 12:33:23 +0200
+
+moulinette (2.0-beta4~megusta36) test; urgency=low
+
+  * Test build: [fix] dependencies
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Thu, 29 May 2014 21:41:26 +0200
+
+moulinette (2.0-beta4~megusta35) test; urgency=low
+
+  * Test build: [fix] dependencies
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Thu, 29 May 2014 21:29:45 +0200
+
+moulinette (2.0-beta4~megusta34) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Thu, 29 May 2014 18:56:39 +0200
+
+moulinette (2.0-beta4~megusta33) test; urgency=low
+
+  * Test build: [fix] Install udiskie via pip
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Thu, 29 May 2014 10:39:57 +0200
+
+moulinette (2.0-beta4~megusta32) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 26 May 2014 13:30:44 +0200
+
+moulinette (2.0-beta4~megusta31) test; urgency=low
+
+  * Test build: [fix] Restart yunohost-api only if the service file is
+    present
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 26 May 2014 13:18:34 +0200
+
+moulinette (2.0-beta4~megusta30) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sun, 25 May 2014 12:25:37 +0200
+
+moulinette (2.0-beta4~megusta29) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 24 May 2014 21:28:34 +0200
+
+moulinette (2.0-beta4~megusta28) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 24 May 2014 18:37:30 +0200
+
+moulinette (2.0-beta4~megusta27) test; urgency=low
+
+  * Test build: [enh] Update dependencies
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 19 May 2014 17:33:04 +0200
+
+moulinette (2.0-beta4~megusta26) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 19 May 2014 17:25:04 +0200
+
+moulinette (2.0-beta4~megusta25) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Mon, 19 May 2014 13:01:55 +0200
+
+moulinette (2.0-beta4~megusta24) test; urgency=low
+
+  * Test build: [enh] Move init script in the moulinette-yunohost
+    package
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sun, 18 May 2014 15:19:44 +0200
+
+moulinette (2.0-beta4~megusta23) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 17 May 2014 21:55:24 +0200
+
+moulinette (2.0-beta4~megusta22) test; urgency=low
+
+  * Test build: Update Init script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 17 May 2014 21:52:04 +0200
+
+moulinette (2.0-beta4~megusta21) test; urgency=low
+
+  * Test build: Update init script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 17 May 2014 20:47:12 +0200
+
+moulinette (2.0-beta4~megusta20) test; urgency=low
+
+  * Test build: Update init script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 17 May 2014 02:21:55 +0200
+
+moulinette (2.0-beta4~megusta19) test; urgency=low
+
+  * Test build: Update Init script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 17 May 2014 00:39:12 +0200
+
+moulinette (2.0-beta4~megusta18) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Sat, 17 May 2014 00:06:09 +0200
+
+moulinette (2.0-beta4~megusta17) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 23:17:30 +0200
+
+moulinette (2.0-beta4~megusta16) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 23:04:22 +0200
+
+moulinette (2.0-beta4~megusta15) test; urgency=low
+
+  * Test build: BREAKSS
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 21:55:41 +0200
+
+moulinette (2.0-beta4~megusta14) test; urgency=low
+
+  * Test build: Replaces + Conflicts
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 21:41:48 +0200
+
+moulinette (2.0-beta4~megusta13) test; urgency=low
+
+  * Test build: Init script fail
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 20:52:59 +0200
+
+moulinette (2.0-beta4~megusta12) test; urgency=low
+
+  * Test build: Init script fail
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 20:29:10 +0200
+
+moulinette (2.0-beta4~megusta11) test; urgency=low
+
+  * Test build: Init script fail
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 20:18:46 +0200
+
+moulinette (2.0-beta4~megusta10) test; urgency=low
+
+  * Test build: Update from git
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 20:01:19 +0200
+
+moulinette (2.0-beta4~megusta9) test; urgency=low
+
+  * Test build: Update from git + update init script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 19:58:32 +0200
+
+moulinette (2.0-beta4~megusta8) test; urgency=low
+
+  * Test build: Update init script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 18:37:30 +0200
+
+moulinette (2.0-beta4~megusta7) test; urgency=low
+
+  * Test build: Update init script
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 18:20:52 +0200
+
+moulinette (2.0-beta4~megusta6) test; urgency=low
+
+  * Test build: actionSSSSS map
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 17:28:42 +0200
+
+moulinette (2.0-beta4~megusta5) test; urgency=low
+
+  * Test build: Yolo
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 17:22:29 +0200
+
+moulinette (2.0-beta4~megusta4) test; urgency=low
+
+  * Test build: Makedirs
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 16:33:20 +0200
+
+moulinette (2.0-beta4~megusta3) test; urgency=low
+
+  * Test build: Conflicts with yunohost-cli
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 16:22:28 +0200
+
+moulinette (2.0-beta4~megusta2) test; urgency=low
+
+  * Test build: Add moulinette package
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Fri, 16 May 2014 16:10:12 +0200
+
+moulinette (2.0-beta4~megusta1) test; urgency=low
+
+  * Init
+
+ -- Adrien Beudin <beudbeud@yunohost.org>  Wed, 07 May 2014 08:01:45 +0200
+
