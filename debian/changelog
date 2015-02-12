@@ -1,3 +1,9 @@
+moulinette (2.1.1) testing; urgency=low
+
+  * Bump version to 2.1.1 to bootstrap new build workflow
+
+ -- Julien Malik <julien.malik@paraiso.me>  Thu, 12 Feb 2015 13:32:27 +0100
+
 moulinette (2.0-rc~megusta11) megusta; urgency=low
 
   * Production build: Bump version
