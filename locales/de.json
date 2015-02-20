@@ -4,7 +4,7 @@
     "warning": "Vorsicht:",
     "error": "Fehler:",
     "permission_denied": "Erlaubnis verweigert",
-    "root_required": "You must be root to perform this action",
+    "root_required": "Du musst als root angemeldet werden, um diesem Vorgang zu führen",
     "instance_already_running": "Eine Instanz ist schon im Betrieb",
     "unable_authenticate": "authentisierungunfähig",
     "unable_retrieve_session": "sessionabrufunfähig",
