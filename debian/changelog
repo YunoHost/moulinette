@@ -1,3 +1,11 @@
+moulinette (2.1.2) testing; urgency=low
+
+  [ Jérôme Lebleu ]
+  * [fix] Do not create directories from setup.py
+  * [i18n] Update translations from Transifex
+
+ -- Julien Malik <julien.malik@paraiso.me>  Tue, 17 Mar 2015 15:48:40 +0100
+
 moulinette (2.1.1) testing; urgency=low
 
   * Bump version to 2.1.1 to bootstrap new build workflow
