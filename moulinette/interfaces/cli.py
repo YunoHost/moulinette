@@ -3,11 +3,17 @@
 import os
 import errno
 import getpass
-import argparse
 import locale
+import logging
 
 from moulinette.core import MoulinetteError
-from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
+from moulinette.interfaces import (
+    BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
+)
+
+
+logger = logging.getLogger('moulinette.cli')
+
 
 # CLI helpers ----------------------------------------------------------
 
@@ -46,7 +52,7 @@ def pretty_print_dict(d, depth=0):
         - depth -- The recursive depth of the dictionary
 
     """
-    for k,v in sorted(d.items(), key=lambda x: x[0]):
+    for k,v in d.items():
         k = colorize(str(k), 'purple')
         if isinstance(v, (tuple, set)):
             v = list(v)
@@ -78,23 +84,28 @@ def get_locale():
         return ''
     return lang[:2]
 
+
 # CLI Classes Implementation -------------------------------------------
 
 class ActionsMapParser(BaseActionsMapParser):
     """Actions map's Parser for the CLI
 
     Provide actions map parsing methods for a CLI usage. The parser for
-    the arguments is represented by a argparse.ArgumentParser object.
+    the arguments is represented by a ExtendedArgumentParser object.
 
     Keyword arguments:
-        - parser -- The argparse.ArgumentParser object to use
+        - parser -- The ExtendedArgumentParser object to use
+        - subparser_kwargs -- Arguments to pass to the sub-parser group
 
     """
-    def __init__(self, parent=None, parser=None):
+    def __init__(self, parent=None, parser=None, subparser_kwargs=None):
         super(ActionsMapParser, self).__init__(parent)
 
-        self._parser = parser or argparse.ArgumentParser()
-        self._subparsers = self._parser.add_subparsers()
+        if subparser_kwargs is None:
+            subparser_kwargs = {'title': "categories", 'required': False}
+
+        self._parser = parser or ExtendedArgumentParser()
+        self._subparsers = self._parser.add_subparsers(**subparser_kwargs)
 
 
     ## Implement virtual properties
@@ -111,7 +122,7 @@ class ActionsMapParser(BaseActionsMapParser):
         return [name]
 
     def add_global_parser(self, **kwargs):
-        return self._parser
+        return self._parser.add_mutually_exclusive_group()
 
     def add_category_parser(self, name, category_help=None, **kwargs):
         """Add a parser for a category
@@ -123,8 +134,10 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ActionsMapParser object for the category
 
         """
-        parser = self._subparsers.add_parser(name, help=category_help)
-        return self.__class__(self, parser)
+        parser = self._subparsers.add_parser(name, help=category_help, **kwargs)
+        return self.__class__(self, parser, {
+                'title': "actions", 'required': True
+        })
 
     def add_action_parser(self, name, tid, action_help=None, **kwargs):
         """Add a parser for an action
@@ -133,31 +146,23 @@ class ActionsMapParser(BaseActionsMapParser):
             - action_help -- A brief description for the action
 
         Returns:
-            A new argparse.ArgumentParser object for the action
+            A new ExtendedArgumentParser object for the action
 
         """
         return self._subparsers.add_parser(name, help=action_help)
 
     def parse_args(self, args, **kwargs):
-        ret = self._parser.parse_args(args)
-
-        if not self.get_conf(ret._tid, 'lock'):
-            os.environ['BYPASS_LOCK'] = 'yes'
-
-        # Perform authentication if needed
-        if self.get_conf(ret._tid, 'authenticate'):
-            auth_conf, klass = self.get_conf(ret._tid, 'authenticator')
-
-            # TODO: Catch errors
-            auth = msignals.authenticate(klass(), **auth_conf)
-            if not auth.is_authenticated:
-                raise MoulinetteError(errno.EACCES,
-                                      m18n.g('authentication_required_long'))
-            if self.get_conf(ret._tid, 'argument_auth') and \
-               self.get_conf(ret._tid, 'authenticate') == 'all':
-                ret.auth = auth
-
-        return ret
+        try:
+            ret = self._parser.parse_args(args)
+        except SystemExit:
+            raise
+        except:
+            logger.exception("unable to parse arguments '%s'", ' '.join(args))
+            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        else:
+            self.prepare_action_namespace(getattr(ret, '_tid', None), ret)
+            self._parser.dequeue_callbacks(ret)
+            return ret
 
 
 class Interface(BaseInterface):

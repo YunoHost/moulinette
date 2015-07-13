@@ -10,10 +10,10 @@ from time import time
 from collections import OrderedDict
 
 from moulinette.core import (MoulinetteError, MoulinetteLock)
-from moulinette.interfaces import BaseActionsMapParser
+from moulinette.interfaces import (
+    BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
+)
 from moulinette.utils.log import start_action_logging
-
-GLOBAL_ARGUMENT = '_global'
 
 logger = logging.getLogger('moulinette.actionsmap')
 
@@ -224,7 +224,7 @@ class ExtraArgumentParser(object):
     def __init__(self, iface):
         self.iface = iface
         self.extra = OrderedDict()
-        self._extra_params = { GLOBAL_ARGUMENT: {} }
+        self._extra_params = {GLOBAL_SECTION: {}}
 
         # Append available extra parameters for the current interface
         for klass in extraparameters_list:
@@ -264,7 +264,7 @@ class ExtraArgumentParser(object):
         Add extra parameters to apply on an action argument
 
         Keyword arguments:
-            - tid -- The tuple identifier of the action or GLOBAL_ARGUMENT
+            - tid -- The tuple identifier of the action or GLOBAL_SECTION
                 for global extra parameters
             - arg_name -- The argument name
             - parameters -- A dict of extra parameters with their values
@@ -276,7 +276,7 @@ class ExtraArgumentParser(object):
         try:
             self._extra_params[tid][arg_name] = parameters
         except KeyError:
-            self._extra_params[tid] = OrderedDict({ arg_name: parameters })
+            self._extra_params[tid] = OrderedDict({arg_name: parameters})
 
     def parse_args(self, tid, args):
         """
@@ -287,7 +287,7 @@ class ExtraArgumentParser(object):
             - args -- A dict of argument name associated to their value
 
         """
-        extra_args = OrderedDict(self._extra_params.get(GLOBAL_ARGUMENT, {}))
+        extra_args = OrderedDict(self._extra_params.get(GLOBAL_SECTION, {}))
         extra_args.update(self._extra_params.get(tid, {}))
 
         # Iterate over action arguments with extra parameters
@@ -425,6 +425,10 @@ class ActionsMap(object):
         # Retrieve tid and parse arguments with extra parameters
         tid = arguments.pop('_tid')
         arguments = self.extraparser.parse_args(tid, arguments)
+
+        # Return immediately if a value is defined
+        if TO_RETURN_PROP in arguments:
+            return arguments.get(TO_RETURN_PROP)
 
         # Retrieve action information
         namespace, category, action = tid
@@ -569,7 +573,7 @@ class ActionsMap(object):
                     pass
                 else:
                     # Add arguments
-                    _add_arguments(GLOBAL_ARGUMENT, parser,
+                    _add_arguments(GLOBAL_SECTION, parser,
                                    _global['arguments'])
 
             # -- Parse categories
@@ -598,7 +602,7 @@ class ActionsMap(object):
 
                     try:
                         # Get action parser
-                        parser = cat_parser.add_action_parser(an, tid, **ap)
+                        a_parser = cat_parser.add_action_parser(an, tid, **ap)
                     except AttributeError:
                         # No parser for the action
                         continue
@@ -608,8 +612,8 @@ class ActionsMap(object):
                         continue
                     else:
                         # Store action identifier and add arguments
-                        parser.set_defaults(_tid=tid)
-                        _add_arguments(tid, parser, args)
+                        a_parser.set_defaults(_tid=tid)
+                        _add_arguments(tid, a_parser, args)
                         _set_conf(cat_parser)
 
         return top_parser
