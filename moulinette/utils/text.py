@@ -1,5 +1,7 @@
+import os
 import re
 import mmap
+import binascii
 
 
 # Pattern searching ----------------------------------------------------
@@ -56,3 +58,10 @@ def prependlines(text, prepend):
     """Prepend a string to each line of a text"""
     lines = text.splitlines(True)
     return "%s%s" % (prepend, prepend.join(lines))
+
+
+# Randomize ------------------------------------------------------------
+
+def random_ascii(length=20):
+    """Return a random ascii string"""
+    return binascii.hexlify(os.urandom(length)).decode('ascii')

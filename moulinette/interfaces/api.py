@@ -4,7 +4,6 @@ import os
 import re
 import errno
 import logging
-import binascii
 import argparse
 from json import dumps as json_encode
 
@@ -19,15 +18,12 @@ from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
 )
 from moulinette.utils.serialize import JSONExtendedEncoder
+from moulinette.utils.text import random_ascii
 
 logger = logging.getLogger('moulinette.interface.api')
 
 
 # API helpers ----------------------------------------------------------
-
-def random_ascii(length=20):
-    """Return a random ascii string"""
-    return binascii.hexlify(os.urandom(length)).decode('ascii')
 
 class _HTTPArgumentParser(object):
     """Argument parser for HTTP requests
