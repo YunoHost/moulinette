@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import errno
 import logging
+import argparse
+from collections import deque
 
 from moulinette.core import (init_authenticator, MoulinetteError)
 
 logger = logging.getLogger('moulinette.interface')
+
+GLOBAL_SECTION = '_global'
+TO_RETURN_PROP = '_to_return'
+CALLBACKS_PROP = '_callbacks'
 
 
 # Base Class -----------------------------------------------------------
@@ -123,6 +130,42 @@ class BaseActionsMapParser(object):
         """
         raise NotImplementedError("derived class '%s' must override this method" % \
                                       self.__class__.__name__)
+
+
+    ## Arguments helpers
+
+    def prepare_action_namespace(self, tid, namespace=None):
+        """Prepare the namespace for a given action"""
+        # Validate tid and namespace
+        if not isinstance(tid, tuple) and \
+                (namespace is None or not hasattr(namespace, TO_RETURN_PROP)):
+            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
+        elif not tid:
+            tid = GLOBAL_SECTION
+
+        # Prepare namespace
+        if namespace is None:
+            namespace = argparse.Namespace()
+        namespace._tid = tid
+
+        # Check lock
+        if not self.get_conf(tid, 'lock'):
+            os.environ['BYPASS_LOCK'] = 'yes'
+
+        # Perform authentication if needed
+        if self.get_conf(tid, 'authenticate'):
+            auth_conf, cls = self.get_conf(tid, 'authenticator')
+
+            # TODO: Catch errors
+            auth = msignals.authenticate(cls(), **auth_conf)
+            if not auth.is_authenticated:
+                raise MoulinetteError(errno.EACCES,
+                                      m18n.g('authentication_required_long'))
+            if self.get_conf(tid, 'argument_auth') and \
+                    self.get_conf(tid, 'authenticate') == 'all':
+                namespace.auth = auth
+
+        return namespace
 
 
     ## Configuration access
@@ -328,3 +371,125 @@ class BaseInterface(object):
     def __init__(self, actionsmap):
         raise NotImplementedError("derived class '%s' must override this method" % \
                                       self.__class__.__name__)
+
+
+# Argument parser ------------------------------------------------------
+
+class _CallbackAction(argparse.Action):
+    def __init__(self,
+                 option_strings,
+                 dest,
+                 nargs=0,
+                 callback={},
+                 default=argparse.SUPPRESS,
+                 help=None):
+        if not callback or 'method' not in callback:
+            raise ValueError('callback must be provided with at least '
+                             'a method key')
+        super(_CallbackAction, self).__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=nargs,
+            default=default,
+            help=help)
+        self.callback_method = callback.get('method')
+        self.callback_kwargs = callback.get('kwargs', {})
+        self.callback_return = callback.get('return', False)
+        logger.debug("registering new callback action '{0}' to {1}".format(
+            self.callback_method, option_strings))
+
+    @property
+    def callback(self):
+        if not hasattr(self, '_callback'):
+            self._retrieve_callback()
+        return self._callback
+
+    def _retrieve_callback(self):
+        # Attempt to retrieve callback method
+        mod_name, func_name = (self.callback_method).rsplit('.', 1)
+        try:
+            mod = __import__(mod_name, globals=globals(), level=0,
+                             fromlist=[func_name])
+            func = getattr(mod, func_name)
+        except (AttributeError, ImportError):
+            raise ValueError('unable to import method {0}'.format(
+                self.callback_method))
+        self._callback = func
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser.enqueue_callback(namespace, self, values)
+        if self.callback_return:
+            setattr(namespace, TO_RETURN_PROP, {})
+
+    def execute(self, namespace, values):
+        try:
+            # Execute callback and get returned value
+            value = self.callback(namespace, values, **self.callback_kwargs)
+        except:
+            logger.exception("cannot get value from callback method " \
+                "'{0}'".format(self.callback_method))
+            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        else:
+            if value:
+                if self.callback_return:
+                    setattr(namespace, TO_RETURN_PROP, value)
+                else:
+                    setattr(namespace, self.dest, value)
+
+class _OptionalSubParsersAction(argparse._SubParsersAction):
+    def __init__(self, *args, **kwargs):
+        required = kwargs.pop('required', False)
+        super(_OptionalSubParsersAction, self).__init__(*args, **kwargs)
+        self.required = required
+
+
+class ExtendedArgumentParser(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        super(ExtendedArgumentParser, self).__init__(*args, **kwargs)
+
+        # Register additional actions
+        self.register('action', 'callback', _CallbackAction)
+        self.register('action', 'parsers', _OptionalSubParsersAction)
+
+    def enqueue_callback(self, namespace, callback, values):
+        queue = self._get_callbacks_queue(namespace)
+        queue.append((callback, values))
+
+    def dequeue_callbacks(self, namespace):
+        queue = self._get_callbacks_queue(namespace, False)
+        for _i in xrange(len(queue)):
+            c, v = queue.popleft()
+            # FIXME: break dequeue if callback returns
+            c.execute(namespace, v)
+        try: delattr(namespace, CALLBACKS_PROP)
+        except: pass
+
+    def _get_callbacks_queue(self, namespace, create=True):
+        try:
+            queue = getattr(namespace, CALLBACKS_PROP)
+        except AttributeError:
+            if create:
+                queue = deque()
+                setattr(namespace, CALLBACKS_PROP, queue)
+            else:
+                queue = list()
+        return queue
+
+    def _get_nargs_pattern(self, action):
+        if action.nargs == argparse.PARSER and not action.required:
+            return '([-AO]*)'
+        else:
+            return super(ExtendedArgumentParser, self)._get_nargs_pattern(
+                    action)
+
+    def _get_values(self, action, arg_strings):
+        if action.nargs == argparse.PARSER and not action.required:
+            value = [self._get_value(action, v) for v in arg_strings]
+            if value:
+                self._check_value(action, value[0])
+            else:
+                value = argparse.SUPPRESS
+        else:
+            value = super(ExtendedArgumentParser, self)._get_values(
+                    action, arg_strings)
+        return value

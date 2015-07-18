@@ -4,7 +4,6 @@ import os
 import re
 import errno
 import logging
-import binascii
 import argparse
 from json import dumps as json_encode
 
@@ -15,30 +14,29 @@ from geventwebsocket import WebSocketError
 from bottle import run, request, response, Bottle, HTTPResponse
 
 from moulinette.core import MoulinetteError, clean_session
-from moulinette.interfaces import (BaseActionsMapParser, BaseInterface)
+from moulinette.interfaces import (
+    BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
+)
 from moulinette.utils.serialize import JSONExtendedEncoder
+from moulinette.utils.text import random_ascii
 
 logger = logging.getLogger('moulinette.interface.api')
 
 
 # API helpers ----------------------------------------------------------
 
-def random_ascii(length=20):
-    """Return a random ascii string"""
-    return binascii.hexlify(os.urandom(length)).decode('ascii')
-
 class _HTTPArgumentParser(object):
     """Argument parser for HTTP requests
 
     Object for parsing HTTP requests into Python objects. It is based
-    on argparse.ArgumentParser class and implements some of its methods.
+    on ExtendedArgumentParser class and implements some of its methods.
 
     """
     def __init__(self):
         # Initialize the ArgumentParser object
-        self._parser = argparse.ArgumentParser(usage='',
-                                               prefix_chars='@',
-                                               add_help=False)
+        self._parser = ExtendedArgumentParser(usage='',
+                                              prefix_chars='@',
+                                              add_help=False)
         self._parser.error = self._error
 
         self._positional = []   # list(arg_name)
@@ -105,6 +103,9 @@ class _HTTPArgumentParser(object):
                 arg_strings = append(arg_strings, args[dest], opt[0])
 
         return self._parser.parse_args(arg_strings, namespace)
+
+    def dequeue_callbacks(self, *args, **kwargs):
+        return self._parser.dequeue_callbacks(*args, **kwargs)
 
     def _error(self, message):
         # TODO: Raise a proper exception
@@ -472,7 +473,7 @@ class ActionsMapParser(BaseActionsMapParser):
     """Actions map's Parser for the API
 
     Provide actions map parsing methods for a CLI usage. The parser for
-    the arguments is represented by a argparse.ArgumentParser object.
+    the arguments is represented by a ExtendedArgumentParser object.
 
     """
     def __init__(self, parent=None):
@@ -580,7 +581,10 @@ class ActionsMapParser(BaseActionsMapParser):
                self.get_conf(tid, 'authenticate') == 'all':
                 ret.auth = auth
 
-        return parser.parse_args(args, ret)
+        # TODO: Catch errors?
+        ret = parser.parse_args(args, ret)
+        parser.dequeue_callbacks(ret)
+        return ret
 
 
     ## Private methods

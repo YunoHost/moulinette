@@ -30,8 +30,8 @@ if "install" in sys.argv:
         f.write(package)
 
     # Create needed directories
-    mkpath(libdir, mode=0755, verbose=1)
-    mkpath(os.path.join(datadir, 'actionsmap'), mode=0755, verbose=1)
+#    mkpath(libdir, mode=0755, verbose=1)
+#    mkpath(os.path.join(datadir, 'actionsmap'), mode=0755, verbose=1)
 
 
 setup(name='Moulinette',

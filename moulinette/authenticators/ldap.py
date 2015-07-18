@@ -43,6 +43,11 @@ class Authenticator(BaseAuthenticator):
             self.userdn = ''
             self.authenticate(None)
 
+    def __del__(self):
+        """Disconnect and free ressources"""
+        if self.con:
+            self.con.unbind_s()
+
 
     ## Implement virtual properties
 
