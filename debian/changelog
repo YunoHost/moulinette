@@ -1,3 +1,11 @@
+moulinette (2.2.1) stable; urgency=low
+
+  * [enh] Add a new callback action and start to normalize parsing
+  * [ref] Move random_ascii to text utils
+  * [fix] Properly disconnect from LDAP
+
+ -- Jérôme Lebleu <jerome.lebleu@mailoo.org>  Sat, 18 Jul 2015 16:30:58 +0200
+
 moulinette (2.2.0) stable; urgency=low
 
   * Bumping version to 2.2.0
