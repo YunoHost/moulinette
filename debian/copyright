@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://github.com/YunoHost/moulinette
 
 Files: *
-Copyright: 2014 YUNOHOST.ORG
+Copyright: 2015 YUNOHOST.ORG
 License: AGPL-3
 
 License: AGPL-3
