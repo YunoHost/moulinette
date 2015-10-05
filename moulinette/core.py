@@ -194,7 +194,7 @@ class Translator(object):
 
         try:
             return _load_key(self.locale)
-        except KeyError:
+        except (KeyError, IndexError):
             if self.default_locale != self.locale:
                 logger.info("untranslated key '%s' for locale '%s'",
                             key, self.locale)
