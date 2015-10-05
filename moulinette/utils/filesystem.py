@@ -15,7 +15,7 @@ def mkdir(path, mode=0777, parents=False, uid=None, gid=None, force=False):
 
     Keyword arguments:
         - path -- The directory to create
-        - mode -- Directory mode to set in octal
+        - mode -- Numeric path mode to set
         - parents -- Make parent directories as needed
         - uid -- Numeric uid or user name
         - gid -- Numeric gid or group name
@@ -63,6 +63,26 @@ def chown(path, uid=None, gid=None, recursive=False):
                 os.chown(os.path.join(root, d), uid, gid)
             for f in files:
                 os.chown(os.path.join(root, f), uid, gid)
+
+
+def chmod(path, mode, fmode=None, recursive=False):
+    """Change the mode of a path
+
+    Keyword arguments:
+        - mode -- Numeric path mode to set
+        - fmode -- Numeric file mode to set in case of a recursive directory
+        - recursive -- Operate on path recursively
+
+    """
+    os.chmod(path, mode)
+    if recursive and os.path.isdir(path):
+        if fmode is None:
+            fmode = mode
+        for root, dirs, files in os.walk(path):
+            for d in dirs:
+                os.chmod(path, mode)
+            for f in files:
+                os.chmod(path, fmode)
 
 
 def rm(path, recursive=False, force=False):
