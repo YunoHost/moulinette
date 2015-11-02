@@ -42,8 +42,47 @@ def colorize(astr, color):
     else:
         return astr
 
+def plain_print_dict(d, depth=0):
+    """Print in a plain way a dictionary recursively
+
+    Print a dictionary recursively for scripting usage to the standard output.
+
+    Output formatting:
+      >>> d = {'key': 'value', 'list': [1,2], 'dict': {'key2': 'value2'}}
+      >>> plain_print_dict(d)
+      #key
+      value
+      #list
+      1
+      2
+      #dict
+      ##key2
+      value2
+
+    Keyword arguments:
+        - d -- The dictionary to print
+        - depth -- The recursive depth of the dictionary
+
+    """
+    # skip first key printing
+    if depth == 0 and (isinstance(d, dict) and len(d) == 1):
+        _, d = d.popitem()
+    if isinstance(d, (tuple, set)):
+        d = list(d)
+    if isinstance(d, list):
+        for v in d:
+            plain_print_dict(v, depth+1)
+    elif isinstance(d, dict):
+        for k,v in d.items():
+            print("{}{}".format("#" * (depth+1), k))
+            plain_print_dict(v, depth+1)
+    else:
+        if isinstance(d, unicode):
+            d = d.encode('utf-8')
+        print(d)
+
 def pretty_print_dict(d, depth=0):
-    """Print a dictionary recursively
+    """Print in a pretty way a dictionary recursively
 
     Print a dictionary recursively with colors to the standard output.
 
@@ -187,7 +226,7 @@ class Interface(BaseInterface):
 
         self.actionsmap = actionsmap
 
-    def run(self, args, print_json=False):
+    def run(self, args, print_json=False, print_plain=False):
         """Run the moulinette
 
         Process the action corresponding to the given arguments 'args'
@@ -196,8 +235,12 @@ class Interface(BaseInterface):
         Keyword arguments:
             - args -- A list of argument strings
             - print_json -- True to print result as a JSON encoded string
+            - print_plain -- True to print result as a script-usable string
 
         """
+        if print_json and print_plain:
+            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
+
         try:
             ret = self.actionsmap.process(args, timeout=5)
         except KeyboardInterrupt, EOFError:
@@ -211,6 +254,8 @@ class Interface(BaseInterface):
             import json
             from moulinette.utils.serialize import JSONExtendedEncoder
             print(json.dumps(ret, cls=JSONExtendedEncoder))
+        elif print_plain:
+            plain_print_dict(ret)
         elif isinstance(ret, dict):
             pretty_print_dict(ret)
         else:

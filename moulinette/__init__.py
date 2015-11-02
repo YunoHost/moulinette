@@ -94,7 +94,7 @@ def api(namespaces, host='localhost', port=80, routes={},
                                              'use_cache': use_cache })
     moulinette.run(host, port)
 
-def cli(namespaces, args, print_json=False, use_cache=True):
+def cli(namespaces, args, print_json=False, print_plain=False, use_cache=True):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -104,6 +104,7 @@ def cli(namespaces, args, print_json=False, use_cache=True):
         - namespaces -- The list of namespaces to use
         - args -- A list of argument strings
         - print_json -- True to print result as a JSON encoded string
+        - print_plain -- True to print result as a script-usable string
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one
 
@@ -114,7 +115,7 @@ def cli(namespaces, args, print_json=False, use_cache=True):
         moulinette = init_interface('cli',
                                     actionsmap={'namespaces': namespaces,
                                                 'use_cache': use_cache})
-        moulinette.run(args, print_json)
+        moulinette.run(args, print_json, print_plain)
     except MoulinetteError as e:
         print('%s %s' % (colorize(m18n.g('error'), 'red'), e.strerror))
         return e.errno
