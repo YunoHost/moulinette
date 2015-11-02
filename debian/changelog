@@ -1,3 +1,14 @@
+moulinette (2.3.0) testing; urgency=low
+
+  * [i18n] Update translations from Transifex
+  * [enh] Allow to print output in a script-usable way for the cli
+  * [fix] Remove unneeded debian/install file
+  * [enh] Add a filesystem utils closed to some coreutils commands
+  * [enh] Add a chmod function in utils.filesystem
+  * [fix] Prevent malformed translation issue
+
+ -- Jérôme Lebleu <jerome.lebleu@mailoo.org>  Mon, 02 Nov 2015 22:44:28 +0100
+
 moulinette (2.2.1.1) stable; urgency=low
 
   * [fix] Missing os import
