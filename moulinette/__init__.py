@@ -109,14 +109,13 @@ def cli(namespaces, args, print_json=False, print_plain=False, use_cache=True):
             instead of using the cached one
 
     """
-    from moulinette.interfaces.cli import colorize
-
     try:
         moulinette = init_interface('cli',
                                     actionsmap={'namespaces': namespaces,
                                                 'use_cache': use_cache})
         moulinette.run(args, print_json, print_plain)
     except MoulinetteError as e:
-        print('%s %s' % (colorize(m18n.g('error'), 'red'), e.strerror))
+        import logging
+        logging.getLogger('yunohost').error(e.strerror)
         return e.errno
     return 0
