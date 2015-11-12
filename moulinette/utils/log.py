@@ -1,8 +1,11 @@
 import os
 import logging
+from logging import *
 
 
 # Global configuration and functions -----------------------------------
+
+SUCCESS = 25
 
 DEFAULT_LOGGING = {
     'version': 1,
@@ -37,9 +40,56 @@ def configure_logging(logging_config=None):
     """
     from logging.config import dictConfig
 
+    # add custom logging level and class
+    addLevelName(SUCCESS, 'SUCCESS')
+    setLoggerClass(MoulinetteLogger)
+
+    # load configuration from dict
     dictConfig(DEFAULT_LOGGING)
     if logging_config:
         dictConfig(logging_config)
+
+
+class MoulinetteLogger(Logger):
+    """Custom logger class
+
+    Extend base Logger class to provide the SUCCESS custom log level with
+    a convenient logging method. It also consider an optionnal action_id
+    which corresponds to the associated logged action. It is added to the
+    LogRecord extra and can be used with the ActionFilter.
+
+    """
+    action_id = None
+
+    def success(self, msg, *args, **kwargs):
+        """Log 'msg % args' with severity 'SUCCESS'."""
+        if self.isEnabledFor(SUCCESS):
+            self._log(SUCCESS, msg, args, **kwargs)
+
+    def findCaller(self):
+        """Override findCaller method to consider this source file."""
+        f = logging.currentframe()
+        if f is not None:
+            f = f.f_back
+        rv = "(unknown file)", 0, "(unknown function)"
+        while hasattr(f, "f_code"):
+            co = f.f_code
+            filename = os.path.normcase(co.co_filename)
+            if filename == logging._srcfile or filename == __file__:
+                f = f.f_back
+                continue
+            rv = (co.co_filename, f.f_lineno, co.co_name)
+            break
+        return rv
+
+    def _log(self, *args, **kwargs):
+        """Append action_id if available to the extra."""
+        if self.action_id is not None:
+            extra = kwargs.get('extra', {})
+            if not 'action_id' in extra:
+                extra['action_id'] = self.action_id
+                kwargs['extra'] = extra
+        return Logger._log(self, *args, **kwargs)
 
 
 # Action logging -------------------------------------------------------
@@ -62,39 +112,11 @@ def start_action_logging():
 
     return _get_action_id()
 
-class ActionLoggerAdapter(logging.LoggerAdapter):
-    """Adapter for action loggers
-
-    Extend an action logging output by processing both the logging message and the
-    contextual information. The action id is prepended to the message and the
-    following keyword arguments are added:
-        - action_id -- the current action id
-
-    """
-    def process(self, msg, kwargs):
-        """Process the logging call for the action
-
-        Process the logging call by retrieving the action id and prepending it to
-        the log message. It will also be added to the 'extra' keyword argument.
-
-        """
-        try:
-            action_id = self.extra['action_id']
-        except KeyError:
-            action_id = _get_action_id()
-
-        # Extend current extra keyword argument
-        extra = kwargs.get('extra', {})
-        extra['action_id'] = action_id
-        kwargs['extra'] = extra
-
-        return '[{:s}] {:s}'.format(action_id, msg), kwargs
-
 def getActionLogger(name=None, logger=None, action_id=None):
     """Get the logger adapter for an action
 
-    Return an action logger adapter with the specified name or logger and
-    optionally for a given action id, creating it if necessary.
+    Return a logger for the specified name - or use given logger - and
+    optionally for a given action id, retrieving it if necessary.
 
     Either a name or a logger must be specified.
     
@@ -102,5 +124,30 @@ def getActionLogger(name=None, logger=None, action_id=None):
     if not name and not logger:
         raise ValueError('Either a name or a logger must be specified')
 
-    extra = {'action_id': action_id} if action_id else {}
-    return ActionLoggerAdapter(logger or logging.getLogger(name), extra)
+    logger = logger or getLogger(name)
+    logger.action_id = action_id if action_id else _get_action_id()
+    return logger
+
+
+class ActionFilter(object):
+    """Extend log record for an optionnal action
+
+    Filter a given record and look for an `action_id` key. If it is not found
+    and `strict` is True, the record will not be logged. Otherwise, the key
+    specified by `message_key` will be added to the record, containing the
+    message formatted for the action or just the original one.
+
+    """
+    def __init__(self, message_key='fmessage', strict=False):
+        self.message_key = message_key
+        self.strict = strict
+
+    def filter(self, record):
+        msg = record.getMessage()
+        action_id = record.__dict__.get('action_id', None)
+        if action_id is not None:
+            msg = '[{:s}] {:s}'.format(action_id, msg)
+        elif self.strict:
+            return False
+        record.__dict__[self.message_key] = msg
+        return True

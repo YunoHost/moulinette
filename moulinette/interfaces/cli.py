@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import errno
 import getpass
 import locale
-import logging
 
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
 )
+from moulinette.utils import log
 
 
-logger = logging.getLogger('moulinette.cli')
+logger = log.getLogger('moulinette.cli')
 
 
 # CLI helpers ----------------------------------------------------------
@@ -125,6 +126,42 @@ def get_locale():
 
 
 # CLI Classes Implementation -------------------------------------------
+
+class TTYHandler(log.StreamHandler):
+    """
+    A handler class which prints logging records, with colorized message,
+    to a tty.
+    """
+    LEVELS_COLOR = {
+        log.NOTSET   : 'white',
+        log.DEBUG    : 'white',
+        log.INFO     : 'cyan',
+        log.SUCCESS  : 'green',
+        log.WARNING  : 'yellow',
+        log.ERROR    : 'red',
+        log.CRITICAL : 'red',
+    }
+
+    def __init__(self):
+        log.StreamHandler.__init__(self, stream=sys.stdout)
+        if os.isatty(1):
+            self.colorized = True
+        else:
+            self.colorized = False
+
+    def format(self, record):
+        msg = record.getMessage()
+        if self.colorized:
+            level = ''
+            if self.level <= log.DEBUG:
+                level = '%s ' % record.levelname
+            elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR']:
+                level = '%s ' % m18n.g(record.levelname.lower())
+            color = self.LEVELS_COLOR.get(record.levelno, 'white')
+            msg = '\033[{0}m\033[1m{1}\033[m{2}'.format(
+                colors_codes[color], level, msg)
+        return msg
+
 
 class ActionsMapParser(BaseActionsMapParser):
     """Actions map's Parser for the CLI
