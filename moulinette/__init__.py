@@ -87,12 +87,26 @@ def api(namespaces, host='localhost', port=80, routes={},
             instead of using the cached one
 
     """
-    moulinette = init_interface('api',
-                                kwargs={ 'routes': routes,
-                                         'use_websocket': use_websocket },
-                                actionsmap={ 'namespaces': namespaces,
-                                             'use_cache': use_cache })
-    moulinette.run(host, port)
+    try:
+        moulinette = init_interface('api',
+            kwargs={
+                'routes': routes,
+                'use_websocket': use_websocket
+            },
+            actionsmap={
+                'namespaces': namespaces,
+                'use_cache': use_cache
+            }
+        )
+        moulinette.run(host, port)
+    except MoulinetteError as e:
+        import logging
+        logging.getLogger('moulinette').error(e.strerror)
+        return e.errno
+    except KeyboardInterrupt:
+        import logging
+        logging.getLogger('moulinette').info(m18n.g('operation_interrupted'))
+    return 0
 
 def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
     """Command line interface
@@ -122,6 +136,6 @@ def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
         moulinette.run(args, output_as=output_as)
     except MoulinetteError as e:
         import logging
-        logging.getLogger('yunohost').error(e.strerror)
+        logging.getLogger('moulinette').error(e.strerror)
         return e.errno
     return 0
