@@ -3,7 +3,6 @@
 import os
 import re
 import errno
-import logging
 import argparse
 from json import dumps as json_encode
 
@@ -17,13 +16,41 @@ from moulinette.core import MoulinetteError, clean_session
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
 )
+from moulinette.utils import log
 from moulinette.utils.serialize import JSONExtendedEncoder
 from moulinette.utils.text import random_ascii
 
-logger = logging.getLogger('moulinette.interface.api')
+logger = log.getLogger('moulinette.interface.api')
 
 
 # API helpers ----------------------------------------------------------
+
+class LogQueues(dict):
+    """Map of session id to queue."""
+    pass
+
+class APIQueueHandler(log.Handler):
+    """
+    A handler class which store logging records into a queue, to be used
+    and retrieved from the API.
+    """
+    def __init__(self):
+        log.Handler.__init__(self)
+        self.queues = LogQueues()
+
+    def emit(self, record):
+        sid = request.get_cookie('session.id')
+        try:
+            queue = self.queues[sid]
+        except KeyError:
+            # Session is not initialized, abandon.
+            return
+        else:
+            # Put the message as a 2-tuple in the queue
+            queue.put_nowait((record.levelname.lower(), record.getMessage()))
+            # Put the current greenlet to sleep for 0 second in order to
+            # populate the new message in the queue
+            sleep(0)
 
 class _HTTPArgumentParser(object):
     """Argument parser for HTTP requests
@@ -126,7 +153,7 @@ class _ActionsMapPlugin(object):
     name = 'actionsmap'
     api = 2
 
-    def __init__(self, actionsmap, use_websocket):
+    def __init__(self, actionsmap, use_websocket, log_queues={}):
         # Connect signals to handlers
         msignals.set_handler('authenticate', self._do_authenticate)
         if use_websocket:
@@ -134,9 +161,9 @@ class _ActionsMapPlugin(object):
 
         self.actionsmap = actionsmap
         self.use_websocket = use_websocket
+        self.log_queues = log_queues
         # TODO: Save and load secrets?
         self.secrets = {}
-        self.queues = {}
 
     def setup(self, app):
         """Setup plugin on the application
@@ -308,11 +335,11 @@ class _ActionsMapPlugin(object):
         """
         s_id = request.get_cookie('session.id')
         try:
-            queue = self.queues[s_id]
+            queue = self.log_queues[s_id]
         except KeyError:
             # Create a new queue for the session
             queue = Queue()
-            self.queues[s_id] = queue
+            self.log_queues[s_id] = queue
 
         wsock = request.environ.get('wsgi.websocket')
         if not wsock:
@@ -326,7 +353,7 @@ class _ActionsMapPlugin(object):
             except TypeError:
                 if item == StopIteration:
                     # Delete the current queue and break
-                    del self.queues[s_id]
+                    del self.log_queues[s_id]
                     break
                 logger.exception("invalid item in the messages queue: %r", item)
             else:
@@ -358,7 +385,7 @@ class _ActionsMapPlugin(object):
         finally:
             # Close opened WebSocket by putting StopIteration in the queue
             try:
-                queue = self.queues[request.get_cookie('session.id')]
+                queue = self.log_queues[request.get_cookie('session.id')]
             except KeyError:
                 pass
             else:
@@ -396,7 +423,7 @@ class _ActionsMapPlugin(object):
         """
         s_id = request.get_cookie('session.id')
         try:
-            queue = self.queues[s_id]
+            queue = self.log_queues[s_id]
         except KeyError:
             return
 
@@ -621,10 +648,19 @@ class Interface(BaseInterface):
         - routes -- A dict of additional routes to add in the form of
             {(method, path): callback}
         - use_websocket -- Serve via WSGI to handle asynchronous responses
+        - log_queues -- A LogQueues object or None to retrieve it from
+            registered logging handlers
 
     """
-    def __init__(self, actionsmap, routes={}, use_websocket=True):
+    def __init__(self, actionsmap, routes={}, use_websocket=True,
+                 log_queues=None):
         self.use_websocket = use_websocket
+
+        # Attempt to retrieve log queues from an APIQueueHandler
+        if log_queues is None:
+            handler = log.getHandlersByClass(APIQueueHandler, limit=1)
+            if handler:
+                log_queues = handler.queues
 
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
@@ -648,7 +684,7 @@ class Interface(BaseInterface):
         # Install plugins
         app.install(apiheader)
         app.install(api18n)
-        app.install(_ActionsMapPlugin(actionsmap, use_websocket))
+        app.install(_ActionsMapPlugin(actionsmap, use_websocket, log_queues))
 
         # Append default routes
 #        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',

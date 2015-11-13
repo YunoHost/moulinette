@@ -49,6 +49,19 @@ def configure_logging(logging_config=None):
     if logging_config:
         dictConfig(logging_config)
 
+def getHandlersByClass(classinfo, limit=0):
+    """Retrieve registered handlers of a given class."""
+    handlers = []
+    for ref in logging._handlers.itervaluerefs():
+        o = ref()
+        if o is not None and isinstance(o, classinfo):
+            if limit == 1:
+                return o
+            handlers.append(o)
+    if limit != 0 and len(handlers) > limit:
+        return handlers[:limit-1]
+    return handlers
+
 
 class MoulinetteLogger(Logger):
     """Custom logger class
