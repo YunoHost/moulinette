@@ -278,7 +278,7 @@ class Interface(BaseInterface):
 
         self.actionsmap = actionsmap
 
-    def run(self, args, print_json=False, print_plain=False):
+    def run(self, args, output_as=None):
         """Run the moulinette
 
         Process the action corresponding to the given arguments 'args'
@@ -286,11 +286,12 @@ class Interface(BaseInterface):
 
         Keyword arguments:
             - args -- A list of argument strings
-            - print_json -- True to print result as a JSON encoded string
-            - print_plain -- True to print result as a script-usable string
+            - output_as -- Output result in another format. Possible values:
+                - json: return a JSON encoded string
+                - plain: return a script-readable output
 
         """
-        if print_json and print_plain:
+        if output_as and output_as not in ['json', 'plain']:
             raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
 
         try:
@@ -302,12 +303,13 @@ class Interface(BaseInterface):
             return
 
         # Format and print result
-        if print_json:
-            import json
-            from moulinette.utils.serialize import JSONExtendedEncoder
-            print(json.dumps(ret, cls=JSONExtendedEncoder))
-        elif print_plain:
-            plain_print_dict(ret)
+        if output_as:
+            if output_as == 'json':
+                import json
+                from moulinette.utils.serialize import JSONExtendedEncoder
+                print(json.dumps(ret, cls=JSONExtendedEncoder))
+            else:
+                plain_print_dict(ret)
         elif isinstance(ret, dict):
             pretty_print_dict(ret)
         else:

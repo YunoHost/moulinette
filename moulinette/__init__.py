@@ -94,8 +94,7 @@ def api(namespaces, host='localhost', port=80, routes={},
                                              'use_cache': use_cache })
     moulinette.run(host, port)
 
-def cli(namespaces, args, print_json=False, print_plain=False, use_cache=True,
-        parser_kwargs={}):
+def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -104,10 +103,10 @@ def cli(namespaces, args, print_json=False, print_plain=False, use_cache=True,
     Keyword arguments:
         - namespaces -- The list of namespaces to use
         - args -- A list of argument strings
-        - print_json -- True to print result as a JSON encoded string
-        - print_plain -- True to print result as a script-usable string
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one
+        - output_as -- Output result in another format, see
+            moulinette.interfaces.cli.Interface for possible values
         - parser_kwargs -- A dict of arguments to pass to the parser
             class at construction
 
@@ -120,7 +119,7 @@ def cli(namespaces, args, print_json=False, print_plain=False, use_cache=True,
                 'parser_kwargs': parser_kwargs,
             },
         )
-        moulinette.run(args, print_json, print_plain)
+        moulinette.run(args, output_as=output_as)
     except MoulinetteError as e:
         import logging
         logging.getLogger('yunohost').error(e.strerror)
