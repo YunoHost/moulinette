@@ -100,7 +100,8 @@ class MoulinetteLogger(Logger):
         if self.action_id is not None:
             extra = kwargs.get('extra', {})
             if not 'action_id' in extra:
-                extra['action_id'] = self.action_id
+                # FIXME: Get real action_id instead of logger/current one
+                extra['action_id'] = _get_action_id()
                 kwargs['extra'] = extra
         return Logger._log(self, *args, **kwargs)
 
