@@ -14,7 +14,8 @@ Depends: ${misc:Depends}, ${python:Depends},
     python-yaml,
     python-bottle (>= 0.12),
     python-gnupg,
-    python-gevent-websocket
+    python-gevent-websocket,
+    python-argcomplete
 Replaces: yunohost-cli
 Breaks: yunohost-cli
 Description: prototype interfaces with ease in Python

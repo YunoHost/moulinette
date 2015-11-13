@@ -7,6 +7,8 @@ import getpass
 import locale
 from argparse import SUPPRESS
 
+import argcomplete
+
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
@@ -293,6 +295,9 @@ class Interface(BaseInterface):
         """
         if output_as and output_as not in ['json', 'plain']:
             raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
+
+        # auto-complete
+        argcomplete.autocomplete(self.actionsmap.parser._parser)
 
         try:
             ret = self.actionsmap.process(args, timeout=5)
