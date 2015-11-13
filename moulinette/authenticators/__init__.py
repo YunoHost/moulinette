@@ -151,7 +151,7 @@ class BaseAuthenticator(object):
         except IOError:
             logger.debug("unable to retrieve session", exc_info=1)
             raise MoulinetteError(errno.ENOENT,
-                                  m18r.g('unable_retrieve_session'))
+                                  m18n.g('unable_retrieve_session'))
         else:
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'
@@ -161,5 +161,5 @@ class BaseAuthenticator(object):
                 logger.error("unable to decrypt password for the session: %s",
                              decrypted.status)
                 raise MoulinetteError(errno.EINVAL,
-                                      m18r.g('unable_retrieve_session'))
+                                      m18n.g('unable_retrieve_session'))
             return decrypted.data
