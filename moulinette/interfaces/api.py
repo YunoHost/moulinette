@@ -476,7 +476,7 @@ class ActionsMapParser(BaseActionsMapParser):
     the arguments is represented by a ExtendedArgumentParser object.
 
     """
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, **kwargs):
         super(ActionsMapParser, self).__init__(parent)
 
         self._parsers = {} # dict({(method, path): _HTTPArgumentParser})

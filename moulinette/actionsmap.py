@@ -342,17 +342,20 @@ class ActionsMap(object):
     all available namespaces.
 
     Keyword arguments:
-        - parser -- The BaseActionsMapParser derived class to use for
-            parsing the actions map
+        - parser_class -- The BaseActionsMapParser derived class to use
+            for parsing the actions map
         - namespaces -- The list of namespaces to use
         - use_cache -- False if it should parse the actions map file
-            instead of using the cached one.
+            instead of using the cached one
+        - parser_kwargs -- A dict of arguments to pass to the parser
+            class at construction
 
     """
-    def __init__(self, parser, namespaces=[], use_cache=True):
-        if not issubclass(parser, BaseActionsMapParser):
-            raise ValueError("Invalid parser class '%s'" % parser.__name__)
-        self._parser_class = parser
+    def __init__(self, parser_class, namespaces=[], use_cache=True,
+                 parser_kwargs={}):
+        if not issubclass(parser_class, BaseActionsMapParser):
+            raise ValueError("Invalid parser class '%s'" % parser_class.__name__)
+        self.parser_class = parser_class
         self.use_cache = use_cache
 
         if len(namespaces) == 0:
@@ -380,8 +383,8 @@ class ActionsMap(object):
             m18n.load_namespace(n)
 
         # Generate parsers
-        self.extraparser = ExtraArgumentParser(parser.interface)
-        self._parser = self._construct_parser(actionsmaps)
+        self.extraparser = ExtraArgumentParser(parser_class.interface)
+        self._parser = self._construct_parser(actionsmaps, **parser_kwargs)
 
     @property
     def parser(self):
@@ -515,13 +518,15 @@ class ActionsMap(object):
 
     ## Private methods
 
-    def _construct_parser(self, actionsmaps):
+    def _construct_parser(self, actionsmaps, **kwargs):
         """
         Construct the parser with the actions map
 
         Keyword arguments:
             - actionsmaps -- A dict of multi-level dictionnary of
                 categories/actions/arguments list for each namespaces
+            - **kwargs -- Additionnal arguments to pass at the parser
+                class instantiation
 
         Returns:
             An interface relevant's parser object
@@ -551,7 +556,7 @@ class ActionsMap(object):
                     parser.add_argument(*names, **argp)
 
         # Instantiate parser
-        top_parser = self._parser_class()
+        top_parser = self.parser_class(**kwargs)
 
         # Iterate over actions map namespaces
         for n, actionsmap in actionsmaps.items():

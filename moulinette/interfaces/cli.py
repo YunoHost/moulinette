@@ -5,6 +5,7 @@ import sys
 import errno
 import getpass
 import locale
+from argparse import SUPPRESS
 
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
@@ -172,9 +173,12 @@ class ActionsMapParser(BaseActionsMapParser):
     Keyword arguments:
         - parser -- The ExtendedArgumentParser object to use
         - subparser_kwargs -- Arguments to pass to the sub-parser group
+        - top_parser -- An ArgumentParser object whose arguments should
+            be take into account but not parsed
 
     """
-    def __init__(self, parent=None, parser=None, subparser_kwargs=None):
+    def __init__(self, parent=None, parser=None, subparser_kwargs=None,
+                 top_parser=None, **kwargs):
         super(ActionsMapParser, self).__init__(parent)
 
         if subparser_kwargs is None:
@@ -182,6 +186,14 @@ class ActionsMapParser(BaseActionsMapParser):
 
         self._parser = parser or ExtendedArgumentParser()
         self._subparsers = self._parser.add_subparsers(**subparser_kwargs)
+        self._global_parser = parent._global_parser if parent else None
+
+        if top_parser:
+            # Append each top parser action to the global group
+            glob = self.add_global_parser()
+            for action in top_parser._actions:
+                action.dest = SUPPRESS
+                glob._add_action(action)
 
 
     ## Implement virtual properties
@@ -198,7 +210,10 @@ class ActionsMapParser(BaseActionsMapParser):
         return [name]
 
     def add_global_parser(self, **kwargs):
-        return self._parser.add_mutually_exclusive_group()
+        if not self._global_parser:
+            self._global_parser = self._parser.add_argument_group(
+                    "global arguments")
+        return self._global_parser
 
     def add_category_parser(self, name, category_help=None, **kwargs):
         """Add a parser for a category

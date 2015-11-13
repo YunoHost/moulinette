@@ -31,7 +31,7 @@ class BaseActionsMapParser(object):
         - parent -- A parent BaseActionsMapParser derived object
 
     """
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, **kwargs):
         if parent:
             self._o = parent
         else:
