@@ -136,11 +136,14 @@ class TTYHandler(log.StreamHandler):
     A handler class which prints logging records for a tty. The record is
     neverthemess formatted depending if it is connected to a tty(-like)
     device.
-    If it's the case, the level name - optionnaly colorized - is
-    prepended to the message. If not, just the message is output.
+    If it's the case, the level name - optionnaly colorized - is prepended
+    to the message and the result is stored in the record as `message_key`
+    attribute. That way, a custom formatter can be defined. The default is
+    to output just the formatted message.
+    Anyway, if the stream is not a tty, just the message is output.
 
-    Records with a level higher or equal to WARNING are sent to stderr
-    stream. Otherwise, they are sent to stdout.
+    Note that records with a level higher or equal to WARNING are sent to
+    stderr. Otherwise, they are sent to stdout.
 
     """
     LEVELS_COLOR = {
@@ -153,16 +156,14 @@ class TTYHandler(log.StreamHandler):
         log.CRITICAL : 'red',
     }
 
-    def __init__(self):
-        log.StreamHandler.__init__(self, stream=sys.stdout)
-        if os.isatty(1):
-            self.colorized = True
-        else:
-            self.colorized = False
+    def __init__(self, message_key='fmessage'):
+        log.StreamHandler.__init__(self)
+        self.message_key = message_key
 
     def format(self, record):
+        """Enhance message with level and colors if supported."""
         msg = record.getMessage()
-        if self.colorized:
+        if self.supports_color():
             level = ''
             if self.level <= log.DEBUG:
                 # add level name before message
@@ -173,6 +174,10 @@ class TTYHandler(log.StreamHandler):
             color = self.LEVELS_COLOR.get(record.levelno, 'white')
             msg = '\033[{0}m\033[1m{1}\033[m{2}'.format(
                 colors_codes[color], level, msg)
+        if self.formatter:
+            # use user-defined formatter
+            record.__dict__[self.message_key] = msg
+            return self.formatter.format(record)
         return msg
 
     def emit(self, record):
@@ -182,6 +187,12 @@ class TTYHandler(log.StreamHandler):
         else:
             self.stream = sys.stdout
         log.StreamHandler.emit(self, record)
+
+    def supports_color(self):
+        """Check whether current stream supports color."""
+        if hasattr(self.stream, 'isatty') and self.stream.isatty():
+            return True
+        return False
 
 
 class ActionsMapParser(BaseActionsMapParser):
