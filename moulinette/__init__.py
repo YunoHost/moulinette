@@ -87,14 +87,28 @@ def api(namespaces, host='localhost', port=80, routes={},
             instead of using the cached one
 
     """
-    moulinette = init_interface('api',
-                                kwargs={ 'routes': routes,
-                                         'use_websocket': use_websocket },
-                                actionsmap={ 'namespaces': namespaces,
-                                             'use_cache': use_cache })
-    moulinette.run(host, port)
+    try:
+        moulinette = init_interface('api',
+            kwargs={
+                'routes': routes,
+                'use_websocket': use_websocket
+            },
+            actionsmap={
+                'namespaces': namespaces,
+                'use_cache': use_cache
+            }
+        )
+        moulinette.run(host, port)
+    except MoulinetteError as e:
+        import logging
+        logging.getLogger('moulinette').error(e.strerror)
+        return e.errno
+    except KeyboardInterrupt:
+        import logging
+        logging.getLogger('moulinette').info(m18n.g('operation_interrupted'))
+    return 0
 
-def cli(namespaces, args, print_json=False, print_plain=False, use_cache=True):
+def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -103,20 +117,25 @@ def cli(namespaces, args, print_json=False, print_plain=False, use_cache=True):
     Keyword arguments:
         - namespaces -- The list of namespaces to use
         - args -- A list of argument strings
-        - print_json -- True to print result as a JSON encoded string
-        - print_plain -- True to print result as a script-usable string
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one
+        - output_as -- Output result in another format, see
+            moulinette.interfaces.cli.Interface for possible values
+        - parser_kwargs -- A dict of arguments to pass to the parser
+            class at construction
 
     """
-    from moulinette.interfaces.cli import colorize
-
     try:
         moulinette = init_interface('cli',
-                                    actionsmap={'namespaces': namespaces,
-                                                'use_cache': use_cache})
-        moulinette.run(args, print_json, print_plain)
+            actionsmap={
+                'namespaces': namespaces,
+                'use_cache': use_cache,
+                'parser_kwargs': parser_kwargs,
+            },
+        )
+        moulinette.run(args, output_as=output_as)
     except MoulinetteError as e:
-        print('%s %s' % (colorize(m18n.g('error'), 'red'), e.strerror))
+        import logging
+        logging.getLogger('moulinette').error(e.strerror)
         return e.errno
     return 0

@@ -2,8 +2,8 @@ Source: moulinette
 Section: python
 Priority: optional
 Maintainer: Jérôme Lebleu <jerome.lebleu@mailoo.org>
-Build-Depends: debhelper (>= 7.0.50), python (>= 2.7)
-Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 9), python (>= 2.7)
+Standards-Version: 3.9.6
 X-Python-Version: >= 2.7
 Homepage: https://github.com/YunoHost/moulinette
 
@@ -14,7 +14,8 @@ Depends: ${misc:Depends}, ${python:Depends},
     python-yaml,
     python-bottle (>= 0.12),
     python-gnupg,
-    python-gevent-websocket
+    python-gevent-websocket,
+    python-argcomplete
 Replaces: yunohost-cli
 Breaks: yunohost-cli
 Description: prototype interfaces with ease in Python

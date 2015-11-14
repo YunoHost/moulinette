@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import errno
 import getpass
 import locale
-import logging
+from argparse import SUPPRESS
+
+import argcomplete
 
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
 )
+from moulinette.utils import log
 
 
-logger = logging.getLogger('moulinette.cli')
+logger = log.getLogger('moulinette.cli')
 
 
 # CLI helpers ----------------------------------------------------------
@@ -126,6 +130,71 @@ def get_locale():
 
 # CLI Classes Implementation -------------------------------------------
 
+class TTYHandler(log.StreamHandler):
+    """TTY log handler
+
+    A handler class which prints logging records for a tty. The record is
+    neverthemess formatted depending if it is connected to a tty(-like)
+    device.
+    If it's the case, the level name - optionnaly colorized - is prepended
+    to the message and the result is stored in the record as `message_key`
+    attribute. That way, a custom formatter can be defined. The default is
+    to output just the formatted message.
+    Anyway, if the stream is not a tty, just the message is output.
+
+    Note that records with a level higher or equal to WARNING are sent to
+    stderr. Otherwise, they are sent to stdout.
+
+    """
+    LEVELS_COLOR = {
+        log.NOTSET   : 'white',
+        log.DEBUG    : 'white',
+        log.INFO     : 'cyan',
+        log.SUCCESS  : 'green',
+        log.WARNING  : 'yellow',
+        log.ERROR    : 'red',
+        log.CRITICAL : 'red',
+    }
+
+    def __init__(self, message_key='fmessage'):
+        log.StreamHandler.__init__(self)
+        self.message_key = message_key
+
+    def format(self, record):
+        """Enhance message with level and colors if supported."""
+        msg = record.getMessage()
+        if self.supports_color():
+            level = ''
+            if self.level <= log.DEBUG:
+                # add level name before message
+                level = '%s ' % record.levelname
+            elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR']:
+                # add translated level name before message
+                level = '%s ' % m18n.g(record.levelname.lower())
+            color = self.LEVELS_COLOR.get(record.levelno, 'white')
+            msg = '\033[{0}m\033[1m{1}\033[m{2}'.format(
+                colors_codes[color], level, msg)
+        if self.formatter:
+            # use user-defined formatter
+            record.__dict__[self.message_key] = msg
+            return self.formatter.format(record)
+        return msg
+
+    def emit(self, record):
+        # set proper stream first
+        if record.levelno >= log.WARNING:
+            self.stream = sys.stderr
+        else:
+            self.stream = sys.stdout
+        log.StreamHandler.emit(self, record)
+
+    def supports_color(self):
+        """Check whether current stream supports color."""
+        if hasattr(self.stream, 'isatty') and self.stream.isatty():
+            return True
+        return False
+
+
 class ActionsMapParser(BaseActionsMapParser):
     """Actions map's Parser for the CLI
 
@@ -135,9 +204,12 @@ class ActionsMapParser(BaseActionsMapParser):
     Keyword arguments:
         - parser -- The ExtendedArgumentParser object to use
         - subparser_kwargs -- Arguments to pass to the sub-parser group
+        - top_parser -- An ArgumentParser object whose arguments should
+            be take into account but not parsed
 
     """
-    def __init__(self, parent=None, parser=None, subparser_kwargs=None):
+    def __init__(self, parent=None, parser=None, subparser_kwargs=None,
+                 top_parser=None, **kwargs):
         super(ActionsMapParser, self).__init__(parent)
 
         if subparser_kwargs is None:
@@ -145,6 +217,14 @@ class ActionsMapParser(BaseActionsMapParser):
 
         self._parser = parser or ExtendedArgumentParser()
         self._subparsers = self._parser.add_subparsers(**subparser_kwargs)
+        self._global_parser = parent._global_parser if parent else None
+
+        if top_parser:
+            # Append each top parser action to the global group
+            glob = self.add_global_parser()
+            for action in top_parser._actions:
+                action.dest = SUPPRESS
+                glob._add_action(action)
 
 
     ## Implement virtual properties
@@ -161,7 +241,10 @@ class ActionsMapParser(BaseActionsMapParser):
         return [name]
 
     def add_global_parser(self, **kwargs):
-        return self._parser.add_mutually_exclusive_group()
+        if not self._global_parser:
+            self._global_parser = self._parser.add_argument_group(
+                    "global arguments")
+        return self._global_parser
 
     def add_category_parser(self, name, category_help=None, **kwargs):
         """Add a parser for a category
@@ -226,7 +309,7 @@ class Interface(BaseInterface):
 
         self.actionsmap = actionsmap
 
-    def run(self, args, print_json=False, print_plain=False):
+    def run(self, args, output_as=None):
         """Run the moulinette
 
         Process the action corresponding to the given arguments 'args'
@@ -234,12 +317,16 @@ class Interface(BaseInterface):
 
         Keyword arguments:
             - args -- A list of argument strings
-            - print_json -- True to print result as a JSON encoded string
-            - print_plain -- True to print result as a script-usable string
+            - output_as -- Output result in another format. Possible values:
+                - json: return a JSON encoded string
+                - plain: return a script-readable output
 
         """
-        if print_json and print_plain:
+        if output_as and output_as not in ['json', 'plain']:
             raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
+
+        # auto-complete
+        argcomplete.autocomplete(self.actionsmap.parser._parser)
 
         try:
             ret = self.actionsmap.process(args, timeout=5)
@@ -250,12 +337,13 @@ class Interface(BaseInterface):
             return
 
         # Format and print result
-        if print_json:
-            import json
-            from moulinette.utils.serialize import JSONExtendedEncoder
-            print(json.dumps(ret, cls=JSONExtendedEncoder))
-        elif print_plain:
-            plain_print_dict(ret)
+        if output_as:
+            if output_as == 'json':
+                import json
+                from moulinette.utils.serialize import JSONExtendedEncoder
+                print(json.dumps(ret, cls=JSONExtendedEncoder))
+            else:
+                plain_print_dict(ret)
         elif isinstance(ret, dict):
             pretty_print_dict(ret)
         else:
