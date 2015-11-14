@@ -1,3 +1,22 @@
+moulinette (2.3.1) testing; urgency=low
+
+  * [ref] Use a new asynchronous file reader helper
+  * [enh] Provide new logging facilities to get rid of msignals.display
+  * [enh] Use logger in cli helper when MoulinetteError is raised
+  * [enh] Allow to define global abstract arguments in the cli
+  * [enh] Replace print_* arguments by output_as in the cli
+  * [enh] Add auto-completion support in the cli
+  * [enh] Implement logging handler and queues for the API
+  * [enh] Catch exceptions and return code in api function helper
+  * [enh] Output to stderr if level >= WARNING in TTYHandler
+  * [enh] Allow to use a formatter and improve tty check in TTYHandler
+  * [fix] Update debhelper build depends and standard version
+  * [fix] Correct global object name
+  * [fix] Add current action id instead of logger's one
+  * [i18n] Add some basic strings
+
+ -- Jérôme Lebleu <jerome.lebleu@mailoo.org>  Sun, 15 Nov 2015 00:14:41 +0100
+
 moulinette (2.3.0) testing; urgency=low
 
   * [i18n] Update translations from Transifex
