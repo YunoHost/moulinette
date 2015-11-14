@@ -8,6 +8,8 @@
     "root_required" : "You must be root to perform this action",
     "instance_already_running" : "An instance is already running",
     "error_see_log" : "An error occured. Please see the log for details.",
+    "file_not_exist" : "File does not exist",
+    "folder_not_exist" : "Folder does not exist",
 
     "unable_authenticate" : "Unable to authenticate",
     "unable_retrieve_session" : "Unable to retrieve the session",
