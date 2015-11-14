@@ -131,9 +131,17 @@ def get_locale():
 # CLI Classes Implementation -------------------------------------------
 
 class TTYHandler(log.StreamHandler):
-    """
-    A handler class which prints logging records, with colorized message,
-    to a tty.
+    """TTY log handler
+
+    A handler class which prints logging records for a tty. The record is
+    neverthemess formatted depending if it is connected to a tty(-like)
+    device.
+    If it's the case, the level name - optionnaly colorized - is
+    prepended to the message. If not, just the message is output.
+
+    Records with a level higher or equal to WARNING are sent to stderr
+    stream. Otherwise, they are sent to stdout.
+
     """
     LEVELS_COLOR = {
         log.NOTSET   : 'white',
@@ -157,13 +165,23 @@ class TTYHandler(log.StreamHandler):
         if self.colorized:
             level = ''
             if self.level <= log.DEBUG:
+                # add level name before message
                 level = '%s ' % record.levelname
             elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR']:
+                # add translated level name before message
                 level = '%s ' % m18n.g(record.levelname.lower())
             color = self.LEVELS_COLOR.get(record.levelno, 'white')
             msg = '\033[{0}m\033[1m{1}\033[m{2}'.format(
                 colors_codes[color], level, msg)
         return msg
+
+    def emit(self, record):
+        # set proper stream first
+        if record.levelno >= log.WARNING:
+            self.stream = sys.stderr
+        else:
+            self.stream = sys.stdout
+        log.StreamHandler.emit(self, record)
 
 
 class ActionsMapParser(BaseActionsMapParser):
