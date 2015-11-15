@@ -5,7 +5,7 @@ try:
 except ImportError:
     from shlex import quote # Python3 >= 3.3
 
-from .stream import start_async_file_reading
+from .stream import async_file_reading
 
 # Prevent to import subprocess only for common classes
 CalledProcessError = subprocess.CalledProcessError
@@ -29,8 +29,10 @@ def call_async_output(args, callback, **kwargs):
     """Run command and provide its output asynchronously
 
     Run command with arguments and wait for it to complete to return the
-    returncode attribute. The callback must take one byte string argument
-    and will be called each time the command produces some output.
+    returncode attribute. The `callback` can be a method or a 2-tuple of
+    methods - for stdout and stderr respectively - which must take one
+    byte string argument. It will be called each time the command produces
+    some output.
 
     The stdout and stderr additional arguments for the Popen constructor
     are not allowed as they are used internally.
@@ -48,23 +50,37 @@ def call_async_output(args, callback, **kwargs):
         if a in kwargs:
             raise ValueError('%s argument not allowed, '
                              'it will be overridden.' % a)
-    if not callable(callback):
-        raise ValueError('callback argument must be callable')
+
+    # Validate callback argument
+    if isinstance(callback, tuple):
+        if len(callback) != 2:
+            raise ValueError('callback argument should be a 2-tuple')
+        kwargs['stdout'] = kwargs['stderr'] = subprocess.PIPE
+        separate_stderr = True
+    elif callable(callback):
+        kwargs['stdout'] = subprocess.PIPE
+        kwargs['stderr'] = subprocess.STDOUT
+        separate_stderr = False
+        callback = (callback,)
+    else:
+        raise ValueError('callback argument must be callable or a 2-tuple')
 
     # Run the command
-    p = subprocess.Popen(args, stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT, **kwargs)
+    p = subprocess.Popen(args, **kwargs)
 
-    # Wrap and get command output
-    reader, queue = start_async_file_reading(p.stdout)
-    while not reader.eof():
-        while not queue.empty():
-            line = queue.get()
-            try:
-                callback(line.rstrip())
-            except:
-                pass
-    reader.join()
+    # Wrap and get command outputs
+    stdout_reader, stdout_consum = async_file_reading(p.stdout, callback[0])
+    if separate_stderr:
+        stderr_reader, stderr_consum = async_file_reading(p.stderr, callback[1])
+        while not stdout_reader.eof() and not stderr_reader.eof():
+            time.sleep(.1)
+        stderr_reader.join()
+        stderr_consum.join()
+    else:
+        while not stdout_reader.eof():
+            time.sleep(.1)
+    stdout_reader.join()
+    stdout_consum.join()
     return p.poll()
 
 
