@@ -1,3 +1,9 @@
+moulinette (2.3.2) testing; urgency=low
+
+  * [fix] Update call_async_output to make use of start_async_file_reading
+
+ -- Jérôme Lebleu <jerome.lebleu@mailoo.org>  Sun, 15 Nov 2015 13:59:20 +0100
+
 moulinette (2.3.1) testing; urgency=low
 
   * [ref] Use a new asynchronous file reader helper
