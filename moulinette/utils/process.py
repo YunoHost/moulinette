@@ -1,10 +1,11 @@
+import time
 import subprocess
 try:
     from pipes import quote # Python2 & Python3 <= 3.2
 except ImportError:
     from shlex import quote # Python3 >= 3.3
 
-from .stream import NonBlockingStreamReader
+from .stream import start_async_file_reading
 
 # Prevent to import subprocess only for common classes
 CalledProcessError = subprocess.CalledProcessError
@@ -55,22 +56,16 @@ def call_async_output(args, callback, **kwargs):
                          stderr=subprocess.STDOUT, **kwargs)
 
     # Wrap and get command output
-    stream = NonBlockingStreamReader(p.stdout)
-    while True:
-        line = stream.readline(True, 0.1)
-        if not line:
-            # Check if process has terminated
-            returncode = p.poll()
-            if returncode is not None:
-                break
-        else:
+    reader, queue = start_async_file_reading(p.stdout)
+    while not reader.eof():
+        while not queue.empty():
+            line = queue.get()
             try:
                 callback(line.rstrip())
             except:
                 pass
-    stream.close()
-
-    return returncode
+    reader.join()
+    return p.poll()
 
 
 # Call multiple commands -----------------------------------------------
