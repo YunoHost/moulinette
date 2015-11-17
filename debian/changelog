@@ -1,3 +1,9 @@
+moulinette (2.3.3) testing; urgency=low
+
+  * [enh] Enhance stream utils with callback and use it in call_async_output
+
+ -- Jérôme Lebleu <jerome.lebleu@mailoo.org>  Tue, 17 Nov 2015 11:06:13 +0100
+
 moulinette (2.3.2) testing; urgency=low
 
   * [fix] Update call_async_output to make use of start_async_file_reading
