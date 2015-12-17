@@ -101,11 +101,11 @@ def api(namespaces, host='localhost', port=80, routes={},
         moulinette.run(host, port)
     except MoulinetteError as e:
         import logging
-        logging.getLogger('moulinette').error(e.strerror)
+        logging.getLogger(namespaces[0]).error(e.strerror)
         return e.errno
     except KeyboardInterrupt:
         import logging
-        logging.getLogger('moulinette').info(m18n.g('operation_interrupted'))
+        logging.getLogger(namespaces[0]).info(m18n.g('operation_interrupted'))
     return 0
 
 def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
@@ -136,6 +136,6 @@ def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
         moulinette.run(args, output_as=output_as)
     except MoulinetteError as e:
         import logging
-        logging.getLogger('moulinette').error(e.strerror)
+        logging.getLogger(namespaces[0]).error(e.strerror)
         return e.errno
     return 0
