@@ -309,7 +309,7 @@ class Interface(BaseInterface):
 
         self.actionsmap = actionsmap
 
-    def run(self, args, output_as=None):
+    def run(self, args, output_as=None, password=None):
         """Run the moulinette
 
         Process the action corresponding to the given arguments 'args'
@@ -320,6 +320,7 @@ class Interface(BaseInterface):
             - output_as -- Output result in another format. Possible values:
                 - json: return a JSON encoded string
                 - plain: return a script-readable output
+            - password -- The password to use in case of authentication
 
         """
         if output_as and output_as not in ['json', 'plain']:
@@ -327,6 +328,10 @@ class Interface(BaseInterface):
 
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
+
+        # Store the given password
+        # FIXME: improve security
+        self._password = password
 
         try:
             ret = self.actionsmap.process(args, timeout=5)
@@ -358,6 +363,11 @@ class Interface(BaseInterface):
         Handle the core.MoulinetteSignals.authenticate signal.
 
         """
+        # Try to use given password if any
+        if self._password is not None:
+            logger.info('using given password to authenticate')
+            return authenticator(password=self._password)
+
         # TODO: Allow token authentication?
         msg = m18n.n(help) if help else m18n.g('password')
         return authenticator(password=self._do_prompt(msg, True, False,

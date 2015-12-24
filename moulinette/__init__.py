@@ -108,7 +108,8 @@ def api(namespaces, host='localhost', port=80, routes={},
         logging.getLogger(namespaces[0]).info(m18n.g('operation_interrupted'))
     return 0
 
-def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
+def cli(namespaces, args, use_cache=True, output_as=None,
+        password=None, parser_kwargs={}):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -121,6 +122,7 @@ def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
             instead of using the cached one
         - output_as -- Output result in another format, see
             moulinette.interfaces.cli.Interface for possible values
+        - password -- The password to use in case of authentication
         - parser_kwargs -- A dict of arguments to pass to the parser
             class at construction
 
@@ -133,7 +135,7 @@ def cli(namespaces, args, use_cache=True, output_as=None, parser_kwargs={}):
                 'parser_kwargs': parser_kwargs,
             },
         )
-        moulinette.run(args, output_as=output_as)
+        moulinette.run(args, output_as=output_as, password=password)
     except MoulinetteError as e:
         import logging
         logging.getLogger(namespaces[0]).error(e.strerror)
