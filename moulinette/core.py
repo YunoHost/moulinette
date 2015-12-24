@@ -202,8 +202,8 @@ class Translator(object):
                     return _load_key(self.default_locale)
                 except:
                     pass
-        logger.warning("unable to retrieve key '%s' for default locale '%s'",
-                       key, self.default_locale)
+        logger.exception("unable to retrieve key '%s' for default locale '%s'",
+                         key, self.default_locale)
         return key
 
     def _load_translations(self, locale, overwrite=False):
