@@ -1,3 +1,12 @@
+moulinette (2.3.4) testing; urgency=low
+
+  * [enh] Allow to pass the password as argument in the cli
+  * [fix] Use given namespace in cli/api helpers for logging
+  * [fix] Log exception too if a key cannot be translated
+  * [i18n] Update translations from Transifex belatedly
+
+ -- Jérôme Lebleu <jerome@maroufle.fr>  Thu, 24 Dec 2015 11:00:37 +0100
+
 moulinette (2.3.3) testing; urgency=low
 
   * [enh] Enhance stream utils with callback and use it in call_async_output
