@@ -1,4 +1,5 @@
 import os
+import errno
 import shutil
 from pwd import getpwnam
 from grp import getgrnam
@@ -23,15 +24,26 @@ def mkdir(path, mode=0777, parents=False, uid=None, gid=None, force=False):
 
     """
     if os.path.exists(path) and not force:
-        return
+        raise OSError(errno.EEXIST, m18n.g('folder_exists', path=path))
+
     if parents:
-        os.makedirs(path, mode)
-    else:
-        os.mkdir(path, mode)
-    try:
+        # Create parents directories as needed
+        head, tail = os.path.split(path)
+        if not tail:
+            head, tail = path.split(head)
+        if head and tail and not os.path.exists(head):
+            try:
+                mkdir(head, mode, parents, uid, gid, force)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
+            if tail == os.curdir:
+                return
+
+    # Create directory and set permissions
+    os.mkdir(path, mode)
+    if uid is not None or gid is not None:
         chown(path, uid, gid)
-    except:
-        pass
 
 
 def chown(path, uid=None, gid=None, recursive=False):
