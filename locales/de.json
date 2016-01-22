@@ -13,7 +13,7 @@
     "ldap_operation_error": "Fehler während LDAP-Betrieb", 
     "ldap_server_down": "LDAP-Server nicht erreichbar", 
     "logged_in": "Angemeldet", 
-    "logged_out": "Abgemeldet", 
+    "logged_out": "Ausgeloggt", 
     "not_logged_in": "Du bist nicht angemeldet", 
     "operation_interrupted": "Vorgang unterbrochen", 
     "password": "Passwort", 
@@ -23,7 +23,7 @@
     "success": "Erfolg!", 
     "unable_authenticate": "authentisierungunfähig", 
     "unable_retrieve_session": "sessionabrufunfähig", 
-    "values_mismatch": "die Werte passen nicht", 
+    "values_mismatch": "Die Werte passen nicht", 
     "warning": "Warnung:", 
     "websocket_request_expected": "es braucht einen WebSocket-request"
 }
