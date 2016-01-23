@@ -6,7 +6,7 @@
     "colon": "{}: ", 
     "confirm": "Bestätige {:s}", 
     "error": "Fehler:", 
-    "error_see_log": "Fehler aufgetreten. Für Details Log anschauen.", 
+    "error_see_log": "Ein Fehler ist aufgetreten. Für Details schauen Sie bitte im Protokoll nach.", 
     "file_exists": "Datei existiert bereits: '{path}'", 
     "file_not_exist": "Datei nicht vorhanden", 
     "folder_exists": "Ordner existiert bereits: '{path}'", 
