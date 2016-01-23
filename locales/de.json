@@ -2,7 +2,7 @@
     "argument_required": "es braucht {:s}-Argument", 
     "authentication_profile_required": "Bitte sich als '{:s}' anmelden", 
     "authentication_required": "Authentifizierung benötigt", 
-    "authentication_required_long": "Um diese Aktion auszuführen wird eine Authentifizierung benötigt", 
+    "authentication_required_long": "Bitte erst anmelden um diese Aktion durchzuführen", 
     "colon": "{}: ", 
     "confirm": "Bestätige {:s}", 
     "error": "Fehler:", 
