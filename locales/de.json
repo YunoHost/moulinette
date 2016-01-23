@@ -32,5 +32,5 @@
     "unable_retrieve_session": "Sitzung konnte nicht abgerufen werden", 
     "values_mismatch": "Die Werte passen nicht", 
     "warning": "Warnung:", 
-    "websocket_request_expected": "WebSocket Rückfrage erwartet"
+    "websocket_request_expected": "Es wird eine WebSocket-Anfrage erwartet"
 }
