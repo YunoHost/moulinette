@@ -1,6 +1,6 @@
 {
     "argument_required": "L'argument {:s} est requis", 
-    "authentication_profile_required": "Authentification au profile '{:s}' requise", 
+    "authentication_profile_required": "Authentification au profil '{:s}' requise", 
     "authentication_required": "Authentification requise", 
     "authentication_required_long": "L'authentification est requise pour exécuter cette action", 
     "colon": "{} : ", 
@@ -26,11 +26,11 @@
     "pattern_not_match": "Ne correspond pas au motif", 
     "permission_denied": "Permission refusée", 
     "root_required": "Vous devez avoir les droits super-utilisateur pour exécuter cette action", 
-    "server_already_running": "Un server est déjà en cours d'exécution sur ce port", 
+    "server_already_running": "Un serveur est déjà en cours d'exécution sur ce port", 
     "success": "Succès !", 
     "unable_authenticate": "Impossible de vous authentifier", 
     "unable_retrieve_session": "Impossible de récupérer la session", 
     "values_mismatch": "Les valeurs ne correspondent pas", 
     "warning": "Attention :", 
-    "websocket_request_expected": "Excepter une demande de WebSocket"
+    "websocket_request_expected": "Requête WebSocket attendue"
 }
