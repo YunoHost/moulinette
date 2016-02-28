@@ -329,9 +329,10 @@ class Interface(BaseInterface):
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
 
-        # Store the given password
-        # FIXME: improve security
-        self._password = password
+        # Set handler for authentication
+        if password:
+            msignals.set_handler('authenticate',
+                                 lambda a,h: a(password=password))
 
         try:
             ret = self.actionsmap.process(args, timeout=5)
@@ -363,11 +364,6 @@ class Interface(BaseInterface):
         Handle the core.MoulinetteSignals.authenticate signal.
 
         """
-        # Try to use given password if any
-        if self._password is not None:
-            logger.info('using given password to authenticate')
-            return authenticator(password=self._password)
-
         # TODO: Allow token authentication?
         msg = m18n.n(help) if help else m18n.g('password')
         return authenticator(password=self._do_prompt(msg, True, False,
