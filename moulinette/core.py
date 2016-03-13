@@ -540,6 +540,7 @@ class MoulinetteLock(object):
         self.interval = interval
 
         self._lockfile = '/var/run/moulinette_%s.lock' % namespace
+        self._stale_checked = False
         self._locked = False
         self._bypass = False
 
@@ -559,13 +560,18 @@ class MoulinetteLock(object):
                 break
 
             if not os.path.isfile(self._lockfile):
-                # Create the lock file
-                try:
-                    (open(self._lockfile, 'w')).close()
-                except IOError:
-                    raise MoulinetteError(errno.EPERM,
-                                          '%s. %s.' % (m18n.g('permission_denied'), m18n.g('root_required')))
+                self._lock()
                 break
+            elif not self._stale_checked:
+                self._stale_checked = True
+                with open(self._lockfile) as f:
+                    lock_pid = f.read().strip()
+                # Delete stale lock file
+                if not lock_pid or not os.path.exists(
+                        os.path.join('/proc', lock_pid, 'exe')):
+                    logger.debug('stale lock file found')
+                    self._lock()
+                    break
 
             if (time.time() - start_time) > self.timeout:
                 raise MoulinetteError(errno.EBUSY,
@@ -588,6 +594,16 @@ class MoulinetteLock(object):
 
             logger.debug('lock has been released')
             self._locked = False
+
+    def _lock(self):
+        try:
+            with open(self._lockfile, 'w') as f:
+                f.write(str(os.getpid()))
+        except IOError:
+            raise MoulinetteError(
+                errno.EPERM, '%s. %s.'.format(
+                    m18n.g('permission_denied'),
+                    m18n.g('root_required')))
 
     def __enter__(self):
         if not self._locked:
