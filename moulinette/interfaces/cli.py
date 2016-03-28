@@ -21,14 +21,17 @@ logger = log.getLogger('moulinette.cli')
 
 # CLI helpers ----------------------------------------------------------
 
+CLI_COLOR_TEMPLATE = '\033[{:d}m\033[1m'
+END_CLI_COLOR = '\033[m'
+
 colors_codes = {
-    'red'   : 31,
-    'green' : 32,
-    'yellow': 33,
-    'blue'  : 34,
-    'purple': 35,
-    'cyan'  : 36,
-    'white' : 37
+    'red'   : CLI_COLOR_TEMPLATE.format(31),
+    'green' : CLI_COLOR_TEMPLATE.format(32),
+    'yellow': CLI_COLOR_TEMPLATE.format(33),
+    'blue'  : CLI_COLOR_TEMPLATE.format(34),
+    'purple': CLI_COLOR_TEMPLATE.format(35),
+    'cyan'  : CLI_COLOR_TEMPLATE.format(36),
+    'white' : CLI_COLOR_TEMPLATE.format(37),
 }
 
 def colorize(astr, color):
@@ -42,7 +45,7 @@ def colorize(astr, color):
 
     """
     if os.isatty(1):
-        return '\033[{:d}m\033[1m{:s}\033[m'.format(colors_codes[color], astr)
+        return '{:s}{:s}{:s}'.format(colors_codes[color], astr, END_CLI_COLOR)
     else:
         return astr
 
@@ -172,8 +175,8 @@ class TTYHandler(log.StreamHandler):
                 # add translated level name before message
                 level = '%s ' % m18n.g(record.levelname.lower())
             color = self.LEVELS_COLOR.get(record.levelno, 'white')
-            msg = '\033[{0}m\033[1m{1}\033[m{2}'.format(
-                colors_codes[color], level, msg)
+            msg = '{0}{1}{2}{3}'.format(
+                colors_codes[color], level, END_CLI_COLOR, msg)
         if self.formatter:
             # use user-defined formatter
             record.__dict__[self.message_key] = msg
