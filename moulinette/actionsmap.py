@@ -163,8 +163,9 @@ class PatternParameter(_ExtraParameter):
             if msg == message:
                 msg = m18n.g(message)
 
-            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_argument',
-                                        arg_name, msg))
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.g('invalid_argument',
+                                         argument=arg_name, error=msg))
         return arg_value
 
     @staticmethod
@@ -192,8 +193,9 @@ class RequiredParameter(_ExtraParameter):
         if required and (arg_value is None or arg_value == ''):
             logger.debug("argument '%s' is required",
                          v, arg_name, pattern)
-            raise MoulinetteError(errno.EINVAL, m18n.g('argument_required',
-                                                       arg_name))
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.g('argument_required',
+                                         argument=arg_name))
         return arg_value
 
     @staticmethod

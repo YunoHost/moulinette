@@ -410,7 +410,7 @@ class _ActionsMapPlugin(object):
                 msg = m18n.g('authentication_required')
             else:
                 msg = m18n.g('authentication_profile_required',
-                             authenticator.name)
+                             profile=authenticator.name)
             raise HTTPUnauthorizedResponse(msg)
         else:
             return authenticator(token=(s_id, s_hash))
