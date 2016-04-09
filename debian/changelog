@@ -1,3 +1,33 @@
+moulinette (2.3.5) testing; urgency=low
+
+  [ davidba123 ]
+  * [i18n] Translated using Weblate (German)
+
+  [ Felix Bartels ]
+  * [i18n] Translated using Weblate (German)
+
+  [ Jean-Baptiste ]
+  * [i18n] Translated using Weblate (French)
+
+  [ Jérôme Lebleu ]
+  * [enh] Allow to define deprecated action names
+  * [enh] Check for stale lock file
+  * [fix] Create parents directories with proper permissions in mkdir util
+  * [fix] Set authenticate handler if password is given (bugfix #228)
+  * [i18n] Use named variables in translations
+  * [i18n] Translated using Weblate
+
+  [ Laurent Peuch ]
+  * [mod] make cli color endling more usable and DRY
+
+  [ Marvin Gärtner ]
+  * [i18n] Translated using Weblate (German)
+
+  [ retmarut ]
+  * [i18n] Translated using Weblate (Dutch)
+
+ -- Jérôme Lebleu <jerome@maroufle.fr>  Sat, 09 Apr 2016 23:06:18 +0200
+
 moulinette (2.3.4) testing; urgency=low
 
   * [enh] Allow to pass the password as argument in the cli
