@@ -437,11 +437,53 @@ class _CallbackAction(argparse.Action):
                 else:
                     setattr(namespace, self.dest, value)
 
-class _OptionalSubParsersAction(argparse._SubParsersAction):
+class _ExtendedSubParsersAction(argparse._SubParsersAction):
+    """Subparsers with extended properties for argparse
+
+    It provides the following additional properties at initialization,
+    e.g. using `parser.add_subparsers`:
+      - required -- Either the subparser is required or not (default: False)
+
+    It also provides the following additional properties for parsers,
+    e.g. using `subparsers.add_parser`:
+      - deprecated -- A list of deprecated command names
+
+    """
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
-        super(_OptionalSubParsersAction, self).__init__(*args, **kwargs)
+        super(_ExtendedSubParsersAction, self).__init__(*args, **kwargs)
+
         self.required = required
+        self._deprecated_command_map = {}
+
+    def add_parser(self, name, **kwargs):
+        deprecated = kwargs.pop('deprecated', [])
+        parser = super(_ExtendedSubParsersAction, self).add_parser(
+            name, **kwargs)
+
+        # Append each deprecated command name
+        for command in deprecated:
+            self._deprecated_command_map[command] = name
+            self._name_parser_map[command] = parser
+
+        return parser
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        parser_name = values[0]
+
+        try:
+            # Check for deprecated command name
+            correct_name = self._deprecated_command_map[parser_name]
+        except KeyError:
+            pass
+        else:
+            # Warn the user and set the proper parser_name
+            logger.warning(m18n.g('deprecated_command', prog=parser.prog,
+                                  old=parser_name, new=correct_name))
+            values[0] = correct_name
+
+        return super(_ExtendedSubParsersAction, self).__call__(
+            parser, namespace, values, option_string)
 
 
 class ExtendedArgumentParser(argparse.ArgumentParser):
@@ -450,7 +492,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 
         # Register additional actions
         self.register('action', 'callback', _CallbackAction)
-        self.register('action', 'parsers', _OptionalSubParsersAction)
+        self.register('action', 'parsers', _ExtendedSubParsersAction)
 
     def enqueue_callback(self, namespace, callback, values):
         queue = self._get_callbacks_queue(namespace)

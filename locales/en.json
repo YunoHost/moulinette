@@ -20,6 +20,7 @@
     "ldap_attribute_already_exists" : "Attribute already exists: '{:s}={:s}'",
 
     "invalid_usage" : "Invalid usage, pass --help to see help",
+    "deprecated_command" : "'{prog} {old}' is deprecated and will be removed in the future, use '{prog} {new}' instead",
     "argument_required" : "Argument {:s} is required",
     "invalid_argument": "Invalid argument '{:s}': {:s}",
     "pattern_not_match": "Does not match pattern",

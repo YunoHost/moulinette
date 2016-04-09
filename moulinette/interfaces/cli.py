@@ -264,17 +264,20 @@ class ActionsMapParser(BaseActionsMapParser):
                 'title': "actions", 'required': True
         })
 
-    def add_action_parser(self, name, tid, action_help=None, **kwargs):
+    def add_action_parser(self, name, tid, action_help=None, deprecated=[],
+                          **kwargs):
         """Add a parser for an action
 
         Keyword arguments:
             - action_help -- A brief description for the action
+            - deprecated -- A list of deprecated action names
 
         Returns:
             A new ExtendedArgumentParser object for the action
 
         """
-        return self._subparsers.add_parser(name, help=action_help)
+        return self._subparsers.add_parser(name, help=action_help,
+                                           deprecated=deprecated)
 
     def parse_args(self, args, **kwargs):
         try:
