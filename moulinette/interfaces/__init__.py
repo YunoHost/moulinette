@@ -446,7 +446,7 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
 
     It also provides the following additional properties for parsers,
     e.g. using `subparsers.add_parser`:
-      - deprecated -- A list of deprecated command names
+      - deprecated_alias -- A list of deprecated command alias names
 
     """
     def __init__(self, *args, **kwargs):
@@ -457,12 +457,12 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         self._deprecated_command_map = {}
 
     def add_parser(self, name, **kwargs):
-        deprecated = kwargs.pop('deprecated', [])
+        deprecated_alias = kwargs.pop('deprecated_alias', [])
         parser = super(_ExtendedSubParsersAction, self).add_parser(
             name, **kwargs)
 
-        # Append each deprecated command name
-        for command in deprecated:
+        # Append each deprecated command alias name
+        for command in deprecated_alias:
             self._deprecated_command_map[command] = name
             self._name_parser_map[command] = parser
 
