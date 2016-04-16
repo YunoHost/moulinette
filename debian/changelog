@@ -12,6 +12,8 @@ moulinette (2.3.5) testing; urgency=low
   [ Jérôme Lebleu ]
   * [enh] Allow to define deprecated action names
   * [enh] Check for stale lock file
+  * [enh] Allow to not output result from the cli
+  * [enh] Sort result when pretty printing result from the cli
   * [fix] Create parents directories with proper permissions in mkdir util
   * [fix] Set authenticate handler if password is given (bugfix #228)
   * [i18n] Use named variables in translations
@@ -26,7 +28,7 @@ moulinette (2.3.5) testing; urgency=low
   [ retmarut ]
   * [i18n] Translated using Weblate (Dutch)
 
- -- Jérôme Lebleu <jerome@maroufle.fr>  Sat, 09 Apr 2016 23:06:18 +0200
+ -- Jérôme Lebleu <jerome@maroufle.fr>  Sat, 16 Apr 2016 20:12:19 +0200
 
 moulinette (2.3.4) testing; urgency=low
 
