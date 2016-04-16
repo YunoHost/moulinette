@@ -326,10 +326,11 @@ class Interface(BaseInterface):
             - output_as -- Output result in another format. Possible values:
                 - json: return a JSON encoded string
                 - plain: return a script-readable output
+                - none: do not output the result
             - password -- The password to use in case of authentication
 
         """
-        if output_as and output_as not in ['json', 'plain']:
+        if output_as and output_as not in ['json', 'plain', 'none']:
             raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
 
         # auto-complete
@@ -345,7 +346,7 @@ class Interface(BaseInterface):
         except KeyboardInterrupt, EOFError:
             raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 
-        if ret is None:
+        if ret is None or output_as == 'none':
             return
 
         # Format and print result
