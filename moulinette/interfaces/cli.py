@@ -6,6 +6,7 @@ import errno
 import getpass
 import locale
 from argparse import SUPPRESS
+from collections import OrderedDict
 
 import argcomplete
 
@@ -98,7 +99,11 @@ def pretty_print_dict(d, depth=0):
         - depth -- The recursive depth of the dictionary
 
     """
-    for k,v in d.items():
+    keys = d.keys()
+    if not isinstance(d, OrderedDict):
+        keys = sorted(keys)
+    for k in keys:
+        v = d[k]
         k = colorize(str(k), 'purple')
         if isinstance(v, (tuple, set)):
             v = list(v)
