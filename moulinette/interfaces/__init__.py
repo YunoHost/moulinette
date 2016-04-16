@@ -446,6 +446,7 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
 
     It also provides the following additional properties for parsers,
     e.g. using `subparsers.add_parser`:
+      - deprecated -- Wether the command is deprecated
       - deprecated_alias -- A list of deprecated command alias names
 
     """
@@ -457,7 +458,14 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         self._deprecated_command_map = {}
 
     def add_parser(self, name, **kwargs):
+        deprecated = kwargs.pop('deprecated', False)
         deprecated_alias = kwargs.pop('deprecated_alias', [])
+
+        if deprecated:
+            self._deprecated_command_map[name] = None
+            if 'help' in kwargs:
+                del kwargs['help']
+
         parser = super(_ExtendedSubParsersAction, self).add_parser(
             name, **kwargs)
 
@@ -477,10 +485,15 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         except KeyError:
             pass
         else:
-            # Warn the user and set the proper parser_name
-            logger.warning(m18n.g('deprecated_command', prog=parser.prog,
-                                  old=parser_name, new=correct_name))
-            values[0] = correct_name
+            # Warn the user about deprecated command
+            if correct_name is None:
+                logger.warning(m18n.g('deprecated_command', prog=parser.prog,
+                                      command=parser_name))
+            else:
+                logger.warning(m18n.g('deprecated_command_alias',
+                                      old=parser_name, new=correct_name,
+                                      prog=parser.prog))
+                values[0] = correct_name
 
         return super(_ExtendedSubParsersAction, self).__call__(
             parser, namespace, values, option_string)

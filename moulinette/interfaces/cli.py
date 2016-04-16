@@ -269,12 +269,13 @@ class ActionsMapParser(BaseActionsMapParser):
                 'title': "actions", 'required': True
         })
 
-    def add_action_parser(self, name, tid, action_help=None,
+    def add_action_parser(self, name, tid, action_help=None, deprecated=False,
                           deprecated_alias=[], **kwargs):
         """Add a parser for an action
 
         Keyword arguments:
             - action_help -- A brief description for the action
+            - deprecated -- Wether the action is deprecated
             - deprecated_alias -- A list of deprecated action alias names
 
         Returns:
@@ -282,6 +283,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
         """
         return self._subparsers.add_parser(name, help=action_help,
+                                           deprecated=deprecated,
                                            deprecated_alias=deprecated_alias)
 
     def parse_args(self, args, **kwargs):
