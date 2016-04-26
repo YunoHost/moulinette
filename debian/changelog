@@ -1,3 +1,11 @@
+moulinette (2.3.5.1) testing; urgency=low
+
+  * [ref] Rename 'deprecated' action argument to 'deprecated_alias'
+  * [enh] Allow to define deprecated action
+  * [i18n] Translated using Weblate (French)
+
+ -- Jérôme Lebleu <jerome@maroufle.fr>  Tue, 26 Apr 2016 17:25:02 +0200
+
 moulinette (2.3.5) testing; urgency=low
 
   [ davidba123 ]
