@@ -4,6 +4,8 @@ import shutil
 from pwd import getpwnam
 from grp import getgrnam
 
+from moulinette.core import MoulinetteError
+
 
 # Files & directories --------------------------------------------------
 
@@ -60,11 +62,19 @@ def chown(path, uid=None, gid=None, recursive=False):
 
     # Retrieve uid/gid
     if isinstance(uid, basestring):
-        uid = getpwnam(uid).pw_uid
+        try:
+            uid = getpwnam(uid).pw_uid
+        except KeyError:
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.g('unknown_user', user=uid))
     elif uid is None:
         uid = -1
     if isinstance(gid, basestring):
-        gid = getpwnam(gid).gr_gid
+        try:
+            gid = getpwnam(gid).gr_gid
+        except KeyError:
+            raise MoulinetteError(errno.EINVAL,
+                                  m18n.g('unknown_group', group=gid))
     elif gid is None:
         gid = -1
 

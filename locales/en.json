@@ -38,5 +38,8 @@
     "logged_out" : "Logged out",
     "not_logged_in" : "You are not logged in",
     "server_already_running" : "A server is already running on that port",
-    "websocket_request_expected" : "Expected a WebSocket request"
+    "websocket_request_expected" : "Expected a WebSocket request",
+
+    "unknown_user" : "Unknown '{user}' user",
+    "unknown_group" : "Unknown '{group}' group"
 }
