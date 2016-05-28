@@ -1,3 +1,23 @@
+moulinette (2.4.0.1) stable; urgency=low
+
+  [ Jérôme Lebleu ]
+  * [enh] Catch unknown uid/gid in utils.filesystem.chown
+
+  [ frju ]
+  * [i18n] Translated using Weblate (Portuguese)
+
+  [ Bob ]
+  * [i18n] Translated using Weblate (French)
+
+  [ Juanu ]
+  * [i18n] Translated using Weblate (Spanish)
+  * [i18n] Translated using Weblate (Spanish)
+
+  [ Jérôme Lebleu ]
+  * [i18n] Translated using Weblate (French)
+
+ -- Jérôme Lebleu <jerome@maroufle.fr>  Sat, 28 May 2016 22:14:41 +0200
+
 moulinette (2.4.0) stable; urgency=low
 
   * New stable release from testing.
