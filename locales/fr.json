@@ -32,8 +32,8 @@
     "success": "Succès !",
     "unable_authenticate": "Impossible de vous authentifier",
     "unable_retrieve_session": "Impossible de récupérer la session",
-    "unknown_group": "Groupe '{group} 1' inconnu",
-    "unknown_user": "Utilisateur '{user} 1' inconnu",
+    "unknown_group": "Groupe « {group} » inconnu",
+    "unknown_user": "Utilisateur « {user} » inconnu",
     "values_mismatch": "Les valeurs ne correspondent pas",
     "warning": "Attention :",
     "websocket_request_expected": "Requête WebSocket attendue"
