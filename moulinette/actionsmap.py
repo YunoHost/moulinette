@@ -368,17 +368,23 @@ class ActionsMap(object):
         for n in namespaces:
             logger.debug("loading actions map namespace '%s'", n)
 
-            if use_cache:
+            actionsmap_yml = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
+            actionsmap_pkl = '%s/actionsmap/%s-%s.pkl' % (pkg.cachedir, n, os.stat(actionsmap_yml).st_size)
+
+            if use_cache and os.path.exists(actionsmap_pkl):
                 try:
                     # Attempt to load cache
-                    with open('%s/actionsmap/%s.pkl' % (pkg.cachedir, n)) as f:
+                    with open(actionsmap_pkl) as f:
                         actionsmaps[n] = pickle.load(f)
                 # TODO: Switch to python3 and catch proper exception
                 except IOError:
                     self.use_cache = False
                     actionsmaps = self.generate_cache(namespaces)
+            elif use_cache:  # cached file doesn't exists
+                self.use_cache = False
+                actionsmaps = self.generate_cache(namespaces)
             elif n not in actionsmaps:
-                with open('%s/actionsmap/%s.yml' % (pkg.datadir, n)) as f:
+                with open(actionsmap_yml) as f:
                     actionsmaps[n] = ordered_yaml_load(f)
 
             # Load translations
@@ -511,8 +517,13 @@ class ActionsMap(object):
             with open(am_file, 'r') as f:
                 actionsmaps[n] = yaml.load(f)
 
+            # clean old cached files
+            for i in os.listdir('%s/actionsmap/' % pkg.cachedir):
+                if i.endswith(".pkl"):
+                    os.remove('%s/actionsmap/%s' % (pkg.cachedir, i))
+
             # Cache actions map into pickle file
-            with pkg.open_cachefile('%s.pkl' % n, 'w', subdir='actionsmap') as f:
+            with pkg.open_cachefile('%s-%s.pkl' % (n, os.stat(am_file).st_size), 'w', subdir='actionsmap') as f:
                 pickle.dump(actionsmaps[n], f)
 
         return actionsmaps
