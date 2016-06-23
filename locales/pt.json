@@ -9,7 +9,7 @@
     "file_exists": "A pasta já existe: '{path}'",
     "file_not_exist": "A pasta não existe: '{path}'",
     "folder_exists": "A pasta já existe '{path}'",
-    "folder_not_exist": "A pasta não existe",
+    "folder_not_exist": "A pasta não existe: '{path}'",
     "instance_already_running": "O serviço já está em execussão",
     "invalid_argument": "Argumento inválido '{argument}': {error}",
     "invalid_password": "Senha incorreta",

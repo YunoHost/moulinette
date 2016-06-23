@@ -12,7 +12,7 @@
     "file_exists": "Le fichier existe déjà : « {path} »",
     "file_not_exist": "Le fichier n'existe pas : « {path} »",
     "folder_exists": "Le dossier existe déjà : « {path} »",
-    "folder_not_exist": "Le dossier n'existe pas",
+    "folder_not_exist": "Le dossier n'existe pas : « {path} »",
     "instance_already_running": "Une instance est déjà en cours d'exécution",
     "invalid_argument": "Argument « {argument} » incorrect : {error}",
     "invalid_password": "Mot de passe incorrect",

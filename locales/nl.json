@@ -10,7 +10,7 @@
     "file_exists": "Kan '{path}' niet aanmaken: Bestand bestaat al",
     "file_not_exist": "Bestand bestaat niet ’{path}’",
     "folder_exists": "kan map ‘{path}’ niet aanmaken: Bestand bestaat al",
-    "folder_not_exist": "Map bestaat niet",
+    "folder_not_exist": "Map bestaat niet ´{path}´",
     "instance_already_running": "Er is al een instantie aan het draaien",
     "invalid_argument": "Onjuist argument '{argument}': {error}",
     "invalid_password": "Ongeldig wachtwoord",

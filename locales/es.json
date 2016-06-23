@@ -12,7 +12,7 @@
     "file_exists": "El archivo ya existe: '{path}'",
     "file_not_exist": "El archivo no existe: '{path}'",
     "folder_exists": "El directorio ya existe: '{path}'",
-    "folder_not_exist": "El directorio no existe",
+    "folder_not_exist": "El directorio no existe: '{path}'",
     "instance_already_running": "El programa ya se está ejecutando",
     "invalid_argument": "Argumento no válido '{argument}': {error}",
     "invalid_password": "Contraseña no válida",
