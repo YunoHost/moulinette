@@ -10,7 +10,7 @@
     "error": "Error:",
     "error_see_log": "Ha ocurrido un error. Consulte el registro para obtener más información.",
     "file_exists": "El archivo ya existe: '{path}'",
-    "file_not_exist": "El archivo no existe",
+    "file_not_exist": "El archivo no existe: '{path}'",
     "folder_exists": "El directorio ya existe: '{path}'",
     "folder_not_exist": "El directorio no existe",
     "instance_already_running": "El programa ya se está ejecutando",

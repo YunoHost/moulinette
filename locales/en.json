@@ -10,7 +10,7 @@
     "error_see_log" : "An error occured. Please see the log for details.",
     "file_exists" : "File already exists: '{path}'",
     "folder_exists" : "Folder already exists: '{path}'",
-    "file_not_exist" : "File does not exist",
+    "file_not_exist" : "File does not exist: '{path}'",
     "folder_not_exist" : "Folder does not exist",
 
     "unable_authenticate" : "Unable to authenticate",

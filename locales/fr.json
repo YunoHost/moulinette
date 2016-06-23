@@ -10,7 +10,7 @@
     "error": "Erreur :",
     "error_see_log": "Une erreur est survenue. Veuillez consulter les journaux pour plus de détails.",
     "file_exists": "Le fichier existe déjà : « {path} »",
-    "file_not_exist": "Le fichier n'existe pas",
+    "file_not_exist": "Le fichier n'existe pas : « {path} »",
     "folder_exists": "Le dossier existe déjà : « {path} »",
     "folder_not_exist": "Le dossier n'existe pas",
     "instance_already_running": "Une instance est déjà en cours d'exécution",
