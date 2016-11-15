@@ -369,7 +369,10 @@ class ActionsMap(object):
             logger.debug("loading actions map namespace '%s'", n)
 
             actionsmap_yml = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
-            actionsmap_pkl = '%s/actionsmap/%s-%s.pkl' % (pkg.cachedir, n, os.stat(actionsmap_yml).st_size)
+            actionsmap_yml_stat=os.stat(actionsmap_yml)
+            actionsmap_pkl = '%s/actionsmap/%s-%d-%d.pkl' % (pkg.cachedir, n,
+                                actionsmap_yml_stat.st_size,
+                                actionsmap_yml_stat.st_mtime)
 
             if use_cache and os.path.exists(actionsmap_pkl):
                 try:
@@ -523,7 +526,9 @@ class ActionsMap(object):
                     os.remove('%s/actionsmap/%s' % (pkg.cachedir, i))
 
             # Cache actions map into pickle file
-            with pkg.open_cachefile('%s-%s.pkl' % (n, os.stat(am_file).st_size), 'w', subdir='actionsmap') as f:
+            am_file_stat=os.stat(am_file)
+            pkl='%s-%d-%d.pkl' % (n, am_file_stat.st_size, am_file_stat.st_mtime)
+            with pkg.open_cachefile(pkl, 'w', subdir='actionsmap') as f:
                 pickle.dump(actionsmaps[n], f)
 
         return actionsmaps
