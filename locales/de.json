@@ -8,7 +8,7 @@
     "error": "Fehler:",
     "error_see_log": "Ein Fehler ist aufgetreten. Für Details bitte im Log nach.",
     "file_exists": "Datei existiert bereits: '{path}'",
-    "file_not_exist": "Datei nicht vorhanden",
+    "file_not_exist": "Datei nicht vorhanden: '{path}'",
     "folder_exists": "Ordner existiert bereits: '{path}'",
     "folder_not_exist": "Ordner existiert nicht",
     "instance_already_running": "Eine Instanz läuft bereits",
