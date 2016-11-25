@@ -349,7 +349,7 @@ class Interface(BaseInterface):
                                  lambda a,h: a(password=password))
 
         try:
-            ret = self.actionsmap.process(args, timeout=5)
+            ret = self.actionsmap.process(args, timeout=30)
         except KeyboardInterrupt, EOFError:
             raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 
