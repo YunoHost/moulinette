@@ -523,10 +523,12 @@ class ActionsMap(object):
             with open(am_file, 'r') as f:
                 actionsmaps[n] = yaml.load(f)
 
-            # clean old cached files
-            for i in os.listdir('%s/actionsmap/' % pkg.cachedir):
-                if i.endswith(".pkl"):
-                    os.remove('%s/actionsmap/%s' % (pkg.cachedir, i))
+            # at installation, cachedir might not exists
+            if os.path.exists('%s/actionsmap/' % pkg.cachedir):
+                # clean old cached files
+                for i in os.listdir('%s/actionsmap/' % pkg.cachedir):
+                    if i.endswith(".pkl"):
+                        os.remove('%s/actionsmap/%s' % (pkg.cachedir, i))
 
             # Cache actions map into pickle file
             am_file_stat = os.stat(am_file)
