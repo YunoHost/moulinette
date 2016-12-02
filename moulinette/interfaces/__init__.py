@@ -55,7 +55,7 @@ class BaseActionsMapParser(object):
     # Each parser classes must implement these methods.
 
     @staticmethod
-    def format_arg_names(name, full):
+    def format_arg_names(self, name, full):
         """Format argument name
 
         Format agument name depending on its 'full' parameter and return
