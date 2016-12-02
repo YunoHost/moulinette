@@ -350,7 +350,7 @@ class Interface(BaseInterface):
 
         try:
             ret = self.actionsmap.process(args, timeout=30)
-        except KeyboardInterrupt, EOFError:
+        except (KeyboardInterrupt, EOFError):
             raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 
         if ret is None or output_as == 'none':
