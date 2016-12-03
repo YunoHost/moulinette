@@ -1,3 +1,18 @@
+moulinette (2.5.0) testing; urgency=low
+
+  * [enh] automatically regenerate cache if actionmap.yml is modified
+  * [enh] add empty file for hindie to enable it in weblate
+  * [i18n] Translated using Weblate (Dutch)
+  * [i18n] Translated using Weblate (English)
+  * [i18n] Translated using Weblate (French)
+  * [i18n] Translated using Weblate (German)
+  * [i18n] Translated using Weblate (Portuguese)
+  * [i18n] Translated using Weblate (Spanish)
+
+  Contributors: Bram, ljf, opi
+
+ -- opi <opi@zeropi.net>  Thu, 01 Dec 2016 21:12:09 +0100
+
 moulinette (2.4.0.1) stable; urgency=low
 
   [ Jérôme Lebleu ]
