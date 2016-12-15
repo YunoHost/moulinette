@@ -534,7 +534,7 @@ class MoulinetteLock(object):
             lock
 
     """
-    def __init__(self, namespace, timeout=0, interval=.5):
+    def __init__(self, namespace, timeout=None, interval=.5):
         self.namespace = namespace
         self.timeout = timeout
         self.interval = interval
@@ -573,7 +573,7 @@ class MoulinetteLock(object):
                     self._lock()
                     break
 
-            if (time.time() - start_time) > self.timeout:
+            if self.timeout is not None and (time.time() - start_time) > self.timeout:
                 raise MoulinetteError(errno.EBUSY,
                                       m18n.g('instance_already_running'))
             # Wait before checking again

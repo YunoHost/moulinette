@@ -425,7 +425,7 @@ class ActionsMap(object):
         else:
             return auth()
 
-    def process(self, args, timeout=0, **kwargs):
+    def process(self, args, timeout=None, **kwargs):
         """
         Parse arguments and process the proper action
 

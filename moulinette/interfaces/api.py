@@ -377,7 +377,7 @@ class _ActionsMapPlugin(object):
 
         """
         try:
-            ret = self.actionsmap.process(arguments, route=_route)
+            ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
             raise error_to_response(e)
         else:

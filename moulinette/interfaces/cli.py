@@ -322,7 +322,7 @@ class Interface(BaseInterface):
 
         self.actionsmap = actionsmap
 
-    def run(self, args, output_as=None, password=None):
+    def run(self, args, output_as=None, password=None, timeout=None):
         """Run the moulinette
 
         Process the action corresponding to the given arguments 'args'
@@ -335,6 +335,7 @@ class Interface(BaseInterface):
                 - plain: return a script-readable output
                 - none: do not output the result
             - password -- The password to use in case of authentication
+            - timeout -- Number of seconds before this command will timeout because it can't acquire the lock (meaning that another command is currently running), by default there is no timeout and the command will wait until it can get the lock
 
         """
         if output_as and output_as not in ['json', 'plain', 'none']:
@@ -349,7 +350,7 @@ class Interface(BaseInterface):
                                  lambda a,h: a(password=password))
 
         try:
-            ret = self.actionsmap.process(args, timeout=30)
+            ret = self.actionsmap.process(args, timeout=timeout)
         except (KeyboardInterrupt, EOFError):
             raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 

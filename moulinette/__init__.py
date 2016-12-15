@@ -109,7 +109,7 @@ def api(namespaces, host='localhost', port=80, routes={},
     return 0
 
 def cli(namespaces, args, use_cache=True, output_as=None,
-        password=None, parser_kwargs={}):
+        password=None, timeout=None, parser_kwargs={}):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -135,7 +135,7 @@ def cli(namespaces, args, use_cache=True, output_as=None,
                 'parser_kwargs': parser_kwargs,
             },
         )
-        moulinette.run(args, output_as=output_as, password=password)
+        moulinette.run(args, output_as=output_as, password=password, timeout=timeout)
     except MoulinetteError as e:
         import logging
         logging.getLogger(namespaces[0]).error(e.strerror)
