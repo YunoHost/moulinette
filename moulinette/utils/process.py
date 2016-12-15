@@ -81,6 +81,17 @@ def call_async_output(args, callback, **kwargs):
             time.sleep(.1)
     stdout_reader.join()
     stdout_consum.join()
+
+    # on slow hardware, in very edgy situations it is possible that the process
+    # isn't finished just after having closed stdout and stderr, so we wait a
+    # bit to give hime the time to finish (while having a timeout)
+    # Note : p.poll() returns None is the process hasn't finished yet
+    start = time.time()
+    while time.time() - start < 10:
+        if p.poll() is not None:
+            return p.poll()
+        time.sleep(.1)
+
     return p.poll()
 
 
