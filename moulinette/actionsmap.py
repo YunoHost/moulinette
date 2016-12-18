@@ -18,7 +18,7 @@ from moulinette.utils.log import start_action_logging
 logger = logging.getLogger('moulinette.actionsmap')
 
 
-## Extra parameters ----------------------------------------------------
+# Extra parameters ----------------------------------------------------
 
 # Extra parameters definition
 
@@ -30,26 +30,24 @@ class _ExtraParameter(object):
     implement.
 
     """
+
     def __init__(self, iface):
         # TODO: Add conn argument which contains authentification object
         self.iface = iface
 
-
-    ## Required variables
+    # Required variables
     # Each extra parameters classes must overwrite these variables.
 
     """The extra parameter name"""
     name = None
 
-
-    ## Optional variables
+    # Optional variables
     # Each extra parameters classes can overwrite these variables.
 
     """A list of interface for which the parameter doesn't apply"""
     skipped_iface = []
 
-
-    ## Virtual methods
+    # Virtual methods
     # Each extra parameters classes can implement these methods.
 
     def __call__(self, parameter, arg_name, arg_value):
@@ -82,6 +80,7 @@ class _ExtraParameter(object):
         """
         return value
 
+
 class AskParameter(_ExtraParameter):
     """
     Ask for the argument value if possible and needed.
@@ -91,7 +90,7 @@ class AskParameter(_ExtraParameter):
 
     """
     name = 'ask'
-    skipped_iface = [ 'api' ]
+    skipped_iface = ['api']
 
     def __call__(self, message, arg_name, arg_value):
         if arg_value:
@@ -107,13 +106,14 @@ class AskParameter(_ExtraParameter):
     def validate(klass, value, arg_name):
         # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logger.warning("expecting a string for extra parameter '%s' of " \
+            logger.warning("expecting a string for extra parameter '%s' of "
                            "argument '%s'", klass.name, arg_name)
             value = arg_name
         elif not isinstance(value, str):
-            raise TypeError("parameter value must be a string, got %r" \
-                                % value)
+            raise TypeError("parameter value must be a string, got %r"
+                            % value)
         return value
+
 
 class PasswordParameter(AskParameter):
     """
@@ -134,6 +134,7 @@ class PasswordParameter(AskParameter):
             return msignals.prompt(m18n.n(message), True, True)
         except NotImplementedError:
             return arg_value
+
 
 class PatternParameter(_ExtraParameter):
     """
@@ -172,13 +173,14 @@ class PatternParameter(_ExtraParameter):
     def validate(value, arg_name):
         # Deprecated string type
         if isinstance(value, str):
-            logger.warning("expecting a list for extra parameter 'pattern' of " \
+            logger.warning("expecting a list for extra parameter 'pattern' of "
                            "argument '%s'", arg_name)
             value = [value, 'pattern_not_match']
         elif not isinstance(value, list) or len(value) != 2:
-            raise TypeError("parameter value must be a list, got %r" \
-                                % value)
+            raise TypeError("parameter value must be a list, got %r"
+                            % value)
         return value
+
 
 class RequiredParameter(_ExtraParameter):
     """
@@ -201,8 +203,8 @@ class RequiredParameter(_ExtraParameter):
     @staticmethod
     def validate(value, arg_name):
         if not isinstance(value, bool):
-            raise TypeError("parameter value must be a list, got %r" \
-                                % value)
+            raise TypeError("parameter value must be a list, got %r"
+                            % value)
         return value
 
 """
@@ -210,10 +212,11 @@ The list of available extra parameters classes. It will keep to this list
 order on argument parsing.
 
 """
-extraparameters_list = [ AskParameter, PasswordParameter, RequiredParameter,
-                         PatternParameter ]
+extraparameters_list = [AskParameter, PasswordParameter, RequiredParameter,
+                        PatternParameter]
 
 # Extra parameters argument Parser
+
 
 class ExtraArgumentParser(object):
     """
@@ -223,6 +226,7 @@ class ExtraArgumentParser(object):
         - iface -- The running interface
 
     """
+
     def __init__(self, iface):
         self.iface = iface
         self.extra = OrderedDict()
@@ -255,7 +259,7 @@ class ExtraArgumentParser(object):
                     # Validate parameter value
                     parameters[p] = klass.validate(v, arg_name)
                 except Exception as e:
-                    logger.error("unable to validate extra parameter '%s' " \
+                    logger.error("unable to validate extra parameter '%s' "
                                  "for argument '%s': %s", p, arg_name, e)
                     raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
@@ -320,7 +324,7 @@ class ExtraArgumentParser(object):
         return args
 
 
-## Main class ----------------------------------------------------------
+# Main class ----------------------------------------------------------
 
 def ordered_yaml_load(stream):
     class OrderedLoader(yaml.Loader):
@@ -353,6 +357,7 @@ class ActionsMap(object):
             class at construction
 
     """
+
     def __init__(self, parser_class, namespaces=[], use_cache=True,
                  parser_kwargs={}):
         if not issubclass(parser_class, BaseActionsMapParser):
@@ -540,8 +545,7 @@ class ActionsMap(object):
 
         return actionsmaps
 
-
-    ## Private methods
+    # Private methods
 
     def _construct_parser(self, actionsmaps, **kwargs):
         """
@@ -557,19 +561,21 @@ class ActionsMap(object):
             An interface relevant's parser object
 
         """
-        ## Get extra parameters
+        # Get extra parameters
         if not self.use_cache:
             validate_extra = True
         else:
             validate_extra = False
 
-        ## Add arguments to the parser
+        # Add arguments to the parser
         def _add_arguments(tid, parser, arguments):
             for argn, argp in arguments.items():
                 names = top_parser.format_arg_names(str(argn),
                                                     argp.pop('full', None))
-                try: argp['type'] = eval(argp['type'])
-                except: pass
+                try:
+                    argp['type'] = eval(argp['type'])
+                except:
+                    pass
 
                 try:
                     extra = argp.pop('extra')
@@ -612,7 +618,7 @@ class ActionsMap(object):
                     actions = cp.pop('actions')
                 except KeyError:
                     # Invalid category without actions
-                    logger.warning("no actions found in category '%s' in " \
+                    logger.warning("no actions found in category '%s' in "
                                    "namespace '%s'", cn, n)
                     continue
 

@@ -1,9 +1,5 @@
 import time
 import subprocess
-try:
-    from pipes import quote # Python2 & Python3 <= 3.2
-except ImportError:
-    from shlex import quote # Python3 >= 3.3
 
 from .stream import async_file_reading
 
@@ -145,17 +141,17 @@ def check_commands(cmds, raise_on_error=False, callback=None,
                 raise CalledProcessError(r, c, o)
         else:
             # Continue commands execution
-            callback = lambda r,c,o: True
+            callback = lambda r, c, o: True
     elif not callable(callback):
         raise ValueError('callback argument must be callable')
 
     # Manage stderr
     if separate_stderr:
         _stderr = subprocess.PIPE
-        _get_output = lambda o,e: (o,e)
+        _get_output = lambda o, e: (o, e)
     else:
         _stderr = subprocess.STDOUT
-        _get_output = lambda o,e: o
+        _get_output = lambda o, e: o
 
     # Iterate over commands
     for cmd in cmds:

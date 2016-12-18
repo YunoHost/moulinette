@@ -16,11 +16,12 @@ class JSONExtendedEncoder(JSONEncoder):
         - set: converted into list
 
     """
+
     def default(self, o):
         """Return a serializable object"""
         # Convert compatible containers into list
         if isinstance(o, set) or (
-            hasattr(o, '__iter__') and hasattr(o, 'next')):
+                hasattr(o, '__iter__') and hasattr(o, 'next')):
             return list(o)
 
         # Return the repr for object that json can't encode

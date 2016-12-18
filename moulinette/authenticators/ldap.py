@@ -28,8 +28,9 @@ class Authenticator(BaseAuthenticator):
         - user_rdn -- The user rdn to authenticate
 
     """
+
     def __init__(self, name, uri, base_dn, user_rdn=None):
-        logger.debug("initialize authenticator '%s' with: uri='%s', " \
+        logger.debug("initialize authenticator '%s' with: uri='%s', "
                      "base_dn='%s', user_rdn='%s'", name, uri, base_dn, user_rdn)
         super(Authenticator, self).__init__(name)
 
@@ -48,8 +49,7 @@ class Authenticator(BaseAuthenticator):
         if self.con:
             self.con.unbind_s()
 
-
-    ## Implement virtual properties
+    # Implement virtual properties
 
     vendor = 'ldap'
 
@@ -65,8 +65,7 @@ class Authenticator(BaseAuthenticator):
                 return True
         return False
 
-
-    ## Implement virtual methods
+    # Implement virtual methods
 
     def authenticate(self, password):
         try:
@@ -83,8 +82,7 @@ class Authenticator(BaseAuthenticator):
         else:
             self.con = con
 
-
-    ## Additional LDAP methods
+    # Additional LDAP methods
     # TODO: Review these methods
 
     def search(self, base=None, filter='(objectClass=*)', attrs=['dn']):
@@ -108,7 +106,7 @@ class Authenticator(BaseAuthenticator):
         try:
             result = self.con.search_s(base, ldap.SCOPE_SUBTREE, filter, attrs)
         except:
-            logger.exception("error during LDAP search operation with: base='%s', " \
+            logger.exception("error during LDAP search operation with: base='%s', "
                              "filter='%s', attrs=%s", base, filter, attrs)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
 
@@ -139,7 +137,7 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.add_s(dn, ldif)
         except:
-            logger.exception("error during LDAP add operation with: rdn='%s', " \
+            logger.exception("error during LDAP add operation with: rdn='%s', "
                              "attr_dict=%s", rdn, attr_dict)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
@@ -189,7 +187,7 @@ class Authenticator(BaseAuthenticator):
 
             self.con.modify_ext_s(dn, ldif)
         except:
-            logger.exception("error during LDAP update operation with: rdn='%s', " \
+            logger.exception("error during LDAP update operation with: rdn='%s', "
                              "attr_dict=%s, new_rdn=%s", rdn, attr_dict, new_rdn)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:

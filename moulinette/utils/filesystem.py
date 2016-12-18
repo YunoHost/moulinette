@@ -2,7 +2,6 @@ import os
 import errno
 import shutil
 from pwd import getpwnam
-from grp import getgrnam
 
 from moulinette.core import MoulinetteError
 

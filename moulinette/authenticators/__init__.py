@@ -27,6 +27,7 @@ class BaseAuthenticator(object):
         - name -- The authenticator profile name
 
     """
+
     def __init__(self, name):
         self._name = name
 
@@ -35,8 +36,7 @@ class BaseAuthenticator(object):
         """Return the name of the authenticator instance"""
         return self._name
 
-
-    ## Virtual properties
+    # Virtual properties
     # Each authenticator classes must implement these properties.
 
     """The vendor name of the authenticator"""
@@ -45,11 +45,10 @@ class BaseAuthenticator(object):
     @property
     def is_authenticated(self):
         """Either the instance is authenticated or not"""
-        raise NotImplementedError("derived class '%s' must override this property" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this property" %
+                                  self.__class__.__name__)
 
-
-    ## Virtual methods
+    # Virtual methods
     # Each authenticator classes must implement these methods.
 
     def authenticate(password=None):
@@ -62,11 +61,10 @@ class BaseAuthenticator(object):
             - password -- A clear text password
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
 
-
-    ## Authentication methods
+    # Authentication methods
 
     def __call__(self, password=None, token=None):
         """Attempt to authenticate
@@ -127,8 +125,7 @@ class BaseAuthenticator(object):
 
         return self
 
-
-    ## Private methods
+    # Private methods
 
     def _open_sessionfile(self, session_id, mode='r'):
         """Open a session file for this instance in given mode"""

@@ -26,14 +26,15 @@ CLI_COLOR_TEMPLATE = '\033[{:d}m\033[1m'
 END_CLI_COLOR = '\033[m'
 
 colors_codes = {
-    'red'   : CLI_COLOR_TEMPLATE.format(31),
-    'green' : CLI_COLOR_TEMPLATE.format(32),
+    'red': CLI_COLOR_TEMPLATE.format(31),
+    'green': CLI_COLOR_TEMPLATE.format(32),
     'yellow': CLI_COLOR_TEMPLATE.format(33),
-    'blue'  : CLI_COLOR_TEMPLATE.format(34),
+    'blue': CLI_COLOR_TEMPLATE.format(34),
     'purple': CLI_COLOR_TEMPLATE.format(35),
-    'cyan'  : CLI_COLOR_TEMPLATE.format(36),
-    'white' : CLI_COLOR_TEMPLATE.format(37),
+    'cyan': CLI_COLOR_TEMPLATE.format(36),
+    'white': CLI_COLOR_TEMPLATE.format(37),
 }
+
 
 def colorize(astr, color):
     """Colorize a string
@@ -49,6 +50,7 @@ def colorize(astr, color):
         return '{:s}{:s}{:s}'.format(colors_codes[color], astr, END_CLI_COLOR)
     else:
         return astr
+
 
 def plain_print_dict(d, depth=0):
     """Print in a plain way a dictionary recursively
@@ -79,15 +81,16 @@ def plain_print_dict(d, depth=0):
         d = list(d)
     if isinstance(d, list):
         for v in d:
-            plain_print_dict(v, depth+1)
+            plain_print_dict(v, depth + 1)
     elif isinstance(d, dict):
-        for k,v in d.items():
-            print("{}{}".format("#" * (depth+1), k))
-            plain_print_dict(v, depth+1)
+        for k, v in d.items():
+            print("{}{}".format("#" * (depth + 1), k))
+            plain_print_dict(v, depth + 1)
     else:
         if isinstance(d, unicode):
             d = d.encode('utf-8')
         print(d)
+
 
 def pretty_print_dict(d, depth=0):
     """Print in a pretty way a dictionary recursively
@@ -111,22 +114,23 @@ def pretty_print_dict(d, depth=0):
             v = v[0]
         if isinstance(v, dict):
             print("{:s}{}: ".format("  " * depth, k))
-            pretty_print_dict(v, depth+1)
+            pretty_print_dict(v, depth + 1)
         elif isinstance(v, list):
             print("{:s}{}: ".format("  " * depth, k))
             for key, value in enumerate(v):
                 if isinstance(value, tuple):
-                    pretty_print_dict({value[0]: value[1]}, depth+1)
+                    pretty_print_dict({value[0]: value[1]}, depth + 1)
                 elif isinstance(value, dict):
-                    pretty_print_dict({key: value}, depth+1)
+                    pretty_print_dict({key: value}, depth + 1)
                 else:
                     if isinstance(value, unicode):
                         value = value.encode('utf-8')
-                    print("{:s}- {}".format("  " * (depth+1), value))
+                    print("{:s}- {}".format("  " * (depth + 1), value))
         else:
             if isinstance(v, unicode):
                 v = v.encode('utf-8')
             print("{:s}{}: {}".format("  " * depth, k, v))
+
 
 def get_locale():
     """Return current user locale"""
@@ -155,13 +159,13 @@ class TTYHandler(log.StreamHandler):
 
     """
     LEVELS_COLOR = {
-        log.NOTSET   : 'white',
-        log.DEBUG    : 'white',
-        log.INFO     : 'cyan',
-        log.SUCCESS  : 'green',
-        log.WARNING  : 'yellow',
-        log.ERROR    : 'red',
-        log.CRITICAL : 'red',
+        log.NOTSET: 'white',
+        log.DEBUG: 'white',
+        log.INFO: 'cyan',
+        log.SUCCESS: 'green',
+        log.WARNING: 'yellow',
+        log.ERROR: 'red',
+        log.CRITICAL: 'red',
     }
 
     def __init__(self, message_key='fmessage'):
@@ -216,6 +220,7 @@ class ActionsMapParser(BaseActionsMapParser):
             be take into account but not parsed
 
     """
+
     def __init__(self, parent=None, parser=None, subparser_kwargs=None,
                  top_parser=None, **kwargs):
         super(ActionsMapParser, self).__init__(parent)
@@ -234,13 +239,11 @@ class ActionsMapParser(BaseActionsMapParser):
                 action.dest = SUPPRESS
                 glob._add_action(action)
 
-
-    ## Implement virtual properties
+    # Implement virtual properties
 
     interface = 'cli'
 
-
-    ## Implement virtual methods
+    # Implement virtual methods
 
     @staticmethod
     def format_arg_names(name, full):
@@ -251,7 +254,7 @@ class ActionsMapParser(BaseActionsMapParser):
     def add_global_parser(self, **kwargs):
         if not self._global_parser:
             self._global_parser = self._parser.add_argument_group(
-                    "global arguments")
+                "global arguments")
         return self._global_parser
 
     def add_category_parser(self, name, category_help=None, **kwargs):
@@ -266,7 +269,7 @@ class ActionsMapParser(BaseActionsMapParser):
         """
         parser = self._subparsers.add_parser(name, help=category_help, **kwargs)
         return self.__class__(self, parser, {
-                'title': "actions", 'required': True
+            'title': "actions", 'required': True
         })
 
     def add_action_parser(self, name, tid, action_help=None, deprecated=False,
@@ -310,6 +313,7 @@ class Interface(BaseInterface):
         - actionsmap -- The ActionsMap instance to connect to
 
     """
+
     def __init__(self, actionsmap):
         # Set user locale
         m18n.set_locale(get_locale())
@@ -347,7 +351,7 @@ class Interface(BaseInterface):
         # Set handler for authentication
         if password:
             msignals.set_handler('authenticate',
-                                 lambda a,h: a(password=password))
+                                 lambda a, h: a(password=password))
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
@@ -370,8 +374,7 @@ class Interface(BaseInterface):
         else:
             print(ret)
 
-
-    ## Signals handlers
+    # Signals handlers
 
     def _do_authenticate(self, authenticator, help):
         """Process the authentication

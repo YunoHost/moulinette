@@ -38,6 +38,7 @@ def search(pattern, text, count=0, flags=0):
         return match[0]
     return match
 
+
 def searchf(pattern, path, count=0, flags=re.MULTILINE):
     """Search for pattern in a file
 

@@ -29,11 +29,13 @@ class LogQueues(dict):
     """Map of session id to queue."""
     pass
 
+
 class APIQueueHandler(log.Handler):
     """
     A handler class which store logging records into a queue, to be used
     and retrieved from the API.
     """
+
     def __init__(self):
         log.Handler.__init__(self)
         self.queues = LogQueues()
@@ -52,6 +54,7 @@ class APIQueueHandler(log.Handler):
             # populate the new message in the queue
             sleep(0)
 
+
 class _HTTPArgumentParser(object):
     """Argument parser for HTTP requests
 
@@ -59,6 +62,7 @@ class _HTTPArgumentParser(object):
     on ExtendedArgumentParser class and implements some of its methods.
 
     """
+
     def __init__(self):
         # Initialize the ArgumentParser object
         self._parser = ExtendedArgumentParser(usage='',
@@ -89,7 +93,7 @@ class _HTTPArgumentParser(object):
     def parse_args(self, args={}, namespace=None):
         arg_strings = []
 
-        ## Append an argument to the current one
+        # Append an argument to the current one
         def append(arg_strings, value, option_string=None):
             if isinstance(value, bool):
                 # Append the option string only
@@ -110,11 +114,11 @@ class _HTTPArgumentParser(object):
                     if isinstance(v, str):
                         arg_strings.append(v)
                     else:
-                        logger.warning("unsupported argument value type %r " \
+                        logger.warning("unsupported argument value type %r "
                                        "in %s for option string %s", v, value,
                                        option_string)
             else:
-                logger.warning("unsupported argument type %r for option " \
+                logger.warning("unsupported argument type %r for option "
                                "string %s", value, option_string)
 
             return arg_strings
@@ -137,6 +141,7 @@ class _HTTPArgumentParser(object):
     def _error(self, message):
         # TODO: Raise a proper exception
         raise MoulinetteError(1, message)
+
 
 class _ActionsMapPlugin(object):
     """Actions map Bottle Plugin
@@ -174,7 +179,7 @@ class _ActionsMapPlugin(object):
             - app -- The application instance
 
         """
-        ## Login wrapper
+        # Login wrapper
         def _login(callback):
             def wrapper():
                 kwargs = {}
@@ -189,7 +194,7 @@ class _ActionsMapPlugin(object):
                 return callback(**kwargs)
             return wrapper
 
-        ## Logout wrapper
+        # Logout wrapper
         def _logout(callback):
             def wrapper():
                 kwargs = {}
@@ -258,8 +263,7 @@ class _ActionsMapPlugin(object):
             return callback((request.method, context.rule), params)
         return wrapper
 
-
-    ## Routes callbacks
+    # Routes callbacks
 
     def login(self, password, profile='default'):
         """Log in to an authenticator profile
@@ -290,8 +294,10 @@ class _ActionsMapPlugin(object):
             auth(password, token=(s_id, s_hash))
         except MoulinetteError as e:
             if len(s_hashes) > 0:
-                try: self.logout(profile)
-                except: pass
+                try:
+                    self.logout(profile)
+                except:
+                    pass
             raise error_to_response(e)
         else:
             # Update dicts with new values
@@ -359,7 +365,7 @@ class _ActionsMapPlugin(object):
             else:
                 try:
                     # Send the message
-                    wsock.send(json_encode({ style: message }))
+                    wsock.send(json_encode({style: message}))
                 except WebSocketError:
                     break
             sleep(0)
@@ -391,8 +397,7 @@ class _ActionsMapPlugin(object):
             else:
                 queue.put(StopIteration)
 
-
-    ## Signals handlers
+    # Signals handlers
 
     def _do_authenticate(self, authenticator, help):
         """Process the authentication
@@ -438,24 +443,34 @@ class _ActionsMapPlugin(object):
 # HTTP Responses -------------------------------------------------------
 
 class HTTPOKResponse(HTTPResponse):
+
     def __init__(self, output=''):
         super(HTTPOKResponse, self).__init__(output, 200)
 
+
 class HTTPBadRequestResponse(HTTPResponse):
+
     def __init__(self, output=''):
         super(HTTPBadRequestResponse, self).__init__(output, 400)
 
+
 class HTTPUnauthorizedResponse(HTTPResponse):
+
     def __init__(self, output=''):
         super(HTTPUnauthorizedResponse, self).__init__(output, 401)
 
+
 class HTTPForbiddenResponse(HTTPResponse):
+
     def __init__(self, output=''):
         super(HTTPForbiddenResponse, self).__init__(output, 403)
 
+
 class HTTPErrorResponse(HTTPResponse):
+
     def __init__(self, output=''):
         super(HTTPErrorResponse, self).__init__(output, 500)
+
 
 def error_to_response(error):
     """Convert a MoulinetteError to relevant HTTP response."""
@@ -464,17 +479,18 @@ def error_to_response(error):
     elif error.errno == errno.EACCES:
         return HTTPUnauthorizedResponse(error.strerror)
     # Client-side error
-    elif error.errno in [ errno.ENOENT, errno.ESRCH, errno.ENXIO, errno.EEXIST,
-            errno.ENODEV, errno.EINVAL, errno.ENOPKG, errno.EDESTADDRREQ ]:
+    elif error.errno in [errno.ENOENT, errno.ESRCH, errno.ENXIO, errno.EEXIST,
+            errno.ENODEV, errno.EINVAL, errno.ENOPKG, errno.EDESTADDRREQ]:
         return HTTPBadRequestResponse(error.strerror)
     # Server-side error
-    elif error.errno in [ errno.EIO, errno.EBUSY, errno.ENODATA, errno.EINTR,
-            errno.ENETUNREACH ]:
+    elif error.errno in [errno.EIO, errno.EBUSY, errno.ENODATA, errno.EINTR,
+            errno.ENETUNREACH]:
         return HTTPErrorResponse(error.strerror)
     else:
         logger.debug('unknown relevant response for error [%s] %s',
                      error.errno, error.strerror)
         return HTTPErrorResponse(error.strerror)
+
 
 def format_for_response(content):
     """Format the resulted content of a request for the HTTP response."""
@@ -503,10 +519,11 @@ class ActionsMapParser(BaseActionsMapParser):
     the arguments is represented by a ExtendedArgumentParser object.
 
     """
+
     def __init__(self, parent=None, **kwargs):
         super(ActionsMapParser, self).__init__(parent)
 
-        self._parsers = {} # dict({(method, path): _HTTPArgumentParser})
+        self._parsers = {}  # dict({(method, path): _HTTPArgumentParser})
         self._route_re = re.compile(r'(GET|POST|PUT|DELETE) (/\S+)')
 
     @property
@@ -514,13 +531,11 @@ class ActionsMapParser(BaseActionsMapParser):
         """Get current routes"""
         return self._parsers.keys()
 
-
-    ## Implement virtual properties
+    # Implement virtual properties
 
     interface = 'api'
 
-
-    ## Implement virtual methods
+    # Implement virtual methods
 
     @staticmethod
     def format_arg_names(name, full):
@@ -559,7 +574,7 @@ class ActionsMapParser(BaseActionsMapParser):
                     try:
                         keys.append(self._extract_route(r))
                     except ValueError as e:
-                        logger.warning("cannot add api route '%s' for " \
+                        logger.warning("cannot add api route '%s' for "
                                        "action %s: %s", r, tid, e)
                         continue
                 if len(keys) == 0:
@@ -613,8 +628,7 @@ class ActionsMapParser(BaseActionsMapParser):
         parser.dequeue_callbacks(ret)
         return ret
 
-
-    ## Private methods
+    # Private methods
 
     def _extract_route(self, string):
         """Extract action route from a string
@@ -652,6 +666,7 @@ class Interface(BaseInterface):
             registered logging handlers
 
     """
+
     def __init__(self, actionsmap, routes={}, use_websocket=True,
                  log_queues=None):
         self.use_websocket = use_websocket
@@ -665,14 +680,14 @@ class Interface(BaseInterface):
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
 
-        ## Wrapper which sets proper header
+        # Wrapper which sets proper header
         def apiheader(callback):
             def wrapper(*args, **kwargs):
                 response.set_header('Access-Control-Allow-Origin', '*')
                 return callback(*args, **kwargs)
             return wrapper
 
-        ## Attempt to retrieve and set locale
+        # Attempt to retrieve and set locale
         def api18n(callback):
             try:
                 locale = request.params.pop('locale')
@@ -729,8 +744,7 @@ class Interface(BaseInterface):
                                       m18n.g('server_already_running'))
             raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
 
-
-    ## Routes handlers
+    # Routes handlers
 
     def doc(self, category=None):
         """

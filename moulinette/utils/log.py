@@ -1,6 +1,6 @@
 import os
 import logging
-from logging import *
+from logging import addLevelName, setLoggerClass, Logger, getLogger
 
 
 # Global configuration and functions -----------------------------------
@@ -31,6 +31,7 @@ DEFAULT_LOGGING = {
     },
 }
 
+
 def configure_logging(logging_config=None):
     """Configure logging with default and optionally given configuration
 
@@ -49,6 +50,7 @@ def configure_logging(logging_config=None):
     if logging_config:
         dictConfig(logging_config)
 
+
 def getHandlersByClass(classinfo, limit=0):
     """Retrieve registered handlers of a given class."""
     handlers = []
@@ -59,7 +61,7 @@ def getHandlersByClass(classinfo, limit=0):
                 return o
             handlers.append(o)
     if limit != 0 and len(handlers) > limit:
-        return handlers[:limit-1]
+        return handlers[:limit - 1]
     return handlers
 
 
@@ -111,8 +113,10 @@ class MoulinetteLogger(Logger):
 pid = os.getpid()
 action_id = 0
 
+
 def _get_action_id():
     return '%d.%d' % (pid, action_id)
+
 
 def start_action_logging():
     """Configure logging for a new action
@@ -126,6 +130,7 @@ def start_action_logging():
 
     return _get_action_id()
 
+
 def getActionLogger(name=None, logger=None, action_id=None):
     """Get the logger adapter for an action
 
@@ -133,7 +138,7 @@ def getActionLogger(name=None, logger=None, action_id=None):
     optionally for a given action id, retrieving it if necessary.
 
     Either a name or a logger must be specified.
-    
+
     """
     if not name and not logger:
         raise ValueError('Either a name or a logger must be specified')
@@ -152,6 +157,7 @@ class ActionFilter(object):
     message formatted for the action or just the original one.
 
     """
+
     def __init__(self, message_key='fmessage', strict=False):
         self.message_key = message_key
         self.strict = strict

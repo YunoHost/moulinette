@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import time
 import json
 import errno
@@ -25,6 +24,7 @@ class Package(object):
             not (only for debugging)
 
     """
+
     def __init__(self, _from_source=False):
         if _from_source:
             import sys
@@ -32,7 +32,7 @@ class Package(object):
             logger.debug('initialize Package object running from source')
 
             # Retrieve source's base directory
-            basedir = os.path.abspath(os.path.dirname(sys.argv[0]) +'/../')
+            basedir = os.path.abspath(os.path.dirname(sys.argv[0]) + '/../')
 
             # Set local directories
             self._datadir = '%s/data' % basedir
@@ -55,8 +55,7 @@ class Package(object):
             return
         self.__dict__[name] = value
 
-
-    ## Easy access to package directories
+    # Easy access to package directories
 
     @property
     def datadir(self):
@@ -78,8 +77,7 @@ class Package(object):
         """Return the cache directory of the package"""
         return self._cachedir
 
-
-    ## Additional methods
+    # Additional methods
 
     def get_cachedir(self, subdir='', make_dir=True):
         """Get the path to a cache directory
@@ -131,6 +129,7 @@ class Translator(object):
         - default_locale -- The default locale to use
 
     """
+
     def __init__(self, locale_dir, default_locale='en'):
         self.locale_dir = locale_dir
         self.locale = default_locale
@@ -244,6 +243,7 @@ class Moulinette18n(object):
         - default_locale -- The default locale to use
 
     """
+
     def __init__(self, package, default_locale='en'):
         self.default_locale = default_locale
         self.locale = default_locale
@@ -333,6 +333,7 @@ class MoulinetteSignals(object):
         - kwargs -- A dict of {signal: handler} to connect
 
     """
+
     def __init__(self, **kwargs):
         # Initialize handlers
         for s in self.signals:
@@ -356,11 +357,10 @@ class MoulinetteSignals(object):
             return
         setattr(self, '_%s' % signal, self._notimplemented)
 
-
-    ## Signals definitions
+    # Signals definitions
 
     """The list of available signals"""
-    signals = { 'authenticate', 'prompt', 'display' }
+    signals = {'authenticate', 'prompt', 'display'}
 
     def authenticate(self, authenticator, help):
         """Process the authentication
@@ -471,6 +471,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
 
     return interface(amap, **kwargs)
 
+
 def init_authenticator((vendor, name), kwargs={}):
     """Return a new authenticator instance
 
@@ -490,6 +491,7 @@ def init_authenticator((vendor, name), kwargs={}):
         raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
     else:
         return mod.Authenticator(name, **kwargs)
+
 
 def clean_session(session_id, profiles=[]):
     """Clean a session cache
@@ -534,6 +536,7 @@ class MoulinetteLock(object):
             lock
 
     """
+
     def __init__(self, namespace, timeout=None, interval=.5):
         self.namespace = namespace
         self.timeout = timeout

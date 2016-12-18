@@ -32,7 +32,7 @@ __all__ = [
 from moulinette.core import init_interface, MoulinetteError
 
 
-## Package functions
+# Package functions
 
 def init(logging_config=None, **kwargs):
     """Package initialization
@@ -68,7 +68,7 @@ def init(logging_config=None, **kwargs):
     sys.path.insert(0, pkg.libdir)
 
 
-## Easy access to interfaces
+# Easy access to interfaces
 
 def api(namespaces, host='localhost', port=80, routes={},
         use_websocket=True, use_cache=True):
@@ -107,6 +107,7 @@ def api(namespaces, host='localhost', port=80, routes={},
         import logging
         logging.getLogger(namespaces[0]).info(m18n.g('operation_interrupted'))
     return 0
+
 
 def cli(namespaces, args, use_cache=True, output_as=None,
         password=None, timeout=None, parser_kwargs={}):

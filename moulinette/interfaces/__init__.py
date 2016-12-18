@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import errno
 import logging
 import argparse
@@ -31,6 +30,7 @@ class BaseActionsMapParser(object):
         - parent -- A parent BaseActionsMapParser derived object
 
     """
+
     def __init__(self, parent=None, **kwargs):
         if parent:
             self._o = parent
@@ -43,15 +43,13 @@ class BaseActionsMapParser(object):
             self._global_conf = {}
             self._conf = {}
 
-
-    ## Virtual properties
+    # Virtual properties
     # Each parser classes must implement these properties.
 
     """The name of the interface for which it is the parser"""
     interface = None
 
-
-    ## Virtual methods
+    # Virtual methods
     # Each parser classes must implement these methods.
 
     @staticmethod
@@ -70,8 +68,8 @@ class BaseActionsMapParser(object):
             A list of option strings
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
 
     def add_global_parser(self, **kwargs):
         """Add a parser for global arguments
@@ -82,8 +80,8 @@ class BaseActionsMapParser(object):
             An ArgumentParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
 
     def add_category_parser(self, name, **kwargs):
         """Add a parser for a category
@@ -97,8 +95,8 @@ class BaseActionsMapParser(object):
             A BaseParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
 
     def add_action_parser(self, name, tid, **kwargs):
         """Add a parser for an action
@@ -113,8 +111,8 @@ class BaseActionsMapParser(object):
             An ArgumentParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
 
     def parse_args(self, args, **kwargs):
         """Parse arguments
@@ -129,11 +127,10 @@ class BaseActionsMapParser(object):
             The populated namespace
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
 
-
-    ## Arguments helpers
+    # Arguments helpers
 
     def prepare_action_namespace(self, tid, namespace=None):
         """Prepare the namespace for a given action"""
@@ -168,8 +165,7 @@ class BaseActionsMapParser(object):
 
         return namespace
 
-
-    ## Configuration access
+    # Configuration access
 
     @property
     def global_conf(self):
@@ -237,7 +233,6 @@ class BaseActionsMapParser(object):
         """
         self._o._conf[action] = self._validate_conf(configuration)
 
-
     def _validate_conf(self, configuration, is_global=False):
         """Validate configuration for the parser
 
@@ -265,7 +260,7 @@ class BaseActionsMapParser(object):
                 # Store only if authentication is needed
                 conf['authenticate'] = True if self.interface in ifaces else False
             else:
-                logger.error("expecting 'all', 'False' or a list for " \
+                logger.error("expecting 'all', 'False' or a list for "
                              "configuration 'authenticate', got %r", ifaces)
                 raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
@@ -280,12 +275,12 @@ class BaseActionsMapParser(object):
                     # Store needed authenticator profile
                     conf['authenticator'] = self.global_conf['authenticator'][auth]
                 except KeyError:
-                    logger.error("requesting profile '%s' which is undefined in " \
+                    logger.error("requesting profile '%s' which is undefined in "
                                  "global configuration of 'authenticator'", auth)
                     raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
             elif is_global and isinstance(auth, dict):
                 if len(auth) == 0:
-                    logger.warning('no profile defined in global configuration ' \
+                    logger.warning('no profile defined in global configuration '
                                    "for 'authenticator'")
                 else:
                     auths = {}
@@ -299,11 +294,11 @@ class BaseActionsMapParser(object):
                         # - parameters: a dict of arguments for the
                         #     authenticator profile
                         auths[auth_name] = ((auth_conf.get('vendor'), auth_name),
-                                            { 'help': auth_conf.get('help', None) },
+                                            {'help': auth_conf.get('help', None)},
                                             auth_conf.get('parameters', {}))
                     conf['authenticator'] = auths
             else:
-                logger.error("expecting a dict of profile(s) or a profile name " \
+                logger.error("expecting a dict of profile(s) or a profile name "
                              "for configuration 'authenticator', got %r", auth)
                 raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
@@ -316,7 +311,7 @@ class BaseActionsMapParser(object):
             if isinstance(arg_auth, bool):
                 conf['argument_auth'] = arg_auth
             else:
-                logger.error("expecting a boolean for configuration " \
+                logger.error("expecting a boolean for configuration "
                              "'argument_auth', got %r", arg_auth)
                 raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
@@ -329,7 +324,7 @@ class BaseActionsMapParser(object):
             if isinstance(lock, bool):
                 conf['lock'] = lock
             else:
-                logger.error("expecting a boolean for configuration 'lock', " \
+                logger.error("expecting a boolean for configuration 'lock', "
                              "got %r", lock)
                 raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
@@ -369,14 +364,16 @@ class BaseInterface(object):
 
     """
     # TODO: Add common interface methods and try to standardize default ones
+
     def __init__(self, actionsmap):
-        raise NotImplementedError("derived class '%s' must override this method" % \
-                                      self.__class__.__name__)
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
 
 
 # Argument parser ------------------------------------------------------
 
 class _CallbackAction(argparse.Action):
+
     def __init__(self,
                  option_strings,
                  dest,
@@ -427,7 +424,7 @@ class _CallbackAction(argparse.Action):
             # Execute callback and get returned value
             value = self.callback(namespace, values, **self.callback_kwargs)
         except:
-            logger.exception("cannot get value from callback method " \
+            logger.exception("cannot get value from callback method "
                 "'{0}'".format(self.callback_method))
             raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
         else:
@@ -436,6 +433,7 @@ class _CallbackAction(argparse.Action):
                     setattr(namespace, TO_RETURN_PROP, value)
                 else:
                     setattr(namespace, self.dest, value)
+
 
 class _ExtendedSubParsersAction(argparse._SubParsersAction):
     """Subparsers with extended properties for argparse
@@ -450,6 +448,7 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
       - deprecated_alias -- A list of deprecated command alias names
 
     """
+
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', False)
         super(_ExtendedSubParsersAction, self).__init__(*args, **kwargs)
@@ -500,6 +499,7 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
 
 
 class ExtendedArgumentParser(argparse.ArgumentParser):
+
     def __init__(self, *args, **kwargs):
         super(ExtendedArgumentParser, self).__init__(*args, **kwargs)
 
@@ -517,8 +517,10 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             c, v = queue.popleft()
             # FIXME: break dequeue if callback returns
             c.execute(namespace, v)
-        try: delattr(namespace, CALLBACKS_PROP)
-        except: pass
+        try:
+            delattr(namespace, CALLBACKS_PROP)
+        except:
+            pass
 
     def _get_callbacks_queue(self, namespace, create=True):
         try:
@@ -536,7 +538,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             return '([-AO]*)'
         else:
             return super(ExtendedArgumentParser, self)._get_nargs_pattern(
-                    action)
+                action)
 
     def _get_values(self, action, arg_strings):
         if action.nargs == argparse.PARSER and not action.required:
@@ -547,5 +549,5 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 value = argparse.SUPPRESS
         else:
             value = super(ExtendedArgumentParser, self)._get_values(
-                    action, arg_strings)
+                action, arg_strings)
         return value

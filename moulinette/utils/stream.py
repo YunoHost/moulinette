@@ -14,6 +14,7 @@ class AsynchronousFileReader(Process):
     http://stefaanlippens.net/python-asynchronous-subprocess-pipe-reading
 
     """
+
     def __init__(self, fd, queue):
         assert hasattr(queue, 'put')
         assert hasattr(queue, 'empty')
@@ -47,6 +48,7 @@ def consume_queue(queue, callback):
             if line == StopIteration:
                 break
             callback(line)
+
 
 def async_file_reading(fd, callback):
     """Helper which instantiate and run an AsynchronousFileReader."""
