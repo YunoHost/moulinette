@@ -1,0 +1,5 @@
+language: python
+install: "pip install pep8"
+python:
+    - "2.7"
+script: "pep8 --ignore E501,E128 moulinette"
