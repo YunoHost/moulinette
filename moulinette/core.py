@@ -49,7 +49,7 @@ class Package(object):
             self._cachedir = package.cachedir
 
     def __setattr__(self, name, value):
-        if name[0] == '_' and self.__dict__.has_key(name):
+        if name[0] == '_' and name in self.__dict__:
             # Deny reassignation of package directories
             logger.error("cannot reassign Package variable '%s'", name)
             return

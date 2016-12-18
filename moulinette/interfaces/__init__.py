@@ -254,7 +254,7 @@ class BaseActionsMapParser(object):
         else:
             if ifaces == 'all':
                 conf['authenticate'] = ifaces
-            elif ifaces == False:
+            elif ifaces is False:
                 conf['authenticate'] = False
             elif isinstance(ifaces, list):
                 # Store only if authentication is needed

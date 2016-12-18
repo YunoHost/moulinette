@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from moulinette.core import init_interface, MoulinetteError
+
 __title__ = 'moulinette'
 __version__ = '0.1'
 __author__ = ['Kload',
@@ -28,8 +30,6 @@ __all__ = [
     'init', 'api', 'cli',
     'init_interface', 'MoulinetteError',
 ]
-
-from moulinette.core import init_interface, MoulinetteError
 
 
 # Package functions

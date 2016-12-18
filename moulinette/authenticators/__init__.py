@@ -154,7 +154,7 @@ class BaseAuthenticator(object):
             gpg.encoding = 'utf-8'
 
             decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
-            if decrypted.ok != True:
+            if decrypted.ok is not True:
                 logger.error("unable to decrypt password for the session: %s",
                              decrypted.status)
                 raise MoulinetteError(errno.EINVAL,

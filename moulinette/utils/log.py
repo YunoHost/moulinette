@@ -101,7 +101,7 @@ class MoulinetteLogger(Logger):
         """Append action_id if available to the extra."""
         if self.action_id is not None:
             extra = kwargs.get('extra', {})
-            if not 'action_id' in extra:
+            if 'action_id' not in extra:
                 # FIXME: Get real action_id instead of logger/current one
                 extra['action_id'] = _get_action_id()
                 kwargs['extra'] = extra
