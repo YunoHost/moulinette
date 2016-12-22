@@ -1,6 +1,6 @@
 import os
 import logging
-from logging import addLevelName, setLoggerClass, Logger, getLogger
+from logging import addLevelName, setLoggerClass, Logger, getLogger, StreamHandler
 
 
 # Global configuration and functions -----------------------------------
