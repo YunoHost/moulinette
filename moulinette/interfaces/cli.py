@@ -5,6 +5,7 @@ import sys
 import errno
 import getpass
 import locale
+import logging
 from argparse import SUPPRESS
 from collections import OrderedDict
 
@@ -142,7 +143,7 @@ def get_locale():
 
 # CLI Classes Implementation -------------------------------------------
 
-class TTYHandler(log.StreamHandler):
+class TTYHandler(logging.StreamHandler):
     """TTY log handler
 
     A handler class which prints logging records for a tty. The record is
@@ -159,17 +160,17 @@ class TTYHandler(log.StreamHandler):
 
     """
     LEVELS_COLOR = {
-        log.NOTSET: 'white',
-        log.DEBUG: 'white',
-        log.INFO: 'cyan',
-        log.SUCCESS: 'green',
-        log.WARNING: 'yellow',
-        log.ERROR: 'red',
-        log.CRITICAL: 'red',
+        logging.NOTSET: 'white',
+        logging.DEBUG: 'white',
+        logging.INFO: 'cyan',
+        logging.SUCCESS: 'green',
+        logging.WARNING: 'yellow',
+        logging.ERROR: 'red',
+        logging.CRITICAL: 'red',
     }
 
     def __init__(self, message_key='fmessage'):
-        log.StreamHandler.__init__(self)
+        logging.StreamHandler.__init__(self)
         self.message_key = message_key
 
     def format(self, record):
@@ -177,7 +178,7 @@ class TTYHandler(log.StreamHandler):
         msg = record.getMessage()
         if self.supports_color():
             level = ''
-            if self.level <= log.DEBUG:
+            if self.level <= logging.DEBUG:
                 # add level name before message
                 level = '%s ' % record.levelname
             elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR']:
@@ -194,11 +195,11 @@ class TTYHandler(log.StreamHandler):
 
     def emit(self, record):
         # set proper stream first
-        if record.levelno >= log.WARNING:
+        if record.levelno >= logging.WARNING:
             self.stream = sys.stderr
         else:
             self.stream = sys.stdout
-        log.StreamHandler.emit(self, record)
+        logging.StreamHandler.emit(self, record)
 
     def supports_color(self):
         """Check whether current stream supports color."""

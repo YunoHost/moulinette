@@ -3,6 +3,7 @@
 import os
 import re
 import errno
+import logging
 import argparse
 from json import dumps as json_encode
 
@@ -30,14 +31,14 @@ class LogQueues(dict):
     pass
 
 
-class APIQueueHandler(log.Handler):
+class APIQueueHandler(logging.Handler):
     """
     A handler class which store logging records into a queue, to be used
     and retrieved from the API.
     """
 
     def __init__(self):
-        log.Handler.__init__(self)
+        logging.Handler.__init__(self)
         self.queues = LogQueues()
 
     def emit(self, record):
@@ -673,7 +674,7 @@ class Interface(BaseInterface):
 
         # Attempt to retrieve log queues from an APIQueueHandler
         if log_queues is None:
-            handler = log.getHandlersByClass(APIQueueHandler, limit=1)
+            handler = logging.getHandlersByClass(APIQueueHandler, limit=1)
             if handler:
                 log_queues = handler.queues
 
