@@ -163,7 +163,6 @@ class TTYHandler(logging.StreamHandler):
         logging.NOTSET: 'white',
         logging.DEBUG: 'white',
         logging.INFO: 'cyan',
-        logging.SUCCESS: 'green',
         logging.WARNING: 'yellow',
         logging.ERROR: 'red',
         logging.CRITICAL: 'red',
