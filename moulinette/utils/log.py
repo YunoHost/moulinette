@@ -1,6 +1,10 @@
 import os
 import logging
-from logging import addLevelName, setLoggerClass, Logger, getLogger
+
+# import all constant because other modules tries to important them from this
+# module because SUCCESS is defined in this module
+from logging import (addLevelName, setLoggerClass, Logger, getLogger, NOTSET,
+                     DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
 
 # Global configuration and functions -----------------------------------

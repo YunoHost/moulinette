@@ -160,13 +160,13 @@ class TTYHandler(logging.StreamHandler):
 
     """
     LEVELS_COLOR = {
-        logging.NOTSET: 'white',
-        logging.DEBUG: 'white',
-        logging.INFO: 'cyan',
-        logging.SUCCESS: 'green',
-        logging.WARNING: 'yellow',
-        logging.ERROR: 'red',
-        logging.CRITICAL: 'red',
+        log.NOTSET: 'white',
+        log.DEBUG: 'white',
+        log.INFO: 'cyan',
+        log.SUCCESS: 'green',
+        log.WARNING: 'yellow',
+        log.ERROR: 'red',
+        log.CRITICAL: 'red',
     }
 
     def __init__(self, message_key='fmessage'):
@@ -178,7 +178,7 @@ class TTYHandler(logging.StreamHandler):
         msg = record.getMessage()
         if self.supports_color():
             level = ''
-            if self.level <= logging.DEBUG:
+            if self.level <= log.DEBUG:
                 # add level name before message
                 level = '%s ' % record.levelname
             elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR']:
@@ -195,7 +195,7 @@ class TTYHandler(logging.StreamHandler):
 
     def emit(self, record):
         # set proper stream first
-        if record.levelno >= logging.WARNING:
+        if record.levelno >= log.WARNING:
             self.stream = sys.stderr
         else:
             self.stream = sys.stdout
