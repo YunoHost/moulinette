@@ -1,6 +1,15 @@
 import time
 import subprocess
 
+# This import is unused in this file. It will be deleted in future (W0611 PEP8),
+# but for the momment we keep it due to yunohost moulinette script that used
+# process.quote syntax to access this module !
+try:
+    from pipes import quote  # Python2 & Python3 <= 3.2
+except ImportError:
+    from shlex import quote  # Python3 >= 3.3
+quote  # This line is here to avoid W0611 PEP8 error (see comments above)
+
 from .stream import async_file_reading
 
 # Prevent to import subprocess only for common classes
