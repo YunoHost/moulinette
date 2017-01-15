@@ -194,7 +194,7 @@ class RequiredParameter(_ExtraParameter):
     def __call__(self, required, arg_name, arg_value):
         if required and (arg_value is None or arg_value == ''):
             logger.debug("argument '%s' is required",
-                         v, arg_name, pattern)
+                         arg_name)
             raise MoulinetteError(errno.EINVAL,
                                   m18n.g('argument_required',
                                          argument=arg_name))
