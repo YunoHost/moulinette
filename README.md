@@ -4,6 +4,9 @@ Moulinette
 The *moulinette* is a Python package that allows to quickly and easily
 prototype interfaces for your application.
 
+<a href="https://translate.yunohost.org/engage/yunohost/?utm_source=widget">
+<img src="https://translate.yunohost.org/widgets/yunohost/-/287x66-white.png" alt="Translation status" />
+</a>
 
 Overview
 --------
