@@ -674,7 +674,7 @@ class Interface(BaseInterface):
 
         # Attempt to retrieve log queues from an APIQueueHandler
         if log_queues is None:
-            handler = logging.getHandlersByClass(APIQueueHandler, limit=1)
+            handler = log.getHandlersByClass(APIQueueHandler, limit=1)
             if handler:
                 log_queues = handler.queues
 
