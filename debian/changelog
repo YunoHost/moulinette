@@ -1,3 +1,26 @@
+moulinette (2.5.2) stable; urgency=low
+
+  [ Laurent Peuch ]
+  * [mod] autopep8
+  * [enh] add pep8 travis check
+  * [mod] continue with pep8
+  * [fix] other modules were depending on "import *", urgh.
+  * [fix] don't circumway logging module
+  * [fix] log module was redifining constants thus breaking import
+  * [fix] hotfix for very obvious bug
+  * [fix] hotfix another bug related to the logging/log conflict
+
+  [ ljf ]
+  * [fix] Unused import in process is reference and used by yunohost script
+
+  [ opi ]
+  * [enh][love] Add CONTRIBUTORS.md
+
+  [ Moul ]
+  * [enh] readme: add translation badge status.
+
+ -- opi <opi@zeropi.net>  Thu, 02 Feb 2017 11:05:51 +0100
+
 moulinette (2.5.1) testing; urgency=low
 
   Random broken apps installation:
