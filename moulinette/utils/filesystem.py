@@ -101,9 +101,9 @@ def chmod(path, mode, fmode=None, recursive=False):
             fmode = mode
         for root, dirs, files in os.walk(path):
             for d in dirs:
-                os.chmod(os.path.join(root,d), mode)
+                os.chmod(os.path.join(root, d), mode)
             for f in files:
-                os.chmod(os.path.join(root,f), fmode)
+                os.chmod(os.path.join(root, f), fmode)
 
 
 def rm(path, recursive=False, force=False):

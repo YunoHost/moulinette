@@ -8,9 +8,9 @@ try:
     from pipes import quote  # Python2 & Python3 <= 3.2
 except ImportError:
     from shlex import quote  # Python3 >= 3.3
-quote  # This line is here to avoid W0611 PEP8 error (see comments above)
 
 from .stream import async_file_reading
+quote  # This line is here to avoid W0611 PEP8 error (see comments above)
 
 # Prevent to import subprocess only for common classes
 CalledProcessError = subprocess.CalledProcessError
