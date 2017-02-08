@@ -14,7 +14,7 @@
     "invalid_argument": "Argumento inválido '{argument}': {error}",
     "invalid_password": "Senha incorreta",
     "invalid_usage": "Uso invalido, utilizar --help para ver a ajuda",
-    "ldap_attribute_already_exists": "O atributo '{attribute}' já existe com valor {value}'",
+    "ldap_attribute_already_exists": "O atributo '{attribute}' já existe com valor '{value}'",
     "ldap_operation_error": "Um erro ocorreu durante a operação LDAP",
     "ldap_server_down": "Não foi possível comunicar com o servidor LDAP",
     "logged_in": "Sessão iniciada",
