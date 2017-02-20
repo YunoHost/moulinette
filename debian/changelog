@@ -1,3 +1,11 @@
+moulinette (2.5.3) testing; urgency=low
+
+  [ ljf ]
+  * [fix] Recursive chmod was broken
+  * [fix] Pep8
+
+ -- opi <opi@zeropi.net>  Mon, 20 Feb 2017 16:41:26 +0100
+
 moulinette (2.5.2) stable; urgency=low
 
   [ Laurent Peuch ]
