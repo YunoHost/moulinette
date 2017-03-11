@@ -526,7 +526,7 @@ class ActionsMap(object):
             # Read actions map from yaml file
             am_file = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
             with open(am_file, 'r') as f:
-                actionsmaps[n] = yaml.load(f)
+                actionsmaps[n] = ordered_yaml_load(f)
 
             # at installation, cachedir might not exists
             if os.path.exists('%s/actionsmap/' % pkg.cachedir):
