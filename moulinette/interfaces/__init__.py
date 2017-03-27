@@ -556,7 +556,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 
 
 # This is copy-pasta from the original argparse.HelpFormatter :
-# https://svn.python.org/projects/python/trunk/Lib/argparse.py
+# https://github.com/python/cpython/blob/1e73dbbc29c96d0739ffef92db36f63aa1aa30da/Lib/argparse.py#L293-L383
 # tweaked to display positional arguments first in usage/--help
 #
 # This is motivated by the "bug" / inconsistent behavior described here :
@@ -567,6 +567,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
 
     def _format_usage(self, usage, actions, groups, prefix):
             if prefix is None:
+                # TWEAK : not using gettext here...
                 prefix = 'usage: '
 
             # if usage is specified, use that
@@ -592,6 +593,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
 
                 # build full usage string
                 format = self._format_actions_usage
+                # TWEAK here : positionals first
                 action_usage = format(positionals + optionals, groups)
                 usage = ' '.join([s for s in [prog, action_usage] if s])
 
@@ -632,11 +634,13 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
                     # if prog is short, follow it with optionals or positionals
                     if len(prefix) + len(prog) <= 0.75 * text_width:
                         indent = ' ' * (len(prefix) + len(prog) + 1)
+                        # START TWEAK : pos_parts first, then opt_parts
                         if pos_parts:
                             lines = get_lines([prog] + pos_parts, indent, prefix)
                             lines.extend(get_lines(opt_parts, indent))
                         elif opt_parts:
                             lines = get_lines([prog] + opt_parts, indent, prefix)
+                        # END TWEAK
                         else:
                             lines = [prog]
 
@@ -647,6 +651,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
                         lines = get_lines(parts, indent)
                         if len(lines) > 1:
                             lines = []
+                            # TWEAK here : pos_parts first, then opt_part
                             lines.extend(get_lines(pos_parts, indent))
                             lines.extend(get_lines(opt_parts, indent))
                         lines = [prog] + lines
