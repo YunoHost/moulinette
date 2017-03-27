@@ -560,8 +560,9 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 # tweaked to display positional arguments first in usage/--help
 #
 # This is motivated by the "bug" / inconsistent behavior described here :
-# http://stackoverflow.com/questions/5854920/argparse-incorrect-order-of-positional-and-optional-parameters
 # http://bugs.python.org/issue9338
+# and fix is inspired from here :
+# https://stackoverflow.com/questions/26985650/argparse-do-not-catch-positional-arguments-with-nargs/26986546#26986546
 class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
 
     def _format_usage(self, usage, actions, groups, prefix):
