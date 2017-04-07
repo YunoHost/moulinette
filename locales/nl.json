@@ -6,7 +6,7 @@
     "colon": "{}:",
     "confirm": "Bevestig {prompt}",
     "error": "Fout:",
-    "error_see_log": "Er is een fout opgetreden, zie logboek voor meer informatie",
+    "error_see_log": "Er is een fout opgetreden, zie logboek voor meer informatie.",
     "file_exists": "Kan '{path}' niet aanmaken: Bestand bestaat al",
     "file_not_exist": "Bestand bestaat niet: '{path}'",
     "folder_exists": "kan map ‘{path}’ niet aanmaken: Bestand bestaat al",
@@ -16,7 +16,7 @@
     "invalid_password": "Ongeldig wachtwoord",
     "invalid_usage": "Tik 'pass --help' voor meer informatie.",
     "ldap_attribute_already_exists": "Attribuut bestaat al: '{attribute}={value}'",
-    "ldap_operation_error": "Er is een fout opgetreden bij het uitvoeren van LDAP Operatie",
+    "ldap_operation_error": "Er is een fout opgetreden bij het uitvoeren van LDAP operatie",
     "ldap_server_down": "Kan LDAP server niet bereiken",
     "logged_in": "Ingelogd",
     "logged_out": "Uitgelogd",
@@ -32,5 +32,9 @@
     "unable_retrieve_session": "Kan de sessie niet ophalen.",
     "values_mismatch": "Waarden zijn niet gelijk",
     "warning": "Waarschuwing:",
-    "websocket_request_expected": "Verwachte een WebSocket request"
+    "websocket_request_expected": "Verwachte een WebSocket request",
+    "deprecated_command": "'{prog} {command}' is verouderd en wordt binnenkort verwijderd",
+    "deprecated_command_alias": "'{prog} {old}' is veroudert en wordt binnenkort verwijderd, gebruik '{prog} {new}' in plaats daarvan",
+    "unknown_group": "Groep '{group}' is onbekend",
+    "unknown_user": "Gebruiker '{user}' is onbekend"
 }
