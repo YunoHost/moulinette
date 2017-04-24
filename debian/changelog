@@ -1,3 +1,15 @@
+moulinette (2.6.0) testing; urgency=low
+
+  # Improvements / fixes
+
+  * [fix] Use ordered dict for the actionmap cache (#136)
+  * [fix] Show positional arguments first in --help / usage (#138)
+  * Update translations for Portuguese, German, Dutch 
+
+Thanks to all contributors and translators ! (Trollken, frju, Fabien Gruber, Jeroen Keerl, Aleks)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 24 Apr 2017 12:44:23 -0400
+
 moulinette (2.5.3) testing; urgency=low
 
   [ ljf ]
