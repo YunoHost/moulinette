@@ -31,7 +31,7 @@ def mkdir(path, mode=0777, parents=False, uid=None, gid=None, force=False):
         # Create parents directories as needed
         head, tail = os.path.split(path)
         if not tail:
-            head, tail = path.split(head)
+            head, tail = os.path.split(head)
         if head and tail and not os.path.exists(head):
             try:
                 mkdir(head, mode, parents, uid, gid, force)
