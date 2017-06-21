@@ -1,3 +1,9 @@
+moulinette (2.6.1) stable; urgency=low
+
+  * [fix] Recursive mkdir was broken
+
+ -- ljf <ljf+yunohost@grimaud.me>  Wed, 21 Jun 2017 17:53:31 -0400
+
 moulinette (2.6.0) testing; urgency=low
 
   # Improvements / fixes
