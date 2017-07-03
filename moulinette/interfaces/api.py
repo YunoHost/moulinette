@@ -483,7 +483,6 @@ class HTTPErrorResponse(HTTPResponse):
 
 
 def error_to_response(error):
-
     """Convert a MoulinetteError to relevant HTTP response."""
     if error.errno == errno.EPERM:
         return HTTPForbiddenResponse(error.strerror)
