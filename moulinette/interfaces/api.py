@@ -387,6 +387,15 @@ class _ActionsMapPlugin(object):
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
             raise error_to_response(e)
+        except Exception as e:
+            if isinstance(e, HTTPResponse):
+                raise e
+            import traceback
+            tb = traceback.format_exc()
+            logs = { "route": _route,
+                     "arguments": arguments,
+                     "traceback": tb }
+            return HTTPErrorResponse(json_encode(logs))
         else:
             return format_for_response(ret)
         finally:
@@ -474,6 +483,7 @@ class HTTPErrorResponse(HTTPResponse):
 
 
 def error_to_response(error):
+
     """Convert a MoulinetteError to relevant HTTP response."""
     if error.errno == errno.EPERM:
         return HTTPForbiddenResponse(error.strerror)
