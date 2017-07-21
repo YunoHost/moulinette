@@ -5,7 +5,7 @@ import pytest
 
 # Moulinette specific
 from subprocess import CalledProcessError
-from moulinette.utils.process import call_commands
+from moulinette.utils.process import run_commands
 
 # We define a dummy context with test folders and files
 
@@ -44,7 +44,7 @@ def test_run_shell_command_list():
     commands = ["rm -f %s" % TMP_TEST_FILE]
 
     assert os.path.exists(TMP_TEST_FILE)
-    call_commands(commands)
+    run_commands(commands)
     assert not os.path.exists(TMP_TEST_FILE)
 
 
@@ -53,7 +53,7 @@ def test_run_shell_badcommand():
     commands = ["yolo swag"]
 
     with pytest.raises(CalledProcessError):
-        call_commands(commands)
+        run_commands(commands)
 
 
 def test_run_shell_command_badpermissions():
@@ -62,5 +62,5 @@ def test_run_shell_command_badpermissions():
 
     switch_to_non_root_user()
     with pytest.raises(CalledProcessError):
-        call_commands(commands)
+        run_commands(commands)
 

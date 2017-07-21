@@ -105,7 +105,7 @@ def call_async_output(args, callback, **kwargs):
 
 # Call multiple commands -----------------------------------------------
 
-def call_commands(cmds, callback=None, separate_stderr=False, shell=True,
+def run_commands(cmds, callback=None, separate_stderr=False, shell=True,
                   **kwargs):
     """Run multiple commands with error management
 
