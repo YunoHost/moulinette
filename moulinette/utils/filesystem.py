@@ -1,12 +1,139 @@
 import os
 import errno
 import shutil
+import json
+import grp
 from pwd import getpwnam
 
 from moulinette.core import MoulinetteError
 
-
 # Files & directories --------------------------------------------------
+
+def read_file(file_path):
+    """
+    Read a regular text file
+
+    Keyword argument:
+        file_path -- Path to the text file
+    """
+    assert isinstance(file_path, basestring)
+
+    # Check file exists
+    if not os.path.isfile(file_path):
+        raise MoulinetteError(errno.ENOENT,
+                              m18n.g('file_not_exist', path=file_path))
+
+    # Open file and read content
+    try:
+        with open(file_path, "r") as f:
+            file_content = f.read()
+    except IOError as e:
+        raise MoulinetteError(errno.EACCES,
+                              m18n.g('cannot_open_file',
+                                     file=file_path, error=str(e)))
+    except Exception as e:
+        raise MoulinetteError(errno.EIO,
+                              m18n.g('error_reading_file',
+                                     file=file_path, error=str(e)))
+
+    return file_content
+
+
+def read_json(file_path):
+    """
+    Read a json file
+
+    Keyword argument:
+        file_path -- Path to the json file
+    """
+
+    # Read file
+    file_content = read_file(file_path)
+
+    # Try to load json to check if it's syntaxically correct
+    try:
+        loaded_json = json.loads(file_content)
+    except ValueError as e:
+        raise MoulinetteError(errno.EINVAL,
+                              m18n.g('corrupted_json',
+                                     ressource=file_path, error=str(e)))
+
+    return loaded_json
+
+
+def write_to_file(file_path, data, file_mode="w"):
+    """
+    Write a single string or a list of string to a text file.
+    The text file will be overwritten by default.
+
+    Keyword argument:
+        file_path -- Path to the output file
+        data -- The data to write (must be a string or list of string)
+        file_mode -- Mode used when writing the file. Option meant to be used
+        by append_to_file to avoid duplicating the code of this function.
+    """
+    assert isinstance(data, basestring) or isinstance(data, list)
+    assert not os.path.isdir(file_path)
+    assert os.path.isdir(os.path.dirname(file_path))
+
+    # If data is a list, check elements are strings and build a single string
+    if not isinstance(data, basestring):
+        for element in data:
+            assert isinstance(element, basestring)
+        data = '\n'.join(data)
+
+    try:
+        with open(file_path, file_mode) as f:
+            f.write(data)
+    except IOError as e:
+        raise MoulinetteError(errno.EACCES,
+                              m18n.g('cannot_write_file',
+                                     file=file_path, error=str(e)))
+    except Exception as e:
+        raise MoulinetteError(errno.EIO,
+                              m18n.g('error_writing_file',
+                                     file=file_path, error=str(e)))
+
+def append_to_file(file_path, data):
+    """
+    Append a single string or a list of string to a text file.
+
+    Keyword argument:
+        file_path -- Path to the output file
+        data -- The data to write (must be a string or list of string)
+    """
+
+    write_to_file(file_path, data, file_mode="a")
+
+
+def write_to_json(file_path, data):
+    """
+    Write a dictionnary or a list to a json file
+
+    Keyword argument:
+        file_path -- Path to the output json file
+        data -- The data to write (must be a dict or a list)
+    """
+
+    # Assumptions
+    assert isinstance(file_path, basestring)
+    assert isinstance(data, dict) or isinstance(data, list)
+    assert not os.path.isdir(file_path)
+    assert os.path.isdir(os.path.dirname(file_path))
+
+    # Write dict to file
+    try:
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+    except IOError as e:
+        raise MoulinetteError(errno.EACCES,
+                              m18n.g('cannot_write_file',
+                                     file=file_path, error=str(e)))
+    except Exception as e:
+        raise MoulinetteError(errno.EIO,
+                              m18n.g('_error_writing_file',
+                                     file=file_path, error=str(e)))
+
 
 def mkdir(path, mode=0777, parents=False, uid=None, gid=None, force=False):
     """Create a directory with optional features
@@ -70,20 +197,25 @@ def chown(path, uid=None, gid=None, recursive=False):
         uid = -1
     if isinstance(gid, basestring):
         try:
-            gid = getpwnam(gid).gr_gid
+            gid = grp.getgrnam(gid).gr_gid
         except KeyError:
             raise MoulinetteError(errno.EINVAL,
                                   m18n.g('unknown_group', group=gid))
     elif gid is None:
         gid = -1
 
-    os.chown(path, uid, gid)
-    if recursive and os.path.isdir(path):
-        for root, dirs, files in os.walk(path):
-            for d in dirs:
-                os.chown(os.path.join(root, d), uid, gid)
-            for f in files:
-                os.chown(os.path.join(root, f), uid, gid)
+    try:
+        os.chown(path, uid, gid)
+        if recursive and os.path.isdir(path):
+            for root, dirs, files in os.walk(path):
+                for d in dirs:
+                    os.chown(os.path.join(root, d), uid, gid)
+                for f in files:
+                    os.chown(os.path.join(root, f), uid, gid)
+    except Exception as e:
+        raise MoulinetteError(errno.EIO,
+                              m18n.g('error_changing_file_permissions',
+                                     path=path, error=str(e)))
 
 
 def chmod(path, mode, fmode=None, recursive=False):
@@ -95,15 +227,21 @@ def chmod(path, mode, fmode=None, recursive=False):
         - recursive -- Operate on path recursively
 
     """
-    os.chmod(path, mode)
-    if recursive and os.path.isdir(path):
-        if fmode is None:
-            fmode = mode
-        for root, dirs, files in os.walk(path):
-            for d in dirs:
-                os.chmod(os.path.join(root, d), mode)
-            for f in files:
-                os.chmod(os.path.join(root, f), fmode)
+
+    try:
+        os.chmod(path, mode)
+        if recursive and os.path.isdir(path):
+            if fmode is None:
+                fmode = mode
+            for root, dirs, files in os.walk(path):
+                for d in dirs:
+                    os.chmod(os.path.join(root, d), mode)
+                for f in files:
+                    os.chmod(os.path.join(root, f), fmode)
+    except Exception as e:
+        raise MoulinetteError(errno.EIO,
+                              m18n.g('error_changing_file_permissions',
+                                     path=path, error=str(e)))
 
 
 def rm(path, recursive=False, force=False):
@@ -120,6 +258,8 @@ def rm(path, recursive=False, force=False):
     else:
         try:
             os.remove(path)
-        except OSError:
+        except OSError as e:
             if not force:
-                raise
+                raise MoulinetteError(errno.EIO,
+                                      m18n.g('error_removing',
+                                             path=path, error=str(e)))

@@ -1,5 +1,8 @@
+import errno
 import time
 import subprocess
+
+from moulinette.core import MoulinetteError
 
 # This import is unused in this file. It will be deleted in future (W0611 PEP8),
 # but for the momment we keep it due to yunohost moulinette script that used
@@ -102,8 +105,8 @@ def call_async_output(args, callback, **kwargs):
 
 # Call multiple commands -----------------------------------------------
 
-def check_commands(cmds, raise_on_error=False, callback=None,
-                   separate_stderr=False, shell=True, **kwargs):
+def run_commands(cmds, callback=None, separate_stderr=False, shell=True,
+                  **kwargs):
     """Run multiple commands with error management
 
     Run a list of commands and allow to manage how to treat errors either
@@ -127,9 +130,9 @@ def check_commands(cmds, raise_on_error=False, callback=None,
 
     Keyword arguments:
         - cmds -- List of commands to run
-        - raise_on_error -- True to raise a CalledProcessError on error if
-            no callback is provided
-        - callback -- Method or object to call on command failure
+        - callback -- Method or object to call on command failure. If no
+                      callback is given, a "subprocess.CalledProcessError"
+                      will be raised in case of command failure.
         - separate_stderr -- True to return command output as a 2-tuple
         - **kwargs -- Additional arguments for the Popen constructor
 
@@ -137,20 +140,19 @@ def check_commands(cmds, raise_on_error=False, callback=None,
         Number of failed commands
 
     """
+
+    # stdout and stderr are specified by this code later, so they cannot be
+    # overriden by user input
     for a in ['stdout', 'stderr']:
         if a in kwargs:
             raise ValueError('%s argument not allowed, '
                              'it will be overridden.' % a)
-    error = 0
 
+    # If no callback specified...
     if callback is None:
-        if raise_on_error:
-            # Raise on command failure
-            def callback(r, c, o):
-                raise CalledProcessError(r, c, o)
-        else:
-            # Continue commands execution
-            callback = lambda r, c, o: True
+        # Raise CalledProcessError on command failure
+        def callback(r, c, o):
+            raise CalledProcessError(r, c, o)
     elif not callable(callback):
         raise ValueError('callback argument must be callable')
 
@@ -163,9 +165,12 @@ def check_commands(cmds, raise_on_error=False, callback=None,
         _get_output = lambda o, e: o
 
     # Iterate over commands
+    error = 0
     for cmd in cmds:
+
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                    stderr=_stderr, shell=shell, **kwargs)
+
         output = _get_output(*process.communicate())
         retcode = process.poll()
         if retcode:
