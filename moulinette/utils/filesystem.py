@@ -9,6 +9,7 @@ from moulinette.core import MoulinetteError
 
 # Files & directories --------------------------------------------------
 
+
 def read_file(file_path):
     """
     Read a regular text file
@@ -93,6 +94,7 @@ def write_to_file(file_path, data, file_mode="w"):
         raise MoulinetteError(errno.EIO,
                               m18n.g('error_writing_file',
                                      file=file_path, error=str(e)))
+
 
 def append_to_file(file_path, data):
     """
