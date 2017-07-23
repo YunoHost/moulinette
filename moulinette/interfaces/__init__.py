@@ -5,7 +5,8 @@ import os
 import errno
 import logging
 import argparse
-from collections import deque
+import copy
+from collections import deque, OrderedDict
 
 from moulinette.core import (init_authenticator, MoulinetteError)
 
@@ -460,7 +461,7 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         self.required = required
         self._deprecated_command_map = {}
 
-    def add_parser(self, name, **kwargs):
+    def add_parser(self, name, type_=None, **kwargs):
         deprecated = kwargs.pop('deprecated', False)
         deprecated_alias = kwargs.pop('deprecated_alias', [])
 
@@ -476,6 +477,8 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         for command in deprecated_alias:
             self._deprecated_command_map[command] = name
             self._name_parser_map[command] = parser
+
+        parser.type = type_
 
         return parser
 
@@ -556,6 +559,63 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             value = super(ExtendedArgumentParser, self)._get_values(
                 action, arg_strings)
         return value
+
+    # Adapted from :
+    # https://github.com/python/cpython/blob/af26c15110b76195e62a06d17e39176d42c0511c/Lib/argparse.py#L2293-L2314
+    def format_help(self):
+        formatter = self._get_formatter()
+
+        # usage
+        formatter.add_usage(self.usage, self._actions,
+                            self._mutually_exclusive_groups)
+
+        # description
+        formatter.add_text(self.description)
+
+        # positionals, optionals and user-defined groups
+        for action_group in self._action_groups:
+
+            # Dirty hack to separate 'subcommands'
+            # into 'actions' and 'subcategories'
+            if action_group.title == "subcommands":
+
+                # Make a copy of the "action group actions"...
+                choice_actions = action_group._group_actions[0]._choices_actions
+                actions_subparser = copy.copy(action_group._group_actions[0])
+                subcategories_subparser = copy.copy(action_group._group_actions[0])
+
+                # Filter "action"-type and "subcategory"-type commands
+                actions_subparser.choices = OrderedDict([(k,v) for k,v in actions_subparser.choices.items() if v.type == "action"])
+                subcategories_subparser.choices = OrderedDict([(k,v) for k,v in subcategories_subparser.choices.items() if v.type == "subcategory"])
+
+                actions_choices = actions_subparser.choices.keys()
+                subcategories_choices = subcategories_subparser.choices.keys()
+
+                actions_subparser._choices_actions = [ c for c in choice_actions if c.dest in actions_choices ]
+                subcategories_subparser._choices_actions = [ c for c in choice_actions if c.dest in subcategories_choices ]
+
+                # Display each section (actions and subcategories)
+                if actions_choices != []:
+                    formatter.start_section("actions")
+                    formatter.add_arguments([actions_subparser])
+                    formatter.end_section()
+
+                if subcategories_choices != []:
+                    formatter.start_section("subcategories")
+                    formatter.add_arguments([subcategories_subparser])
+                    formatter.end_section()
+
+            else:
+                formatter.start_section(action_group.title)
+                formatter.add_text(action_group.description)
+                formatter.add_arguments(action_group._group_actions)
+                formatter.end_section()
+
+        # epilog
+        formatter.add_text(self.epilog)
+
+        # determine help from format above
+        return formatter.format_help()
 
 
 # This is copy-pasta from the original argparse.HelpFormatter :

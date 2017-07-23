@@ -268,7 +268,7 @@ class ActionsMapParser(BaseActionsMapParser):
         """
         parser = self._subparsers.add_parser(name, help=category_help, **kwargs)
         return self.__class__(self, parser, {
-            'title': "actions", 'required': True
+            'title': "subcommands", 'required': True
         })
 
     def add_subcategory_parser(self, name, subcategory_help=None, **kwargs):
@@ -281,7 +281,10 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ActionsMapParser object for the category
 
         """
-        parser = self._subparsers.add_parser(name, help=subcategory_help, **kwargs)
+        parser = self._subparsers.add_parser(name,
+                                             type_="subcategory",
+                                             help=subcategory_help,
+                                             **kwargs)
         return self.__class__(self, parser, {
             'title': "actions", 'required': True
         })
@@ -299,7 +302,9 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ExtendedArgumentParser object for the action
 
         """
-        return self._subparsers.add_parser(name, help=action_help,
+        return self._subparsers.add_parser(name,
+                                           type_="action",
+                                           help=action_help,
                                            deprecated=deprecated,
                                            deprecated_alias=deprecated_alias)
 
