@@ -602,14 +602,9 @@ class ActionsMap(object):
             # Retrieve global parameters
             _global = actionsmap.pop('_global', {})
 
-            # -- Parse global configuration
-            if 'configuration' in _global:
-                # Set global configuration
-                top_parser.set_global_conf(_global['configuration'])
+            top_parser.set_global_conf(_global['configuration'])
 
-            # -- Parse global arguments
-            if 'arguments' in _global:
-                _add_arguments(GLOBAL_SECTION, top_parser.add_global_parser(),
+            _add_arguments(GLOBAL_SECTION, top_parser.add_global_parser(),
                                _global['arguments'])
 
             # category_name is stuff like "user", "domain", "hooks"...
