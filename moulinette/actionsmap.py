@@ -569,7 +569,11 @@ class ActionsMap(object):
 
         # Add arguments to the parser
         def _add_arguments(tid, parser, arguments):
+            # parser is argparse._ArgumentGroup for top_parser
+            # or ExtendedArgumentParser for other cases
+            # or maybe something else?
             for argument_name, argument_options in arguments.items():
+                # will adapt arguments name for cli or api context
                 names = top_parser.format_arg_names(str(argument_name),
                                                     argument_options.pop('full', None))
 
