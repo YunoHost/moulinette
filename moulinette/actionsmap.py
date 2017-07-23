@@ -610,22 +610,22 @@ class ActionsMap(object):
                                    _global['arguments'])
 
             # -- Parse categories
-            for cn, cp in actionsmap.items():
-                if "actions" not in cp:
+            for category_name, category_values in actionsmap.items():
+                if "actions" not in category_values:
                     # Invalid category without actions
                     logger.warning("no actions found in category '%s' in "
-                                   "namespace '%s'", cn, namespace)
+                                   "namespace '%s'", category_name, namespace)
                     continue
 
-                actions = cp.pop('actions')
+                actions = category_values.pop('actions')
 
                 # Get category parser
-                cat_parser = top_parser.add_category_parser(cn, **cp)
+                cat_parser = top_parser.add_category_parser(category_name, **category_values)
 
                 # -- Parse actions
                 for an, ap in actions.items():
                     args = ap.pop('arguments', {})
-                    tid = (namespace, cn, an)
+                    tid = (namespace, category_name, an)
 
                     if 'configuration' in ap:
                         conf = ap.pop('configuration')
@@ -643,7 +643,7 @@ class ActionsMap(object):
                         continue
                     except ValueError as e:
                         logger.warning("cannot add action (%s, %s, %s): %s",
-                                       namespace, cn, an, e)
+                                       namespace, category_name, an, e)
                         continue
 
                     # Store action identifier and add arguments
