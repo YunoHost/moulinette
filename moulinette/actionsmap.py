@@ -611,12 +611,6 @@ class ActionsMap(object):
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
             for category_name, category_values in actionsmap.items():
-                if "actions" not in category_values:
-                    # Invalid category without actions
-                    logger.warning("no actions found in category '%s' in "
-                                   "namespace '%s'", category_name, namespace)
-                    continue
-
                 actions = category_values.pop('actions')
 
                 # Get category parser
