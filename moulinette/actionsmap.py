@@ -626,12 +626,12 @@ class ActionsMap(object):
                 # action_name is like "list" of "domain list"
                 # action_options are the values
                 for action_name, action_options in actions.items():
-                    args = action_options.pop('arguments', {})
+                    arguments = action_options.pop('arguments', {})
                     tid = (namespace, category_name, action_name)
 
                     if 'configuration' in action_options:
-                        conf = action_options.pop('configuration')
-                        _set_conf = lambda p: p.set_conf(tid, conf)
+                        configuration = action_options.pop('configuration')
+                        _set_conf = lambda p: p.set_conf(tid, configuration)
 
                     else:
                         # No action configuration
@@ -650,7 +650,7 @@ class ActionsMap(object):
 
                     # Store action identifier and add arguments
                     a_parser.set_defaults(_tid=tid)
-                    _add_arguments(tid, a_parser, args)
+                    _add_arguments(tid, a_parser, arguments)
                     _set_conf(category_parser)
 
         return top_parser
