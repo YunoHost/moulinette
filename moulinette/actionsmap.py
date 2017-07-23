@@ -643,7 +643,7 @@ class ActionsMap(object):
 
                     try:
                         # Get action parser
-                        a_parser = category_parser.add_action_parser(action_name, tid, **action_options)
+                        action_parser = category_parser.add_action_parser(action_name, tid, **action_options)
                     except AttributeError:
                         # No parser for the action
                         continue
@@ -653,8 +653,8 @@ class ActionsMap(object):
                         continue
 
                     # Store action identifier and add arguments
-                    a_parser.set_defaults(_tid=tid)
-                    _add_arguments(tid, a_parser, arguments)
+                    action_parser.set_defaults(_tid=tid)
+                    _add_arguments(tid, action_parser, arguments)
                     _set_conf(category_parser)
 
         return top_parser
