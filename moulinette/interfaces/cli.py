@@ -231,14 +231,15 @@ class ActionsMapParser(BaseActionsMapParser):
 
         self._parser = parser or ExtendedArgumentParser()
         self._subparsers = self._parser.add_subparsers(**subparser_kwargs)
-        self._global_parser = parent._global_parser if parent else None
+        self.global_parser = parent.global_parser if parent else None
 
         if top_parser:
+            self.global_parser = self._parser.add_argument_group("global arguments")
+
             # Append each top parser action to the global group
-            glob = self.get_global_parser()
             for action in top_parser._actions:
                 action.dest = SUPPRESS
-                glob._add_action(action)
+                self.global_parser._add_action(action)
 
     # Implement virtual properties
 
@@ -254,12 +255,6 @@ class ActionsMapParser(BaseActionsMapParser):
 
     def has_global_parser(self):
         return True
-
-    def get_global_parser(self, **kwargs):
-        if not self._global_parser:
-            self._global_parser = self._parser.add_argument_group(
-                "global arguments")
-        return self._global_parser
 
     def add_category_parser(self, name, category_help=None, **kwargs):
         """Add a parser for a category
