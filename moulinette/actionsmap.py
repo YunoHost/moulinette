@@ -601,26 +601,19 @@ class ActionsMap(object):
 
             # -- Parse global arguments
             if 'arguments' in _global:
-                try:
-                    # Get global arguments parser
-                    parser = top_parser.add_global_parser()
-                except AttributeError:
-                    # No parser for global arguments
-                    pass
-                else:
-                    # Add arguments
-                    _add_arguments(GLOBAL_SECTION, parser,
+                if hasattr(top_parser, "add_global_parser"):
+                    _add_arguments(GLOBAL_SECTION, top_parser.add_global_parser(),
                                    _global['arguments'])
 
             # -- Parse categories
             for cn, cp in actionsmap.items():
-                try:
-                    actions = cp.pop('actions')
-                except KeyError:
+                if "actions" not in cp:
                     # Invalid category without actions
                     logger.warning("no actions found in category '%s' in "
                                    "namespace '%s'", cn, n)
                     continue
+
+                actions = cp.pop('actions')
 
                 # Get category parser
                 cat_parser = top_parser.add_category_parser(cn, **cp)
@@ -629,10 +622,12 @@ class ActionsMap(object):
                 for an, ap in actions.items():
                     args = ap.pop('arguments', {})
                     tid = (n, cn, an)
-                    try:
+
+                    if 'configuration' in ap:
                         conf = ap.pop('configuration')
                         _set_conf = lambda p: p.set_conf(tid, conf)
-                    except KeyError:
+
+                    else:
                         # No action configuration
                         _set_conf = lambda p: False
 
@@ -646,10 +641,10 @@ class ActionsMap(object):
                         logger.warning("cannot add action (%s, %s, %s): %s",
                                        n, cn, an, e)
                         continue
-                    else:
-                        # Store action identifier and add arguments
-                        a_parser.set_defaults(_tid=tid)
-                        _add_arguments(tid, a_parser, args)
-                        _set_conf(cat_parser)
+
+                    # Store action identifier and add arguments
+                    a_parser.set_defaults(_tid=tid)
+                    _add_arguments(tid, a_parser, args)
+                    _set_conf(cat_parser)
 
         return top_parser
