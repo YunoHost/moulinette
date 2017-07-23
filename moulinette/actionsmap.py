@@ -615,7 +615,16 @@ class ActionsMap(object):
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
             for category_name, category_values in actionsmap.items():
-                actions = category_values.pop('actions')
+
+                if "actions" in category_values:
+                    actions = category_values.pop('actions')
+                else:
+                    actions = {}
+
+                if "subcategories" in category_values:
+                    subcategories = category_values.pop('subcategories')
+                else:
+                    subcategories = {}
 
                 # Get category parser
                 category_parser = top_parser.add_category_parser(category_name, **category_values)
@@ -640,5 +649,13 @@ class ActionsMap(object):
                     if 'configuration' in action_options:
                         configuration = action_options.pop('configuration')
                         category_parser.set_conf(tid, configuration)
+
+                # subcategory_name is like "cert" in "domain cert status"
+                # subcategory_values is the values of this subcategory (like actions)
+                for subcategory_name, subcategory_values in subcategories.items():
+
+                    print subcategory_name
+                    print subcategory_values
+
 
         return top_parser
