@@ -582,7 +582,7 @@ class ActionsMap(object):
                     continue
 
                 extra = argument_options.pop('extra')
-                arg_dest = (parser.add_argument(*names, **argument_options)).dest
+                arg_dest = parser.add_argument(*names, **argument_options).dest
                 self.extraparser.add_argument(tid, arg_dest, extra,
                                               validate_extra)
 
