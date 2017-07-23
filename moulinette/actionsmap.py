@@ -587,6 +587,10 @@ class ActionsMap(object):
                     parser.add_argument(*names, **argp)
 
         # Instantiate parser
+        #
+        # this either returns:
+        # * moulinette.interfaces.cli.ActionsMapParser
+        # * moulinette.interfaces.api.ActionsMapParser
         top_parser = self.parser_class(**kwargs)
 
         # namespace, actionsmap is a tuple where:
