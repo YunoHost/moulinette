@@ -589,8 +589,13 @@ class ActionsMap(object):
         # Instantiate parser
         top_parser = self.parser_class(**kwargs)
 
-        # Iterate over actions map namespaces
-        for n, actionsmap in actionsmaps.items():
+        # namespace, actionsmap is a tuple where:
+        #
+        # * namespace define the top "name", for us it will always be
+        #   "yunohost" and there well be only this one
+        # * actionsmap is the actual actionsmap that we care about
+        for namespace, actionsmap in actionsmaps.items():
+            print "n>>>", namespace
             # Retrieve global parameters
             _global = actionsmap.pop('_global', {})
 
@@ -610,7 +615,7 @@ class ActionsMap(object):
                 if "actions" not in cp:
                     # Invalid category without actions
                     logger.warning("no actions found in category '%s' in "
-                                   "namespace '%s'", cn, n)
+                                   "namespace '%s'", cn, namespace)
                     continue
 
                 actions = cp.pop('actions')
@@ -621,7 +626,7 @@ class ActionsMap(object):
                 # -- Parse actions
                 for an, ap in actions.items():
                     args = ap.pop('arguments', {})
-                    tid = (n, cn, an)
+                    tid = (namespace, cn, an)
 
                     if 'configuration' in ap:
                         conf = ap.pop('configuration')
@@ -639,7 +644,7 @@ class ActionsMap(object):
                         continue
                     except ValueError as e:
                         logger.warning("cannot add action (%s, %s, %s): %s",
-                                       n, cn, an, e)
+                                       namespace, cn, an, e)
                         continue
 
                     # Store action identifier and add arguments
