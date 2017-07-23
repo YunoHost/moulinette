@@ -603,6 +603,7 @@ class ActionsMap(object):
             # Retrieve global parameters
             _global = actionsmap.pop('_global', {})
 
+            # Set the global configuration to use for the parser.
             top_parser.set_global_conf(_global['configuration'])
 
             _add_arguments(GLOBAL_SECTION, top_parser.add_global_parser(),
