@@ -572,10 +572,9 @@ class ActionsMap(object):
             for argument_name, argument_options in arguments.items():
                 names = top_parser.format_arg_names(str(argument_name),
                                                     argument_options.pop('full', None))
-                try:
+
+                if "type" in argument_options:
                     argument_options['type'] = eval(argument_options['type'])
-                except:
-                    pass
 
                 if "extra" not in argument_options:
                     parser.add_argument(*names, **argument_options)
