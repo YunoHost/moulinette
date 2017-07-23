@@ -657,5 +657,32 @@ class ActionsMap(object):
                     print subcategory_name
                     print subcategory_values
 
+                    actions = subcategory_values.pop('actions')
+
+                    # Get subcategory parser
+                    subcategory_parser = category_parser.add_subcategory_parser(subcategory_name, **subcategory_values)
+
+                    # action_name is like "status" of "domain cert status"
+                    # action_options are the values
+                    for action_name, action_options in actions.items():
+                        arguments = action_options.pop('arguments', {})
+                        tid = (namespace, category_name, subcategory_name, action_name)
+
+                        try:
+                            # Get action parser
+                            action_parser = subcategory_parser.add_action_parser(action_name, tid, **action_options)
+                        except AttributeError:
+                            # No parser for the action
+                            continue
+
+                        # Store action identifier and add arguments
+                        action_parser.set_defaults(_tid=tid)
+                        _add_arguments(tid, action_parser, arguments)
+
+                        if 'configuration' in action_options:
+                            configuration = action_options.pop('configuration')
+                            subcategory_parser.set_conf(tid, configuration)
+
+
 
         return top_parser
