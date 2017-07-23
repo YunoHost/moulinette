@@ -632,10 +632,6 @@ class ActionsMap(object):
                     except AttributeError:
                         # No parser for the action
                         continue
-                    except ValueError as e:
-                        logger.warning("cannot add action (%s, %s, %s): %s",
-                                       namespace, category_name, action_name, e)
-                        continue
 
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
