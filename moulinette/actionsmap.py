@@ -609,7 +609,8 @@ class ActionsMap(object):
                     _add_arguments(GLOBAL_SECTION, top_parser.add_global_parser(),
                                    _global['arguments'])
 
-            # -- Parse categories
+            # category_name is stuff like "user", "domain", "hooks"...
+            # category_values is the values of this category (like actions)
             for category_name, category_values in actionsmap.items():
                 if "actions" not in category_values:
                     # Invalid category without actions
