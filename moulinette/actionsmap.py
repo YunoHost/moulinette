@@ -570,7 +570,6 @@ class ActionsMap(object):
         # Add arguments to the parser
         def _add_arguments(tid, parser, arguments):
             for argument_name, argument_options in arguments.items():
-                print argument_options
                 names = top_parser.format_arg_names(str(argument_name),
                                                     argument_options.pop('full', None))
                 try:
@@ -578,14 +577,14 @@ class ActionsMap(object):
                 except:
                     pass
 
-                try:
-                    extra = argument_options.pop('extra')
-                    arg_dest = (parser.add_argument(*names, **argument_options)).dest
-                    self.extraparser.add_argument(tid, arg_dest, extra,
-                                                  validate_extra)
-                except KeyError:
-                    # No extra parameters
+                if "extra" not in argument_options:
                     parser.add_argument(*names, **argument_options)
+                    continue
+
+                extra = argument_options.pop('extra')
+                arg_dest = (parser.add_argument(*names, **argument_options)).dest
+                self.extraparser.add_argument(tid, arg_dest, extra,
+                                              validate_extra)
 
         # Instantiate parser
         #
