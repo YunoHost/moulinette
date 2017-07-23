@@ -654,9 +654,6 @@ class ActionsMap(object):
                 # subcategory_values is the values of this subcategory (like actions)
                 for subcategory_name, subcategory_values in subcategories.items():
 
-                    print subcategory_name
-                    print subcategory_values
-
                     actions = subcategory_values.pop('actions')
 
                     # Get subcategory parser
