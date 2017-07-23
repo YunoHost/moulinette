@@ -551,6 +551,9 @@ class ActionsMapParser(BaseActionsMapParser):
     def add_category_parser(self, name, **kwargs):
         return self
 
+    def add_subcategory_parser(self, name, **kwargs):
+        return self
+
     def add_action_parser(self, name, tid, api=None, **kwargs):
         """Add a parser for an action
 
