@@ -453,8 +453,16 @@ class ActionsMap(object):
             return arguments.get(TO_RETURN_PROP)
 
         # Retrieve action information
-        namespace, category, action = tid
-        func_name = '%s_%s' % (category, action.replace('-', '_'))
+        if len(tid) == 4:
+            namespace, category, subcategory, action = tid
+            func_name = '%s_%s_%s' % (category, subcategory, action.replace('-', '_'))
+            full_action_name = "%s.%s.%s.%s" % (namespace, category, subcategory, action)
+        else:
+            assert len(tid) == 3
+            namespace, category, action = tid
+            subcategory = None
+            func_name = '%s_%s' % (category, action.replace('-', '_'))
+            full_action_name = "%s.%s.%s" % (namespace, category, action)
 
         # Lock the moulinette for the namespace
         with MoulinetteLock(namespace, timeout):
@@ -465,17 +473,17 @@ class ActionsMap(object):
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
                 logger.exception("unable to load function %s.%s.%s",
-                                 namespace, category, func_name)
+                                 namespace, func_name)
                 raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):
                     # Log arguments in debug mode only for safety reasons
-                    logger.info('processing action [%s]: %s.%s.%s with args=%s',
-                                log_id, namespace, category, action, arguments)
+                    logger.info('processing action [%s]: %s with args=%s',
+                                log_id, full_action_name, arguments)
                 else:
-                    logger.info('processing action [%s]: %s.%s.%s',
-                                log_id, namespace, category, action)
+                    logger.info('processing action [%s]: %s',
+                                log_id, full_action_name)
 
                 # Load translation and process the action
                 m18n.load_namespace(namespace)
