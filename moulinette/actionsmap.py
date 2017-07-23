@@ -626,14 +626,6 @@ class ActionsMap(object):
                     arguments = action_options.pop('arguments', {})
                     tid = (namespace, category_name, action_name)
 
-                    if 'configuration' in action_options:
-                        configuration = action_options.pop('configuration')
-                        _set_conf = lambda p: p.set_conf(tid, configuration)
-
-                    else:
-                        # No action configuration
-                        _set_conf = lambda p: False
-
                     try:
                         # Get action parser
                         action_parser = category_parser.add_action_parser(action_name, tid, **action_options)
@@ -648,6 +640,9 @@ class ActionsMap(object):
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
                     _add_arguments(tid, action_parser, arguments)
-                    _set_conf(category_parser)
+
+                    if 'configuration' in action_options:
+                        configuration = action_options.pop('configuration')
+                        category_parser.set_conf(tid, configuration)
 
         return top_parser
