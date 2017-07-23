@@ -623,13 +623,14 @@ class ActionsMap(object):
                 # Get category parser
                 category_parser = top_parser.add_category_parser(category_name, **category_values)
 
-                # -- Parse actions
-                for an, ap in actions.items():
-                    args = ap.pop('arguments', {})
-                    tid = (namespace, category_name, an)
+                # action_name is like "list" of "domain list"
+                # action_options are the values
+                for action_name, action_options in actions.items():
+                    args = action_options.pop('arguments', {})
+                    tid = (namespace, category_name, action_name)
 
-                    if 'configuration' in ap:
-                        conf = ap.pop('configuration')
+                    if 'configuration' in action_options:
+                        conf = action_options.pop('configuration')
                         _set_conf = lambda p: p.set_conf(tid, conf)
 
                     else:
@@ -638,13 +639,13 @@ class ActionsMap(object):
 
                     try:
                         # Get action parser
-                        a_parser = category_parser.add_action_parser(an, tid, **ap)
+                        a_parser = category_parser.add_action_parser(action_name, tid, **action_options)
                     except AttributeError:
                         # No parser for the action
                         continue
                     except ValueError as e:
                         logger.warning("cannot add action (%s, %s, %s): %s",
-                                       namespace, category_name, an, e)
+                                       namespace, category_name, action_name, e)
                         continue
 
                     # Store action identifier and add arguments
