@@ -621,7 +621,7 @@ class ActionsMap(object):
                 actions = category_values.pop('actions')
 
                 # Get category parser
-                cat_parser = top_parser.add_category_parser(category_name, **category_values)
+                category_parser = top_parser.add_category_parser(category_name, **category_values)
 
                 # -- Parse actions
                 for an, ap in actions.items():
@@ -638,7 +638,7 @@ class ActionsMap(object):
 
                     try:
                         # Get action parser
-                        a_parser = cat_parser.add_action_parser(an, tid, **ap)
+                        a_parser = category_parser.add_action_parser(an, tid, **ap)
                     except AttributeError:
                         # No parser for the action
                         continue
@@ -650,6 +650,6 @@ class ActionsMap(object):
                     # Store action identifier and add arguments
                     a_parser.set_defaults(_tid=tid)
                     _add_arguments(tid, a_parser, args)
-                    _set_conf(cat_parser)
+                    _set_conf(category_parser)
 
         return top_parser
