@@ -548,7 +548,7 @@ class ActionsMapParser(BaseActionsMapParser):
             return [name.replace('--', '@', 1)]
         return [name.replace('-', '@', 1)]
 
-    def add_global_parser(self, **kwargs):
+    def get_global_parser(self, **kwargs):
         raise AttributeError("global arguments are not managed")
 
     def add_category_parser(self, name, **kwargs):

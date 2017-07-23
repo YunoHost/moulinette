@@ -235,7 +235,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
         if top_parser:
             # Append each top parser action to the global group
-            glob = self.add_global_parser()
+            glob = self.get_global_parser()
             for action in top_parser._actions:
                 action.dest = SUPPRESS
                 glob._add_action(action)
@@ -252,7 +252,10 @@ class ActionsMapParser(BaseActionsMapParser):
             return [name, full]
         return [name]
 
-    def add_global_parser(self, **kwargs):
+    def has_global_parser(self):
+        return True
+
+    def get_global_parser(self, **kwargs):
         if not self._global_parser:
             self._global_parser = self._parser.add_argument_group(
                 "global arguments")

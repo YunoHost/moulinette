@@ -72,6 +72,9 @@ class BaseActionsMapParser(object):
         raise NotImplementedError("derived class '%s' must override this method" %
                                   self.__class__.__name__)
 
+    def has_global_parser(self):
+        return False
+
     def add_global_parser(self, **kwargs):
         """Add a parser for global arguments
 
