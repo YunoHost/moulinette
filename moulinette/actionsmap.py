@@ -620,7 +620,6 @@ class ActionsMap(object):
                                                 validate_extra=validate_extra)
 
                     if 'configuration' in action_options:
-                        configuration = action_options.pop('configuration')
-                        category_parser.set_conf(tid, configuration)
+                        category_parser.set_conf(tid, action_options['configuration'])
 
         return top_parser
