@@ -567,27 +567,6 @@ class ActionsMap(object):
         else:
             validate_extra = False
 
-        # Add arguments to the parser
-        def _add_arguments(tid, parser, arguments):
-            # parser is argparse._ArgumentGroup for top_parser
-            # or ExtendedArgumentParser for other cases
-            # or maybe something else?
-            for argument_name, argument_options in arguments.items():
-                # will adapt arguments name for cli or api context
-                names = top_parser.format_arg_names(str(argument_name),
-                                                    argument_options.pop('full', None))
-
-                if "type" in argument_options:
-                    argument_options['type'] = eval(argument_options['type'])
-
-                if "extra" not in argument_options:
-                    parser.add_argument(*names, **argument_options)
-                    continue
-
-                extra = argument_options.pop('extra')
-                argument_dest = parser.add_argument(*names, **argument_options).dest
-                self.extraparser.add_argument(tid, argument_dest, extra, validate_extra)
-
         # Instantiate parser
         #
         # this either returns:
@@ -634,7 +613,10 @@ class ActionsMap(object):
 
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
-                    _add_arguments(tid, action_parser, arguments)
+                    action_parser.add_arguments(arguments,
+                                                extraparser=self.extraparser,
+                                                format_arg_names=top_parser.format_arg_names,
+                                                validate_extra=validate_extra)
 
                     if 'configuration' in action_options:
                         configuration = action_options.pop('configuration')
