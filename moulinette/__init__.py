@@ -58,8 +58,10 @@ def init(logging_config=None, **kwargs):
 
     configure_logging(logging_config)
 
+    pkg = Package(**kwargs)
+
     # Define and instantiate global objects
-    __builtin__.__dict__['pkg'] = Package(**kwargs)
+    __builtin__.__dict__['pkg'] = pkg
     __builtin__.__dict__['m18n'] = Moulinette18n(pkg)
     __builtin__.__dict__['msignals'] = MoulinetteSignals()
     __builtin__.__dict__['msettings'] = dict()
