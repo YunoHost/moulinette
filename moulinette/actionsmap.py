@@ -596,7 +596,8 @@ class ActionsMap(object):
                 actions = category_values.pop('actions')
 
                 # Get category parser
-                category_parser = top_parser.add_category_parser(category_name, **category_values)
+                category_parser = top_parser.add_category_parser(category_name,
+                                                                 **category_values)
 
                 # action_name is like "list" of "domain list"
                 # action_options are the values
@@ -606,7 +607,9 @@ class ActionsMap(object):
 
                     try:
                         # Get action parser
-                        action_parser = category_parser.add_action_parser(action_name, tid, **action_options)
+                        action_parser = category_parser.add_action_parser(action_name,
+                                                                          tid,
+                                                                          **action_options)
                     except AttributeError:
                         # No parser for the action
                         continue
