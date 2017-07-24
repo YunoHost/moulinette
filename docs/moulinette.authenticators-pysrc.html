@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>moulinette.authenticators</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="moulinette-module.html">Package&nbsp;moulinette</a> ::
+        Package&nbsp;authenticators
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="moulinette.authenticators-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="moulinette.authenticators-module.html">Package moulinette.authenticators</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-comment"># -*- coding: utf-8 -*-</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">errno</tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">gnupg</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-0" class="py-name" targets="Package moulinette=moulinette-module.html"><a title="moulinette" class="py-name" href="#" onclick="return doclink('link-0', 'moulinette', 'link-0');">moulinette</a></tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Module moulinette.core=moulinette.core-module.html"><a title="moulinette.core" class="py-name" href="#" onclick="return doclink('link-1', 'core', 'link-1');">core</a></tt> <tt class="py-keyword">import</tt> <tt id="link-2" class="py-name" targets="Class moulinette.core.MoulinetteError=moulinette.core.MoulinetteError-class.html"><a title="moulinette.core.MoulinetteError" class="py-name" href="#" onclick="return doclink('link-2', 'MoulinetteError', 'link-2');">MoulinetteError</a></tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt id="link-3" class="py-name" targets="Variable moulinette.actionsmap.logger=moulinette.actionsmap-module.html#logger,Variable moulinette.authenticators.ldap.logger=moulinette.authenticators.ldap-module.html#logger,Variable moulinette.authenticators.logger=moulinette.authenticators-module.html#logger,Variable moulinette.core.logger=moulinette.core-module.html#logger,Variable moulinette.interfaces.api.logger=moulinette.interfaces.api-module.html#logger,Variable moulinette.interfaces.cli.logger=moulinette.interfaces.cli-module.html#logger,Variable moulinette.interfaces.logger=moulinette.interfaces-module.html#logger,Variable moulinette.utils.serialize.logger=moulinette.utils.serialize-module.html#logger"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-3', 'logger', 'link-3');">logger</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">getLogger</tt><tt class="py-op">(</tt><tt class="py-string">'moulinette.authenticator'</tt><tt class="py-op">)</tt> </tt>
+<a name="BaseAuthenticator"></a><div id="BaseAuthenticator-def"><a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-comment"># Base Class -----------------------------------------------------------</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt> <a class="py-toggle" href="#" id="BaseAuthenticator-toggle" onclick="return toggle('BaseAuthenticator');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html">BaseAuthenticator</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="BaseAuthenticator-expanded"><a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line">    <tt class="py-docstring">"""Authenticator base representation</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"><tt class="py-docstring">    Each authenticators must implement an Authenticator class derived</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt class="py-docstring">    from this class which must overrides virtual properties and methods.</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt class="py-docstring">    It is used to authenticate and manage session. It implements base</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"><tt class="py-docstring">    methods to authenticate with a password or a session token.</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line"><tt class="py-docstring">    Authenticators configurations are identified by a profile name which</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"><tt class="py-docstring">    must be given on instantiation - with the corresponding vendor</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line"><tt class="py-docstring">    configuration of the authenticator.</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-docstring">    Keyword arguments:</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-docstring">        - name -- The authenticator profile name</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"> </tt>
+<a name="BaseAuthenticator.__init__"></a><div id="BaseAuthenticator.__init__-def"><a name="L31"></a><tt class="py-lineno"> 31</tt> <a class="py-toggle" href="#" id="BaseAuthenticator.__init__-toggle" onclick="return toggle('BaseAuthenticator.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator.__init__-expanded"><a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_name</tt> <tt class="py-op">=</tt> <tt id="link-4" class="py-name" targets="Variable moulinette.actionsmap.AskParameter.name=moulinette.actionsmap.AskParameter-class.html#name,Variable moulinette.actionsmap.PasswordParameter.name=moulinette.actionsmap.PasswordParameter-class.html#name,Variable moulinette.actionsmap.PatternParameter.name=moulinette.actionsmap.PatternParameter-class.html#name,Variable moulinette.actionsmap.RequiredParameter.name=moulinette.actionsmap.RequiredParameter-class.html#name,Variable moulinette.actionsmap._ExtraParameter.name=moulinette.actionsmap._ExtraParameter-class.html#name,Method moulinette.authenticators.BaseAuthenticator.name()=moulinette.authenticators.BaseAuthenticator-class.html#name,Variable moulinette.interfaces.api._ActionsMapPlugin.name=moulinette.interfaces.api._ActionsMapPlugin-class.html#name"><a title="moulinette.actionsmap.AskParameter.name
+moulinette.actionsmap.PasswordParameter.name
+moulinette.actionsmap.PatternParameter.name
+moulinette.actionsmap.RequiredParameter.name
+moulinette.actionsmap._ExtraParameter.name
+moulinette.authenticators.BaseAuthenticator.name
+moulinette.interfaces.api._ActionsMapPlugin.name" class="py-name" href="#" onclick="return doclink('link-4', 'name', 'link-4');">name</a></tt> </tt>
+</div><a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line"> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">property</tt> </tt>
+<a name="BaseAuthenticator.name"></a><div id="BaseAuthenticator.name-def"><a name="L35"></a><tt class="py-lineno"> 35</tt> <a class="py-toggle" href="#" id="BaseAuthenticator.name-toggle" onclick="return toggle('BaseAuthenticator.name');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#name">name</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator.name-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator.name-expanded"><a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">        <tt class="py-docstring">"""Return the name of the authenticator instance"""</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_name</tt> </tt>
+</div><a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">    <tt class="py-comment"># Virtual properties</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">    <tt class="py-comment"># Each authenticator classes must implement these properties.</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">    <tt class="py-string">"""The vendor name of the authenticator"""</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">    <tt id="link-5" class="py-name" targets="Variable moulinette.authenticators.BaseAuthenticator.vendor=moulinette.authenticators.BaseAuthenticator-class.html#vendor,Variable moulinette.authenticators.ldap.Authenticator.vendor=moulinette.authenticators.ldap.Authenticator-class.html#vendor"><a title="moulinette.authenticators.BaseAuthenticator.vendor
+moulinette.authenticators.ldap.Authenticator.vendor" class="py-name" href="#" onclick="return doclink('link-5', 'vendor', 'link-5');">vendor</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">    <tt class="py-decorator">@</tt><tt class="py-decorator">property</tt> </tt>
+<a name="BaseAuthenticator.is_authenticated"></a><div id="BaseAuthenticator.is_authenticated-def"><a name="L46"></a><tt class="py-lineno"> 46</tt> <a class="py-toggle" href="#" id="BaseAuthenticator.is_authenticated-toggle" onclick="return toggle('BaseAuthenticator.is_authenticated');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#is_authenticated">is_authenticated</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator.is_authenticated-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator.is_authenticated-expanded"><a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">        <tt class="py-docstring">"""Either the instance is authenticated or not"""</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt><tt class="py-op">(</tt><tt class="py-string">"derived class '%s' must override this property"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">                                  <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line"> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">    <tt class="py-comment"># Virtual methods</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">    <tt class="py-comment"># Each authenticator classes must implement these methods.</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line"> </tt>
+<a name="BaseAuthenticator.authenticate"></a><div id="BaseAuthenticator.authenticate-def"><a name="L54"></a><tt class="py-lineno"> 54</tt> <a class="py-toggle" href="#" id="BaseAuthenticator.authenticate-toggle" onclick="return toggle('BaseAuthenticator.authenticate');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#authenticate">authenticate</a><tt class="py-op">(</tt><tt class="py-param">password</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator.authenticate-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator.authenticate-expanded"><a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">        <tt class="py-docstring">"""Attempt to authenticate</tt> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"><tt class="py-docstring">        Attempt to authenticate with given password. It should raise an</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line"><tt class="py-docstring">        AuthenticationError exception if authentication fails.</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line"><tt class="py-docstring">        Keyword arguments:</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line"><tt class="py-docstring">            - password -- A clear text password</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">NotImplementedError</tt><tt class="py-op">(</tt><tt class="py-string">"derived class '%s' must override this method"</tt> <tt class="py-op">%</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">                                  <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">__class__</tt><tt class="py-op">.</tt><tt class="py-name">__name__</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-comment"># Authentication methods</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"> </tt>
+<a name="BaseAuthenticator.__call__"></a><div id="BaseAuthenticator.__call__-def"><a name="L69"></a><tt class="py-lineno"> 69</tt> <a class="py-toggle" href="#" id="BaseAuthenticator.__call__-toggle" onclick="return toggle('BaseAuthenticator.__call__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#__call__">__call__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">password</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">token</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator.__call__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator.__call__-expanded"><a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">        <tt class="py-docstring">"""Attempt to authenticate</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-docstring">        Attempt to authenticate either with password or with session</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-docstring">        token if 'password' is None. If the authentication succeed, the</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring">        instance is returned and the session is registered for the token</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">        if 'token' and 'password' are given.</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring">        The token is composed by the session identifier and a session</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">        hash - to use for encryption - as a 2-tuple.</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-docstring">        Keyword arguments:</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-docstring">            - password -- A clear text password</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-docstring">            - token -- The session token in the form of (id, hash)</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring">        Returns:</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">            The authenticated instance</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Method moulinette.authenticators.BaseAuthenticator.is_authenticated()=moulinette.authenticators.BaseAuthenticator-class.html#is_authenticated,Method moulinette.authenticators.ldap.Authenticator.is_authenticated()=moulinette.authenticators.ldap.Authenticator-class.html#is_authenticated"><a title="moulinette.authenticators.BaseAuthenticator.is_authenticated
+moulinette.authenticators.ldap.Authenticator.is_authenticated" class="py-name" href="#" onclick="return doclink('link-6', 'is_authenticated', 'link-6');">is_authenticated</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">self</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">        <tt class="py-name">store_session</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> <tt class="py-keyword">if</tt> <tt class="py-name">password</tt> <tt class="py-keyword">and</tt> <tt class="py-name">token</tt> <tt class="py-keyword">else</tt> <tt class="py-name">False</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">token</tt><tt class="py-op">:</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">            <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">                <tt class="py-comment"># Extract id and hash from token</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">                <tt class="py-name">s_id</tt><tt class="py-op">,</tt> <tt class="py-name">s_hash</tt> <tt class="py-op">=</tt> <tt class="py-name">token</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">            <tt class="py-keyword">except</tt> <tt class="py-name">TypeError</tt><tt class="py-op">:</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">                <tt id="link-7" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-7', 'logger', 'link-3');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">error</tt><tt class="py-op">(</tt><tt class="py-string">"unable to extract token parts from '%s'"</tt><tt class="py-op">,</tt> <tt class="py-name">token</tt><tt class="py-op">)</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt class="py-name">password</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">                    <tt class="py-keyword">raise</tt> <tt id="link-8" class="py-name"><a title="moulinette.core.MoulinetteError" class="py-name" href="#" onclick="return doclink('link-8', 'MoulinetteError', 'link-2');">MoulinetteError</a></tt><tt class="py-op">(</tt><tt class="py-name">errno</tt><tt class="py-op">.</tt><tt class="py-name">EINVAL</tt><tt class="py-op">,</tt> <tt class="py-name">m18n</tt><tt class="py-op">.</tt><tt id="link-9" class="py-name" targets="Method moulinette.core.Moulinette18n.g()=moulinette.core.Moulinette18n-class.html#g"><a title="moulinette.core.Moulinette18n.g" class="py-name" href="#" onclick="return doclink('link-9', 'g', 'link-9');">g</a></tt><tt class="py-op">(</tt><tt class="py-string">'error_see_log'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">                <tt id="link-10" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-10', 'logger', 'link-3');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">info</tt><tt class="py-op">(</tt><tt class="py-string">"session will not be stored"</tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">                <tt class="py-name">store_session</tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">            <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt class="py-name">password</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">                    <tt class="py-comment"># Retrieve session</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">                    <tt class="py-name">password</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name" targets="Method moulinette.authenticators.BaseAuthenticator._retrieve_session()=moulinette.authenticators.BaseAuthenticator-class.html#_retrieve_session"><a title="moulinette.authenticators.BaseAuthenticator._retrieve_session" class="py-name" href="#" onclick="return doclink('link-11', '_retrieve_session', 'link-11');">_retrieve_session</a></tt><tt class="py-op">(</tt><tt class="py-name">s_id</tt><tt class="py-op">,</tt> <tt class="py-name">s_hash</tt><tt class="py-op">)</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line"> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">            <tt class="py-comment"># Attempt to authenticate</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-12" class="py-name" targets="Method moulinette.authenticators.BaseAuthenticator.authenticate()=moulinette.authenticators.BaseAuthenticator-class.html#authenticate,Method moulinette.authenticators.ldap.Authenticator.authenticate()=moulinette.authenticators.ldap.Authenticator-class.html#authenticate,Method moulinette.core.MoulinetteSignals.authenticate()=moulinette.core.MoulinetteSignals-class.html#authenticate"><a title="moulinette.authenticators.BaseAuthenticator.authenticate
+moulinette.authenticators.ldap.Authenticator.authenticate
+moulinette.core.MoulinetteSignals.authenticate" class="py-name" href="#" onclick="return doclink('link-12', 'authenticate', 'link-12');">authenticate</a></tt><tt class="py-op">(</tt><tt class="py-name">password</tt><tt class="py-op">)</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt id="link-13" class="py-name"><a title="moulinette.core.MoulinetteError" class="py-name" href="#" onclick="return doclink('link-13', 'MoulinetteError', 'link-2');">MoulinetteError</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">            <tt id="link-14" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-14', 'logger', 'link-3');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">exception</tt><tt class="py-op">(</tt><tt class="py-string">"authentication (name: '%s', vendor: '%s') fails"</tt><tt class="py-op">,</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">                             <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-15" class="py-name"><a title="moulinette.actionsmap.AskParameter.name
+moulinette.actionsmap.PasswordParameter.name
+moulinette.actionsmap.PatternParameter.name
+moulinette.actionsmap.RequiredParameter.name
+moulinette.actionsmap._ExtraParameter.name
+moulinette.authenticators.BaseAuthenticator.name
+moulinette.interfaces.api._ActionsMapPlugin.name" class="py-name" href="#" onclick="return doclink('link-15', 'name', 'link-4');">name</a></tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-16" class="py-name"><a title="moulinette.authenticators.BaseAuthenticator.vendor
+moulinette.authenticators.ldap.Authenticator.vendor" class="py-name" href="#" onclick="return doclink('link-16', 'vendor', 'link-5');">vendor</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-17" class="py-name"><a title="moulinette.core.MoulinetteError" class="py-name" href="#" onclick="return doclink('link-17', 'MoulinetteError', 'link-2');">MoulinetteError</a></tt><tt class="py-op">(</tt><tt class="py-name">errno</tt><tt class="py-op">.</tt><tt class="py-name">EACCES</tt><tt class="py-op">,</tt> <tt class="py-name">m18n</tt><tt class="py-op">.</tt><tt id="link-18" class="py-name"><a title="moulinette.core.Moulinette18n.g" class="py-name" href="#" onclick="return doclink('link-18', 'g', 'link-9');">g</a></tt><tt class="py-op">(</tt><tt class="py-string">'unable_authenticate'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-comment"># Store session</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">store_session</tt><tt class="py-op">:</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">            <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-19" class="py-name" targets="Method moulinette.authenticators.BaseAuthenticator._store_session()=moulinette.authenticators.BaseAuthenticator-class.html#_store_session"><a title="moulinette.authenticators.BaseAuthenticator._store_session" class="py-name" href="#" onclick="return doclink('link-19', '_store_session', 'link-19');">_store_session</a></tt><tt class="py-op">(</tt><tt class="py-name">s_id</tt><tt class="py-op">,</tt> <tt class="py-name">s_hash</tt><tt class="py-op">,</tt> <tt class="py-name">password</tt><tt class="py-op">)</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line">            <tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">                <tt id="link-20" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-20', 'logger', 'link-3');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">exception</tt><tt class="py-op">(</tt><tt class="py-string">"unable to store session"</tt><tt class="py-op">)</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">            <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">                <tt id="link-21" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-21', 'logger', 'link-3');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"session has been stored"</tt><tt class="py-op">)</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt> </tt>
+</div><a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">    <tt class="py-comment"># Private methods</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"> </tt>
+<a name="BaseAuthenticator._open_sessionfile"></a><div id="BaseAuthenticator._open_sessionfile-def"><a name="L130"></a><tt class="py-lineno">130</tt> <a class="py-toggle" href="#" id="BaseAuthenticator._open_sessionfile-toggle" onclick="return toggle('BaseAuthenticator._open_sessionfile');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#_open_sessionfile">_open_sessionfile</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">session_id</tt><tt class="py-op">,</tt> <tt class="py-param">mode</tt><tt class="py-op">=</tt><tt class="py-string">'r'</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator._open_sessionfile-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator._open_sessionfile-expanded"><a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line">        <tt class="py-docstring">"""Open a session file for this instance in given mode"""</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">pkg</tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Method moulinette.core.Package.open_cachefile()=moulinette.core.Package-class.html#open_cachefile"><a title="moulinette.core.Package.open_cachefile" class="py-name" href="#" onclick="return doclink('link-22', 'open_cachefile', 'link-22');">open_cachefile</a></tt><tt class="py-op">(</tt><tt class="py-string">'%s.asc'</tt> <tt class="py-op">%</tt> <tt class="py-name">session_id</tt><tt class="py-op">,</tt> <tt class="py-name">mode</tt><tt class="py-op">,</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">                                  <tt class="py-name">subdir</tt><tt class="py-op">=</tt><tt class="py-string">'session/%s'</tt> <tt class="py-op">%</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-23" class="py-name"><a title="moulinette.actionsmap.AskParameter.name
+moulinette.actionsmap.PasswordParameter.name
+moulinette.actionsmap.PatternParameter.name
+moulinette.actionsmap.RequiredParameter.name
+moulinette.actionsmap._ExtraParameter.name
+moulinette.authenticators.BaseAuthenticator.name
+moulinette.interfaces.api._ActionsMapPlugin.name" class="py-name" href="#" onclick="return doclink('link-23', 'name', 'link-4');">name</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"> </tt>
+<a name="BaseAuthenticator._store_session"></a><div id="BaseAuthenticator._store_session-def"><a name="L135"></a><tt class="py-lineno">135</tt> <a class="py-toggle" href="#" id="BaseAuthenticator._store_session-toggle" onclick="return toggle('BaseAuthenticator._store_session');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#_store_session">_store_session</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">session_id</tt><tt class="py-op">,</tt> <tt class="py-param">session_hash</tt><tt class="py-op">,</tt> <tt class="py-param">password</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator._store_session-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator._store_session-expanded"><a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">        <tt class="py-docstring">"""Store a session and its associated password"""</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">        <tt class="py-name">gpg</tt> <tt class="py-op">=</tt> <tt class="py-name">gnupg</tt><tt class="py-op">.</tt><tt class="py-name">GPG</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">        <tt class="py-name">gpg</tt><tt class="py-op">.</tt><tt class="py-name">encoding</tt> <tt class="py-op">=</tt> <tt class="py-string">'utf-8'</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">        <tt class="py-keyword">with</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-24" class="py-name" targets="Method moulinette.authenticators.BaseAuthenticator._open_sessionfile()=moulinette.authenticators.BaseAuthenticator-class.html#_open_sessionfile"><a title="moulinette.authenticators.BaseAuthenticator._open_sessionfile" class="py-name" href="#" onclick="return doclink('link-24', '_open_sessionfile', 'link-24');">_open_sessionfile</a></tt><tt class="py-op">(</tt><tt class="py-name">session_id</tt><tt class="py-op">,</tt> <tt class="py-string">'w'</tt><tt class="py-op">)</tt> <tt class="py-keyword">as</tt> <tt class="py-name">f</tt><tt class="py-op">:</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line">            <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">gpg</tt><tt class="py-op">.</tt><tt class="py-name">encrypt</tt><tt class="py-op">(</tt><tt class="py-name">password</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-name">symmetric</tt><tt class="py-op">=</tt><tt class="py-name">True</tt><tt class="py-op">,</tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">                                    <tt class="py-name">passphrase</tt><tt class="py-op">=</tt><tt class="py-name">session_hash</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"> </tt>
+<a name="BaseAuthenticator._retrieve_session"></a><div id="BaseAuthenticator._retrieve_session-def"><a name="L143"></a><tt class="py-lineno">143</tt> <a class="py-toggle" href="#" id="BaseAuthenticator._retrieve_session-toggle" onclick="return toggle('BaseAuthenticator._retrieve_session');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.authenticators.BaseAuthenticator-class.html#_retrieve_session">_retrieve_session</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">session_id</tt><tt class="py-op">,</tt> <tt class="py-param">session_hash</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="BaseAuthenticator._retrieve_session-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="BaseAuthenticator._retrieve_session-expanded"><a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">        <tt class="py-docstring">"""Retrieve a session and return its associated password"""</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">            <tt class="py-keyword">with</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-25" class="py-name"><a title="moulinette.authenticators.BaseAuthenticator._open_sessionfile" class="py-name" href="#" onclick="return doclink('link-25', '_open_sessionfile', 'link-24');">_open_sessionfile</a></tt><tt class="py-op">(</tt><tt class="py-name">session_id</tt><tt class="py-op">,</tt> <tt class="py-string">'r'</tt><tt class="py-op">)</tt> <tt class="py-keyword">as</tt> <tt class="py-name">f</tt><tt class="py-op">:</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">                <tt class="py-name">enc_pwd</tt> <tt class="py-op">=</tt> <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">read</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt> <tt class="py-name">IOError</tt><tt class="py-op">:</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line">            <tt id="link-26" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-26', 'logger', 'link-3');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">debug</tt><tt class="py-op">(</tt><tt class="py-string">"unable to retrieve session"</tt><tt class="py-op">,</tt> <tt class="py-name">exc_info</tt><tt class="py-op">=</tt><tt class="py-number">1</tt><tt class="py-op">)</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line">            <tt class="py-keyword">raise</tt> <tt id="link-27" class="py-name"><a title="moulinette.core.MoulinetteError" class="py-name" href="#" onclick="return doclink('link-27', 'MoulinetteError', 'link-2');">MoulinetteError</a></tt><tt class="py-op">(</tt><tt class="py-name">errno</tt><tt class="py-op">.</tt><tt class="py-name">ENOENT</tt><tt class="py-op">,</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">                                  <tt class="py-name">m18n</tt><tt class="py-op">.</tt><tt id="link-28" class="py-name"><a title="moulinette.core.Moulinette18n.g" class="py-name" href="#" onclick="return doclink('link-28', 'g', 'link-9');">g</a></tt><tt class="py-op">(</tt><tt class="py-string">'unable_retrieve_session'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">            <tt class="py-name">gpg</tt> <tt class="py-op">=</tt> <tt class="py-name">gnupg</tt><tt class="py-op">.</tt><tt class="py-name">GPG</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">            <tt class="py-name">gpg</tt><tt class="py-op">.</tt><tt class="py-name">encoding</tt> <tt class="py-op">=</tt> <tt class="py-string">'utf-8'</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line"> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">            <tt class="py-name">decrypted</tt> <tt class="py-op">=</tt> <tt class="py-name">gpg</tt><tt class="py-op">.</tt><tt class="py-name">decrypt</tt><tt class="py-op">(</tt><tt class="py-name">enc_pwd</tt><tt class="py-op">,</tt> <tt class="py-name">passphrase</tt><tt class="py-op">=</tt><tt class="py-name">session_hash</tt><tt class="py-op">)</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">decrypted</tt><tt class="py-op">.</tt><tt class="py-name">ok</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">True</tt><tt class="py-op">:</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">                <tt id="link-29" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-29', 'logger', 'link-3');">logger</a></tt><tt class="py-op">.</tt><tt class="py-name">error</tt><tt class="py-op">(</tt><tt class="py-string">"unable to decrypt password for the session: %s"</tt><tt class="py-op">,</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">                             <tt class="py-name">decrypted</tt><tt class="py-op">.</tt><tt class="py-name">status</tt><tt class="py-op">)</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line">                <tt class="py-keyword">raise</tt> <tt id="link-30" class="py-name"><a title="moulinette.core.MoulinetteError" class="py-name" href="#" onclick="return doclink('link-30', 'MoulinetteError', 'link-2');">MoulinetteError</a></tt><tt class="py-op">(</tt><tt class="py-name">errno</tt><tt class="py-op">.</tt><tt class="py-name">EINVAL</tt><tt class="py-op">,</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line">                                      <tt class="py-name">m18n</tt><tt class="py-op">.</tt><tt id="link-31" class="py-name"><a title="moulinette.core.Moulinette18n.g" class="py-name" href="#" onclick="return doclink('link-31', 'g', 'link-9');">g</a></tt><tt class="py-op">(</tt><tt class="py-string">'unable_retrieve_session'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">decrypted</tt><tt class="py-op">.</tt><tt class="py-name">data</tt> </tt>
+</div></div><a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1
+    on Mon Jul 24 03:08:51 2017
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

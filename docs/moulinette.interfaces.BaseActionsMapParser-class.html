@@ -1,0 +1,971 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>moulinette.interfaces.BaseActionsMapParser</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="moulinette-module.html">Package&nbsp;moulinette</a> ::
+        <a href="moulinette.interfaces-module.html">Package&nbsp;interfaces</a> ::
+        Class&nbsp;BaseActionsMapParser
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="moulinette.interfaces.BaseActionsMapParser-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class BaseActionsMapParser</h1><p class="nomargin-top"><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_moulinet_16" name="uml_class_diagram_for_moulinet_16">
+<area shape="rect" id="node1_14" href="moulinette.interfaces.BaseActionsMapParser-class.html#global_conf" title="Return the global configuration of the parser" alt="" coords="17,30,348,50"/>
+<area shape="rect" id="node1_15" href="moulinette.interfaces.BaseActionsMapParser-class.html#interface" title="hash(x)" alt="" coords="17,50,348,70"/>
+<area shape="rect" id="node1_16" href="moulinette.interfaces.BaseActionsMapParser-class.html#__init__" title="x.__init__(...) initializes x; see help(type(x)) for signature" alt="" coords="17,73,348,93"/>
+<area shape="rect" id="node1_17" href="moulinette.interfaces.BaseActionsMapParser-class.html#add_action_parser" title="Add a parser for an action" alt="" coords="17,93,348,113"/>
+<area shape="rect" id="node1_18" href="moulinette.interfaces.BaseActionsMapParser-class.html#add_category_parser" title="Add a parser for a category" alt="" coords="17,113,348,133"/>
+<area shape="rect" id="node1_19" href="moulinette.interfaces.BaseActionsMapParser-class.html#add_global_parser" title="Add a parser for global arguments" alt="" coords="17,133,348,153"/>
+<area shape="rect" id="node1_20" href="moulinette.interfaces.BaseActionsMapParser-class.html#format_arg_names" title="Format argument name" alt="" coords="17,153,348,173"/>
+<area shape="rect" id="node1_21" href="moulinette.interfaces.BaseActionsMapParser-class.html#get_conf" title="Get the value of an action configuration" alt="" coords="17,173,348,193"/>
+<area shape="rect" id="node1_22" href="moulinette.interfaces.BaseActionsMapParser-class.html#get_global_conf" title="Get the global value of a configuration" alt="" coords="17,193,348,213"/>
+<area shape="rect" id="node1_23" href="moulinette.interfaces.BaseActionsMapParser-class.html#has_global_parser" title="moulinette.interfaces.BaseActionsMapParser.has_global_parser" alt="" coords="17,213,348,233"/>
+<area shape="rect" id="node1_24" href="moulinette.interfaces.BaseActionsMapParser-class.html#parse_args" title="Parse arguments" alt="" coords="17,233,348,253"/>
+<area shape="rect" id="node1_25" href="moulinette.interfaces.BaseActionsMapParser-class.html#prepare_action_namespace" title="Prepare the namespace for a given action" alt="" coords="17,253,348,273"/>
+<area shape="rect" id="node1_26" href="moulinette.interfaces.BaseActionsMapParser-class.html#set_conf" title="Set configuration for an action" alt="" coords="17,273,348,293"/>
+<area shape="rect" id="node1_27" href="moulinette.interfaces.BaseActionsMapParser-class.html#set_global_conf" title="Set global configuration" alt="" coords="17,293,348,313"/>
+<area shape="rect" id="node1" href="moulinette.interfaces.BaseActionsMapParser-class.html" title="Actions map&#39;s base Parser" alt="" coords="5,5,360,319"/>
+<area shape="rect" id="node2" href="moulinette.interfaces.cli.ActionsMapParser-class.html" title="Actions map&#39;s Parser for the CLI" alt="" coords="103,337,263,376"/>
+</map>
+  <img src="uml_class_diagram_for_moulinet_16.gif" alt='' usemap="#uml_class_diagram_for_moulinet_16" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Actions map's base Parser</p>
+  <p>Each interfaces must implement an ActionsMapParser class derived from 
+  this class which must overrides virtual properties and methods. It is 
+  used to parse the main parts of the actions map (i.e. global arguments, 
+  categories and actions). It implements methods to set/get the global and 
+  actions configuration.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      parent -- A parent BaseActionsMapParser derived object
+    </li>
+  </ul>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">parent</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#_format_conf" class="summary-sig-name" onclick="show_private();">_format_conf</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">value</span>)</span><br />
+      Format a configuration value</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser._format_conf">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#_validate_conf" class="summary-sig-name" onclick="show_private();">_validate_conf</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">configuration</span>,
+        <span class="summary-sig-arg">is_global</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Validate configuration for the parser</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser._validate_conf">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#add_action_parser" class="summary-sig-name">add_action_parser</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">tid</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Add a parser for an action</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.add_action_parser">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#add_category_parser" class="summary-sig-name">add_category_parser</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Add a parser for a category</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.add_category_parser">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#add_global_parser" class="summary-sig-name">add_global_parser</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Add a parser for global arguments</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.add_global_parser">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#get_conf" class="summary-sig-name">get_conf</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">action</span>,
+        <span class="summary-sig-arg">name</span>)</span><br />
+      Get the value of an action configuration</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.get_conf">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#get_global_conf" class="summary-sig-name">get_global_conf</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">profile</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>)</span><br />
+      Get the global value of a configuration</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.get_global_conf">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="has_global_parser"></a><span class="summary-sig-name">has_global_parser</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.has_global_parser">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#parse_args" class="summary-sig-name">parse_args</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">args</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Parse arguments</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.parse_args">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="prepare_action_namespace"></a><span class="summary-sig-name">prepare_action_namespace</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">tid</span>,
+        <span class="summary-sig-arg">namespace</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Prepare the namespace for a given action</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.prepare_action_namespace">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#set_conf" class="summary-sig-name">set_conf</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">action</span>,
+        <span class="summary-sig-arg">configuration</span>)</span><br />
+      Set configuration for an action</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.set_conf">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#set_global_conf" class="summary-sig-name">set_global_conf</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">configuration</span>)</span><br />
+      Set global configuration</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.set_global_conf">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== STATIC METHODS ==================== -->
+<a name="section-StaticMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Static Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-StaticMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.BaseActionsMapParser-class.html#format_arg_names" class="summary-sig-name">format_arg_names</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">full</span>)</span><br />
+      Format argument name</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.format_arg_names">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="interface"></a><span class="summary-name">interface</span> = <code title="None">None</code><br />
+      hash(x)
+    </td>
+  </tr>
+</table>
+<!-- ==================== INSTANCE VARIABLES ==================== -->
+<a name="section-InstanceVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_conf"></a><span class="summary-name">_conf</span><br />
+      The name of the interface for which it is the parser
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="moulinette.interfaces.BaseActionsMapParser-class.html#global_conf" class="summary-name">global_conf</a><br />
+      Return the global configuration of the parser
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">parent</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__init__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_format_conf"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_format_conf</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">name</span>,
+        <span class="sig-arg">value</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser._format_conf">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Format a configuration value</p>
+  <p>Return the formated value of the configuration 'name' from its given 
+  value.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      name -- The name of the configuration
+    </li>
+    <li>
+      value -- The value to format
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_validate_conf"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_validate_conf</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">configuration</span>,
+        <span class="sig-arg">is_global</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser._validate_conf">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Validate configuration for the parser</p>
+  <p>Return the validated configuration for the interface's actions map 
+  parser.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      configuration -- The configuration to pre-format
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="add_action_parser"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_action_parser</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">name</span>,
+        <span class="sig-arg">tid</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.add_action_parser">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Add a parser for an action
+
+Create a new action and return an argument parser for it.
+
+Keyword arguments:
+    - name -- The action name
+    - tid -- The tuple identifier of the action
+
+Returns:
+    An ArgumentParser based object
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="add_category_parser"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_category_parser</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">name</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.add_category_parser">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Add a parser for a category
+
+Create a new category and return a parser for it.
+
+Keyword arguments:
+    - name -- The category name
+
+Returns:
+    A BaseParser based object
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="add_global_parser"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_global_parser</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.add_global_parser">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Add a parser for global arguments
+
+Create and return an argument parser for global arguments.
+
+Returns:
+    An ArgumentParser based object
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="format_arg_names"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">format_arg_names</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">name</span>,
+        <span class="sig-arg">full</span>)</span>
+    <br /><em class="fname">Static Method</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.format_arg_names">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Format argument name
+
+Format agument name depending on its 'full' parameter and return
+a list of strings which will be used as name or option strings
+for the argument parser.
+
+Keyword arguments:
+    - name -- The argument name
+    - full -- The argument's 'full' parameter
+
+Returns:
+    A list of option strings
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_conf"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_conf</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">action</span>,
+        <span class="sig-arg">name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.get_conf">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get the value of an action configuration</p>
+  <p>Return the formated value of configuration 'name' for the action 
+  identified by 'action'. If the configuration for the action is not set, 
+  the default one is returned.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      action -- An action identifier
+    </li>
+    <li>
+      name -- The configuration name
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_global_conf"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_global_conf</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">name</span>,
+        <span class="sig-arg">profile</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.get_global_conf">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get the global value of a configuration</p>
+  <p>Return the formated global value of the configuration 'name' for the 
+  given profile. If the configuration doesn't provide profile, the formated
+  default value is returned.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      name -- The configuration name
+    </li>
+    <li>
+      profile -- The profile of the configuration
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="parse_args"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">parse_args</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">args</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.parse_args">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Parse arguments
+
+Convert argument variables to objects and assign them as
+attributes of the namespace.
+
+Keyword arguments:
+    - args -- Arguments string or dict (TODO)
+
+Returns:
+    The populated namespace
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="set_conf"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">set_conf</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">action</span>,
+        <span class="sig-arg">configuration</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.set_conf">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Set configuration for an action</p>
+  <p>Set the configuration to use for a given action identified by 'action'
+  which is specific to the parser.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      action -- The action identifier
+    </li>
+    <li>
+      configuration -- The configuration for the action
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="set_global_conf"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">set_global_conf</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">configuration</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces-pysrc.html#BaseActionsMapParser.set_global_conf">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Set global configuration</p>
+  <p>Set the global configuration to use for the parser.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      configuration -- The global configuration
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== PROPERTY DETAILS ==================== -->
+<a name="section-PropertyDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Property Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-PropertyDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="global_conf"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">global_conf</h3>
+  <p>Return the global configuration of the parser</p>
+  <dl class="fields">
+    <dt>Get Method:</dt>
+    <dd class="value"><span class="summary-sig"><i>unreachable</i>.global_conf(<span class="summary-sig-arg">self</span>)</span>
+        - Return the global configuration of the parser
+    </dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1
+    on Mon Jul 24 03:08:51 2017
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

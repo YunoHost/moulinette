@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>moulinette.utils.log</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="moulinette-module.html">Package&nbsp;moulinette</a> ::
+        <a href="moulinette.utils-module.html">Package&nbsp;utils</a> ::
+        Module&nbsp;log
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="moulinette.utils.log-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="moulinette.utils.log-module.html">Module moulinette.utils.log</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-comment"># import all constant because other modules tries to important them from this</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-comment"># module because SUCCESS is defined in this module</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">logging</tt> <tt class="py-keyword">import</tt> <tt class="py-op">(</tt><tt class="py-name">addLevelName</tt><tt class="py-op">,</tt> <tt class="py-name">setLoggerClass</tt><tt class="py-op">,</tt> <tt class="py-name">Logger</tt><tt class="py-op">,</tt> <tt class="py-name">getLogger</tt><tt class="py-op">,</tt> <tt class="py-name">NOTSET</tt><tt class="py-op">,</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line">                     <tt class="py-name">DEBUG</tt><tt class="py-op">,</tt> <tt class="py-name">INFO</tt><tt class="py-op">,</tt> <tt class="py-name">WARNING</tt><tt class="py-op">,</tt> <tt class="py-name">ERROR</tt><tt class="py-op">,</tt> <tt class="py-name">CRITICAL</tt><tt class="py-op">)</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-comment"># Global configuration and functions -----------------------------------</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt id="link-0" class="py-name" targets="Variable moulinette.utils.log.SUCCESS=moulinette.utils.log-module.html#SUCCESS"><a title="moulinette.utils.log.SUCCESS" class="py-name" href="#" onclick="return doclink('link-0', 'SUCCESS', 'link-0');">SUCCESS</a></tt> <tt class="py-op">=</tt> <tt class="py-number">25</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt id="link-1" class="py-name" targets="Variable moulinette.utils.log.DEFAULT_LOGGING=moulinette.utils.log-module.html#DEFAULT_LOGGING"><a title="moulinette.utils.log.DEFAULT_LOGGING" class="py-name" href="#" onclick="return doclink('link-1', 'DEFAULT_LOGGING', 'link-1');">DEFAULT_LOGGING</a></tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line">    <tt class="py-string">'version'</tt><tt class="py-op">:</tt> <tt class="py-number">1</tt><tt class="py-op">,</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line">    <tt class="py-string">'disable_existing_loggers'</tt><tt class="py-op">:</tt> <tt class="py-name">False</tt><tt class="py-op">,</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line">    <tt class="py-string">'formatters'</tt><tt class="py-op">:</tt> <tt class="py-op">{</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line">        <tt class="py-string">'simple'</tt><tt class="py-op">:</tt> <tt class="py-op">{</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line">            <tt class="py-string">'format'</tt><tt class="py-op">:</tt> <tt class="py-string">'%(asctime)-15s %(levelname)-8s %(name)s - %(message)s'</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line">        <tt class="py-op">}</tt><tt class="py-op">,</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">    <tt class="py-op">}</tt><tt class="py-op">,</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line">    <tt class="py-string">'handlers'</tt><tt class="py-op">:</tt> <tt class="py-op">{</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">        <tt class="py-string">'console'</tt><tt class="py-op">:</tt> <tt class="py-op">{</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line">            <tt class="py-string">'level'</tt><tt class="py-op">:</tt> <tt class="py-string">'DEBUG'</tt><tt class="py-op">,</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">            <tt class="py-string">'formatter'</tt><tt class="py-op">:</tt> <tt class="py-string">'simple'</tt><tt class="py-op">,</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">            <tt class="py-string">'class'</tt><tt class="py-op">:</tt> <tt class="py-string">'logging.StreamHandler'</tt><tt class="py-op">,</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">            <tt class="py-string">'stream'</tt><tt class="py-op">:</tt> <tt class="py-string">'ext://sys.stdout'</tt><tt class="py-op">,</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">        <tt class="py-op">}</tt><tt class="py-op">,</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">    <tt class="py-op">}</tt><tt class="py-op">,</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">    <tt class="py-string">'loggers'</tt><tt class="py-op">:</tt> <tt class="py-op">{</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line">        <tt class="py-string">'moulinette'</tt><tt class="py-op">:</tt> <tt class="py-op">{</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">            <tt class="py-string">'level'</tt><tt class="py-op">:</tt> <tt class="py-string">'DEBUG'</tt><tt class="py-op">,</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">            <tt class="py-string">'handlers'</tt><tt class="py-op">:</tt> <tt class="py-op">[</tt><tt class="py-string">'console'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">        <tt class="py-op">}</tt><tt class="py-op">,</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">    <tt class="py-op">}</tt><tt class="py-op">,</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line"><tt class="py-op">}</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line"> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line"> </tt>
+<a name="configure_logging"></a><div id="configure_logging-def"><a name="L39"></a><tt class="py-lineno"> 39</tt> <a class="py-toggle" href="#" id="configure_logging-toggle" onclick="return toggle('configure_logging');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log-module.html#configure_logging">configure_logging</a><tt class="py-op">(</tt><tt class="py-param">logging_config</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="configure_logging-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="configure_logging-expanded"><a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">    <tt class="py-docstring">"""Configure logging with default and optionally given configuration</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"><tt class="py-docstring">    Keyword arguments:</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line"><tt class="py-docstring">        - logging_config -- A dict containing logging configuration</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">    <tt class="py-keyword">from</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">config</tt> <tt class="py-keyword">import</tt> <tt class="py-name">dictConfig</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line"> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">    <tt class="py-comment"># add custom logging level and class</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">    <tt class="py-name">addLevelName</tt><tt class="py-op">(</tt><tt id="link-2" class="py-name"><a title="moulinette.utils.log.SUCCESS" class="py-name" href="#" onclick="return doclink('link-2', 'SUCCESS', 'link-0');">SUCCESS</a></tt><tt class="py-op">,</tt> <tt class="py-string">'SUCCESS'</tt><tt class="py-op">)</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">    <tt class="py-name">setLoggerClass</tt><tt class="py-op">(</tt><tt id="link-3" class="py-name" targets="Class moulinette.utils.log.MoulinetteLogger=moulinette.utils.log.MoulinetteLogger-class.html"><a title="moulinette.utils.log.MoulinetteLogger" class="py-name" href="#" onclick="return doclink('link-3', 'MoulinetteLogger', 'link-3');">MoulinetteLogger</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line"> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">    <tt class="py-comment"># load configuration from dict</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">    <tt class="py-name">dictConfig</tt><tt class="py-op">(</tt><tt id="link-4" class="py-name"><a title="moulinette.utils.log.DEFAULT_LOGGING" class="py-name" href="#" onclick="return doclink('link-4', 'DEFAULT_LOGGING', 'link-1');">DEFAULT_LOGGING</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">logging_config</tt><tt class="py-op">:</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">        <tt class="py-name">dictConfig</tt><tt class="py-op">(</tt><tt class="py-name">logging_config</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line"> </tt>
+<a name="getHandlersByClass"></a><div id="getHandlersByClass-def"><a name="L58"></a><tt class="py-lineno"> 58</tt> <a class="py-toggle" href="#" id="getHandlersByClass-toggle" onclick="return toggle('getHandlersByClass');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log-module.html#getHandlersByClass">getHandlersByClass</a><tt class="py-op">(</tt><tt class="py-param">classinfo</tt><tt class="py-op">,</tt> <tt class="py-param">limit</tt><tt class="py-op">=</tt><tt class="py-number">0</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getHandlersByClass-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="getHandlersByClass-expanded"><a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">    <tt class="py-docstring">"""Retrieve registered handlers of a given class."""</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">    <tt class="py-name">handlers</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">ref</tt> <tt class="py-keyword">in</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">_handlers</tt><tt class="py-op">.</tt><tt class="py-name">itervaluerefs</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">        <tt class="py-name">o</tt> <tt class="py-op">=</tt> <tt class="py-name">ref</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">o</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt> <tt class="py-keyword">and</tt> <tt class="py-name">isinstance</tt><tt class="py-op">(</tt><tt class="py-name">o</tt><tt class="py-op">,</tt> <tt class="py-name">classinfo</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">limit</tt> <tt class="py-op">==</tt> <tt class="py-number">1</tt><tt class="py-op">:</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">o</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">            <tt class="py-name">handlers</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-name">o</tt><tt class="py-op">)</tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-name">limit</tt> <tt class="py-op">!=</tt> <tt class="py-number">0</tt> <tt class="py-keyword">and</tt> <tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">handlers</tt><tt class="py-op">)</tt> <tt class="py-op">&gt;</tt> <tt class="py-name">limit</tt><tt class="py-op">:</tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">handlers</tt><tt class="py-op">[</tt><tt class="py-op">:</tt><tt class="py-name">limit</tt> <tt class="py-op">-</tt> <tt class="py-number">1</tt><tt class="py-op">]</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">handlers</tt> </tt>
+</div><a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"> </tt>
+<a name="MoulinetteLogger"></a><div id="MoulinetteLogger-def"><a name="L72"></a><tt class="py-lineno"> 72</tt> <a class="py-toggle" href="#" id="MoulinetteLogger-toggle" onclick="return toggle('MoulinetteLogger');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="moulinette.utils.log.MoulinetteLogger-class.html">MoulinetteLogger</a><tt class="py-op">(</tt><tt class="py-base-class">Logger</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MoulinetteLogger-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="MoulinetteLogger-expanded"><a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-docstring">"""Custom logger class</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"><tt class="py-docstring">    Extend base Logger class to provide the SUCCESS custom log level with</tt> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"><tt class="py-docstring">    a convenient logging method. It also consider an optionnal action_id</tt> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line"><tt class="py-docstring">    which corresponds to the associated logged action. It is added to the</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line"><tt class="py-docstring">    LogRecord extra and can be used with the ActionFilter.</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">    <tt id="link-5" class="py-name" targets="Variable moulinette.utils.log.MoulinetteLogger.action_id=moulinette.utils.log.MoulinetteLogger-class.html#action_id,Variable moulinette.utils.log.action_id=moulinette.utils.log-module.html#action_id"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-5', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-op">=</tt> <tt class="py-name">None</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"> </tt>
+<a name="MoulinetteLogger.success"></a><div id="MoulinetteLogger.success-def"><a name="L83"></a><tt class="py-lineno"> 83</tt> <a class="py-toggle" href="#" id="MoulinetteLogger.success-toggle" onclick="return toggle('MoulinetteLogger.success');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log.MoulinetteLogger-class.html#success">success</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">msg</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-param">kwargs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MoulinetteLogger.success-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="MoulinetteLogger.success-expanded"><a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line">        <tt class="py-docstring">"""Log 'msg % args' with severity 'SUCCESS'."""</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">isEnabledFor</tt><tt class="py-op">(</tt><tt id="link-6" class="py-name"><a title="moulinette.utils.log.SUCCESS" class="py-name" href="#" onclick="return doclink('link-6', 'SUCCESS', 'link-0');">SUCCESS</a></tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-7" class="py-name" targets="Method moulinette.utils.log.MoulinetteLogger._log()=moulinette.utils.log.MoulinetteLogger-class.html#_log"><a title="moulinette.utils.log.MoulinetteLogger._log" class="py-name" href="#" onclick="return doclink('link-7', '_log', 'link-7');">_log</a></tt><tt class="py-op">(</tt><tt id="link-8" class="py-name"><a title="moulinette.utils.log.SUCCESS" class="py-name" href="#" onclick="return doclink('link-8', 'SUCCESS', 'link-0');">SUCCESS</a></tt><tt class="py-op">,</tt> <tt class="py-name">msg</tt><tt class="py-op">,</tt> <tt class="py-name">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"> </tt>
+<a name="MoulinetteLogger.findCaller"></a><div id="MoulinetteLogger.findCaller-def"><a name="L88"></a><tt class="py-lineno"> 88</tt> <a class="py-toggle" href="#" id="MoulinetteLogger.findCaller-toggle" onclick="return toggle('MoulinetteLogger.findCaller');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log.MoulinetteLogger-class.html#findCaller">findCaller</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MoulinetteLogger.findCaller-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="MoulinetteLogger.findCaller-expanded"><a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">        <tt class="py-docstring">"""Override findCaller method to consider this source file."""</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">        <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">currentframe</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">f</tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">            <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">f_back</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">        <tt class="py-name">rv</tt> <tt class="py-op">=</tt> <tt class="py-string">"(unknown file)"</tt><tt class="py-op">,</tt> <tt class="py-number">0</tt><tt class="py-op">,</tt> <tt class="py-string">"(unknown function)"</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-keyword">while</tt> <tt class="py-name">hasattr</tt><tt class="py-op">(</tt><tt class="py-name">f</tt><tt class="py-op">,</tt> <tt class="py-string">"f_code"</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">            <tt class="py-name">co</tt> <tt class="py-op">=</tt> <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">f_code</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">            <tt class="py-name">filename</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">normcase</tt><tt class="py-op">(</tt><tt class="py-name">co</tt><tt class="py-op">.</tt><tt class="py-name">co_filename</tt><tt class="py-op">)</tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">filename</tt> <tt class="py-op">==</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt class="py-name">_srcfile</tt> <tt class="py-keyword">or</tt> <tt class="py-name">filename</tt> <tt class="py-op">==</tt> <tt class="py-name">__file__</tt><tt class="py-op">:</tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">                <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">f_back</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">                <tt class="py-keyword">continue</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">            <tt class="py-name">rv</tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-name">co</tt><tt class="py-op">.</tt><tt class="py-name">co_filename</tt><tt class="py-op">,</tt> <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">f_lineno</tt><tt class="py-op">,</tt> <tt class="py-name">co</tt><tt class="py-op">.</tt><tt class="py-name">co_name</tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">            <tt class="py-keyword">break</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">rv</tt> </tt>
+</div><a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"> </tt>
+<a name="MoulinetteLogger._log"></a><div id="MoulinetteLogger._log-def"><a name="L104"></a><tt class="py-lineno">104</tt> <a class="py-toggle" href="#" id="MoulinetteLogger._log-toggle" onclick="return toggle('MoulinetteLogger._log');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log.MoulinetteLogger-class.html#_log">_log</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-param">kwargs</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="MoulinetteLogger._log-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="MoulinetteLogger._log-expanded"><a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt class="py-docstring">"""Append action_id if available to the extra."""</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-9" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-9', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">            <tt class="py-name">extra</tt> <tt class="py-op">=</tt> <tt class="py-name">kwargs</tt><tt class="py-op">.</tt><tt class="py-name">get</tt><tt class="py-op">(</tt><tt class="py-string">'extra'</tt><tt class="py-op">,</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt><tt class="py-op">)</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-string">'action_id'</tt> <tt class="py-keyword">not</tt> <tt class="py-keyword">in</tt> <tt class="py-name">extra</tt><tt class="py-op">:</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">                <tt class="py-comment"># FIXME: Get real action_id instead of logger/current one</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">                <tt class="py-name">extra</tt><tt class="py-op">[</tt><tt class="py-string">'action_id'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-10" class="py-name" targets="Function moulinette.utils.log._get_action_id()=moulinette.utils.log-module.html#_get_action_id"><a title="moulinette.utils.log._get_action_id" class="py-name" href="#" onclick="return doclink('link-10', '_get_action_id', 'link-10');">_get_action_id</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">                <tt class="py-name">kwargs</tt><tt class="py-op">[</tt><tt class="py-string">'extra'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">extra</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">Logger</tt><tt class="py-op">.</tt><tt id="link-11" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger._log" class="py-name" href="#" onclick="return doclink('link-11', '_log', 'link-7');">_log</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-name">args</tt><tt class="py-op">,</tt> <tt class="py-op">**</tt><tt class="py-name">kwargs</tt><tt class="py-op">)</tt> </tt>
+</div></div><a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line"> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line"> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line"><tt class="py-comment"># Action logging -------------------------------------------------------</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line"> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"><tt id="link-12" class="py-name" targets="Variable moulinette.utils.log.pid=moulinette.utils.log-module.html#pid"><a title="moulinette.utils.log.pid" class="py-name" href="#" onclick="return doclink('link-12', 'pid', 'link-12');">pid</a></tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">getpid</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line"><tt id="link-13" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-13', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line"> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"> </tt>
+<a name="_get_action_id"></a><div id="_get_action_id-def"><a name="L121"></a><tt class="py-lineno">121</tt> <a class="py-toggle" href="#" id="_get_action_id-toggle" onclick="return toggle('_get_action_id');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log-module.html#_get_action_id">_get_action_id</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="_get_action_id-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="_get_action_id-expanded"><a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-string">'%d.%d'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt id="link-14" class="py-name"><a title="moulinette.utils.log.pid" class="py-name" href="#" onclick="return doclink('link-14', 'pid', 'link-12');">pid</a></tt><tt class="py-op">,</tt> <tt id="link-15" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-15', 'action_id', 'link-5');">action_id</a></tt><tt class="py-op">)</tt> </tt>
+</div><a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"> </tt>
+<a name="start_action_logging"></a><div id="start_action_logging-def"><a name="L125"></a><tt class="py-lineno">125</tt> <a class="py-toggle" href="#" id="start_action_logging-toggle" onclick="return toggle('start_action_logging');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log-module.html#start_action_logging">start_action_logging</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="start_action_logging-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="start_action_logging-expanded"><a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">    <tt class="py-docstring">"""Configure logging for a new action</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line"><tt class="py-docstring">    Returns:</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line"><tt class="py-docstring">        The new action id</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-16" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-16', 'action_id', 'link-5');">action_id</a></tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">    <tt id="link-17" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-17', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-op">+=</tt> <tt class="py-number">1</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line"> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-18" class="py-name"><a title="moulinette.utils.log._get_action_id" class="py-name" href="#" onclick="return doclink('link-18', '_get_action_id', 'link-10');">_get_action_id</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line"> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line"> </tt>
+<a name="getActionLogger"></a><div id="getActionLogger-def"><a name="L138"></a><tt class="py-lineno">138</tt> <a class="py-toggle" href="#" id="getActionLogger-toggle" onclick="return toggle('getActionLogger');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log-module.html#getActionLogger">getActionLogger</a><tt class="py-op">(</tt><tt class="py-param">name</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">logger</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">action_id</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getActionLogger-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="getActionLogger-expanded"><a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">    <tt class="py-docstring">"""Get the logger adapter for an action</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line"><tt class="py-docstring">    Return a logger for the specified name - or use given logger - and</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line"><tt class="py-docstring">    optionally for a given action id, retrieving it if necessary.</tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line"><tt class="py-docstring">    Either a name or a logger must be specified.</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt id="link-19" class="py-name" targets="Variable moulinette.actionsmap.AskParameter.name=moulinette.actionsmap.AskParameter-class.html#name,Variable moulinette.actionsmap.PasswordParameter.name=moulinette.actionsmap.PasswordParameter-class.html#name,Variable moulinette.actionsmap.PatternParameter.name=moulinette.actionsmap.PatternParameter-class.html#name,Variable moulinette.actionsmap.RequiredParameter.name=moulinette.actionsmap.RequiredParameter-class.html#name,Variable moulinette.actionsmap._ExtraParameter.name=moulinette.actionsmap._ExtraParameter-class.html#name,Method moulinette.authenticators.BaseAuthenticator.name()=moulinette.authenticators.BaseAuthenticator-class.html#name,Variable moulinette.interfaces.api._ActionsMapPlugin.name=moulinette.interfaces.api._ActionsMapPlugin-class.html#name"><a title="moulinette.actionsmap.AskParameter.name
+moulinette.actionsmap.PasswordParameter.name
+moulinette.actionsmap.PatternParameter.name
+moulinette.actionsmap.RequiredParameter.name
+moulinette.actionsmap._ExtraParameter.name
+moulinette.authenticators.BaseAuthenticator.name
+moulinette.interfaces.api._ActionsMapPlugin.name" class="py-name" href="#" onclick="return doclink('link-19', 'name', 'link-19');">name</a></tt> <tt class="py-keyword">and</tt> <tt class="py-keyword">not</tt> <tt id="link-20" class="py-name" targets="Variable moulinette.actionsmap.logger=moulinette.actionsmap-module.html#logger,Variable moulinette.authenticators.ldap.logger=moulinette.authenticators.ldap-module.html#logger,Variable moulinette.authenticators.logger=moulinette.authenticators-module.html#logger,Variable moulinette.core.logger=moulinette.core-module.html#logger,Variable moulinette.interfaces.api.logger=moulinette.interfaces.api-module.html#logger,Variable moulinette.interfaces.cli.logger=moulinette.interfaces.cli-module.html#logger,Variable moulinette.interfaces.logger=moulinette.interfaces-module.html#logger,Variable moulinette.utils.serialize.logger=moulinette.utils.serialize-module.html#logger"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-20', 'logger', 'link-20');">logger</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">ValueError</tt><tt class="py-op">(</tt><tt class="py-string">'Either a name or a logger must be specified'</tt><tt class="py-op">)</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line"> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line">    <tt id="link-21" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-21', 'logger', 'link-20');">logger</a></tt> <tt class="py-op">=</tt> <tt id="link-22" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-22', 'logger', 'link-20');">logger</a></tt> <tt class="py-keyword">or</tt> <tt class="py-name">getLogger</tt><tt class="py-op">(</tt><tt id="link-23" class="py-name"><a title="moulinette.actionsmap.AskParameter.name
+moulinette.actionsmap.PasswordParameter.name
+moulinette.actionsmap.PatternParameter.name
+moulinette.actionsmap.RequiredParameter.name
+moulinette.actionsmap._ExtraParameter.name
+moulinette.authenticators.BaseAuthenticator.name
+moulinette.interfaces.api._ActionsMapPlugin.name" class="py-name" href="#" onclick="return doclink('link-23', 'name', 'link-19');">name</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line">    <tt id="link-24" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-24', 'logger', 'link-20');">logger</a></tt><tt class="py-op">.</tt><tt id="link-25" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-25', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-op">=</tt> <tt id="link-26" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-26', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-keyword">if</tt> <tt id="link-27" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-27', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-keyword">else</tt> <tt id="link-28" class="py-name"><a title="moulinette.utils.log._get_action_id" class="py-name" href="#" onclick="return doclink('link-28', '_get_action_id', 'link-10');">_get_action_id</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt id="link-29" class="py-name"><a title="moulinette.actionsmap.logger
+moulinette.authenticators.ldap.logger
+moulinette.authenticators.logger
+moulinette.core.logger
+moulinette.interfaces.api.logger
+moulinette.interfaces.cli.logger
+moulinette.interfaces.logger
+moulinette.utils.serialize.logger" class="py-name" href="#" onclick="return doclink('link-29', 'logger', 'link-20');">logger</a></tt> </tt>
+</div><a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line"> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line"> </tt>
+<a name="ActionFilter"></a><div id="ActionFilter-def"><a name="L155"></a><tt class="py-lineno">155</tt> <a class="py-toggle" href="#" id="ActionFilter-toggle" onclick="return toggle('ActionFilter');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="moulinette.utils.log.ActionFilter-class.html">ActionFilter</a><tt class="py-op">(</tt><tt class="py-base-class">object</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ActionFilter-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ActionFilter-expanded"><a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">    <tt class="py-docstring">"""Extend log record for an optionnal action</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line"><tt class="py-docstring">    Filter a given record and look for an `action_id` key. If it is not found</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line"><tt class="py-docstring">    and `strict` is True, the record will not be logged. Otherwise, the key</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"><tt class="py-docstring">    specified by `message_key` will be added to the record, containing the</tt> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"><tt class="py-docstring">    message formatted for the action or just the original one.</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"> </tt>
+<a name="ActionFilter.__init__"></a><div id="ActionFilter.__init__-def"><a name="L165"></a><tt class="py-lineno">165</tt> <a class="py-toggle" href="#" id="ActionFilter.__init__-toggle" onclick="return toggle('ActionFilter.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log.ActionFilter-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">message_key</tt><tt class="py-op">=</tt><tt class="py-string">'fmessage'</tt><tt class="py-op">,</tt> <tt class="py-param">strict</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ActionFilter.__init__-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="ActionFilter.__init__-expanded"><a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">message_key</tt> <tt class="py-op">=</tt> <tt class="py-name">message_key</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">strict</tt> <tt class="py-op">=</tt> <tt class="py-name">strict</tt> </tt>
+</div><a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line"> </tt>
+<a name="ActionFilter.filter"></a><div id="ActionFilter.filter-def"><a name="L169"></a><tt class="py-lineno">169</tt> <a class="py-toggle" href="#" id="ActionFilter.filter-toggle" onclick="return toggle('ActionFilter.filter');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="moulinette.utils.log.ActionFilter-class.html#filter">filter</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">record</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ActionFilter.filter-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="ActionFilter.filter-expanded"><a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">        <tt class="py-name">msg</tt> <tt class="py-op">=</tt> <tt class="py-name">record</tt><tt class="py-op">.</tt><tt class="py-name">getMessage</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line">        <tt id="link-30" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-30', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-op">=</tt> <tt class="py-name">record</tt><tt class="py-op">.</tt><tt class="py-name">__dict__</tt><tt class="py-op">.</tt><tt class="py-name">get</tt><tt class="py-op">(</tt><tt class="py-string">'action_id'</tt><tt class="py-op">,</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> </tt>
+<a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt id="link-31" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-31', 'action_id', 'link-5');">action_id</a></tt> <tt class="py-keyword">is</tt> <tt class="py-keyword">not</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
+<a name="L173"></a><tt class="py-lineno">173</tt>  <tt class="py-line">            <tt class="py-name">msg</tt> <tt class="py-op">=</tt> <tt class="py-string">'[{:s}] {:s}'</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name" targets="Method moulinette.interfaces.cli.TTYHandler.format()=moulinette.interfaces.cli.TTYHandler-class.html#format"><a title="moulinette.interfaces.cli.TTYHandler.format" class="py-name" href="#" onclick="return doclink('link-32', 'format', 'link-32');">format</a></tt><tt class="py-op">(</tt><tt id="link-33" class="py-name"><a title="moulinette.utils.log.MoulinetteLogger.action_id
+moulinette.utils.log.action_id" class="py-name" href="#" onclick="return doclink('link-33', 'action_id', 'link-5');">action_id</a></tt><tt class="py-op">,</tt> <tt class="py-name">msg</tt><tt class="py-op">)</tt> </tt>
+<a name="L174"></a><tt class="py-lineno">174</tt>  <tt class="py-line">        <tt class="py-keyword">elif</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">strict</tt><tt class="py-op">:</tt> </tt>
+<a name="L175"></a><tt class="py-lineno">175</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> <tt class="py-name">False</tt> </tt>
+<a name="L176"></a><tt class="py-lineno">176</tt>  <tt class="py-line">        <tt class="py-name">record</tt><tt class="py-op">.</tt><tt class="py-name">__dict__</tt><tt class="py-op">[</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">message_key</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">msg</tt> </tt>
+<a name="L177"></a><tt class="py-lineno">177</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+</div></div><a name="L178"></a><tt class="py-lineno">178</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1
+    on Mon Jul 24 03:08:51 2017
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>moulinette.interfaces.cli.TTYHandler</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="moulinette-module.html">Package&nbsp;moulinette</a> ::
+        <a href="moulinette.interfaces-module.html">Package&nbsp;interfaces</a> ::
+        <a href="moulinette.interfaces.cli-module.html">Module&nbsp;cli</a> ::
+        Class&nbsp;TTYHandler
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="moulinette.interfaces.cli.TTYHandler-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class TTYHandler</h1><p class="nomargin-top"><span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_moulinet_35" name="uml_class_diagram_for_moulinet_35">
+<area shape="rect" id="node1_20" href="moulinette.interfaces.cli.TTYHandler-class.html#LEVELS_COLOR" title="moulinette.interfaces.cli.TTYHandler.LEVELS_COLOR" alt="" coords="17,496,257,516"/>
+<area shape="rect" id="node1_21" href="moulinette.interfaces.cli.TTYHandler-class.html#__init__" title="Initialize the handler." alt="" coords="17,519,257,539"/>
+<area shape="rect" id="node1_22" href="moulinette.interfaces.cli.TTYHandler-class.html#format" title="Enhance message with level and colors if supported." alt="" coords="17,539,257,559"/>
+<area shape="rect" id="node1_23" href="moulinette.interfaces.cli.TTYHandler-class.html#emit" title="Emit a record." alt="" coords="17,559,257,579"/>
+<area shape="rect" id="node1_24" href="moulinette.interfaces.cli.TTYHandler-class.html#supports_color" title="Check whether current stream supports color." alt="" coords="17,579,257,599"/>
+<area shape="rect" id="node1" href="moulinette.interfaces.cli.TTYHandler-class.html" title="TTY log handler" alt="" coords="5,472,269,605"/>
+<area shape="rect" id="node2_25" href="javascript:void(0);" title="Flushes the stream." alt="" coords="71,427,204,447"/>
+<area shape="rect" id="node2" href="javascript:void(0);" title="A handler class which writes logging records, appropriately formatted, to a stream." alt="" coords="59,395,216,453"/>
+<area shape="rect" id="node3_26" href="javascript:void(0);" title="Add the specified filter to this handler." alt="" coords="67,37,207,57"/>
+<area shape="rect" id="node3_27" href="javascript:void(0);" title="Remove the specified filter from this handler." alt="" coords="67,57,207,77"/>
+<area shape="rect" id="node3_28" href="javascript:void(0);" title="Determine if a record is loggable by consulting all the filters." alt="" coords="67,77,207,97"/>
+<area shape="rect" id="node3" href="javascript:void(0);" title="A base class for loggers and handlers which allows them to share common code." alt="" coords="54,5,218,104"/>
+<area shape="rect" id="node4_29" href="javascript:void(0);" title="logging.Handler.name" alt="" coords="64,147,209,167"/>
+<area shape="rect" id="node4_30" href="javascript:void(0);" title="logging.Handler.get_name" alt="" coords="64,169,209,189"/>
+<area shape="rect" id="node4_31" href="javascript:void(0);" title="logging.Handler.set_name" alt="" coords="64,189,209,209"/>
+<area shape="rect" id="node4_32" href="javascript:void(0);" title="Acquire a thread lock for serializing access to the underlying I/O." alt="" coords="64,209,209,229"/>
+<area shape="rect" id="node4_33" href="javascript:void(0);" title="Acquire the I/O thread lock." alt="" coords="64,229,209,249"/>
+<area shape="rect" id="node4_34" href="javascript:void(0);" title="Release the I/O thread lock." alt="" coords="64,249,209,269"/>
+<area shape="rect" id="node4_35" href="javascript:void(0);" title="Set the logging level of this handler." alt="" coords="64,269,209,289"/>
+<area shape="rect" id="node4_36" href="javascript:void(0);" title="Conditionally emit the specified logging record." alt="" coords="64,289,209,309"/>
+<area shape="rect" id="node4_37" href="javascript:void(0);" title="Set the formatter for this handler." alt="" coords="64,309,209,329"/>
+<area shape="rect" id="node4_38" href="javascript:void(0);" title="Tidy up any resources used by the handler." alt="" coords="64,329,209,349"/>
+<area shape="rect" id="node4_39" href="javascript:void(0);" title="Handle errors which occur during an emit() call." alt="" coords="64,349,209,369"/>
+<area shape="rect" id="node4" href="javascript:void(0);" title="Handler instances dispatch logging events to specific destinations." alt="" coords="51,123,221,376"/>
+</map>
+  <img src="uml_class_diagram_for_moulinet_35.gif" alt='' usemap="#uml_class_diagram_for_moulinet_35" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>TTY log handler</p>
+  <p>A handler class which prints logging records for a tty. The record is 
+  neverthemess formatted depending if it is connected to a tty(-like) 
+  device. If it's the case, the level name - optionnaly colorized - is 
+  prepended to the message and the result is stored in the record as 
+  `message_key` attribute. That way, a custom formatter can be defined. The
+  default is to output just the formatted message. Anyway, if the stream is
+  not a tty, just the message is output.</p>
+  <p>Note that records with a level higher or equal to WARNING are sent to 
+  stderr. Otherwise, they are sent to stdout.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.cli.TTYHandler-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">message_key</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">fmessage</code><code class="variable-quote">'</code></span>)</span><br />
+      Initialize the handler.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.cli.TTYHandler-class.html#format" class="summary-sig-name">format</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">record</span>)</span><br />
+      Enhance message with level and colors if supported.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler.format">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.cli.TTYHandler-class.html#emit" class="summary-sig-name">emit</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">record</span>)</span><br />
+      Emit a record.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler.emit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="supports_color"></a><span class="summary-sig-name">supports_color</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Check whether current stream supports color.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler.supports_color">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>logging.StreamHandler</code></b>:
+      <code>flush</code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>logging.Handler</code></b>:
+      <code>acquire</code>,
+      <code>close</code>,
+      <code>createLock</code>,
+      <code>get_name</code>,
+      <code>handle</code>,
+      <code>handleError</code>,
+      <code>release</code>,
+      <code>setFormatter</code>,
+      <code>setLevel</code>,
+      <code>set_name</code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>logging.Filterer</code></b>:
+      <code>addFilter</code>,
+      <code>filter</code>,
+      <code>removeFilter</code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="moulinette.interfaces.cli.TTYHandler-class.html#LEVELS_COLOR" class="summary-name">LEVELS_COLOR</a> = <code title="{0: 'white',
+ 10: 'white',
+ 20: 'cyan',
+ 25: 'green',
+ 30: 'yellow',
+ 40: 'red',
+ 50: 'red'}"><code class="variable-group">{</code>0<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">white</code><code class="variable-quote">'</code><code class="variable-op">, </code>10<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">white</code><code class="variable-quote">'</code><code class="variable-op">, </code>20<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">cyan</code><code class="variable-quote">'</code><code class="variable-op">, </code>25<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">gree</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>logging.Handler</code></b>:
+      <code>name</code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">message_key</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">fmessage</code><code class="variable-quote">'</code></span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Initialize the handler.</p>
+  <p>If stream is not specified, sys.stderr is used.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__init__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="format"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">format</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">record</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler.format">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Enhance message with level and colors if supported.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        logging.Handler.format
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="emit"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">emit</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">record</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.cli-pysrc.html#TTYHandler.emit">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Emit a record.</p>
+  <p>If a formatter is specified, it is used to format the record. The 
+  record is then written to the stream with a trailing newline.  If 
+  exception information is present, it is formatted using 
+  traceback.print_exception and appended to the stream.  If the stream has 
+  an 'encoding' attribute, it is used to determine how to do the output to 
+  the stream.</p>
+  <dl class="fields">
+    <dt>Overrides:
+        logging.Handler.emit
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== CLASS VARIABLE DETAILS ==================== -->
+<a name="section-ClassVariableDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variable Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariableDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="LEVELS_COLOR"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">LEVELS_COLOR</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">{</code>0<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">white</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ 10<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">white</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ 20<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">cyan</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ 25<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">green</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ 30<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">yellow</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ 40<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">red</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ 50<code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">red</code><code class="variable-quote">'</code><code class="variable-group">}</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1
+    on Mon Jul 24 03:08:51 2017
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

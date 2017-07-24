@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>moulinette.interfaces.api._ActionsMapPlugin</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="moulinette-module.html">Package&nbsp;moulinette</a> ::
+        <a href="moulinette.interfaces-module.html">Package&nbsp;interfaces</a> ::
+        <a href="moulinette.interfaces.api-module.html">Module&nbsp;api</a> ::
+        Class&nbsp;_ActionsMapPlugin
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="moulinette.interfaces.api._ActionsMapPlugin-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class _ActionsMapPlugin</h1><p class="nomargin-top"><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin">source&nbsp;code</a></span></p>
+<center>
+<center>  <map id="uml_class_diagram_for_moulinet_31" name="uml_class_diagram_for_moulinet_31">
+<area shape="rect" id="node1_9" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#name" title="moulinette.interfaces.api._ActionsMapPlugin.name" alt="" coords="17,29,361,49"/>
+<area shape="rect" id="node1_10" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#api" title="moulinette.interfaces.api._ActionsMapPlugin.api" alt="" coords="17,49,361,69"/>
+<area shape="rect" id="node1_11" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#__init__" title="x.__init__(...) initializes x; see help(type(x)) for signature" alt="" coords="17,72,361,92"/>
+<area shape="rect" id="node1_12" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#setup" title="Setup plugin on the application" alt="" coords="17,92,361,112"/>
+<area shape="rect" id="node1_13" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#apply" title="Apply plugin to the route callback" alt="" coords="17,112,361,132"/>
+<area shape="rect" id="node1_14" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#login" title="Log in to an authenticator profile" alt="" coords="17,132,361,152"/>
+<area shape="rect" id="node1_15" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#logout" title="Log out from an authenticator profile" alt="" coords="17,152,361,172"/>
+<area shape="rect" id="node1_16" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#messages" title="Listen to the messages WebSocket stream" alt="" coords="17,172,361,192"/>
+<area shape="rect" id="node1_17" href="moulinette.interfaces.api._ActionsMapPlugin-class.html#process" title="Process the relevant action for the route" alt="" coords="17,192,361,212"/>
+<area shape="rect" id="node1" href="moulinette.interfaces.api._ActionsMapPlugin-class.html" title="Actions map Bottle Plugin" alt="" coords="5,5,373,219"/>
+</map>
+  <img src="uml_class_diagram_for_moulinet_31.gif" alt='' usemap="#uml_class_diagram_for_moulinet_31" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
+<hr />
+<p>Actions map Bottle Plugin</p>
+  <p>Process relevant action for the request using the actions map and 
+  manage authentication.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      actionsmap -- An ActionsMap instance
+    </li>
+    <li>
+      use_websocket -- If true, install a WebSocket on /messages in order 
+      to serve messages coming from the 'display' signal
+    </li>
+  </ul>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">actionsmap</span>,
+        <span class="summary-sig-arg">use_websocket</span>,
+        <span class="summary-sig-arg">log_queues</span>=<span class="summary-sig-default">{}</span>)</span><br />
+      x.__init__(...) initializes x; see help(type(x)) for signature</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#setup" class="summary-sig-name">setup</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">app</span>)</span><br />
+      Setup plugin on the application</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.setup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#apply" class="summary-sig-name">apply</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">callback</span>,
+        <span class="summary-sig-arg">context</span>)</span><br />
+      Apply plugin to the route callback</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.apply">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#login" class="summary-sig-name">login</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">password</span>,
+        <span class="summary-sig-arg">profile</span>=<span class="summary-sig-default">'default'</span>)</span><br />
+      Log in to an authenticator profile</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.login">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#logout" class="summary-sig-name">logout</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">profile</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Log out from an authenticator profile</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.logout">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#messages" class="summary-sig-name">messages</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Listen to the messages WebSocket stream</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.messages">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#process" class="summary-sig-name">process</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">_route</span>,
+        <span class="summary-sig-arg">arguments</span>=<span class="summary-sig-default">{}</span>)</span><br />
+      Process the relevant action for the route</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.process">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#_do_authenticate" class="summary-sig-name" onclick="show_private();">_do_authenticate</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">authenticator</span>,
+        <span class="summary-sig-arg">help</span>)</span><br />
+      Process the authentication</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin._do_authenticate">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="moulinette.interfaces.api._ActionsMapPlugin-class.html#_do_display" class="summary-sig-name" onclick="show_private();">_do_display</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">message</span>,
+        <span class="summary-sig-arg">style</span>)</span><br />
+      Display a message</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin._do_display">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS VARIABLES ==================== -->
+<a name="section-ClassVariables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Class Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-ClassVariables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="name"></a><span class="summary-name">name</span> = <code title="'actionsmap'">'actionsmap'</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="api"></a><span class="summary-name">api</span> = <code title="2">2</code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">actionsmap</span>,
+        <span class="sig-arg">use_websocket</span>,
+        <span class="sig-arg">log_queues</span>=<span class="sig-default">{}</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>x.__init__(...) initializes x; see help(type(x)) for signature</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__init__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="setup"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">setup</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">app</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.setup">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Setup plugin on the application</p>
+  <p>Add routes according to the actions map to the application.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      app -- The application instance
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="apply"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">apply</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">callback</span>,
+        <span class="sig-arg">context</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.apply">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Apply plugin to the route callback
+
+Install a wrapper which replace callback and process the
+relevant action for the route.
+
+Keyword arguments:
+    callback -- The route callback
+    context -- An instance of Route
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="login"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">login</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">password</span>,
+        <span class="sig-arg">profile</span>=<span class="sig-default">'default'</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.login">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Log in to an authenticator profile</p>
+  <p>Attempt to authenticate to a given authenticator profile and register 
+  it with the current session - a new one will be created if needed.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      password -- A clear text password
+    </li>
+    <li>
+      profile -- The authenticator profile name to log in
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="logout"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">logout</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">profile</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.logout">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Log out from an authenticator profile</p>
+  <p>Attempt to unregister a given profile - or all by default - from the 
+  current session.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      profile -- The authenticator profile name to log out
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="messages"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">messages</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.messages">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Listen to the messages WebSocket stream</p>
+  <p>Retrieve the WebSocket stream and send to it each messages displayed 
+  by the core.MoulinetteSignals.display signal. They are JSON encoded as a 
+  dict { style: message }.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="process"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">process</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">_route</span>,
+        <span class="sig-arg">arguments</span>=<span class="sig-default">{}</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin.process">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Process the relevant action for the route</p>
+  <p>Call the actions map in order to process the relevant action for the 
+  route with the given arguments and process the returned value.</p>
+  <p>Keyword arguments:</p>
+  <ul>
+    <li>
+      _route -- The action route as a 2-tuple (method, path)
+    </li>
+    <li>
+      arguments -- A dict of arguments for the route
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_do_authenticate"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_do_authenticate</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">authenticator</span>,
+        <span class="sig-arg">help</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin._do_authenticate">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Process the authentication</p>
+  <p>Handle the core.MoulinetteSignals.authenticate signal.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_do_display"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_do_display</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">message</span>,
+        <span class="sig-arg">style</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="moulinette.interfaces.api-pysrc.html#_ActionsMapPlugin._do_display">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Display a message</p>
+  <p>Handle the core.MoulinetteSignals.display signal.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="moulinette-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1
+    on Mon Jul 24 03:08:51 2017
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
