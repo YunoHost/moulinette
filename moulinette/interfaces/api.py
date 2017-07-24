@@ -596,7 +596,7 @@ class ActionsMapParser(BaseActionsMapParser):
                 if len(keys) == 0:
                     raise ValueError("no valid api route found")
             else:
-                raise AttributeError("no api route for action '%s'" % name)
+                return None
 
         # Create and append parser
         parser = _HTTPArgumentParser()

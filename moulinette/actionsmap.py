@@ -587,7 +587,6 @@ class ActionsMap(object):
             top_parser.set_global_conf(_global['configuration'])
 
             if top_parser.has_global_parser():
-                # GLOBAL_SECTION = '_global'
                 top_parser.add_global_arguments(_global['arguments'])
 
             # category_name is stuff like "user", "domain", "hooks"...
@@ -605,13 +604,12 @@ class ActionsMap(object):
                     arguments = action_options.pop('arguments', {})
                     tid = (namespace, category_name, action_name)
 
-                    try:
-                        # Get action parser
-                        action_parser = category_parser.add_action_parser(action_name,
-                                                                          tid,
-                                                                          **action_options)
-                    except AttributeError:
-                        # No parser for the action
+                    # Get action parser
+                    action_parser = category_parser.add_action_parser(action_name,
+                                                                      tid,
+                                                                      **action_options)
+
+                    if action_parser is None:  # No parser for the action
                         continue
 
                     # Store action identifier and add arguments
