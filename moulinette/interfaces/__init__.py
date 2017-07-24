@@ -502,8 +502,8 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
 class ExtendedArgumentParser(argparse.ArgumentParser):
 
     def __init__(self, *args, **kwargs):
-        super(ExtendedArgumentParser, self).__init__(
-                formatter_class=PositionalsFirstHelpFormatter, *args, **kwargs)
+        super(ExtendedArgumentParser, self).__init__(formatter_class=PositionalsFirstHelpFormatter,
+                                                     *args, **kwargs)
 
         # Register additional actions
         self.register('action', 'callback', _CallbackAction)

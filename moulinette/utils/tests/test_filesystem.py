@@ -3,16 +3,14 @@
 import os
 import pwd
 import pytest
-import requests
-import requests_mock
 
 # Moulinette specific
 from moulinette.core import MoulinetteError
-from moulinette.utils.filesystem import (
-        read_file, read_json,
-        write_to_file, append_to_file, write_to_json,
-        rm,
-        chmod, chown)
+from moulinette.utils.filesystem import (read_file, read_json,
+                                         write_to_file, append_to_file,
+                                         write_to_json,
+                                         rm,
+                                         chmod, chown)
 
 # We define a dummy context with test folders and files
 
@@ -61,7 +59,7 @@ def test_read_file():
 def test_read_file_badfile():
 
     with pytest.raises(MoulinetteError):
-        read_file(TMP_TEST_FILE+"nope")
+        read_file(TMP_TEST_FILE + "nope")
 
 
 def test_read_file_badpermissions():
@@ -295,5 +293,3 @@ def test_setpermissions_badgroup():
 
     with pytest.raises(MoulinetteError):
         set_permissions(TMP_TEST_FILE, NON_ROOT_USER, "foo", 0111)
-
-
