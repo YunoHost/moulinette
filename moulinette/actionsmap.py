@@ -609,8 +609,7 @@ class ActionsMap(object):
 
             if top_parser.has_global_parser():
                 # GLOBAL_SECTION = '_global'
-                _add_arguments(GLOBAL_SECTION, top_parser.global_parser,
-                                   _global['arguments'])
+                top_parser.add_global_arguments(_global['arguments'])
 
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
