@@ -562,10 +562,10 @@ class ActionsMap(object):
 
         """
         # Get extra parameters
-        if not self.use_cache:
-            validate_extra = True
-        else:
+        if self.use_cache:
             validate_extra = False
+        else:
+            validate_extra = True
 
         # Instantiate parser
         #

@@ -539,9 +539,6 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
         return queue
 
     def add_arguments(self, arguments, extraparser, format_arg_names=None, validate_extra=True):
-        # parser is argparse._ArgumentGroup for top_parser
-        # or ExtendedArgumentParser for other cases
-        # or maybe something else?
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
             names = format_arg_names(str(argument_name),
@@ -558,7 +555,6 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 continue
 
             self.add_argument(*names, **argument_options)
-
 
     def _get_nargs_pattern(self, action):
         if action.nargs == argparse.PARSER and not action.required:
