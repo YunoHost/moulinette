@@ -16,6 +16,7 @@ a reference.
    :maxdepth: 2
    :caption: Contents:
 
+   m18n
    utils/filesystem
    utils/network
    utils/process

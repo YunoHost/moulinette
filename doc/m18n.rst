@@ -1,0 +1,38 @@
+Translations using the m18n object
+==================================
+
+The moulinette provides a way to do translations and YunoHost uses it. This is
+done via the `m18n` object that you can import this way:
+
+::
+
+    from moulinette import m18n
+
+The `m18n` object comes with 2 method:
+
+* `m18n.n` to uses for translations within YunoHost
+* `m18n.g` to uses for translations within Moulinette itself
+
+Their API is identical.
+
+Here are example of uses:
+
+::
+
+    m18n.n('some_translation_key')
+    m18n.g('some_translation_key')
+
+    m18n.n('some_translation_key', string_formating_argument_1=some_variable)
+    m18n.g('some_translation_key', string_formating_argument_1=some_variable)
+
+The translation key must be present in `locales/en.json` of either YunoHost
+(for `.n`) or moulinette (for `.g`).
+
+Docstring
+---------
+
+As a reference, here are the docstrings of the m18n class:
+
+.. autoclass:: moulinette.core.Moulinette18n
+.. automethod:: moulinette.core.Moulinette18n.n
+.. automethod:: moulinette.core.Moulinette18n.g
