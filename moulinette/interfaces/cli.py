@@ -11,8 +11,7 @@ from collections import OrderedDict
 
 import argcomplete
 
-import moulinette
-from moulinette import msignals
+from moulinette import msignals, m18n
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
@@ -185,7 +184,7 @@ class TTYHandler(logging.StreamHandler):
                 level = '%s ' % record.levelname
             elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR']:
                 # add translated level name before message
-                level = '%s ' % moulinette.m18n.g(record.levelname.lower())
+                level = '%s ' % m18n.g(record.levelname.lower())
             color = self.LEVELS_COLOR.get(record.levelno, 'white')
             msg = '{0}{1}{2}{3}'.format(
                 colors_codes[color], level, END_CLI_COLOR, msg)
@@ -299,7 +298,7 @@ class ActionsMapParser(BaseActionsMapParser):
             raise
         except:
             logger.exception("unable to parse arguments '%s'", ' '.join(args))
-            raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
         else:
             self.prepare_action_namespace(getattr(ret, '_tid', None), ret)
             self._parser.dequeue_callbacks(ret)
@@ -319,7 +318,7 @@ class Interface(BaseInterface):
 
     def __init__(self, actionsmap):
         # Set user locale
-        moulinette.m18n.set_locale(get_locale())
+        m18n.set_locale(get_locale())
 
         # Connect signals to handlers
         msignals.set_handler('display', self._do_display)
@@ -346,7 +345,7 @@ class Interface(BaseInterface):
 
         """
         if output_as and output_as not in ['json', 'plain', 'none']:
-            raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('invalid_usage'))
+            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
 
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
@@ -359,7 +358,7 @@ class Interface(BaseInterface):
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
         except (KeyboardInterrupt, EOFError):
-            raise MoulinetteError(errno.EINTR, moulinette.m18n.g('operation_interrupted'))
+            raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
 
         if ret is None or output_as == 'none':
             return
@@ -386,7 +385,7 @@ class Interface(BaseInterface):
 
         """
         # TODO: Allow token authentication?
-        msg = moulinette.m18n.n(help) if help else moulinette.m18n.g('password')
+        msg = m18n.n(help) if help else m18n.g('password')
         return authenticator(password=self._do_prompt(msg, True, False,
                                                       color='yellow'))
 
@@ -400,16 +399,16 @@ class Interface(BaseInterface):
 
         """
         if is_password:
-            prompt = lambda m: getpass.getpass(colorize(moulinette.m18n.g('colon', m),
+            prompt = lambda m: getpass.getpass(colorize(m18n.g('colon', m),
                                                         color))
         else:
-            prompt = lambda m: raw_input(colorize(moulinette.m18n.g('colon', m), color))
+            prompt = lambda m: raw_input(colorize(m18n.g('colon', m), color))
         value = prompt(message)
 
         if confirm:
             m = message[0].lower() + message[1:]
-            if prompt(moulinette.m18n.g('confirm', prompt=m)) != value:
-                raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('values_mismatch'))
+            if prompt(m18n.g('confirm', prompt=m)) != value:
+                raise MoulinetteError(errno.EINVAL, m18n.g('values_mismatch'))
 
         return value
 
@@ -422,10 +421,10 @@ class Interface(BaseInterface):
         if isinstance(message, unicode):
             message = message.encode('utf-8')
         if style == 'success':
-            print('{} {}'.format(colorize(moulinette.m18n.g('success'), 'green'), message))
+            print('{} {}'.format(colorize(m18n.g('success'), 'green'), message))
         elif style == 'warning':
-            print('{} {}'.format(colorize(moulinette.m18n.g('warning'), 'yellow'), message))
+            print('{} {}'.format(colorize(m18n.g('warning'), 'yellow'), message))
         elif style == 'error':
-            print('{} {}'.format(colorize(moulinette.m18n.g('error'), 'red'), message))
+            print('{} {}'.format(colorize(m18n.g('error'), 'red'), message))
         else:
             print(message)

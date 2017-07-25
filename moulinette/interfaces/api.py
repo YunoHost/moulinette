@@ -13,8 +13,7 @@ from geventwebsocket import WebSocketError
 
 from bottle import run, request, response, Bottle, HTTPResponse
 
-import moulinette
-from moulinette import msignals
+from moulinette import msignals, m18n, pkg
 from moulinette.core import MoulinetteError, clean_session
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
@@ -310,7 +309,7 @@ class _ActionsMapPlugin(object):
             response.set_cookie('session.id', s_id, secure=True)
             response.set_cookie('session.hashes', s_hashes, secure=True,
                                 secret=s_secret)
-            return moulinette.m18n.g('logged_in')
+            return m18n.g('logged_in')
 
     def logout(self, profile=None):
         """Log out from an authenticator profile
@@ -326,13 +325,13 @@ class _ActionsMapPlugin(object):
         try:
             del self.secrets[s_id]
         except KeyError:
-            raise HTTPUnauthorizedResponse(moulinette.m18n.g('not_logged_in'))
+            raise HTTPUnauthorizedResponse(m18n.g('not_logged_in'))
         else:
             # TODO: Clean the session for profile only
             # Delete cookie and clean the session
             response.set_cookie('session.hashes', '', max_age=-1)
             clean_session(s_id)
-        return moulinette.m18n.g('logged_out')
+        return m18n.g('logged_out')
 
     def messages(self):
         """Listen to the messages WebSocket stream
@@ -352,7 +351,7 @@ class _ActionsMapPlugin(object):
 
         wsock = request.environ.get('wsgi.websocket')
         if not wsock:
-            raise HTTPErrorResponse(moulinette.m18n.g('websocket_request_expected'))
+            raise HTTPErrorResponse(m18n.g('websocket_request_expected'))
 
         while True:
             item = queue.get()
@@ -415,9 +414,9 @@ class _ActionsMapPlugin(object):
                                         secret=s_secret)[authenticator.name]
         except KeyError:
             if authenticator.name == 'default':
-                msg = moulinette.m18n.g('authentication_required')
+                msg = m18n.g('authentication_required')
             else:
-                msg = moulinette.m18n.g('authentication_profile_required',
+                msg = m18n.g('authentication_profile_required',
                              profile=authenticator.name)
             raise HTTPUnauthorizedResponse(msg)
         else:
@@ -605,7 +604,7 @@ class ActionsMapParser(BaseActionsMapParser):
             tid, parser = self._parsers[route]
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
-            raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
         ret = argparse.Namespace()
 
         if not self.get_conf(tid, 'lock'):
@@ -621,7 +620,7 @@ class ActionsMapParser(BaseActionsMapParser):
             # TODO: Catch errors
             auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
-                raise MoulinetteError(errno.EACCES, moulinette.m18n.g('authentication_required_long'))
+                raise MoulinetteError(errno.EACCES, m18n.g('authentication_required_long'))
             if self.get_conf(tid, 'argument_auth') and \
                self.get_conf(tid, 'authenticate') == 'all':
                 ret.auth = auth
@@ -695,8 +694,8 @@ class Interface(BaseInterface):
             try:
                 locale = request.params.pop('locale')
             except KeyError:
-                locale = moulinette.m18n.default_locale
-            moulinette.m18n.set_locale(locale)
+                locale = m18n.default_locale
+            m18n.set_locale(locale)
             return callback
 
         # Install plugins
@@ -744,8 +743,8 @@ class Interface(BaseInterface):
                              host, port)
             if e.args[0] == errno.EADDRINUSE:
                 raise MoulinetteError(errno.EADDRINUSE,
-                                      moulinette.m18n.g('server_already_running'))
-            raise MoulinetteError(errno.EIO, moulinette.m18n.g('error_see_log'))
+                                      m18n.g('server_already_running'))
+            raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
 
     # Routes handlers
 
@@ -758,11 +757,11 @@ class Interface(BaseInterface):
 
         """
         if category is None:
-            with open('%s/../doc/resources.json' % moulinette.pkg.datadir) as f:
+            with open('%s/../doc/resources.json' % pkg.datadir) as f:
                 return f.read()
 
         try:
-            with open('%s/../doc/%s.json' % (moulinette.pkg.datadir, category)) as f:
+            with open('%s/../doc/%s.json' % (pkg.datadir, category)) as f:
                 return f.read()
         except IOError:
             return None

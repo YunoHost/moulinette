@@ -9,7 +9,7 @@ import cPickle as pickle
 from time import time
 from collections import OrderedDict
 
-import moulinette
+from moulinette import m18n, msignals, pkg
 from moulinette.core import (MoulinetteError, MoulinetteLock)
 from moulinette.interfaces import (
     BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
@@ -99,7 +99,7 @@ class AskParameter(_ExtraParameter):
 
         try:
             # Ask for the argument value
-            return moulinette.msignals.prompt(moulinette.m18n.n(message))
+            return msignals.prompt(m18n.n(message))
         except NotImplementedError:
             return arg_value
 
@@ -132,7 +132,7 @@ class PasswordParameter(AskParameter):
 
         try:
             # Ask for the password
-            return moulinette.msignals.prompt(moulinette.m18n.n(message), True, True)
+            return msignals.prompt(m18n.n(message), True, True)
         except NotImplementedError:
             return arg_value
 
@@ -161,12 +161,12 @@ class PatternParameter(_ExtraParameter):
                          v, arg_name, pattern)
 
             # Attempt to retrieve message translation
-            msg = moulinette.m18n.n(message)
+            msg = m18n.n(message)
             if msg == message:
-                msg = moulinette.m18n.g(message)
+                msg = m18n.g(message)
 
             raise MoulinetteError(errno.EINVAL,
-                                  moulinette.m18n.g('invalid_argument',
+                                  m18n.g('invalid_argument',
                                          argument=arg_name, error=msg))
         return arg_value
 
@@ -197,7 +197,7 @@ class RequiredParameter(_ExtraParameter):
             logger.debug("argument '%s' is required",
                          arg_name)
             raise MoulinetteError(errno.EINVAL,
-                                  moulinette.m18n.g('argument_required',
+                                  m18n.g('argument_required',
                                          argument=arg_name))
         return arg_value
 
@@ -262,7 +262,7 @@ class ExtraArgumentParser(object):
                 except Exception as e:
                     logger.error("unable to validate extra parameter '%s' "
                                  "for argument '%s': %s", p, arg_name, e)
-                    raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         return parameters
 
@@ -374,10 +374,10 @@ class ActionsMap(object):
         for n in namespaces:
             logger.debug("loading actions map namespace '%s'", n)
 
-            actionsmap_yml = '%s/actionsmap/%s.yml' % (moulinette.pkg.datadir, n)
+            actionsmap_yml = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
             actionsmap_yml_stat = os.stat(actionsmap_yml)
             actionsmap_pkl = '%s/actionsmap/%s-%d-%d.pkl' % (
-                moulinette.pkg.cachedir,
+                pkg.cachedir,
                 n,
                 actionsmap_yml_stat.st_size,
                 actionsmap_yml_stat.st_mtime
@@ -400,7 +400,7 @@ class ActionsMap(object):
                     actionsmaps[n] = ordered_yaml_load(f)
 
             # Load translations
-            moulinette.m18n.load_namespace(n)
+            m18n.load_namespace(n)
 
         # Generate parsers
         self.extraparser = ExtraArgumentParser(parser_class.interface)
@@ -467,7 +467,7 @@ class ActionsMap(object):
             except (AttributeError, ImportError):
                 logger.exception("unable to load function %s.%s.%s",
                                  namespace, category, func_name)
-                raise MoulinetteError(errno.EIO, moulinette.m18n.g('error_see_log'))
+                raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):
@@ -479,7 +479,7 @@ class ActionsMap(object):
                                 log_id, namespace, category, action)
 
                 # Load translation and process the action
-                moulinette.m18n.load_namespace(namespace)
+                m18n.load_namespace(namespace)
                 start = time()
                 try:
                     return func(**arguments)
@@ -499,7 +499,7 @@ class ActionsMap(object):
         """
         namespaces = []
 
-        for f in os.listdir('%s/actionsmap' % moulinette.pkg.datadir):
+        for f in os.listdir('%s/actionsmap' % pkg.datadir):
             if f.endswith('.yml'):
                 namespaces.append(f[:-4])
         return namespaces
@@ -525,23 +525,23 @@ class ActionsMap(object):
             logger.debug("generating cache for actions map namespace '%s'", n)
 
             # Read actions map from yaml file
-            am_file = '%s/actionsmap/%s.yml' % (moulinette.pkg.datadir, n)
+            am_file = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
             with open(am_file, 'r') as f:
                 actionsmaps[n] = ordered_yaml_load(f)
 
             # at installation, cachedir might not exists
-            if os.path.exists('%s/actionsmap/' % moulinette.pkg.cachedir):
+            if os.path.exists('%s/actionsmap/' % pkg.cachedir):
                 # clean old cached files
-                for i in os.listdir('%s/actionsmap/' % moulinette.pkg.cachedir):
+                for i in os.listdir('%s/actionsmap/' % pkg.cachedir):
                     if i.endswith(".pkl"):
-                        os.remove('%s/actionsmap/%s' % (moulinette.pkg.cachedir, i))
+                        os.remove('%s/actionsmap/%s' % (pkg.cachedir, i))
 
             # Cache actions map into pickle file
             am_file_stat = os.stat(am_file)
 
             pkl = '%s-%d-%d.pkl' % (n, am_file_stat.st_size, am_file_stat.st_mtime)
 
-            with moulinette.pkg.open_cachefile(pkl, 'w', subdir='actionsmap') as f:
+            with pkg.open_cachefile(pkl, 'w', subdir='actionsmap') as f:
                 pickle.dump(actionsmaps[n], f)
 
         return actionsmaps

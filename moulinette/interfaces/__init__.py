@@ -7,8 +7,7 @@ import logging
 import argparse
 from collections import deque
 
-import moulinette
-from moulinette import msignals, msettings
+from moulinette import msignals, msettings, m18n
 from moulinette.core import (init_authenticator, MoulinetteError)
 
 logger = logging.getLogger('moulinette.interface')
@@ -140,7 +139,7 @@ class BaseActionsMapParser(object):
         # Validate tid and namespace
         if not isinstance(tid, tuple) and \
                 (namespace is None or not hasattr(namespace, TO_RETURN_PROP)):
-            raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('invalid_usage'))
+            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
         elif not tid:
             tid = GLOBAL_SECTION
 
@@ -161,7 +160,7 @@ class BaseActionsMapParser(object):
             auth = msignals.authenticate(cls(), **auth_conf)
             if not auth.is_authenticated:
                 raise MoulinetteError(errno.EACCES,
-                                      moulinette.m18n.g('authentication_required_long'))
+                                      m18n.g('authentication_required_long'))
             if self.get_conf(tid, 'argument_auth') and \
                     self.get_conf(tid, 'authenticate') == 'all':
                 namespace.auth = auth
@@ -265,7 +264,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting 'all', 'False' or a list for "
                              "configuration 'authenticate', got %r", ifaces)
-                raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         # -- 'authenticator'
         try:
@@ -280,7 +279,7 @@ class BaseActionsMapParser(object):
                 except KeyError:
                     logger.error("requesting profile '%s' which is undefined in "
                                  "global configuration of 'authenticator'", auth)
-                    raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
             elif is_global and isinstance(auth, dict):
                 if len(auth) == 0:
                     logger.warning('no profile defined in global configuration '
@@ -303,7 +302,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting a dict of profile(s) or a profile name "
                              "for configuration 'authenticator', got %r", auth)
-                raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         # -- 'argument_auth'
         try:
@@ -316,7 +315,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting a boolean for configuration "
                              "'argument_auth', got %r", arg_auth)
-                raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         # -- 'lock'
         try:
@@ -329,7 +328,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting a boolean for configuration 'lock', "
                              "got %r", lock)
-                raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+                raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
 
         return conf
 
@@ -429,7 +428,7 @@ class _CallbackAction(argparse.Action):
         except:
             logger.exception("cannot get value from callback method "
                 "'{0}'".format(self.callback_method))
-            raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
         else:
             if value:
                 if self.callback_return:
@@ -489,10 +488,10 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         else:
             # Warn the user about deprecated command
             if correct_name is None:
-                logger.warning(moulinette.m18n.g('deprecated_command', prog=parser.prog,
+                logger.warning(m18n.g('deprecated_command', prog=parser.prog,
                                       command=parser_name))
             else:
-                logger.warning(moulinette.m18n.g('deprecated_command_alias',
+                logger.warning(m18n.g('deprecated_command_alias',
                                       old=parser_name, new=correct_name,
                                       prog=parser.prog))
                 values[0] = correct_name

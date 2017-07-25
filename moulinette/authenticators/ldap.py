@@ -7,7 +7,7 @@ import logging
 import ldap
 import ldap.modlist as modlist
 
-import moulinette
+from moulinette import m18n
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
 
@@ -76,10 +76,10 @@ class Authenticator(BaseAuthenticator):
             else:
                 con.simple_bind_s()
         except ldap.INVALID_CREDENTIALS:
-            raise MoulinetteError(errno.EACCES, moulinette.m18n.g('invalid_password'))
+            raise MoulinetteError(errno.EACCES, m18n.g('invalid_password'))
         except ldap.SERVER_DOWN:
             logger.exception('unable to reach the server to authenticate')
-            raise MoulinetteError(169, moulinette.m18n.g('ldap_server_down'))
+            raise MoulinetteError(169, m18n.g('ldap_server_down'))
         else:
             self.con = con
 
@@ -140,7 +140,7 @@ class Authenticator(BaseAuthenticator):
         except:
             logger.exception("error during LDAP add operation with: rdn='%s', "
                              "attr_dict=%s", rdn, attr_dict)
-            raise MoulinetteError(169, moulinette.m18n.g('ldap_operation_error'))
+            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
 
@@ -160,7 +160,7 @@ class Authenticator(BaseAuthenticator):
             self.con.delete_s(dn)
         except:
             logger.exception("error during LDAP delete operation with: rdn='%s'", rdn)
-            raise MoulinetteError(169, moulinette.m18n.g('ldap_operation_error'))
+            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
 
@@ -190,7 +190,7 @@ class Authenticator(BaseAuthenticator):
         except:
             logger.exception("error during LDAP update operation with: rdn='%s', "
                              "attr_dict=%s, new_rdn=%s", rdn, attr_dict, new_rdn)
-            raise MoulinetteError(169, moulinette.m18n.g('ldap_operation_error'))
+            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
 
@@ -212,6 +212,6 @@ class Authenticator(BaseAuthenticator):
                 logger.info("attribute '%s' with value '%s' is not unique",
                             attr, value)
                 raise MoulinetteError(errno.EEXIST,
-                                      moulinette.m18n.g('ldap_attribute_already_exists',
+                                      m18n.g('ldap_attribute_already_exists',
                                                         attribute=attr, value=value))
         return True
