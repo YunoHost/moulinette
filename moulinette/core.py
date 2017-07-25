@@ -8,6 +8,8 @@ import logging
 
 from importlib import import_module
 
+import moulinette
+
 logger = logging.getLogger('moulinette.core')
 
 
@@ -450,7 +452,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
         mod = import_module('moulinette.interfaces.%s' % name)
     except ImportError:
         logger.exception("unable to load interface '%s'", name)
-        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
     else:
         try:
             # Retrieve interface classes
@@ -458,7 +460,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
             interface = mod.Interface
         except AttributeError:
             logger.exception("unable to retrieve classes of interface '%s'", name)
-            raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+            raise MoulinetteError(errno.EIO, moulinette.m18n.g('error_see_log'))
 
     # Instantiate or retrieve ActionsMap
     if isinstance(actionsmap, dict):
@@ -467,7 +469,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
         amap = actionsmap
     else:
         logger.error("invalid actionsmap value %r", actionsmap)
-        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
 
     return interface(amap, **kwargs)
 
@@ -488,7 +490,7 @@ def init_authenticator((vendor, name), kwargs={}):
         mod = import_module('moulinette.authenticators.%s' % vendor)
     except ImportError:
         logger.exception("unable to load authenticator vendor '%s'", vendor)
-        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
     else:
         return mod.Authenticator(name, **kwargs)
 
@@ -504,7 +506,7 @@ def clean_session(session_id, profiles=[]):
         - profiles -- A list of profiles to clean
 
     """
-    sessiondir = pkg.get_cachedir('session')
+    sessiondir = moulinette.pkg.get_cachedir('session')
     if not profiles:
         profiles = os.listdir(sessiondir)
 
@@ -578,7 +580,7 @@ class MoulinetteLock(object):
 
             if self.timeout is not None and (time.time() - start_time) > self.timeout:
                 raise MoulinetteError(errno.EBUSY,
-                                      m18n.g('instance_already_running'))
+                                      moulinette.m18n.g('instance_already_running'))
             # Wait before checking again
             time.sleep(self.interval)
 
@@ -605,8 +607,8 @@ class MoulinetteLock(object):
         except IOError:
             raise MoulinetteError(
                 errno.EPERM, '%s. %s.'.format(
-                    m18n.g('permission_denied'),
-                    m18n.g('root_required')))
+                    moulinette.m18n.g('permission_denied'),
+                    moulinette.m18n.g('root_required')))
 
     def __enter__(self):
         if not self._locked:

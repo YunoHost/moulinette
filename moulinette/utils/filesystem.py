@@ -5,6 +5,7 @@ import json
 import grp
 from pwd import getpwnam
 
+import moulinette
 from moulinette.core import MoulinetteError
 
 # Files & directories --------------------------------------------------
@@ -22,7 +23,7 @@ def read_file(file_path):
     # Check file exists
     if not os.path.isfile(file_path):
         raise MoulinetteError(errno.ENOENT,
-                              m18n.g('file_not_exist', path=file_path))
+                              moulinette.m18n.g('file_not_exist', path=file_path))
 
     # Open file and read content
     try:
@@ -30,11 +31,11 @@ def read_file(file_path):
             file_content = f.read()
     except IOError as e:
         raise MoulinetteError(errno.EACCES,
-                              m18n.g('cannot_open_file',
+                              moulinette.m18n.g('cannot_open_file',
                                      file=file_path, error=str(e)))
     except Exception as e:
         raise MoulinetteError(errno.EIO,
-                              m18n.g('error_reading_file',
+                              moulinette.m18n.g('error_reading_file',
                                      file=file_path, error=str(e)))
 
     return file_content
@@ -56,7 +57,7 @@ def read_json(file_path):
         loaded_json = json.loads(file_content)
     except ValueError as e:
         raise MoulinetteError(errno.EINVAL,
-                              m18n.g('corrupted_json',
+                              moulinette.m18n.g('corrupted_json',
                                      ressource=file_path, error=str(e)))
 
     return loaded_json
@@ -88,11 +89,11 @@ def write_to_file(file_path, data, file_mode="w"):
             f.write(data)
     except IOError as e:
         raise MoulinetteError(errno.EACCES,
-                              m18n.g('cannot_write_file',
+                              moulinette.m18n.g('cannot_write_file',
                                      file=file_path, error=str(e)))
     except Exception as e:
         raise MoulinetteError(errno.EIO,
-                              m18n.g('error_writing_file',
+                              moulinette.m18n.g('error_writing_file',
                                      file=file_path, error=str(e)))
 
 
@@ -129,11 +130,11 @@ def write_to_json(file_path, data):
             json.dump(data, f)
     except IOError as e:
         raise MoulinetteError(errno.EACCES,
-                              m18n.g('cannot_write_file',
+                              moulinette.m18n.g('cannot_write_file',
                                      file=file_path, error=str(e)))
     except Exception as e:
         raise MoulinetteError(errno.EIO,
-                              m18n.g('_error_writing_file',
+                              moulinette.m18n.g('_error_writing_file',
                                      file=file_path, error=str(e)))
 
 
@@ -154,7 +155,7 @@ def mkdir(path, mode=0777, parents=False, uid=None, gid=None, force=False):
 
     """
     if os.path.exists(path) and not force:
-        raise OSError(errno.EEXIST, m18n.g('folder_exists', path=path))
+        raise OSError(errno.EEXIST, moulinette.m18n.g('folder_exists', path=path))
 
     if parents:
         # Create parents directories as needed
@@ -194,7 +195,7 @@ def chown(path, uid=None, gid=None, recursive=False):
             uid = getpwnam(uid).pw_uid
         except KeyError:
             raise MoulinetteError(errno.EINVAL,
-                                  m18n.g('unknown_user', user=uid))
+                                  moulinette.m18n.g('unknown_user', user=uid))
     elif uid is None:
         uid = -1
     if isinstance(gid, basestring):
@@ -202,7 +203,7 @@ def chown(path, uid=None, gid=None, recursive=False):
             gid = grp.getgrnam(gid).gr_gid
         except KeyError:
             raise MoulinetteError(errno.EINVAL,
-                                  m18n.g('unknown_group', group=gid))
+                                  moulinette.m18n.g('unknown_group', group=gid))
     elif gid is None:
         gid = -1
 
@@ -216,7 +217,7 @@ def chown(path, uid=None, gid=None, recursive=False):
                     os.chown(os.path.join(root, f), uid, gid)
     except Exception as e:
         raise MoulinetteError(errno.EIO,
-                              m18n.g('error_changing_file_permissions',
+                              moulinette.m18n.g('error_changing_file_permissions',
                                      path=path, error=str(e)))
 
 
@@ -242,7 +243,7 @@ def chmod(path, mode, fmode=None, recursive=False):
                     os.chmod(os.path.join(root, f), fmode)
     except Exception as e:
         raise MoulinetteError(errno.EIO,
-                              m18n.g('error_changing_file_permissions',
+                              moulinette.m18n.g('error_changing_file_permissions',
                                      path=path, error=str(e)))
 
 
@@ -263,5 +264,5 @@ def rm(path, recursive=False, force=False):
         except OSError as e:
             if not force:
                 raise MoulinetteError(errno.EIO,
-                                      m18n.g('error_removing',
+                                      moulinette.m18n.g('error_removing',
                                              path=path, error=str(e)))

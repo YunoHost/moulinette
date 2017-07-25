@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from moulinette.core import init_interface, MoulinetteError
+from moulinette.core import init_interface, MoulinetteError, MoulinetteSignals
 
 __title__ = 'moulinette'
 __version__ = '0.1'
@@ -31,6 +31,11 @@ __all__ = [
     'init_interface', 'MoulinetteError',
 ]
 
+msignals = MoulinetteSignals()
+msettings = dict()
+pkg = None
+m18n = None
+
 
 # Package functions
 
@@ -50,21 +55,16 @@ def init(logging_config=None, **kwargs):
 
     """
     import sys
-    import __builtin__
-    from moulinette.core import (
-        Package, Moulinette18n, MoulinetteSignals
-    )
+    from moulinette.core import Package, Moulinette18n
     from moulinette.utils.log import configure_logging
 
     configure_logging(logging_config)
 
-    pkg = Package(**kwargs)
+    global pkg, m18n
 
     # Define and instantiate global objects
-    __builtin__.__dict__['pkg'] = pkg
-    __builtin__.__dict__['m18n'] = Moulinette18n(pkg)
-    __builtin__.__dict__['msignals'] = MoulinetteSignals()
-    __builtin__.__dict__['msettings'] = dict()
+    pkg = Package(**kwargs)
+    m18n = Moulinette18n(pkg)
 
     # Add library directory to python path
     sys.path.insert(0, pkg.libdir)
