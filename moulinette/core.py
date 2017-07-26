@@ -8,115 +8,12 @@ import logging
 
 from importlib import import_module
 
-from moulinette import m18n, pkg
+import moulinette
+from moulinette.globals import LOCALES_DIR, LIB_DIR
+from moulinette.cache import get_cachedir
 
 
 logger = logging.getLogger('moulinette.core')
-
-
-# Package manipulation -------------------------------------------------
-
-class Package(object):
-    """Package representation and easy access methods
-
-    Initialize directories and variables for the package and give them
-    easy access.
-
-    Keyword arguments:
-        - _from_source -- Either the package is running from source or
-            not (only for debugging)
-
-    """
-
-    def __init__(self, _from_source=False):
-        if _from_source:
-            import sys
-
-            logger.debug('initialize Package object running from source')
-
-            # Retrieve source's base directory
-            basedir = os.path.abspath(os.path.dirname(sys.argv[0]) + '/../')
-
-            # Set local directories
-            self._datadir = '%s/data' % basedir
-            self._libdir = '%s/lib' % basedir
-            self._localedir = '%s/locales' % basedir
-            self._cachedir = '%s/cache' % basedir
-        else:
-            import package
-
-            # Set system directories
-            self._datadir = package.datadir
-            self._libdir = package.libdir
-            self._localedir = package.localedir
-            self._cachedir = package.cachedir
-
-    def __setattr__(self, name, value):
-        if name[0] == '_' and name in self.__dict__:
-            # Deny reassignation of package directories
-            logger.error("cannot reassign Package variable '%s'", name)
-            return
-        self.__dict__[name] = value
-
-    # Easy access to package directories
-
-    @property
-    def datadir(self):
-        """Return the data directory of the package"""
-        return self._datadir
-
-    @property
-    def libdir(self):
-        """Return the lib directory of the package"""
-        return self._libdir
-
-    @property
-    def localedir(self):
-        """Return the locale directory of the package"""
-        return self._localedir
-
-    @property
-    def cachedir(self):
-        """Return the cache directory of the package"""
-        return self._cachedir
-
-    # Additional methods
-
-    def get_cachedir(self, subdir='', make_dir=True):
-        """Get the path to a cache directory
-
-        Return the path to the cache directory from an optional
-        subdirectory and create it if needed.
-
-        Keyword arguments:
-            - subdir -- A cache subdirectory
-            - make_dir -- False to not make directory if it not exists
-
-        """
-        path = os.path.join(self.cachedir, subdir)
-
-        if make_dir and not os.path.isdir(path):
-            os.makedirs(path)
-        return path
-
-    def open_cachefile(self, filename, mode='r', **kwargs):
-        """Open a cache file and return a stream
-
-        Attempt to open in 'mode' the cache file 'filename' from the
-        default cache directory and in the subdirectory 'subdir' if
-        given. Directories are created if needed and a stream is
-        returned if the file can be written.
-
-        Keyword arguments:
-            - filename -- The cache filename
-            - mode -- The mode in which the file is opened
-            - **kwargs -- Optional arguments for get_cachedir
-
-        """
-        # Set make_dir if not given
-        kwargs['make_dir'] = kwargs.get('make_dir',
-                                        True if mode[0] == 'w' else False)
-        return open('%s/%s' % (self.get_cachedir(**kwargs), filename), mode)
 
 
 # Internationalization -------------------------------------------------
@@ -247,13 +144,12 @@ class Moulinette18n(object):
 
     """
 
-    def __init__(self, package, default_locale='en'):
+    def __init__(self, default_locale='en'):
         self.default_locale = default_locale
         self.locale = default_locale
-        self.pkg = package
 
         # Init global translator
-        self._global = Translator(self.pkg.localedir, default_locale)
+        self._global = Translator(LOCALES_DIR, default_locale)
 
         # Define namespace related variables
         self._namespaces = {}
@@ -276,7 +172,7 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            n = Translator('%s/%s/locales' % (self.pkg.libdir, namespace),
+            n = Translator('%s/%s/locales' % (LIB_DIR, namespace),
                            self.default_locale)
             n.set_locale(self.locale)
             self._namespaces[namespace] = n
@@ -453,7 +349,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
         mod = import_module('moulinette.interfaces.%s' % name)
     except ImportError:
         logger.exception("unable to load interface '%s'", name)
-        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
     else:
         try:
             # Retrieve interface classes
@@ -461,7 +357,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
             interface = mod.Interface
         except AttributeError:
             logger.exception("unable to retrieve classes of interface '%s'", name)
-            raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+            raise MoulinetteError(errno.EIO, moulinette.m18n.g('error_see_log'))
 
     # Instantiate or retrieve ActionsMap
     if isinstance(actionsmap, dict):
@@ -470,7 +366,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
         amap = actionsmap
     else:
         logger.error("invalid actionsmap value %r", actionsmap)
-        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
 
     return interface(amap, **kwargs)
 
@@ -491,7 +387,7 @@ def init_authenticator((vendor, name), kwargs={}):
         mod = import_module('moulinette.authenticators.%s' % vendor)
     except ImportError:
         logger.exception("unable to load authenticator vendor '%s'", vendor)
-        raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
     else:
         return mod.Authenticator(name, **kwargs)
 
@@ -507,7 +403,7 @@ def clean_session(session_id, profiles=[]):
         - profiles -- A list of profiles to clean
 
     """
-    sessiondir = pkg.get_cachedir('session')
+    sessiondir = get_cachedir('session')
     if not profiles:
         profiles = os.listdir(sessiondir)
 
@@ -581,7 +477,7 @@ class MoulinetteLock(object):
 
             if self.timeout is not None and (time.time() - start_time) > self.timeout:
                 raise MoulinetteError(errno.EBUSY,
-                                      m18n.g('instance_already_running'))
+                                      moulinette.m18n.g('instance_already_running'))
             # Wait before checking again
             time.sleep(self.interval)
 
@@ -608,8 +504,8 @@ class MoulinetteLock(object):
         except IOError:
             raise MoulinetteError(
                 errno.EPERM, '%s. %s.'.format(
-                    m18n.g('permission_denied'),
-                    m18n.g('root_required')))
+                    moulinette.m18n.g('permission_denied'),
+                    moulinette.m18n.g('root_required')))
 
     def __enter__(self):
         if not self._locked:

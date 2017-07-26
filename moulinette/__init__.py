@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from moulinette import m18n, pkg
-from moulinette.core import init_interface, MoulinetteError, MoulinetteSignals
+from moulinette.core import init_interface, MoulinetteError, MoulinetteSignals, Moulinette18n
+from moulinette.globals import DATA_DIR, LIB_DIR, LOCALES_DIR, CACHE_DIR
 
 __title__ = 'moulinette'
 __version__ = '0.1'
@@ -28,12 +28,15 @@ __credits__ = """
     along with this program; if not, see http://www.gnu.org/licenses
     """
 __all__ = [
-    'init', 'api', 'cli',
+    'init', 'api', 'cli', 'm18n',
     'init_interface', 'MoulinetteError',
+    'DATA_DIR', 'LIB_DIR', 'LOCALES_DIR', 'CACHE_DIR',
 ]
+
 
 msignals = MoulinetteSignals()
 msettings = dict()
+m18n = Moulinette18n()
 
 
 # Package functions
@@ -54,29 +57,12 @@ def init(logging_config=None, **kwargs):
 
     """
     import sys
-    from moulinette.core import Package, Moulinette18n
     from moulinette.utils.log import configure_logging
 
     configure_logging(logging_config)
 
-    # Define and instantiate global objects
-
-    # here I need to add attributes/methods to modules because those globals
-    # are only initialized here and using empty modules is the only working
-    # solution I've found for that (using globals() doesn't work because of the
-    # order of importation)
-    _pkg = Package(**kwargs)
-    for i in dir(_pkg):
-        if not i.startswith("_"):
-            setattr(pkg, i, getattr(_pkg, i))
-
-    _m18n = Moulinette18n(pkg)
-    for i in dir(_m18n):
-        if not i.startswith("_"):
-            setattr(m18n, i, getattr(_m18n, i))
-
     # Add library directory to python path
-    sys.path.insert(0, pkg.libdir)
+    sys.path.insert(0, LIB_DIR)
 
 
 # Easy access to interfaces
