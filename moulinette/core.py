@@ -206,12 +206,7 @@ class Moulinette18n(object):
             - key -- The key to translate
 
         """
-        try:
-            return self._namespace.translate(key, *args, **kwargs)
-        except:
-            logger.exception("cannot translate key '%s' for namespace '%s'",
-                             key, self._current_namespace)
-            return key
+        return self._namespace.translate(key, *args, **kwargs)
 
 
 class MoulinetteSignals(object):
