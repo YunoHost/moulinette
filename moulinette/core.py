@@ -150,11 +150,6 @@ class Moulinette18n(object):
         self._namespaces = {}
         self._current_namespace = None
 
-    @property
-    def _namespace(self):
-        """Return current namespace's Translator object"""
-        return self._namespaces[self._current_namespace]
-
     def load_namespace(self, namespace):
         """Load the namespace to use
 
@@ -206,7 +201,7 @@ class Moulinette18n(object):
             - key -- The key to translate
 
         """
-        return self._namespace.translate(key, *args, **kwargs)
+        return self._namespaces[self._current_namespace].translate(key, *args, **kwargs)
 
 
 class MoulinetteSignals(object):
