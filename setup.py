@@ -3,7 +3,6 @@ import os
 import sys
 
 from distutils.core import setup
-from distutils.dir_util import mkpath
 from distutils.sysconfig import PREFIX
 
 # Define package directories
