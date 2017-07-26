@@ -87,20 +87,15 @@ class Translator(object):
             - key -- The key to translate
 
         """
-        def _load_key(locale):
-            value = self._translations[locale][key]
-            return value.encode('utf-8').format(*args, **kwargs)
+        if key in self._translations.get(self.locale, {}):
+            return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
 
-        try:
-            return _load_key(self.locale)
-        except (KeyError, IndexError):
-            if self.default_locale != self.locale:
-                logger.info("untranslated key '%s' for locale '%s'",
-                            key, self.locale)
-                try:
-                    return _load_key(self.default_locale)
-                except:
-                    pass
+        if self.default_locale != self.locale and key in self._translations.get(self.default_locale, {}):
+            logger.info("untranslated key '%s' for locale '%s'",
+                        key, self.locale)
+
+            return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+
         logger.exception("unable to retrieve key '%s' for default locale '%s'",
                          key, self.default_locale)
         return key
