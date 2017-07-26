@@ -162,10 +162,10 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            n = Translator('%s/%s/locales' % (LIB_DIR, namespace),
-                           self.default_locale)
-            n.set_locale(self.locale)
-            self._namespaces[namespace] = n
+            translator = Translator('%s/%s/locales' % (LIB_DIR, namespace),
+                                    self.default_locale)
+            translator.set_locale(self.locale)
+            self._namespaces[namespace] = translator
 
         # Set current namespace
         self._current_namespace = namespace
