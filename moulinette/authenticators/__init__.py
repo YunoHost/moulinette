@@ -51,7 +51,7 @@ class BaseAuthenticator(object):
     # Virtual methods
     # Each authenticator classes must implement these methods.
 
-    def authenticate(password=None):
+    def authenticate(self, password=None):
         """Attempt to authenticate
 
         Attempt to authenticate with given password. It should raise an

@@ -1,7 +1,5 @@
 
 # General python lib
-import os
-import pwd
 import pytest
 import requests
 import requests_mock
@@ -14,9 +12,11 @@ from moulinette.utils.network import download_text, download_json
 
 TEST_URL = "https://some.test.url/yolo.txt"
 
+
 def setup_function(function):
 
     pass
+
 
 def teardown_function(function):
 
@@ -88,5 +88,3 @@ def test_download_json_badjson():
 
         with pytest.raises(MoulinetteError):
             download_json(TEST_URL)
-
-

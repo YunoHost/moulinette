@@ -570,31 +570,10 @@ class ActionsMap(object):
 
         """
         # Get extra parameters
-        if not self.use_cache:
-            validate_extra = True
-        else:
+        if self.use_cache:
             validate_extra = False
-
-        # Add arguments to the parser
-        def _add_arguments(tid, parser, arguments):
-            # parser is argparse._ArgumentGroup for top_parser
-            # or ExtendedArgumentParser for other cases
-            # or maybe something else?
-            for argument_name, argument_options in arguments.items():
-                # will adapt arguments name for cli or api context
-                names = top_parser.format_arg_names(str(argument_name),
-                                                    argument_options.pop('full', None))
-
-                if "type" in argument_options:
-                    argument_options['type'] = eval(argument_options['type'])
-
-                if "extra" not in argument_options:
-                    parser.add_argument(*names, **argument_options)
-                    continue
-
-                extra = argument_options.pop('extra')
-                argument_dest = parser.add_argument(*names, **argument_options).dest
-                self.extraparser.add_argument(tid, argument_dest, extra, validate_extra)
+        else:
+            validate_extra = True
 
         # Instantiate parser
         #
@@ -616,9 +595,7 @@ class ActionsMap(object):
             top_parser.set_global_conf(_global['configuration'])
 
             if top_parser.has_global_parser():
-                # GLOBAL_SECTION = '_global'
-                _add_arguments(GLOBAL_SECTION, top_parser.global_parser,
-                                   _global['arguments'])
+                top_parser.add_global_arguments(_global['arguments'])
 
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
@@ -635,7 +612,8 @@ class ActionsMap(object):
                     subcategories = {}
 
                 # Get category parser
-                category_parser = top_parser.add_category_parser(category_name, **category_values)
+                category_parser = top_parser.add_category_parser(category_name,
+                                                                 **category_values)
 
                 # action_name is like "list" of "domain list"
                 # action_options are the values
@@ -643,20 +621,23 @@ class ActionsMap(object):
                     arguments = action_options.pop('arguments', {})
                     tid = (namespace, category_name, action_name)
 
-                    try:
-                        # Get action parser
-                        action_parser = category_parser.add_action_parser(action_name, tid, **action_options)
-                    except AttributeError:
-                        # No parser for the action
+                    # Get action parser
+                    action_parser = category_parser.add_action_parser(action_name,
+                                                                      tid,
+                                                                      **action_options)
+
+                    if action_parser is None:  # No parser for the action
                         continue
 
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
-                    _add_arguments(tid, action_parser, arguments)
+                    action_parser.add_arguments(arguments,
+                                                extraparser=self.extraparser,
+                                                format_arg_names=top_parser.format_arg_names,
+                                                validate_extra=validate_extra)
 
                     if 'configuration' in action_options:
-                        configuration = action_options.pop('configuration')
-                        category_parser.set_conf(tid, configuration)
+                        category_parser.set_conf(tid, action_options['configuration'])
 
                 # subcategory_name is like "cert" in "domain cert status"
                 # subcategory_values is the values of this subcategory (like actions)
@@ -682,12 +663,12 @@ class ActionsMap(object):
 
                         # Store action identifier and add arguments
                         action_parser.set_defaults(_tid=tid)
-                        _add_arguments(tid, action_parser, arguments)
+                        action_parser.add_arguments(arguments,
+                                                    extraparser=self.extraparser,
+                                                    format_arg_names=top_parser.format_arg_names,
+                                                    validate_extra=validate_extra)
 
                         if 'configuration' in action_options:
-                            configuration = action_options.pop('configuration')
-                            subcategory_parser.set_conf(tid, configuration)
-
-
+                            category_parser.set_conf(tid, action_options['configuration'])
 
         return top_parser

@@ -39,6 +39,7 @@ def switch_to_non_root_user():
 #   Test run shell commands                                                   #
 ###############################################################################
 
+
 def test_run_shell_command_list():
 
     commands = ["rm -f %s" % TMP_TEST_FILE]
@@ -63,4 +64,3 @@ def test_run_shell_command_badpermissions():
     switch_to_non_root_user()
     with pytest.raises(CalledProcessError):
         run_commands(commands)
-

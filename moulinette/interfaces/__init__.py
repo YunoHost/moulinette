@@ -508,8 +508,8 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
 class ExtendedArgumentParser(argparse.ArgumentParser):
 
     def __init__(self, *args, **kwargs):
-        super(ExtendedArgumentParser, self).__init__(
-                formatter_class=PositionalsFirstHelpFormatter, *args, **kwargs)
+        super(ExtendedArgumentParser, self).__init__(formatter_class=PositionalsFirstHelpFormatter,
+                                                     *args, **kwargs)
 
         # Register additional actions
         self.register('action', 'callback', _CallbackAction)
@@ -540,6 +540,24 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             else:
                 queue = list()
         return queue
+
+    def add_arguments(self, arguments, extraparser, format_arg_names=None, validate_extra=True):
+        for argument_name, argument_options in arguments.items():
+            # will adapt arguments name for cli or api context
+            names = format_arg_names(str(argument_name),
+                                     argument_options.pop('full', None))
+
+            if "type" in argument_options:
+                argument_options['type'] = eval(argument_options['type'])
+
+            if "extra" in argument_options:
+                extra = argument_options.pop('extra')
+                argument_dest = self.add_argument(*names, **argument_options).dest
+                extraparser.add_argument(self.get_default("_tid"),
+                                         argument_dest, extra, validate_extra)
+                continue
+
+            self.add_argument(*names, **argument_options)
 
     def _get_nargs_pattern(self, action):
         if action.nargs == argparse.PARSER and not action.required:

@@ -308,6 +308,15 @@ class ActionsMapParser(BaseActionsMapParser):
                                            deprecated=deprecated,
                                            deprecated_alias=deprecated_alias)
 
+    def add_global_arguments(self, arguments):
+        for argument_name, argument_options in arguments.items():
+            # will adapt arguments name for cli or api context
+            names = self.format_arg_names(str(argument_name),
+                                          argument_options.pop('full', None))
+
+            self.global_parser.add_argument(*names, **argument_options)
+
+
     def parse_args(self, args, **kwargs):
         try:
             ret = self._parser.parse_args(args)
