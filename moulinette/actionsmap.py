@@ -562,94 +562,64 @@ class ActionsMap(object):
 
         """
         # Get extra parameters
-        if not self.use_cache:
-            validate_extra = True
-        else:
+        if self.use_cache:
             validate_extra = False
-
-        # Add arguments to the parser
-        def _add_arguments(tid, parser, arguments):
-            for argn, argp in arguments.items():
-                names = top_parser.format_arg_names(str(argn),
-                                                    argp.pop('full', None))
-                try:
-                    argp['type'] = eval(argp['type'])
-                except:
-                    pass
-
-                try:
-                    extra = argp.pop('extra')
-                    arg_dest = (parser.add_argument(*names, **argp)).dest
-                    self.extraparser.add_argument(tid, arg_dest, extra,
-                                                  validate_extra)
-                except KeyError:
-                    # No extra parameters
-                    parser.add_argument(*names, **argp)
+        else:
+            validate_extra = True
 
         # Instantiate parser
+        #
+        # this either returns:
+        # * moulinette.interfaces.cli.ActionsMapParser
+        # * moulinette.interfaces.api.ActionsMapParser
         top_parser = self.parser_class(**kwargs)
 
-        # Iterate over actions map namespaces
-        for n, actionsmap in actionsmaps.items():
+        # namespace, actionsmap is a tuple where:
+        #
+        # * namespace define the top "name", for us it will always be
+        #   "yunohost" and there well be only this one
+        # * actionsmap is the actual actionsmap that we care about
+        for namespace, actionsmap in actionsmaps.items():
             # Retrieve global parameters
             _global = actionsmap.pop('_global', {})
 
-            # -- Parse global configuration
-            if 'configuration' in _global:
-                # Set global configuration
-                top_parser.set_global_conf(_global['configuration'])
+            # Set the global configuration to use for the parser.
+            top_parser.set_global_conf(_global['configuration'])
 
-            # -- Parse global arguments
-            if 'arguments' in _global:
-                try:
-                    # Get global arguments parser
-                    parser = top_parser.add_global_parser()
-                except AttributeError:
-                    # No parser for global arguments
-                    pass
-                else:
-                    # Add arguments
-                    _add_arguments(GLOBAL_SECTION, parser,
-                                   _global['arguments'])
+            if top_parser.has_global_parser():
+                top_parser.add_global_arguments(_global['arguments'])
 
-            # -- Parse categories
-            for cn, cp in actionsmap.items():
-                try:
-                    actions = cp.pop('actions')
-                except KeyError:
-                    # Invalid category without actions
-                    logger.warning("no actions found in category '%s' in "
-                                   "namespace '%s'", cn, n)
-                    continue
+            # category_name is stuff like "user", "domain", "hooks"...
+            # category_values is the values of this category (like actions)
+            for category_name, category_values in actionsmap.items():
+                actions = category_values.pop('actions')
 
                 # Get category parser
-                cat_parser = top_parser.add_category_parser(cn, **cp)
+                category_parser = top_parser.add_category_parser(category_name,
+                                                                 **category_values)
 
-                # -- Parse actions
-                for an, ap in actions.items():
-                    args = ap.pop('arguments', {})
-                    tid = (n, cn, an)
-                    try:
-                        conf = ap.pop('configuration')
-                        _set_conf = lambda p: p.set_conf(tid, conf)
-                    except KeyError:
-                        # No action configuration
-                        _set_conf = lambda p: False
+                # action_name is like "list" of "domain list"
+                # action_options are the values
+                for action_name, action_options in actions.items():
+                    arguments = action_options.pop('arguments', {})
+                    tid = (namespace, category_name, action_name)
 
-                    try:
-                        # Get action parser
-                        a_parser = cat_parser.add_action_parser(an, tid, **ap)
-                    except AttributeError:
-                        # No parser for the action
+                    # Get action parser
+                    action_parser = category_parser.add_action_parser(action_name,
+                                                                      tid,
+                                                                      **action_options)
+
+                    if action_parser is None:  # No parser for the action
                         continue
-                    except ValueError as e:
-                        logger.warning("cannot add action (%s, %s, %s): %s",
-                                       n, cn, an, e)
-                        continue
-                    else:
-                        # Store action identifier and add arguments
-                        a_parser.set_defaults(_tid=tid)
-                        _add_arguments(tid, a_parser, args)
-                        _set_conf(cat_parser)
+
+                    # Store action identifier and add arguments
+                    action_parser.set_defaults(_tid=tid)
+                    action_parser.add_arguments(arguments,
+                                                extraparser=self.extraparser,
+                                                format_arg_names=top_parser.format_arg_names,
+                                                validate_extra=validate_extra)
+
+                    if 'configuration' in action_options:
+                        category_parser.set_conf(tid, action_options['configuration'])
 
         return top_parser

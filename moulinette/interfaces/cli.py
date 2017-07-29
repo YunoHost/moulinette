@@ -231,14 +231,15 @@ class ActionsMapParser(BaseActionsMapParser):
 
         self._parser = parser or ExtendedArgumentParser()
         self._subparsers = self._parser.add_subparsers(**subparser_kwargs)
-        self._global_parser = parent._global_parser if parent else None
+        self.global_parser = parent.global_parser if parent else None
 
         if top_parser:
+            self.global_parser = self._parser.add_argument_group("global arguments")
+
             # Append each top parser action to the global group
-            glob = self.add_global_parser()
             for action in top_parser._actions:
                 action.dest = SUPPRESS
-                glob._add_action(action)
+                self.global_parser._add_action(action)
 
     # Implement virtual properties
 
@@ -252,11 +253,8 @@ class ActionsMapParser(BaseActionsMapParser):
             return [name, full]
         return [name]
 
-    def add_global_parser(self, **kwargs):
-        if not self._global_parser:
-            self._global_parser = self._parser.add_argument_group(
-                "global arguments")
-        return self._global_parser
+    def has_global_parser(self):
+        return True
 
     def add_category_parser(self, name, category_help=None, **kwargs):
         """Add a parser for a category
@@ -289,6 +287,15 @@ class ActionsMapParser(BaseActionsMapParser):
         return self._subparsers.add_parser(name, help=action_help,
                                            deprecated=deprecated,
                                            deprecated_alias=deprecated_alias)
+
+    def add_global_arguments(self, arguments):
+        for argument_name, argument_options in arguments.items():
+            # will adapt arguments name for cli or api context
+            names = self.format_arg_names(str(argument_name),
+                                          argument_options.pop('full', None))
+
+            self.global_parser.add_argument(*names, **argument_options)
+
 
     def parse_args(self, args, **kwargs):
         try:
