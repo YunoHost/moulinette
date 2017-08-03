@@ -472,7 +472,7 @@ class ActionsMap(object):
                                  fromlist=[func_name])
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
-                logger.exception("unable to load function %s.%s.%s",
+                logger.exception("unable to load function %s.%s",
                                  namespace, func_name)
                 raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
             else:
