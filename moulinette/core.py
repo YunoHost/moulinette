@@ -87,20 +87,15 @@ class Translator(object):
             - key -- The key to translate
 
         """
-        def _load_key(locale):
-            value = self._translations[locale][key]
-            return value.encode('utf-8').format(*args, **kwargs)
+        if key in self._translations.get(self.locale, {}):
+            return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
 
-        try:
-            return _load_key(self.locale)
-        except (KeyError, IndexError):
-            if self.default_locale != self.locale:
-                logger.info("untranslated key '%s' for locale '%s'",
-                            key, self.locale)
-                try:
-                    return _load_key(self.default_locale)
-                except:
-                    pass
+        if self.default_locale != self.locale and key in self._translations.get(self.default_locale, {}):
+            logger.info("untranslated key '%s' for locale '%s'",
+                        key, self.locale)
+
+            return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+
         logger.exception("unable to retrieve key '%s' for default locale '%s'",
                          key, self.default_locale)
         return key
@@ -155,11 +150,6 @@ class Moulinette18n(object):
         self._namespaces = {}
         self._current_namespace = None
 
-    @property
-    def _namespace(self):
-        """Return current namespace's Translator object"""
-        return self._namespaces[self._current_namespace]
-
     def load_namespace(self, namespace):
         """Load the namespace to use
 
@@ -172,10 +162,10 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            n = Translator('%s/%s/locales' % (LIB_DIR, namespace),
-                           self.default_locale)
-            n.set_locale(self.locale)
-            self._namespaces[namespace] = n
+            translator = Translator('%s/%s/locales' % (LIB_DIR, namespace),
+                                    self.default_locale)
+            translator.set_locale(self.locale)
+            self._namespaces[namespace] = translator
 
         # Set current namespace
         self._current_namespace = namespace
@@ -211,12 +201,7 @@ class Moulinette18n(object):
             - key -- The key to translate
 
         """
-        try:
-            return self._namespace.translate(key, *args, **kwargs)
-        except:
-            logger.exception("cannot translate key '%s' for namespace '%s'",
-                             key, self._current_namespace)
-            return key
+        return self._namespaces[self._current_namespace].translate(key, *args, **kwargs)
 
 
 class MoulinetteSignals(object):
