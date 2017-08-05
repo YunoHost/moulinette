@@ -7,6 +7,7 @@ import logging
 import ldap
 import ldap.modlist as modlist
 
+from moulinette import m18n
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
 
@@ -212,5 +213,5 @@ class Authenticator(BaseAuthenticator):
                             attr, value)
                 raise MoulinetteError(errno.EEXIST,
                                       m18n.g('ldap_attribute_already_exists',
-                                             attribute=attr, value=value))
+                                                        attribute=attr, value=value))
         return True

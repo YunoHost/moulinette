@@ -4,6 +4,8 @@ import errno
 import gnupg
 import logging
 
+from moulinette import m18n
+from moulinette.cache import open_cachefile
 from moulinette.core import MoulinetteError
 
 logger = logging.getLogger('moulinette.authenticator')
@@ -129,8 +131,8 @@ class BaseAuthenticator(object):
 
     def _open_sessionfile(self, session_id, mode='r'):
         """Open a session file for this instance in given mode"""
-        return pkg.open_cachefile('%s.asc' % session_id, mode,
-                                  subdir='session/%s' % self.name)
+        return open_cachefile('%s.asc' % session_id, mode,
+                              subdir='session/%s' % self.name)
 
     def _store_session(self, session_id, session_hash, password):
         """Store a session and its associated password"""

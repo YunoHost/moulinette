@@ -2,6 +2,7 @@ import errno
 import requests
 import json
 
+from moulinette import m18n
 from moulinette.core import MoulinetteError
 
 

@@ -11,6 +11,7 @@ from collections import OrderedDict
 
 import argcomplete
 
+from moulinette import msignals, m18n
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,

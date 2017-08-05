@@ -9,6 +9,9 @@ import cPickle as pickle
 from time import time
 from collections import OrderedDict
 
+from moulinette import m18n, msignals
+from moulinette.cache import open_cachefile
+from moulinette.globals import CACHE_DIR, DATA_DIR
 from moulinette.core import (MoulinetteError, MoulinetteLock)
 from moulinette.interfaces import (
     BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
@@ -373,10 +376,10 @@ class ActionsMap(object):
         for n in namespaces:
             logger.debug("loading actions map namespace '%s'", n)
 
-            actionsmap_yml = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
+            actionsmap_yml = '%s/actionsmap/%s.yml' % (DATA_DIR, n)
             actionsmap_yml_stat = os.stat(actionsmap_yml)
             actionsmap_pkl = '%s/actionsmap/%s-%d-%d.pkl' % (
-                pkg.cachedir,
+                CACHE_DIR,
                 n,
                 actionsmap_yml_stat.st_size,
                 actionsmap_yml_stat.st_mtime
@@ -498,7 +501,7 @@ class ActionsMap(object):
         """
         namespaces = []
 
-        for f in os.listdir('%s/actionsmap' % pkg.datadir):
+        for f in os.listdir('%s/actionsmap' % DATA_DIR):
             if f.endswith('.yml'):
                 namespaces.append(f[:-4])
         return namespaces
@@ -524,23 +527,23 @@ class ActionsMap(object):
             logger.debug("generating cache for actions map namespace '%s'", n)
 
             # Read actions map from yaml file
-            am_file = '%s/actionsmap/%s.yml' % (pkg.datadir, n)
+            am_file = '%s/actionsmap/%s.yml' % (DATA_DIR, n)
             with open(am_file, 'r') as f:
                 actionsmaps[n] = ordered_yaml_load(f)
 
             # at installation, cachedir might not exists
-            if os.path.exists('%s/actionsmap/' % pkg.cachedir):
+            if os.path.exists('%s/actionsmap/' % CACHE_DIR):
                 # clean old cached files
-                for i in os.listdir('%s/actionsmap/' % pkg.cachedir):
+                for i in os.listdir('%s/actionsmap/' % CACHE_DIR):
                     if i.endswith(".pkl"):
-                        os.remove('%s/actionsmap/%s' % (pkg.cachedir, i))
+                        os.remove('%s/actionsmap/%s' % (CACHE_DIR, i))
 
             # Cache actions map into pickle file
             am_file_stat = os.stat(am_file)
 
             pkl = '%s-%d-%d.pkl' % (n, am_file_stat.st_size, am_file_stat.st_mtime)
 
-            with pkg.open_cachefile(pkl, 'w', subdir='actionsmap') as f:
+            with open_cachefile(pkl, 'w', subdir='actionsmap') as f:
                 pickle.dump(actionsmaps[n], f)
 
         return actionsmaps

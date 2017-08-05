@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from moulinette.core import init_interface, MoulinetteError
+from moulinette.core import init_interface, MoulinetteError, MoulinetteSignals, Moulinette18n
+from moulinette.globals import DATA_DIR, LIB_DIR, LOCALES_DIR, CACHE_DIR
 
 __title__ = 'moulinette'
 __version__ = '0.1'
@@ -27,9 +28,15 @@ __credits__ = """
     along with this program; if not, see http://www.gnu.org/licenses
     """
 __all__ = [
-    'init', 'api', 'cli',
+    'init', 'api', 'cli', 'm18n',
     'init_interface', 'MoulinetteError',
+    'DATA_DIR', 'LIB_DIR', 'LOCALES_DIR', 'CACHE_DIR',
 ]
+
+
+msignals = MoulinetteSignals()
+msettings = dict()
+m18n = Moulinette18n()
 
 
 # Package functions
@@ -50,22 +57,12 @@ def init(logging_config=None, **kwargs):
 
     """
     import sys
-    import __builtin__
-    from moulinette.core import (
-        Package, Moulinette18n, MoulinetteSignals
-    )
     from moulinette.utils.log import configure_logging
 
     configure_logging(logging_config)
 
-    # Define and instantiate global objects
-    __builtin__.__dict__['pkg'] = Package(**kwargs)
-    __builtin__.__dict__['m18n'] = Moulinette18n(pkg)
-    __builtin__.__dict__['msignals'] = MoulinetteSignals()
-    __builtin__.__dict__['msettings'] = dict()
-
     # Add library directory to python path
-    sys.path.insert(0, pkg.libdir)
+    sys.path.insert(0, LIB_DIR)
 
 
 # Easy access to interfaces

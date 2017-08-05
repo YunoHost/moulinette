@@ -7,6 +7,7 @@ import logging
 import argparse
 from collections import deque
 
+from moulinette import msignals, msettings, m18n
 from moulinette.core import (init_authenticator, MoulinetteError)
 
 logger = logging.getLogger('moulinette.interface')
