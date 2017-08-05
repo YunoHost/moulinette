@@ -456,8 +456,16 @@ class ActionsMap(object):
             return arguments.get(TO_RETURN_PROP)
 
         # Retrieve action information
-        namespace, category, action = tid
-        func_name = '%s_%s' % (category, action.replace('-', '_'))
+        if len(tid) == 4:
+            namespace, category, subcategory, action = tid
+            func_name = '%s_%s_%s' % (category, subcategory, action.replace('-', '_'))
+            full_action_name = "%s.%s.%s.%s" % (namespace, category, subcategory, action)
+        else:
+            assert len(tid) == 3
+            namespace, category, action = tid
+            subcategory = None
+            func_name = '%s_%s' % (category, action.replace('-', '_'))
+            full_action_name = "%s.%s.%s" % (namespace, category, action)
 
         # Lock the moulinette for the namespace
         with MoulinetteLock(namespace, timeout):
@@ -467,18 +475,18 @@ class ActionsMap(object):
                                  fromlist=[func_name])
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
-                logger.exception("unable to load function %s.%s.%s",
-                                 namespace, category, func_name)
+                logger.exception("unable to load function %s.%s",
+                                 namespace, func_name)
                 raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):
                     # Log arguments in debug mode only for safety reasons
-                    logger.info('processing action [%s]: %s.%s.%s with args=%s',
-                                log_id, namespace, category, action, arguments)
+                    logger.info('processing action [%s]: %s with args=%s',
+                                log_id, full_action_name, arguments)
                 else:
-                    logger.info('processing action [%s]: %s.%s.%s',
-                                log_id, namespace, category, action)
+                    logger.info('processing action [%s]: %s',
+                                log_id, full_action_name)
 
                 # Load translation and process the action
                 m18n.load_namespace(namespace)
@@ -595,7 +603,16 @@ class ActionsMap(object):
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
             for category_name, category_values in actionsmap.items():
-                actions = category_values.pop('actions')
+
+                if "actions" in category_values:
+                    actions = category_values.pop('actions')
+                else:
+                    actions = {}
+
+                if "subcategories" in category_values:
+                    subcategories = category_values.pop('subcategories')
+                else:
+                    subcategories = {}
 
                 # Get category parser
                 category_parser = top_parser.add_category_parser(category_name,
@@ -624,5 +641,37 @@ class ActionsMap(object):
 
                     if 'configuration' in action_options:
                         category_parser.set_conf(tid, action_options['configuration'])
+
+                # subcategory_name is like "cert" in "domain cert status"
+                # subcategory_values is the values of this subcategory (like actions)
+                for subcategory_name, subcategory_values in subcategories.items():
+
+                    actions = subcategory_values.pop('actions')
+
+                    # Get subcategory parser
+                    subcategory_parser = category_parser.add_subcategory_parser(subcategory_name, **subcategory_values)
+
+                    # action_name is like "status" of "domain cert status"
+                    # action_options are the values
+                    for action_name, action_options in actions.items():
+                        arguments = action_options.pop('arguments', {})
+                        tid = (namespace, category_name, subcategory_name, action_name)
+
+                        try:
+                            # Get action parser
+                            action_parser = subcategory_parser.add_action_parser(action_name, tid, **action_options)
+                        except AttributeError:
+                            # No parser for the action
+                            continue
+
+                        # Store action identifier and add arguments
+                        action_parser.set_defaults(_tid=tid)
+                        action_parser.add_arguments(arguments,
+                                                    extraparser=self.extraparser,
+                                                    format_arg_names=top_parser.format_arg_names,
+                                                    validate_extra=validate_extra)
+
+                        if 'configuration' in action_options:
+                            category_parser.set_conf(tid, action_options['configuration'])
 
         return top_parser
