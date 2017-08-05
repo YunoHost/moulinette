@@ -411,9 +411,9 @@ class _ActionsMapPlugin(object):
                 raise e
             import traceback
             tb = traceback.format_exc()
-            logs = { "route": _route,
-                     "arguments": arguments,
-                     "traceback": tb }
+            logs = {"route": _route,
+                    "arguments": arguments,
+                    "traceback": tb}
             return HTTPErrorResponse(json_encode(logs))
         else:
             return format_for_response(ret)
