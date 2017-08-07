@@ -1,3 +1,17 @@
+moulinette (2.7.0) testing; urgency=low
+
+  * [enh] More helpers for common IO operations (#141)
+  * [fix] Correctly handle error 500 (#142)
+  * [enh] Support subcategories (#143)
+  * [enh] Make some part of the code more readable (#144)
+  * [enh] Remove black magic related to m18n and other things (#145)
+  * [enh] Show description of command in --help (#148)
+  * [i18n] Update French translation (#149)
+
+Thanks to all contributors (Bram, Aleks, R. Cabaret) ! <3
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 07 Aug 2017 13:04:21 -0400
+
 moulinette (2.6.1) stable; urgency=low
 
   * [fix] Recursive mkdir was broken
