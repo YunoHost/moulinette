@@ -43,7 +43,7 @@
     "corrupted_json": "Json corrompu lu depuis {ressource:s}",
     "error_writing_file": "Erreur en écrivant le fichier {file:s}:{error:s}",
     "error_removing": "Erreur lors de la suppression {path:s}:{error:s}",
-    "error_changing_file_permissions": "Erreur en changeant les permissions pour {path:s}:{error:s}",
+    "error_changing_file_permissions": "Erreur lors de la modification des autorisations pour {path:s}:{error:s}",
     "invalid_url": "Url invalide {url:s} (ce site existe-t-il ?)",
     "download_ssl_error": "Erreur SSL lors de la connexion à {url:s}",
     "download_timeout": "{url:s} a pris trop de temps pour répondre, abandon.",
