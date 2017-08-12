@@ -129,7 +129,7 @@ According to :file:`ldapvi` this is the user schema (on YunoHost 2.7):
 Reading users from LDAP
 -----------------------
 
-The user table (or I don't how you are supposed to call this thing in LDAP) is located at this path: :file:`ou=users,dc=yunohost,dc=org`
+The user schema is located at this path: :file:`ou=users,dc=yunohost,dc=org`
 
 According to already existing code, the queries we uses are:
 
