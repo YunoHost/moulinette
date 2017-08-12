@@ -148,3 +148,5 @@ This give us the 2 following python calls:
 
 
 Apparently we could also access one user using the following path (and not query): :file:`uid=user_username,ou=users,dc=yunohost,dc=org` but I haven't test it.
+
+If you want specific attributes look at the general documentation on how to read from LDAP a bit above of this section.
