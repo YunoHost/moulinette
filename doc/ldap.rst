@@ -170,7 +170,7 @@ If you want specific attributes look at the general documentation on how to read
 Updating LDAP data
 ==================
 
-Update a user from ldap looks like a simplified version of searching. The syntax is the following one:
+Update a user from LDAP looks like a simplified version of searching. The syntax is the following one:
 
 ::
 
