@@ -243,3 +243,23 @@ This is done this way:
     auth.update('uid=some_username,ou=users', {'attribute': 'new_value', ...})
 
 Refer to the user schema to know which attributes you can modify.
+
+Validate uniqueness
+===================
+
+There is a method to validate the uniquess of some entry that is used during
+user creation. I haven't used it and I'm not sure on how it work.
+
+Here is how it's used (I don't understand why a path is not provided):
+
+::
+
+    # Validate uniqueness of username and mail in LDAP
+    auth.validate_uniqueness({
+        'uid': username,
+        'mail': mail
+    })
+
+And here is its docstring:
+
+.. automethod:: moulinette.authenticators.ldap.Authenticator.update
