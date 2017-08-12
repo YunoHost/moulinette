@@ -42,10 +42,20 @@ This will prompt the user for a password in CLI.
 
 If you only need to **read** LDAP (and not modify it, for example by listing
 domains), then you prevent the need for a password by using the
-`ldap-anonymous` authenticator this way:
+:file:`ldap-anonymous` authenticator this way:
 
 ::
 
     configuration:
         authenticate: all
         authenticator: ldap-anonymous
+
+
+Once you have declared your command like that, your python function will
+received the :file:`auth` object as first argument, it will be used to talk to
+LDAP, so you need to declare your function this way:
+
+::
+
+    def somecommand_stuff(auth, ...):
+        ...
