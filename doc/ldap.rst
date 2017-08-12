@@ -97,3 +97,26 @@ Notice that even for a single result we get a **list** of result and that every
 value in the dictionary is also a **list** of values. This is not really convenient and it would be better to have a real ORM, but for now we are stuck with that.
 
 Apparently if we don't specify the list of attributes it seems that we get all attributes (need to be confirmed).
+
+Reading users from LDAP
+-----------------------
+
+The user table (or I don't how you are supposed to call this thing in LDAP) is located at this path: :file:`ou=users,dc=yunohost,dc=org`
+
+According to already existing code, the queries we uses are:
+
+* :file:`'(&(objectclass=person)(!(uid=root))(!(uid=nobody)))'` to get all users (not that I've never encountered users with :file:`root` or :file:`nobody` uid in the ldap database, those might be there for historical reason)
+* :file:`'(&(objectclass=person)(uid=%s))' % username` to access one user data
+
+This give us the 2 following python calls:
+
+::
+
+    # all users
+    auth.search('ou=users,dc=yunohost,dc=org', '(&(objectclass=person)(!(uid=root))(!(uid=nobody)))')
+
+    # one user
+    auth.search('ou=users,dc=yunohost,dc=org', '(&(objectclass=person)(uid=some_username))')
+
+
+Apparently we could also access one user using the following path (and not query): :file:`uid=user_username,ou=users,dc=yunohost,dc=org` but I haven't test it.
