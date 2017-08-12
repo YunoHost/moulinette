@@ -150,3 +150,31 @@ This give us the 2 following python calls:
 Apparently we could also access one user using the following path (and not query): :file:`uid=user_username,ou=users,dc=yunohost,dc=org` but I haven't test it.
 
 If you want specific attributes look at the general documentation on how to read from LDAP a bit above of this section.
+
+Updating LDAP data
+==================
+
+Update a user from ldap looks like a simplified version of searching. The syntax is the following one:
+
+::
+
+    auth.update(exact_path_to_object, {'attribute_to_modify': 'new_value', 'another_attribute_to_modify': 'another_value', ...})
+
+For example this will update a user :file:`loginShell`:
+
+::
+
+    auth.update('uid=some_username,ou=users', {'loginShell': '/bin/bash'})
+
+I don't know how this call behave if it fails and what it returns.
+
+Updating a user in LDAP
+-------------------------
+
+This is done this way:
+
+::
+
+    auth.update('uid=some_username,ou=users', {'attribute': 'new_value', ...})
+
+Refer to the user schema to know which attributes you can modify.
