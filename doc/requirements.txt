@@ -1,2 +1,3 @@
 sphinx
 gnupg
+mock
