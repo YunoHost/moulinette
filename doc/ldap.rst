@@ -72,7 +72,9 @@ Here its docstring:
 LDAP Schema
 ===========
 
-This is a generated example of the ldap schema provided by YunoHost (instructions on how to generate it can be found in the :file:`ldap_graph.dot` file):
+This is a generated example of the ldap schema provided by YunoHost
+(instructions on how to generate it can be found in the :file:`ldap_graph.dot`
+file):
 
 .. image:: ldap_graph.png
 
