@@ -32,7 +32,7 @@ Here is a complete example:
         actions:
 
             ### somecommand_stuff()
-            list:
+            stuff:
                 action_help: ...
                 api: GET /...
                 configuration:
