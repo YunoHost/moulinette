@@ -212,6 +212,18 @@ Apparently we could also access one user using the following path (and not query
 
 If you want specific attributes look at the general documentation on how to read from LDAP a bit above of this section.
 
+Users LDAP schema
+-----------------
+
+According to :file:`ldapvi` this is the domain schema (on YunoHost 2.7):
+
+::
+
+    10 virtualdomain=domain.com,ou=domains,dc=yunohost,dc=org
+    objectClass: mailDomain
+    objectClass: top
+    virtualdomain: domain.com
+
 Updating LDAP data
 ==================
 
