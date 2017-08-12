@@ -1,0 +1,33 @@
+## this schema has been generated using the ldif2dot script found here http://marcin.owsiany.pl/ldif2dot-page
+## the ldapsearch query is: ldapsearch -x -b 'dc=yunohost,dc=org'
+## shape=box has been added everywhere by hand
+
+strict digraph "<stdin>" {
+  rankdir=LR
+  n0 [shape=box,label="dn: dc=yunohost,dc=org\lobjectClass: dcObject\lobjectClass: organization\lo: yunohost.org\ldc: yunohost\l"]
+  n1 [shape=box,label="dn: cn=admin,dc=yunohost,dc=org\lgidNumber: 1007\lcn: admin\lhomeDirectory: /home/admin\lobjectClass: organizationalRole\lobjectClass: posixAccount\lobjectClass: simpleSecurityObject\lloginShell: /bin/bash\ldescription: LDAP Administrator\luidNumber: 1007\luid: admin\l"]
+  n0->n1
+  n2 [shape=box,label="dn: ou=domains,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: domains\l"]
+  n0->n2
+  n3 [shape=box,label="dn: ou=groups,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: groups\l"]
+  n0->n3
+  n4 [shape=box,label="dn: ou=sudo,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: sudo\l"]
+  n0->n4
+  n5 [shape=box,label="dn: ou=apps,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: apps\l"]
+  n0->n5
+  n6 [shape=box,label="dn: ou=users,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: users\l"]
+  n0->n6
+  n7 [shape=box,label="dn: cn=admins,ou=groups,dc=yunohost,dc=org\lobjectClass: posixGroup\lmemberUid: admin\lgidNumber: 4001\lcn: admins\l"]
+  n3->n7
+  n8 [shape=box,label="dn: cn=sftpusers,ou=groups,dc=yunohost,dc=org\lobjectClass: posixGroup\lgidNumber: 4002\lcn: sftpusers\lmemberUid: admin\lmemberUid: neutrinet\lmemberUid: alice\lmemberUid: bob\l"]
+  n3->n8
+  n9 [shape=box,label="dn: cn=admin,ou=sudo,dc=yunohost,dc=org\lcn: admin\lsudoCommand: ALL\lsudoUser: admin\lobjectClass: sudoRole\lsudoOption: !authenticate\lsudoHost: ALL\l"]
+  n4->n9
+  n10 [shape=box,label="dn: virtualdomain=domain.com,ou=domains,dc=yunohost,dc=org\lobjectClass: mailDomain\lvirtualdomain: domain.com\l"]
+  n2->n10
+  n11 [shape=box,label="dn: uid=example_admin_user,ou=users,dc=yunohost,dc=org\luid: example_admin_user\lobjectClass: mailAccount\lobjectClass: inetOrgPerson\lobjectClass: posixAccount\lloginShell: /bin/false\luidNumber: 80833\lmaildrop: example_admin_user\lcn: firstname lastname\ldisplayName: firstname lastname\lmailuserquota: 0\lgidNumber: 80833\lsn: lastname\lhomeDirectory: /home/example_admin_user\lmail: example_admin_user@domain.com\lmail: root@domain.com\lmail: admin@domain.com\lmail: webmaster@domain.com\lmail: postmaster@domain.com\lgivenName: firstname\l"]
+  n6->n11
+  n12 [shape=box,label="dn: uid=alice,ou=users,dc=yunohost,dc=org\luid: alice\lobjectClass: mailAccount\lobjectClass: inetOrgPerson\lobjectClass: posixAccount\luidNumber: 41580\lmaildrop: alice\lcn: alice pouet\ldisplayName: alice pouet\lmailuserquota: 0\lgidNumber: 41580\lsn: pouet\lhomeDirectory: /home/alice\lmail: alice@ynh.local\lgivenName: alice\lloginShell: /bin/bash\l"]
+  n6->n12
+}
+

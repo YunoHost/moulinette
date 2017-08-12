@@ -1,0 +1,140 @@
+# extended LDIF
+#
+# LDAPv3
+# base <dc=yunohost,dc=org> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# yunohost.org
+dn: dc=yunohost,dc=org
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: yunohost.org
+dc: yunohost
+
+# admin, yunohost.org
+dn: cn=admin,dc=yunohost,dc=org
+gidNumber: 1007
+cn: admin
+homeDirectory: /home/admin
+objectClass: organizationalRole
+objectClass: posixAccount
+objectClass: simpleSecurityObject
+loginShell: /bin/bash
+description: LDAP Administrator
+uidNumber: 1007
+uid: admin
+
+# domains, yunohost.org
+dn: ou=domains,dc=yunohost,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: domains
+
+# groups, yunohost.org
+dn: ou=groups,dc=yunohost,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+# sudo, yunohost.org
+dn: ou=sudo,dc=yunohost,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: sudo
+
+# apps, yunohost.org
+dn: ou=apps,dc=yunohost,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: apps
+
+# users, yunohost.org
+dn: ou=users,dc=yunohost,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+# admins, groups, yunohost.org
+dn: cn=admins,ou=groups,dc=yunohost,dc=org
+objectClass: posixGroup
+objectClass: top
+memberUid: admin
+gidNumber: 4001
+cn: admins
+
+# sftpusers, groups, yunohost.org
+dn: cn=sftpusers,ou=groups,dc=yunohost,dc=org
+objectClass: posixGroup
+objectClass: top
+gidNumber: 4002
+cn: sftpusers
+memberUid: admin
+memberUid: neutrinet
+memberUid: alice
+memberUid: bob
+
+# admin, sudo, yunohost.org
+dn: cn=admin,ou=sudo,dc=yunohost,dc=org
+cn: admin
+sudoCommand: ALL
+sudoUser: admin
+objectClass: sudoRole
+objectClass: top
+sudoOption: !authenticate
+sudoHost: ALL
+
+# domain.com, domains, yunohost.org
+dn: virtualdomain=domain.com,ou=domains,dc=yunohost,dc=org
+objectClass: mailDomain
+objectClass: top
+virtualdomain: domain.com
+
+# example_admin_user, users, yunohost.org
+dn: uid=example_admin_user,ou=users,dc=yunohost,dc=org
+uid: example_admin_user
+objectClass: mailAccount
+objectClass: inetOrgPerson
+objectClass: posixAccount
+loginShell: /bin/false
+uidNumber: 80833
+maildrop: example_admin_user
+cn: firstname lastname
+displayName: firstname lastname
+mailuserquota: 0
+gidNumber: 80833
+sn: lastname
+homeDirectory: /home/example_admin_user
+mail: example_admin_user@domain.com
+mail: root@domain.com
+mail: admin@domain.com
+mail: webmaster@domain.com
+mail: postmaster@domain.com
+givenName: firstname
+
+# alice, users, yunohost.org
+dn: uid=alice,ou=users,dc=yunohost,dc=org
+uid: alice
+objectClass: mailAccount
+objectClass: inetOrgPerson
+objectClass: posixAccount
+uidNumber: 41580
+maildrop: alice
+cn: alice pouet
+displayName: alice pouet
+mailuserquota: 0
+gidNumber: 41580
+sn: pouet
+homeDirectory: /home/alice
+mail: alice@ynh.local
+givenName: alice
+loginShell: /bin/bash
+
+# search result
+search: 2
+result: 0 Success
+
+# numResponses: 21
+# numEntries: 20

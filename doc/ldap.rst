@@ -224,6 +224,7 @@ According to :file:`ldapvi` this is the domain schema (on YunoHost 2.7):
     objectClass: top
     virtualdomain: domain.com
 
+
 Updating LDAP data
 ==================
 
