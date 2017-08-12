@@ -107,6 +107,10 @@ value in the dictionary is also a **list** of values. This is not really conveni
 
 Apparently if we don't specify the list of attributes it seems that we get all attributes (need to be confirmed).
 
+Here is the method docstring:
+
+.. automethod:: moulinette.authenticators.ldap.Authenticator.search
+
 Users LDAP schema
 -----------------
 
@@ -224,6 +228,10 @@ For example this will update a user :file:`loginShell`:
     auth.update('uid=some_username,ou=users', {'loginShell': '/bin/bash'})
 
 I don't know how this call behave if it fails and what it returns.
+
+Here is the method docstring:
+
+.. automethod:: moulinette.authenticators.ldap.Authenticator.update
 
 Updating a user in LDAP
 -------------------------
