@@ -60,6 +60,15 @@ LDAP, so you need to declare your function this way:
     def somecommand_stuff(auth, ...):
         ...
 
+auth in the moulinette code
+---------------------------
+
+The :file:`auth` object is an instance of :file:`moulinette.authenticators.ldap.Authenticator` class.
+
+Here its docstring:
+
+.. autoclass:: moulinette.authenticators.ldap.Authenticator
+
 Reading from LDAP
 =================
 
