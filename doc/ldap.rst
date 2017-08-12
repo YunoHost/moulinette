@@ -143,6 +143,37 @@ The admin user is a special case that looks like this:
     uidNumber: 1007
     uid: admin
 
+Other user related schemas:
+
+::
+
+
+    # path: cn=admins,ou=groups,dc=yunohost,dc=org
+    objectClass: posixGroup
+    objectClass: top
+    memberUid: admin
+    gidNumber: 4001
+    cn: admins
+
+    # path: cn=sftpusers,ou=groups,dc=yunohost,dc=org
+    objectClass: posixGroup
+    objectClass: top
+    gidNumber: 4002
+    cn: sftpusers
+    memberUid: admin
+    memberUid: alice
+    # and all other users
+
+    # path: cn=admin,ou=sudo,dc=yunohost,dc=org
+    # this entry seems to specify which unix user is a sudoer
+    cn: admin
+    sudoCommand: ALL
+    sudoUser: admin
+    objectClass: sudoRole
+    objectClass: top
+    sudoOption: !authenticate
+    sudoHost: ALL
+
 Reading users from LDAP
 -----------------------
 
