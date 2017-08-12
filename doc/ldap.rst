@@ -101,11 +101,11 @@ Apparently if we don't specify the list of attributes it seems that we get all a
 Users LDAP schema
 -----------------
 
-According to :file:`ldapvi` this is the user schema (on YunoHost 2.7) and is
-located at :file:`uid=the_unix_username,ou=users,dc=yunohost,dc=org`:
+According to :file:`ldapvi` this is the user schema (on YunoHost 2.7):
 
 ::
 
+    # path: uid=the_unix_username,ou=users,dc=yunohost,dc=org
     uid: the_unix_username
     objectClass: mailAccount
     objectClass: inetOrgPerson
@@ -127,10 +127,11 @@ located at :file:`uid=the_unix_username,ou=users,dc=yunohost,dc=org`:
     mail: postmaster@domain.com
     givenName: first_name
 
-The admin user is a special case, is located at :file:`cn=admin,dc=yunohost,dc=org` and looks like this:
+The admin user is a special case that looks like this:
 
 ::
 
+    # path: cn=admin,dc=yunohost,dc=org
     gidNumber: 1007
     cn: admin
     homeDirectory: /home/admin
