@@ -1,3 +1,4 @@
+=================================================
 Common LDAP operation (for YunoHost but not only)
 =================================================
 
@@ -11,7 +12,7 @@ like:
 This page document how to uses it on a programming side in YunoHost.
 
 Getting access to LDAP in a command
------------------------------------
+===================================
 
 To get access to LDAP you need to authenticate against it, for that you need to
 declare you command with requiring authentication in the :ref:`actionsmap` this way:
