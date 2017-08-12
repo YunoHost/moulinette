@@ -1,7 +1,7 @@
 Welcome to Moulinette's documentation!
 ======================================
 
-`https://github.com/yunohost/Moulinette <Moulinette>`_ is the internet
+`https://github.com/yunohost/Moulinette <Moulinette>`_ is the internal
 framework used by `YunoHost <https://yunohost.org>`_ to generate both its web
 Rest API and CLI interface.
 
