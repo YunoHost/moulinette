@@ -101,7 +101,8 @@ Apparently if we don't specify the list of attributes it seems that we get all a
 Users LDAP schema
 -----------------
 
-According to :file:`ldapvi` this is the user schema (on YunoHost 2.7):
+According to :file:`ldapvi` this is the user schema (on YunoHost 2.7) and is
+located at :file:`uid=the_unix_username,ou=users,dc=yunohost,dc=org`:
 
 ::
 
