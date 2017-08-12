@@ -1,0 +1,4 @@
+sphinx
+gnupg
+# libsasl2-dev
+python-ldap
