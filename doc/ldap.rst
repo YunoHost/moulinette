@@ -98,6 +98,34 @@ value in the dictionary is also a **list** of values. This is not really conveni
 
 Apparently if we don't specify the list of attributes it seems that we get all attributes (need to be confirmed).
 
+Users LDAP schema
+-----------------
+
+According to :file:`ldapvi` this is the user schema (on YunoHost 2.7):
+
+::
+
+    uid: the_unix_username
+    objectClass: mailAccount
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    loginShell: /bin/false
+    uidNumber: 80833
+    maildrop: the_unix_username  # why?
+    cn: first_name last_name
+    displayName: first_name last_name
+    mailuserquota: some_value
+    gidNumber: 80833
+    sn: last_name
+    homeDirectory: /home/the_unix_username
+    mail: the_unix_username@domain.com
+    # if the user is the admin he will also have the following mails
+    mail: root@domain.com
+    mail: admin@domain.com
+    mail: webmaster@domain.com
+    mail: postmaster@domain.com
+    givenName: first_name
+
 Reading users from LDAP
 -----------------------
 
