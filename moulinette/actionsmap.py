@@ -458,7 +458,7 @@ class ActionsMap(object):
         # Retrieve action information
         if len(tid) == 4:
             namespace, category, subcategory, action = tid
-            func_name = '%s_%s_%s' % (category, subcategory, action.replace('-', '_'))
+            func_name = '%s_%s_%s' % (category, subcategory.replace('-', '_'), action.replace('-', '_'))
             full_action_name = "%s.%s.%s.%s" % (namespace, category, subcategory, action)
         else:
             assert len(tid) == 3
