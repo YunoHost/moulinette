@@ -59,3 +59,41 @@ LDAP, so you need to declare your function this way:
 
     def somecommand_stuff(auth, ...):
         ...
+
+Reading from LDAP
+=================
+
+Reading data from LDAP is done using the :file:`auth` object received as first
+argument of the python function. To see how to get this object read the
+previous section.
+
+The API looks like this:
+
+::
+
+    auth.search(ldap_path, ldap_query)
+
+This will return a list of dictionary with strings as keys and list as values.
+
+You can also specify a list of attributes you want to access from LDAP using a list of string (on only one string apparently):
+
+::
+
+    auth.search(ldap_path, ldap_query, ['first_attribute', 'another_attribute'])
+
+For example, if we request the user :file:`alice` with its :file:`homeDirectory`, this would look like this:
+
+::
+
+    auth.search('ou=users,dc=yunohost,dc=org', '(&(objectclass=person)(uid=alice))', ['homeDirectory', 'another_attribute'])
+
+And as a result we will get:
+
+::
+
+    [{'homeDirectory': ['/home/alice']}]
+
+Notice that even for a single result we get a **list** of result and that every
+value in the dictionary is also a **list** of values. This is not really convenient and it would be better to have a real ORM, but for now we are stuck with that.
+
+Apparently if we don't specify the list of attributes it seems that we get all attributes (need to be confirmed).
