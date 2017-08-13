@@ -5,6 +5,7 @@ import time
 import json
 import errno
 import logging
+import psutil
 
 from importlib import import_module
 
@@ -446,13 +447,13 @@ class MoulinetteLock(object):
                 self._bypass = True
                 break
 
-            if not os.path.isfile(self._lockfile):
+            lock_pid = self._lock_PID()
+
+            if lock_pid is None:
                 self._lock()
                 break
             elif not self._stale_checked:
                 self._stale_checked = True
-                with open(self._lockfile) as f:
-                    lock_pid = f.read().strip()
                 # Delete stale lock file
                 if not lock_pid or not os.path.exists(
                         os.path.join('/proc', lock_pid, 'exe')):
@@ -492,8 +493,38 @@ class MoulinetteLock(object):
                     moulinette.m18n.g('permission_denied'),
                     moulinette.m18n.g('root_required')))
 
+    def _lock_PID(self):
+
+        if not os.path.isfile(self._lockfile):
+            return None
+
+        with open(self._lockfile) as f:
+            lock_pid = f.read().strip()
+
+        return lock_pid
+
+
+    def _is_son_of_locked(self):
+
+        lock_pid = self._lock_PID()
+
+        if lock_pid is None:
+            return False
+
+        parent = psutil.Process()
+        # While this is not the very first process
+        while parent.parent() != None:
+            # If parent PID is the lock, the yes! we are a son of the process
+            # with the lock...
+            if parent.ppid() == int(lock_pid):
+                return True
+            # Otherwise, try 'next' parent
+            parent = parent.parent()
+
+        return False
+
     def __enter__(self):
-        if not self._locked:
+        if not self._locked and not self._is_son_of_locked():
             self.acquire()
         return self
 
