@@ -99,8 +99,15 @@ class Element(object):
         Args:
          - dnmap: dictionary mapping dn names to Element objects
         """
-        return '  n%d [label="%s\\l"]\n%s' % (self.index, '\\l'.join(self.attributes), self.edge(dnmap))
+        def _format(attributes):
+            result = [TITLE_ENTRY_TEMPALTE % attributes[0]]
 
+            for attribute in attributes[1:]:
+                result.append(ENTRY_TEMPALTE % attribute)
+
+            return result
+
+        return TABLE_TEMPLATE % (self.index, '\n    '.join(_format(self.attributes)), self.edge(dnmap))
 
 class Converter(object):
     """An LDIF to DOT converter."""
@@ -137,8 +144,51 @@ class Converter(object):
                 e = Element()
         if e.is_valid():
             self._append(e)
-        return ('strict digraph "%s" {\n  rankdir=LR\n%s}\n'
-            % (name, ''.join([e.dot(self.dnmap) for e in self.elements])))
+        return (BASE_TEMPLATE % (name, ''.join([e.dot(self.dnmap) for e in self.elements])))
+
+BASE_TEMPLATE = """\
+strict digraph "%s" {
+  rankdir=LR
+
+  fontname = "Helvetica"
+  fontsize = 10
+  splines  = true
+
+  node [
+    fontname = "Helvetica"
+    fontsize = 10
+    shape = "plaintext"
+  ]
+
+  edge [
+    fontname = "Helvetica"
+    fontsize = 10
+  ]
+
+%s}
+"""
+
+TABLE_TEMPLATE = """\n
+  n%d [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+    %s
+    </TABLE>
+  >]
+%s
+"""
+
+TITLE_ENTRY_TEMPALTE = """\
+    <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    %s
+    </FONT></TD></TR>\
+"""
+
+ENTRY_TEMPALTE = """\
+    <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">%s</FONT>
+    </TD></TR>\
+"""
 
 
 if __name__ == '__main__':
