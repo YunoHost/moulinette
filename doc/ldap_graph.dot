@@ -1,33 +1,406 @@
-## this schema has been generated using the ldif2dot script found here http://marcin.owsiany.pl/ldif2dot-page
-## the ldapsearch query is: ldapsearch -x -b 'dc=yunohost,dc=org'
-## shape=box has been added everywhere by hand
-
 strict digraph "<stdin>" {
   rankdir=LR
-  n0 [shape=box,label="dn: dc=yunohost,dc=org\lobjectClass: dcObject\lobjectClass: organization\lo: yunohost.org\ldc: yunohost\l"]
-  n1 [shape=box,label="dn: cn=admin,dc=yunohost,dc=org\lgidNumber: 1007\lcn: admin\lhomeDirectory: /home/admin\lobjectClass: organizationalRole\lobjectClass: posixAccount\lobjectClass: simpleSecurityObject\lloginShell: /bin/bash\ldescription: LDAP Administrator\luidNumber: 1007\luid: admin\l"]
+
+  fontname = "Helvetica"
+  fontsize = 10
+  splines  = true
+
+  node [
+    fontname = "Helvetica"
+    fontsize = 10
+    shape = "plaintext"
+  ]
+
+  edge [
+    fontname = "Helvetica"
+    fontsize = 10
+  ]
+
+
+
+  n0 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: dcObject</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organization</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">o: yunohost.org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">dc: yunohost</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+
+
+
+  n1 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=admin,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 1007</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: admin</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">homeDirectory: /home/admin</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalRole</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixAccount</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: simpleSecurityObject</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">loginShell: /bin/bash</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">description: LDAP Administrator</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">uidNumber: 1007</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">uid: admin</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n0->n1
-  n2 [shape=box,label="dn: ou=domains,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: domains\l"]
+
+
+
+  n2 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: ou=domains,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">ou: domains</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n0->n2
-  n3 [shape=box,label="dn: ou=groups,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: groups\l"]
+
+
+
+  n3 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: ou=groups,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">ou: groups</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n0->n3
-  n4 [shape=box,label="dn: ou=sudo,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: sudo\l"]
+
+
+
+  n4 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: ou=sudo,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">ou: sudo</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n0->n4
-  n5 [shape=box,label="dn: ou=apps,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: apps\l"]
+
+
+
+  n5 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: ou=apps,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">ou: apps</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n0->n5
-  n6 [shape=box,label="dn: ou=users,dc=yunohost,dc=org\lobjectClass: organizationalUnit\lou: users\l"]
+
+
+
+  n6 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: ou=users,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">ou: users</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n0->n6
-  n7 [shape=box,label="dn: cn=admins,ou=groups,dc=yunohost,dc=org\lobjectClass: posixGroup\lmemberUid: admin\lgidNumber: 4001\lcn: admins\l"]
+
+
+
+  n7 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=admins,ou=groups,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: admin</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 4001</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: admins</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n3->n7
-  n8 [shape=box,label="dn: cn=sftpusers,ou=groups,dc=yunohost,dc=org\lobjectClass: posixGroup\lgidNumber: 4002\lcn: sftpusers\lmemberUid: admin\lmemberUid: neutrinet\lmemberUid: alice\lmemberUid: bob\l"]
+
+
+
+  n8 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=sftpusers,ou=groups,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 4002</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: sftpusers</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: admin</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: neutrinet</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: bob</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n3->n8
-  n9 [shape=box,label="dn: cn=admin,ou=sudo,dc=yunohost,dc=org\lcn: admin\lsudoCommand: ALL\lsudoUser: admin\lobjectClass: sudoRole\lsudoOption: !authenticate\lsudoHost: ALL\l"]
+
+
+
+  n9 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=admin,ou=sudo,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: admin</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">sudoCommand: ALL</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">sudoUser: admin</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: sudoRole</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">sudoOption: !authenticate</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">sudoHost: ALL</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n4->n9
-  n10 [shape=box,label="dn: virtualdomain=domain.com,ou=domains,dc=yunohost,dc=org\lobjectClass: mailDomain\lvirtualdomain: domain.com\l"]
+
+
+
+  n10 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: virtualdomain=domain.com,ou=domains,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: mailDomain</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">virtualdomain: domain.com</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n2->n10
-  n11 [shape=box,label="dn: uid=example_admin_user,ou=users,dc=yunohost,dc=org\luid: example_admin_user\lobjectClass: mailAccount\lobjectClass: inetOrgPerson\lobjectClass: posixAccount\lloginShell: /bin/false\luidNumber: 80833\lmaildrop: example_admin_user\lcn: firstname lastname\ldisplayName: firstname lastname\lmailuserquota: 0\lgidNumber: 80833\lsn: lastname\lhomeDirectory: /home/example_admin_user\lmail: example_admin_user@domain.com\lmail: root@domain.com\lmail: admin@domain.com\lmail: webmaster@domain.com\lmail: postmaster@domain.com\lgivenName: firstname\l"]
+
+
+
+  n11 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: uid=example_admin_user,ou=users,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">uid: example_admin_user</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: mailAccount</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: inetOrgPerson</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixAccount</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">loginShell: /bin/false</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">uidNumber: 80833</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">maildrop: example_admin_user</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: firstname lastname</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">displayName: firstname lastname</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mailuserquota: 0</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 80833</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">sn: lastname</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">homeDirectory: /home/example_admin_user</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mail: example_admin_user@domain.com</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mail: root@domain.com</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mail: admin@domain.com</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mail: webmaster@domain.com</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mail: postmaster@domain.com</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">givenName: firstname</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n6->n11
-  n12 [shape=box,label="dn: uid=alice,ou=users,dc=yunohost,dc=org\luid: alice\lobjectClass: mailAccount\lobjectClass: inetOrgPerson\lobjectClass: posixAccount\luidNumber: 41580\lmaildrop: alice\lcn: alice pouet\ldisplayName: alice pouet\lmailuserquota: 0\lgidNumber: 41580\lsn: pouet\lhomeDirectory: /home/alice\lmail: alice@ynh.local\lgivenName: alice\lloginShell: /bin/bash\l"]
+
+
+
+  n12 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: uid=alice,ou=users,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">uid: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: mailAccount</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: inetOrgPerson</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixAccount</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">uidNumber: 41580</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">maildrop: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: alice pouet</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">displayName: alice pouet</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mailuserquota: 0</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 41580</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">sn: pouet</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">homeDirectory: /home/alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">mail: alice@ynh.local</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">givenName: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">loginShell: /bin/bash</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
   n6->n12
+
 }
 
