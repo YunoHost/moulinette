@@ -16,6 +16,7 @@ a reference.
    :maxdepth: 2
    :caption: Contents:
 
+   actionsmap
    ldap
    m18n
    utils/filesystem
