@@ -12,6 +12,10 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+ldap_graph:
+	cat ldapsearch.result | python ldif2dot-0.1.py > ldap_graph.dot
+	dot -Tpng ldap_graph.dot > ldap_graph.png
+
 .PHONY: help Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new
