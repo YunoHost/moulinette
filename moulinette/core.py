@@ -496,7 +496,6 @@ class MoulinetteLock(object):
 
         return lock_pid
 
-
     def _is_son_of_locked(self):
 
         lock_pid = self._lock_PID()
@@ -506,7 +505,7 @@ class MoulinetteLock(object):
 
         parent = psutil.Process()
         # While this is not the very first process
-        while parent.parent() != None:
+        while parent.parent() is not None:
             # If parent PID is the lock, the yes! we are a son of the process
             # with the lock...
             if parent.ppid() == int(lock_pid):
