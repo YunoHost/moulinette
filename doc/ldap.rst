@@ -233,6 +233,70 @@ According to :file:`ldapvi` this is the domain schema (on YunoHost 2.7):
     virtualdomain: domain.com
 
 
+Adding data in LDAP
+===================
+
+Adding stuff in LDAP seems pretty simple, according to existing code it looks like this:
+
+::
+
+    auth.add('key=%s,ou=some_location', {'attribute1': 'value', ...})
+
+They weird stuff is the path you need to create. This looks like that for domain and users:
+
+::
+
+    # domain
+    auth.add('virtualdomain=%s,ou=domains' % domain, attr_dict)
+
+    # user
+    auth.add('uid=%s,ou=users' % username, attr_dict)
+
+You need to respect the expected attributes. Refer to the schemas for that.
+
+:file:`auth.add` seems to return something false when it failed (None probably)
+so you need to check it's return code.
+
+Here is the docstring:
+
+.. automethod:: moulinette.authenticators.ldap.Authenticator.add
+
+Adding user in LDAP
+-------------------
+
+Here is how it's done for a new user:
+
+::
+
+    auth.add('uid=%s,ou=users' % username, {
+        'objectClass': ['mailAccount', 'inetOrgPerson', 'posixAccount'],
+        'givenName': firstname,
+        'sn': lastname,
+        'displayName': '%s %s' % (firstname, lastname),
+        'cn': fullname,
+        'uid': username,
+        'mail': mail,
+        'maildrop': username,
+        'mailuserquota': mailbox_quota,
+        'userPassword': user_pwd,
+        'gidNumber': uid,
+        'uidNumber': uid,
+        'homeDirectory': '/home/' + username,
+        'loginShell': '/bin/false'
+    })
+
+Adding a domain in LDAP
+-----------------------
+
+Here is how it's done for a new domain:
+
+::
+
+    auth.add('virtualdomain=%s,ou=domains' % domain, {
+        'objectClass': ['mailDomain', 'top']
+        'virtualdomain': domain,
+    })
+
 Updating LDAP data
 ==================
 
