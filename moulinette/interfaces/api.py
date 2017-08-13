@@ -634,9 +634,6 @@ class ActionsMapParser(BaseActionsMapParser):
             raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
         ret = argparse.Namespace()
 
-        if not self.get_conf(tid, 'lock'):
-            os.environ['BYPASS_LOCK'] = 'yes'
-
         # Perform authentication if needed
         if self.get_conf(tid, 'authenticate'):
             # TODO: Clean this hard fix and find a way to set an authenticator

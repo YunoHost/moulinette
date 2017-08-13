@@ -430,7 +430,6 @@ class MoulinetteLock(object):
         self._lockfile = '/var/run/moulinette_%s.lock' % namespace
         self._stale_checked = False
         self._locked = False
-        self._bypass = False
 
     def acquire(self):
         """Attempt to acquire the lock for the moulinette instance
@@ -443,10 +442,6 @@ class MoulinetteLock(object):
         start_time = time.time()
 
         while True:
-            if 'BYPASS_LOCK' in os.environ and os.environ['BYPASS_LOCK'] == 'yes':
-                self._bypass = True
-                break
-
             lock_pid = self._lock_PID()
 
             if lock_pid is None:
@@ -477,9 +472,7 @@ class MoulinetteLock(object):
 
         """
         if self._locked:
-            if not self._bypass:
-                os.unlink(self._lockfile)
-
+            os.unlink(self._lockfile)
             logger.debug('lock has been released')
             self._locked = False
 
