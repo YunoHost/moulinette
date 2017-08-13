@@ -348,3 +348,27 @@ Here is how it's used (I don't understand why a path is not provided):
 And here is its docstring:
 
 .. automethod:: moulinette.authenticators.ldap.Authenticator.update
+
+Remove entries from LDAP
+========================
+
+Remove entries from LDAP is very simple, quite close to adding stuff except you don't need to specify the attributes dict, you just need to entrie path:
+
+::
+
+    auth.remove(path)
+
+Here how it looks like for domain and user:
+
+::
+
+    # domain
+    auth.remove('virtualdomain=%s,ou=domains' % domain)
+
+    # user
+    auth.remove('uid=%s,ou=users' % username)
+
+:file:`auth.remove` returns something that evaluate to False when it fails
+(:file:`None` ?) so you need to check it returns code.
+
+.. automethod:: moulinette.authenticators.ldap.Authenticator.remove
