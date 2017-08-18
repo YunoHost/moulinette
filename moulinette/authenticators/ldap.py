@@ -96,10 +96,14 @@ class Authenticator(BaseAuthenticator):
             return '{CRYPT}' + crypt.crypt(str(password), salt)
 
         hashed_password = self.search("cn=admin,dc=yunohost,dc=org",
-                                      attrs=["userPassword"])[0]["userPassword"][0]
+                                      attrs=["userPassword"])[0]
+
+        # post-install situation, password is not already set
+        if "userPassword" not in hashed_password or not hashed_password["userPassword"]:
+            return
 
         # we aren't using sha-512 but something else that is weaker, proceed to upgrade
-        if not hashed_password.startswith("{CRYPT}$6$"):
+        if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
             self.update("cn=admin", {
                 "userPassword": _hash_user_password(password),
             })
