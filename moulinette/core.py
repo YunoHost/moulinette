@@ -5,6 +5,7 @@ import time
 import json
 import errno
 import logging
+import psutil
 
 from importlib import import_module
 
@@ -429,7 +430,6 @@ class MoulinetteLock(object):
         self._lockfile = '/var/run/moulinette_%s.lock' % namespace
         self._stale_checked = False
         self._locked = False
-        self._bypass = False
 
     def acquire(self):
         """Attempt to acquire the lock for the moulinette instance
@@ -442,17 +442,13 @@ class MoulinetteLock(object):
         start_time = time.time()
 
         while True:
-            if 'BYPASS_LOCK' in os.environ and os.environ['BYPASS_LOCK'] == 'yes':
-                self._bypass = True
-                break
+            lock_pid = self._lock_PID()
 
-            if not os.path.isfile(self._lockfile):
+            if lock_pid is None:
                 self._lock()
                 break
             elif not self._stale_checked:
                 self._stale_checked = True
-                with open(self._lockfile) as f:
-                    lock_pid = f.read().strip()
                 # Delete stale lock file
                 if not lock_pid or not os.path.exists(
                         os.path.join('/proc', lock_pid, 'exe')):
@@ -476,9 +472,7 @@ class MoulinetteLock(object):
 
         """
         if self._locked:
-            if not self._bypass:
-                os.unlink(self._lockfile)
-
+            os.unlink(self._lockfile)
             logger.debug('lock has been released')
             self._locked = False
 
@@ -492,8 +486,37 @@ class MoulinetteLock(object):
                     moulinette.m18n.g('permission_denied'),
                     moulinette.m18n.g('root_required')))
 
+    def _lock_PID(self):
+
+        if not os.path.isfile(self._lockfile):
+            return None
+
+        with open(self._lockfile) as f:
+            lock_pid = f.read().strip()
+
+        return lock_pid
+
+    def _is_son_of_locked(self):
+
+        lock_pid = self._lock_PID()
+
+        if lock_pid is None:
+            return False
+
+        parent = psutil.Process()
+        # While this is not the very first process
+        while parent.parent() is not None:
+            # If parent PID is the lock, the yes! we are a son of the process
+            # with the lock...
+            if parent.ppid() == int(lock_pid):
+                return True
+            # Otherwise, try 'next' parent
+            parent = parent.parent()
+
+        return False
+
     def __enter__(self):
-        if not self._locked:
+        if not self._locked and not self._is_son_of_locked():
             self.acquire()
         return self
 

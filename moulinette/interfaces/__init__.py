@@ -152,10 +152,6 @@ class BaseActionsMapParser(object):
             namespace = argparse.Namespace()
         namespace._tid = tid
 
-        # Check lock
-        if not self.get_conf(tid, 'lock'):
-            os.environ['BYPASS_LOCK'] = 'yes'
-
         # Perform authentication if needed
         if self.get_conf(tid, 'authenticate'):
             auth_conf, cls = self.get_conf(tid, 'authenticator')
