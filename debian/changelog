@@ -1,3 +1,19 @@
+moulinette (2.7.1) testing; urgency=low
+
+  ## Security
+  * [fix] auto upgrade admin password to sha-512 on login (Laurent Peuch)
+
+  ## Lock management
+  * [enh] Check if parent already has lock (Alexandre Aubin)
+
+  ## Translation
+  * [i18n] Translated using Weblate (French) (remy cabaret, Jean-Baptiste Holcroft )
+  * [i18n] Translated using Weblate (Esperanto) (MCMic)
+
+  Thanks to all contributors (Bram, Aleks, R., remy cabaret, Jean-Baptiste Holcroft, MCMic) ! <3
+
+ -- Laurent Peuch <cortex@worlddomination.be>  Sat, 19 Aug 2017 22:58:11 +0000
+
 moulinette (2.7.0) testing; urgency=low
 
   * [enh] More helpers for common IO operations (#141)
