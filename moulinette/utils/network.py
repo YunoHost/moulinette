@@ -48,7 +48,14 @@ def download_text(url, timeout=30):
 
 
 def download_json(url, timeout=30):
+    """
+    Download json from a url and returns the loaded json object
 
+    Keyword argument:
+        url -- The url to download the data from
+        timeout -- Number of seconds allowed for download to effectively start
+        before giving up
+    """
     # Fetch the data
     text = download_text(url, timeout)
 
