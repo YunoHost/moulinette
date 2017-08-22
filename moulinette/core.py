@@ -5,6 +5,7 @@ import time
 import json
 import errno
 import logging
+import psutil
 
 from importlib import import_module
 
@@ -496,12 +497,6 @@ class MoulinetteLock(object):
         return lock_pid
 
     def _is_son_of_locked(self):
-        # this is here and not at the beginning of the file to fix a bug in our
-        # debian build toolchain because it doesn't handle additional
-        # dependancies during the guilde and core.py is indirectly imported by
-        # setup.py
-        import psutil
-
         lock_pid = self._lock_PID()
 
         if lock_pid is None:
