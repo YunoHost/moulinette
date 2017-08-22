@@ -1,3 +1,10 @@
+moulinette (2.7.1.1) testing; urgency=low
+
+  [ Laurent Peuch ]
+  * [fix] bad hack to handle the limitation of our buildchain
+
+ -- Laurent Peuch <cortex@worlddomination.be>  Sun, 20 Aug 2017 01:49:49 +0000
+
 moulinette (2.7.1) testing; urgency=low
 
   ## Security
