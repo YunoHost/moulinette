@@ -1,3 +1,10 @@
+moulinette (2.7.2) stable; urgency=low
+
+  * Revert hack for buildchain, found a proper solution
+  * Release as stable
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 22 Aug 2017 20:49:11 -0400
+
 moulinette (2.7.1.1) testing; urgency=low
 
   [ Laurent Peuch ]
