@@ -442,6 +442,10 @@ class MoulinetteLock(object):
         start_time = time.time()
 
         while True:
+
+            if self._is_son_of_locked():
+                return
+
             lock_pid = self._lock_PID()
 
             if lock_pid is None:
@@ -517,7 +521,7 @@ class MoulinetteLock(object):
         return False
 
     def __enter__(self):
-        if not self._locked and not self._is_son_of_locked():
+        if not self._locked:
             self.acquire()
         return self
 
