@@ -502,9 +502,11 @@ class MoulinetteLock(object):
         if lock_pid is None:
             return False
 
+        # Start with self
         parent = psutil.Process()
-        # While this is not the very first process
-        while parent.parent() is not None:
+
+        # While there is a parent... (e.g. init has no parent)
+        while parent is not None:
             # If parent PID is the lock, the yes! we are a son of the process
             # with the lock...
             if parent.ppid() == int(lock_pid):
