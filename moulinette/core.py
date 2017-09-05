@@ -446,16 +446,17 @@ class MoulinetteLock(object):
             if self._is_son_of_locked():
                 return
 
-            lock_pid = self._lock_PID()
+            lock_pids = self._lock_PIDs()
 
-            if lock_pid is None:
+            if lock_pids == []:
                 self._lock()
                 break
             elif not self._stale_checked:
                 self._stale_checked = True
-                # Delete stale lock file
-                if not lock_pid or not os.path.exists(
-                        os.path.join('/proc', lock_pid, 'exe')):
+                # Check locked process still exist and take lock if it doesnt
+                # FIXME : what do in the context of multiple locks :|
+                first_lock = lock_pids[0]
+                if not os.path.exists(os.path.join('/proc', str(first_lock), 'exe')):
                     logger.debug('stale lock file found')
                     self._lock()
                     break
@@ -490,20 +491,23 @@ class MoulinetteLock(object):
                     moulinette.m18n.g('permission_denied'),
                     moulinette.m18n.g('root_required')))
 
-    def _lock_PID(self):
+    def _lock_PIDs(self):
 
         if not os.path.isfile(self._lockfile):
-            return None
+            return []
 
         with open(self._lockfile) as f:
-            lock_pid = f.read().strip()
+            lock_pids = f.read().strip().split('\n')
 
-        return lock_pid
+        # Make sure to convert those pids to integers
+        lock_pids = [ int(pid) for pid in lock_pids ]
+
+        return lock_pids
 
     def _is_son_of_locked(self):
-        lock_pid = self._lock_PID()
+        lock_pids = self._lock_PIDs()
 
-        if lock_pid is None:
+        if lock_pids == []:
             return False
 
         # Start with self
@@ -513,7 +517,7 @@ class MoulinetteLock(object):
         while parent is not None:
             # If parent PID is the lock, the yes! we are a son of the process
             # with the lock...
-            if parent.ppid() == int(lock_pid):
+            if parent.ppid() in lock_pids:
                 return True
             # Otherwise, try 'next' parent
             parent = parent.parent()
