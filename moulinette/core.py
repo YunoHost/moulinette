@@ -443,10 +443,10 @@ class MoulinetteLock(object):
 
         while True:
 
-            if self._is_son_of_locked():
-                return
-
             lock_pids = self._lock_PIDs()
+
+            if self._is_son_of(lock_pids):
+                return
 
             if lock_pids == []:
                 self._lock()
@@ -504,8 +504,7 @@ class MoulinetteLock(object):
 
         return lock_pids
 
-    def _is_son_of_locked(self):
-        lock_pids = self._lock_PIDs()
+    def _is_son_of(self, lock_pids):
 
         if lock_pids == []:
             return False
@@ -515,9 +514,9 @@ class MoulinetteLock(object):
 
         # While there is a parent... (e.g. init has no parent)
         while parent is not None:
-            # If parent PID is the lock, the yes! we are a son of the process
+            # If parent PID is the lock, then yes! we are a son of the process
             # with the lock...
-            if parent.ppid() in lock_pids:
+            if parent.pid in lock_pids:
                 return True
             # Otherwise, try 'next' parent
             parent = parent.parent()
