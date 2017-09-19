@@ -6,7 +6,7 @@ from moulinette import m18n
 from moulinette.core import MoulinetteError
 
 
-def download_text(url, timeout=30):
+def download_text(url, timeout=30, expected_status_code=200):
     """
     Download text from a url and returns the raw text
 
@@ -14,6 +14,8 @@ def download_text(url, timeout=30):
         url -- The url to download the data from
         timeout -- Number of seconds allowed for download to effectively start
         before giving up
+        expected_status_code -- Status code expected from the request. Can be
+        None to ignore the status code.
     """
     # Assumptions
     assert isinstance(url, str)
@@ -39,7 +41,8 @@ def download_text(url, timeout=30):
                               m18n.g('download_unknown_error',
                                      url=url, error=str(e)))
     # Assume error if status code is not 200 (OK)
-    if r.status_code != 200:
+    if expected_status_code is not None \
+       and r.status_code != expected_status_code:
         raise MoulinetteError(errno.EBADE,
                               m18n.g('download_bad_status_code',
                                      url=url, code=str(r.status_code)))
@@ -47,7 +50,7 @@ def download_text(url, timeout=30):
     return r.text
 
 
-def download_json(url, timeout=30):
+def download_json(url, timeout=30, expected_status_code=200):
     """
     Download json from a url and returns the loaded json object
 
@@ -57,7 +60,7 @@ def download_json(url, timeout=30):
         before giving up
     """
     # Fetch the data
-    text = download_text(url, timeout)
+    text = download_text(url, timeout, expected_status_code)
 
     # Try to load json to check if it's syntaxically correct
     try:
