@@ -1,3 +1,10 @@
+moulinette (2.7.3) testing; urgency=low
+
+  * Optional expected status code for download_text/json (#153)
+  * Allow to give lock to multiple processes (#154)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 12 Oct 2017 16:09:27 -0400
+
 moulinette (2.7.2) stable; urgency=low
 
   * Revert hack for buildchain, found a proper solution
