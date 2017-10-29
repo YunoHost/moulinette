@@ -93,12 +93,12 @@ def call_async_output(args, callback, **kwargs):
         if stdinfo:
             stdinfo_f = open(stdinfo, "r")
             stdinfo_reader, stdinfo_consum = async_file_reading(stdinfo_f, callback[2])
-            while not stdinfo_reader.eof() and not stdinfo_reader.eof():
+            while not stdout_reader.eof() or not stderr_reader.eof() or not stdinfo_reader.eof():
                 time.sleep(.1)
             stdinfo_reader.join()
             stdinfo_consum.join()
 
-        while not stdout_reader.eof() and not stderr_reader.eof():
+        while not stdout_reader.eof() or not stderr_reader.eof():
             time.sleep(.1)
         stderr_reader.join()
         stderr_consum.join()
