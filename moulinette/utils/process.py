@@ -1,6 +1,7 @@
 import errno
 import time
 import subprocess
+import os
 
 from moulinette.core import MoulinetteError
 
@@ -59,9 +60,18 @@ def call_async_output(args, callback, **kwargs):
             raise ValueError('%s argument not allowed, '
                              'it will be overridden.' % a)
 
+
+    if "stdinfo" in kwargs and kwargs["stdinfo"] != None:
+        assert len(callback) == 3
+        stdinfo = kwargs.pop("stdinfo")
+        os.mkfifo(stdinfo, 0600)
+    else:
+        kwargs.pop("stdinfo")
+        stdinfo = None
+
     # Validate callback argument
     if isinstance(callback, tuple):
-        if len(callback) != 2:
+        if len(callback) < 2:
             raise ValueError('callback argument should be a 2-tuple')
         kwargs['stdout'] = kwargs['stderr'] = subprocess.PIPE
         separate_stderr = True
@@ -80,6 +90,14 @@ def call_async_output(args, callback, **kwargs):
     stdout_reader, stdout_consum = async_file_reading(p.stdout, callback[0])
     if separate_stderr:
         stderr_reader, stderr_consum = async_file_reading(p.stderr, callback[1])
+        if stdinfo:
+            stdinfo_f = open(stdinfo, "r")
+            stdinfo_reader, stdinfo_consum = async_file_reading(stdinfo_f, callback[2])
+            while not stdinfo_reader.eof() and not stdinfo_reader.eof():
+                time.sleep(.1)
+            stdinfo_reader.join()
+            stdinfo_consum.join()
+
         while not stdout_reader.eof() and not stderr_reader.eof():
             time.sleep(.1)
         stderr_reader.join()
@@ -89,6 +107,11 @@ def call_async_output(args, callback, **kwargs):
             time.sleep(.1)
     stdout_reader.join()
     stdout_consum.join()
+
+    if stdinfo:
+        stdinfo_f.close()
+        os.remove(stdinfo)
+        os.rmdir(os.path.dirname(stdinfo))
 
     # on slow hardware, in very edgy situations it is possible that the process
     # isn't finished just after having closed stdout and stderr, so we wait a
