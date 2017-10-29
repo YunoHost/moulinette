@@ -35,6 +35,7 @@
     "unknown_group": "Unknown '{group}' group",
     "unknown_user": "Unknown '{user}' user",
     "values_mismatch": "Values don't match",
+    "info": "Info:",
     "warning": "Warning:",
     "websocket_request_expected": "Expected a WebSocket request",
     "cannot_open_file": "Could not open file {file:s} (reason: {error:s})",

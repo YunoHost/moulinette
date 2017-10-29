@@ -182,7 +182,7 @@ class TTYHandler(logging.StreamHandler):
             if self.level <= log.DEBUG:
                 # add level name before message
                 level = '%s ' % record.levelname
-            elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR']:
+            elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR', 'INFO']:
                 # add translated level name before message
                 level = '%s ' % m18n.g(record.levelname.lower())
             color = self.LEVELS_COLOR.get(record.levelno, 'white')
