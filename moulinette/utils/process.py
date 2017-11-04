@@ -64,6 +64,9 @@ def call_async_output(args, callback, **kwargs):
         assert len(callback) == 3
         stdinfo = kwargs.pop("stdinfo")
         os.mkfifo(stdinfo, 0600)
+        # Open stdinfo for reading (in a nonblocking way, i.e. even
+        # if command does not write in the stdinfo pipe...)
+        stdinfo_f = os.open(stdinfo, os.O_RDONLY|os.O_NONBLOCK)
     else:
         kwargs.pop("stdinfo")
         stdinfo = None
@@ -90,17 +93,7 @@ def call_async_output(args, callback, **kwargs):
     if separate_stderr:
         stderr_reader, stderr_consum = async_file_reading(p.stderr, callback[1])
         if stdinfo:
-            # Open stdinfo for reading (in a nonblocking way, i.e. even
-            # if command does not write in the stdinfo pipe...)
-            stdinfo_f = os.open(stdinfo, os.O_RDONLY|os.O_NONBLOCK)
             stdinfo_reader, stdinfo_consum = async_file_reading(stdinfo_f, callback[2])
-            while not stdout_reader.eof() or not stderr_reader.eof():
-                time.sleep(.1)
-            # Remove the stdinfo pipe
-            os.remove(stdinfo)
-            os.rmdir(os.path.dirname(stdinfo))
-            stdinfo_reader.join()
-            stdinfo_consum.join()
 
         while not stdout_reader.eof() or not stderr_reader.eof():
             time.sleep(.1)
@@ -111,6 +104,13 @@ def call_async_output(args, callback, **kwargs):
             time.sleep(.1)
     stdout_reader.join()
     stdout_consum.join()
+
+    if stdinfo:
+        # Remove the stdinfo pipe
+        os.remove(stdinfo)
+        os.rmdir(os.path.dirname(stdinfo))
+        stdinfo_reader.join()
+        stdinfo_consum.join()
 
     # on slow hardware, in very edgy situations it is possible that the process
     # isn't finished just after having closed stdout and stderr, so we wait a

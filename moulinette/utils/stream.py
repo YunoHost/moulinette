@@ -41,15 +41,13 @@ class AsynchronousFileReader(Process):
         else:
             data = ""
             while True:
-                # If nobody's writing in there anymore, get out
-                if os.fstat(self._fd).st_nlink == 0:
-                    print "Plop"
-                    self._queue.put("(Info returning because no link)")
-                    return
-
-                # Read (non-blockingly) a few bytes, append them to the buffer
+                # Try to read (non-blockingly) a few bytes, append them to
+                # the buffer
                 data += os.read(self._fd, 50)
-                print data
+
+                # If nobody's writing in there anymore, get out
+                if not data and os.fstat(self._fd).st_nlink == 0:
+                    return
 
                 # If we have data, extract a line (ending with \n) and feed
                 # it to the consumer
@@ -58,7 +56,7 @@ class AsynchronousFileReader(Process):
                     self._queue.put(lines[0])
                     data = '\n'.join(lines[1:])
                 else:
-                    time.sleep(0.1)
+                    time.sleep(0.05)
 
     def eof(self):
         """Check whether there is no more content to expect."""
