@@ -1,3 +1,9 @@
+moulinette (2.7.5) stable; urgency=low
+
+  (Bumping version for stable release)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 02 Dec 2017 12:26:43 -0500
+
 moulinette (2.7.3) testing; urgency=low
 
   * Optional expected status code for download_text/json (#153)
