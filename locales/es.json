@@ -36,5 +36,18 @@
     "unknown_user": "Usuario '{user}' desconocido",
     "values_mismatch": "Los valores no coinciden",
     "warning": "Advertencia:",
-    "websocket_request_expected": "Una petición de WebSocket prevista"
+    "websocket_request_expected": "Se esperaba una petición WebSocket",
+    "cannot_open_file": "No se pudo abrir el fichero{file:s} (motivo:{error:s})",
+    "cannot_write_file": "No se pudo escribir el fichero {file:s} (motivo: {error:s})",
+    "unknown_error_reading_file": "Error desconocido al intentar leer el fichero {file:s}",
+    "corrupted_json": "Json corrupto leido desde {ressource:s} (motivo: {error:s})",
+    "error_writing_file": "Error al escribir el fichero {file:s}: {error:s}",
+    "error_removing": "Error al eliminar {path:s}: {error:s}",
+    "error_changing_file_permissions": "Error al cambiar los permisos para {path:s}: {error:s}",
+    "invalid_url": "Url no válida {url:s} (¿existe este sitio web?)",
+    "download_ssl_error": "Error SSL al conectar con {url:s}",
+    "download_timeout": "{url:s} tardó demasiado en responder, me rindo.",
+    "download_unknown_error": "Error al descargar datos desde {url:s} : {error:s}",
+    "download_bad_status_code": "{url:s} devolvió el código de estado {code:s}",
+    "command_unknown": "Comando '{command:s}' desconocido ?"
 }
