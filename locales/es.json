@@ -8,7 +8,7 @@
     "deprecated_command": "'{prog} {command}' está obsoleto y será eliminado en el futuro",
     "deprecated_command_alias": "'{prog} {old}' está obsoleto y se eliminará en el futuro, use '{prog} {new}' en su lugar",
     "error": "Error:",
-    "error_see_log": "Ha ocurrido un error. Consulte el registro para obtener más información.",
+    "error_see_log": "Ha ocurrido un error. Consulte el registro para obtener más información, localizado en /var/log/yunohost/.",
     "file_exists": "El archivo ya existe: '{path}'",
     "file_not_exist": "El archivo no existe: '{path}'",
     "folder_exists": "El directorio ya existe: '{path}'",
