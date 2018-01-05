@@ -8,7 +8,7 @@
     "deprecated_command": "'{prog} {command}' is deprecated and will be removed in the future",
     "deprecated_command_alias": "'{prog} {old}' is deprecated and will be removed in the future, use '{prog} {new}' instead",
     "error": "Error:",
-    "error_see_log": "An error occurred. Please see the log for details.",
+    "error_see_log": "An error occurred. Please see the logs for details, they are located in /var/log/yunohost/.",
     "file_exists": "File already exists: '{path}'",
     "file_not_exist": "File does not exist: '{path}'",
     "folder_exists": "Folder already exists: '{path}'",
