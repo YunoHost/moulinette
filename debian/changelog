@@ -1,3 +1,12 @@
+moulinette (2.7.6) testing; urgency=low
+
+  * [fix] Indicate where those damn logs files are
+  * [i18n] Improve Spanish and French translations
+
+  Thanks to all contributors (Bram, Jibec, David B.) ! <3
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 16 Jan 2018 17:12:19 -0500
+
 moulinette (2.7.5) stable; urgency=low
 
   (Bumping version for stable release)
