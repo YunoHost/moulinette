@@ -8,7 +8,7 @@
     "deprecated_command": "« {prog} {command} » est déprécié et sera bientôt supprimé",
     "deprecated_command_alias": "« {prog} {old} » est déprécié et sera bientôt supprimé, utilisez « {prog} {new} » à la place",
     "error": "Erreur :",
-    "error_see_log": "Une erreur est survenue. Veuillez consulter les journaux pour plus de détails.",
+    "error_see_log": "Une erreur est survenue. Veuillez consulter les journaux pour plus de détails, ils sont situés en /var/log/yunohost/.",
     "file_exists": "Le fichier existe déjà : « {path} »",
     "file_not_exist": "Le fichier « {path} » n'existe pas",
     "folder_exists": "Le dossier existe déjà : « {path} »",
