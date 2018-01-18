@@ -1,3 +1,9 @@
+moulinette (2.7.7) stable; urgency=low
+
+  (Bumping version for stable release)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 18 Jan 2018 17:41:43 -0500
+
 moulinette (2.7.6) testing; urgency=low
 
   * [fix] Indicate where those damn logs files are
