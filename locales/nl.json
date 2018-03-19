@@ -6,7 +6,7 @@
     "colon": "{}: ",
     "confirm": "Bevestig {prompt}",
     "error": "Fout:",
-    "error_see_log": "Er is een fout opgetreden, zie logboek voor meer informatie.",
+    "error_see_log": "Er is een fout opgetreden, zie logboek voor meer informatie. Je kan deze vinden in /var/log/yunohost/",
     "file_exists": "Kan '{path}' niet aanmaken: Bestand bestaat al",
     "file_not_exist": "Bestand bestaat niet: '{path}'",
     "folder_exists": "kan map ‘{path}’ niet aanmaken: Bestand bestaat al",
