@@ -1,8 +1,8 @@
 {
     "argument_required": "Argument {argument} is vereist",
     "authentication_profile_required": "Authenticatie tot profiel '{profile}' is vereist",
-    "authentication_required": "Authenticatie vereist",
-    "authentication_required_long": "Authenticatie is vereist om deze actie uit te voeren",
+    "authentication_required": "Aanmelding vereist",
+    "authentication_required_long": "Aanmelding is vereist om deze actie uit te voeren",
     "colon": "{}: ",
     "confirm": "Bevestig {prompt}",
     "error": "Fout:",
