@@ -26,7 +26,7 @@
     "pattern_not_match": "Past niet in het patroon",
     "permission_denied": "Toegang geweigerd",
     "root_required": "Je moet root zijn om deze actie uit te voeren",
-    "server_already_running": "Er is al een server aktief op die poort",
+    "server_already_running": "Er is al een server actief op die poort",
     "success": "Succes!",
     "unable_authenticate": "Aanmelding niet mogelijk",
     "unable_retrieve_session": "Kan de sessie niet ophalen",
