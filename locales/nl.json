@@ -36,5 +36,18 @@
     "deprecated_command": "'{prog} {command}' is verouderd en wordt binnenkort verwijderd",
     "deprecated_command_alias": "'{prog} {old}' is verouderd en wordt binnenkort verwijderd, gebruik '{prog} {new}' in plaats daarvan",
     "unknown_group": "Groep '{group}' is onbekend",
-    "unknown_user": "Gebruiker '{user}' is onbekend"
+    "unknown_user": "Gebruiker '{user}' is onbekend",
+    "cannot_open_file": "Niet mogelijk om bestand {file:s} te openen (reden: {error:s})",
+    "cannot_write_file": "Niet gelukt om bestand {file:s} te schrijven (reden: {error:s})",
+    "unknown_error_reading_file": "Ongekende fout tijdens het lezen van bestand {file:s}",
+    "corrupted_json": "Corrupte json gelezen van {ressource:s} (reden: {error:s})",
+    "error_writing_file": "Fout tijdens het schrijven van bestand {file:s}: {error:s}",
+    "error_removing": "Fout tijdens het verwijderen van {path:s}: {error:s}",
+    "error_changing_file_permissions": "Fout tijdens het veranderen van machtiging voor {path:s}: {error:s}",
+    "invalid_url": "Ongeldige URL {url:s} (bestaat deze website?)",
+    "download_ssl_error": "SSL fout gedurende verbinding met {url:s}",
+    "download_timeout": "{url:s} neemt te veel tijd om te antwoorden, we geven het op.",
+    "download_unknown_error": "Fout tijdens het downloaden van data van {url:s}: {error:s}",
+    "download_bad_status_code": "{url:s} stuurt status code {code:s}",
+    "command_unknown": "Opdracht '{command:s}' ongekend ?"
 }
