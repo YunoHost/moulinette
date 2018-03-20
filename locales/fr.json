@@ -27,7 +27,7 @@
     "password": "Mot de passe",
     "pattern_not_match": "Ne correspond pas au motif",
     "permission_denied": "Permission refusée",
-    "root_required": "Vous devez avoir les droits super-utilisateur (root) pour exécuter cette action",
+    "root_required": "Vous devez être super-utilisateur pour exécuter cette action",
     "server_already_running": "Un serveur est déjà en cours d'exécution sur ce port",
     "success": "Succès !",
     "unable_authenticate": "Impossible de vous authentifier",
