@@ -1,5 +1,4 @@
 import errno
-import requests
 import json
 
 from moulinette import m18n
@@ -17,6 +16,7 @@ def download_text(url, timeout=30, expected_status_code=200):
         expected_status_code -- Status code expected from the request. Can be
         None to ignore the status code.
     """
+    import requests  # lazy loading this module for performance reasons
     # Assumptions
     assert isinstance(url, str)
 
