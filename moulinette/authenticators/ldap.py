@@ -62,7 +62,8 @@ class Authenticator(BaseAuthenticator):
         try:
             # Retrieve identity
             who = self.con.whoami_s()
-        except:
+        except Exception as e:
+            logger.warning("Error during ldap authentication process: %s", e)
             return False
         else:
             if who[3:] == self.userdn:
@@ -131,9 +132,9 @@ class Authenticator(BaseAuthenticator):
 
         try:
             result = self.con.search_s(base, ldap.SCOPE_SUBTREE, filter, attrs)
-        except:
+        except Exception as e:
             logger.exception("error during LDAP search operation with: base='%s', "
-                             "filter='%s', attrs=%s", base, filter, attrs)
+                             "filter='%s', attrs=%s and exception %s", base, filter, attrs, e)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
 
         result_list = []
@@ -162,9 +163,9 @@ class Authenticator(BaseAuthenticator):
 
         try:
             self.con.add_s(dn, ldif)
-        except:
+        except Exception as e:
             logger.exception("error during LDAP add operation with: rdn='%s', "
-                             "attr_dict=%s", rdn, attr_dict)
+                             "attr_dict=%s and exception %s", rdn, attr_dict, e)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
@@ -183,8 +184,8 @@ class Authenticator(BaseAuthenticator):
         dn = rdn + ',' + self.basedn
         try:
             self.con.delete_s(dn)
-        except:
-            logger.exception("error during LDAP delete operation with: rdn='%s'", rdn)
+        except Exception as e:
+            logger.exception("error during LDAP delete operation with: rdn='%s' and exception %s", rdn, e)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
@@ -212,9 +213,10 @@ class Authenticator(BaseAuthenticator):
                 dn = new_rdn + ',' + self.basedn
 
             self.con.modify_ext_s(dn, ldif)
-        except:
+        except Exception as e:
             logger.exception("error during LDAP update operation with: rdn='%s', "
-                             "attr_dict=%s, new_rdn=%s", rdn, attr_dict, new_rdn)
+                             "attr_dict=%s, new_rdn=%s and exception: %s", rdn, attr_dict,
+                             new_rdn, e)
             raise MoulinetteError(169, m18n.g('ldap_operation_error'))
         else:
             return True
