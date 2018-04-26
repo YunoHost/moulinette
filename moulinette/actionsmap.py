@@ -469,10 +469,13 @@ class ActionsMap(object):
 
         # Lock the moulinette for the namespace
         with MoulinetteLock(namespace, timeout):
+            start = time()
             try:
                 mod = __import__('%s.%s' % (namespace, category),
                                  globals=globals(), level=0,
                                  fromlist=[func_name])
+                logger.debug('loading python module %s took %.3fs',
+                             '%s.%s' % (namespace, category), time() - start)
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
                 logger.exception("unable to load function %s.%s",
@@ -495,7 +498,7 @@ class ActionsMap(object):
                     return func(**arguments)
                 finally:
                     stop = time()
-                    logger.debug('action [%s] ended after %.3fs',
+                    logger.debug('action [%s] executed in %.3fs',
                                  log_id, stop - start)
 
     @staticmethod
