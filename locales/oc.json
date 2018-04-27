@@ -1,1 +1,6 @@
-{}
+{
+    "argument_required": "L'argument {argument} es requesit",
+    "authentication_profile_required": "L'identificacion del perfil {profile} es reqursida",
+    "authentication_required": "Autentificacion requesida",
+    "authentication_required_long": "Una autentificacion es requesida per acomplir aquesta accion"
+}
