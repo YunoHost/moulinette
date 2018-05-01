@@ -1,3 +1,15 @@
+moulinette (2.7.11) testing; urgency=low
+
+  * [i18n] Improve translations for Arabic, Dutch, French, Occitan, Spanish
+  * [enh] Improve performances by lazy-loading some imports
+  * [enh] Log time needed to load a python module for an action
+  * [fix] Avoid cases where get_cookie returns None
+  * [mod] Improve exception logging in ldap stuff
+
+  Thanks to all contributors (pitchum, Bram, ButteflyOfFire, J. Keerl, Matthieu, Jibec, David B, Quenti, bjarkan) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 01 May 2018 23:33:59 +0000
+
 moulinette (2.7.7) stable; urgency=low
 
   (Bumping version for stable release)
