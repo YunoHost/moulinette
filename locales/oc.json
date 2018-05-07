@@ -2,5 +2,8 @@
     "argument_required": "L'argument {argument} es requesit",
     "authentication_profile_required": "L'identificacion del perfil {profile} es reqursida",
     "authentication_required": "Autentificacion requesida",
-    "authentication_required_long": "Una autentificacion es requesida per acomplir aquesta accion"
+    "authentication_required_long": "Una autentificacion es requesida per acomplir aquesta accion",
+    "logged_in": "Connectat",
+    "logged_out": "Desconnectat",
+    "password": "Senhal"
 }
