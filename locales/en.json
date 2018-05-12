@@ -41,6 +41,7 @@
     "cannot_write_file": "Could not write file {file:s} (reason: {error:s})",
     "unknown_error_reading_file": "Unknown error while trying to read file {file:s}",
     "corrupted_json": "Corrupted json read from {ressource:s} (reason: {error:s})",
+    "corrupted_yaml": "Corrupted yaml read from {ressource:s} (reason: {error:s})",
     "error_writing_file":  "Error when writing file {file:s}: {error:s}",
     "error_removing": "Error when removing {path:s}: {error:s}",
     "error_changing_file_permissions": "Error when changing permissions for {path:s}: {error:s}",
