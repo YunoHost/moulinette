@@ -4,6 +4,21 @@ moulinette (3.0.0~beta1) testing; urgency=low
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 03 May 2018 03:04:45 +0000
 
+moulinette (2.7.13) testing; urgency=low
+
+  * [i18n] Improve translations for Portugueuse, Occitan
+  * [enh] Add read_yaml util (#161)
+
+  Contributors : Bram, by0ne, Quent-in
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 28 May 2018 02:55:00 +0000
+
+moulinette (2.7.12) stable; urgency=low
+
+  * Bumping version number for stable release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 06 May 2018 16:57:18 +0000
+
 moulinette (2.7.11) testing; urgency=low
 
   * [i18n] Improve translations for Arabic, Dutch, French, Occitan, Spanish
