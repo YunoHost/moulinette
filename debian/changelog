@@ -1,3 +1,12 @@
+moulinette (2.7.13) testing; urgency=low
+
+  * [i18n] Improve translations for Portugueuse, Occitan
+  * [enh] Add read_yaml util (#161)
+
+  Contributors : Bram, by0ne, Quent-in
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 28 May 2018 02:55:00 +0000
+
 moulinette (2.7.12) stable; urgency=low
 
   * Bumping version number for stable release
