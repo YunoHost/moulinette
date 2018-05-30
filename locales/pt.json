@@ -48,5 +48,7 @@
     "download_timeout": "{url:s} demorou muito para responder, desistiu.",
     "download_unknown_error": "Erro quando baixando os dados de {url:s} : {error:s}",
     "download_bad_status_code": "{url:s} retornou o código de status {code:s}",
-    "command_unknown": "Comando '{command:s}' desconhecido ?"
+    "command_unknown": "Comando '{command:s}' desconhecido ?",
+    "corrupted_json": "Json corrompido lido do {ressource:s} (reason: {error:s})",
+    "corrupted_yaml": "Yaml corrompido lido do {ressource:s} (motivo: {error:s})"
 }
