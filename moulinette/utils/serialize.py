@@ -1,5 +1,6 @@
 import logging
 from json.encoder import JSONEncoder
+import datetime
 
 logger = logging.getLogger('moulinette.utils.serialize')
 
@@ -23,6 +24,10 @@ class JSONExtendedEncoder(JSONEncoder):
         if isinstance(o, set) or (
                 hasattr(o, '__iter__') and hasattr(o, 'next')):
             return list(o)
+
+        # Convert compatible containers into list
+        if isinstance(o, datetime.datetime) or isinstance(o, datetime.date):
+            return str(o)
 
         # Return the repr for object that json can't encode
         logger.warning('cannot properly encode in JSON the object %s, '
