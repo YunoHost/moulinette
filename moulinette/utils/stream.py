@@ -1,3 +1,5 @@
+import threading
+
 from multiprocessing.process import Process
 from multiprocessing.queues import SimpleQueue
 
@@ -55,6 +57,6 @@ def async_file_reading(fd, callback):
     queue = SimpleQueue()
     reader = AsynchronousFileReader(fd, queue)
     reader.start()
-    consummer = Process(target=consume_queue, args=(queue, callback))
+    consummer = threading.Thread(target=consume_queue, args=(queue, callback))
     consummer.start()
     return (reader, consummer)
