@@ -27,7 +27,7 @@ class JSONExtendedEncoder(JSONEncoder):
 
         # Convert compatible containers into list
         if isinstance(o, datetime.datetime) or isinstance(o, datetime.date):
-            return str(o)
+            return o.isoformat()
 
         # Return the repr for object that json can't encode
         logger.warning('cannot properly encode in JSON the object %s, '
