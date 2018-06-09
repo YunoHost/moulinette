@@ -25,7 +25,7 @@ class JSONExtendedEncoder(JSONEncoder):
                 hasattr(o, '__iter__') and hasattr(o, 'next')):
             return list(o)
 
-        # Convert compatible containers into list
+        # Display the date in its iso format ISO-8601 Internet Profile (RFC 3339)
         if isinstance(o, datetime.datetime) or isinstance(o, datetime.date):
             return o.isoformat()
 
