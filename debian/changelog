@@ -1,3 +1,10 @@
+moulinette (3.0.0) stable; urgency=low
+
+  Merging with Jessie's branches
+  Releasing as stable
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 17 Jun 2018 03:46:00 +0000
+
 moulinette (3.0.0~beta1.1) testing; urgency=low
 
   Merging with Jessie's branches
