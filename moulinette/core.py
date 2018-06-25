@@ -500,7 +500,7 @@ class MoulinetteLock(object):
             lock_pids = f.read().strip().split('\n')
 
         # Make sure to convert those pids to integers
-        lock_pids = [int(pid) for pid in lock_pids]
+        lock_pids = [int(pid) for pid in lock_pids if pid.strip() != '']
 
         return lock_pids
 
