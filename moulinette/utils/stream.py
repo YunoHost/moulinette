@@ -40,14 +40,29 @@ class AsynchronousFileReader(Process):
         Process.join(self, timeout)
 
 
-def consume_queue(queue, callback):
-    """Consume the queue and give content to the callback."""
-    while True:
-        line = queue.get()
-        if line:
-            if line == StopIteration:
-                break
-            callback(line)
+class Consummer(object):
+    def __init__(self, queue, callback):
+        self.queue = queue
+        self.callback = callback
+
+    def empty(self):
+        return self.queue.empty()
+
+    def process_next_line(self):
+        if not self.empty():
+            line = self.queue.get()
+            if line:
+                if line == StopIteration:
+                    return
+                self.callback(line)
+
+    def process_current_queue(self):
+        while not self.empty():
+            line = self.queue.get()
+            if line:
+                if line == StopIteration:
+                    break
+                self.callback(line)
 
 
 def async_file_reading(fd, callback):
@@ -55,6 +70,5 @@ def async_file_reading(fd, callback):
     queue = SimpleQueue()
     reader = AsynchronousFileReader(fd, queue)
     reader.start()
-    consummer = Process(target=consume_queue, args=(queue, callback))
-    consummer.start()
+    consummer = Consummer(queue, callback)
     return (reader, consummer)
