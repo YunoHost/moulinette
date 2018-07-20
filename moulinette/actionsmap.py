@@ -391,7 +391,7 @@ class ActionsMap(object):
                     with open(actionsmap_pkl) as f:
                         actionsmaps[n] = pickle.load(f)
                 # TODO: Switch to python3 and catch proper exception
-                except IOError:
+                except (IOError, EOFError):
                     self.use_cache = False
                     actionsmaps = self.generate_cache(namespaces)
             elif use_cache:  # cached file doesn't exists
