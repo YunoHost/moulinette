@@ -13,6 +13,7 @@
     "file_not_exist": "File does not exist: '{path}'",
     "folder_exists": "Folder already exists: '{path}'",
     "folder_not_exist": "Folder does not exist",
+    "info": "Info:",
     "instance_already_running": "An instance is already running",
     "invalid_argument": "Invalid argument '{argument}': {error}",
     "invalid_password": "Invalid password",
