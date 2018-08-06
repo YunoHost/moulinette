@@ -88,13 +88,15 @@ class Translator(object):
             - key -- The key to translate
 
         """
+        failed_to_format = False
         if key in self._translations.get(self.locale, {}):
             try:
                 return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
             except KeyError as e:
                 logger.exception("Failed to format translated string '%s' with error: %s" % (key, e))
+                failed_to_format = True
 
-        if self.default_locale != self.locale and key in self._translations.get(self.default_locale, {}):
+        if failed_to_format or (self.default_locale != self.locale and key in self._translations.get(self.default_locale, {})):
             logger.info("untranslated key '%s' for locale '%s'",
                         key, self.locale)
 
