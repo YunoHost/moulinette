@@ -1,3 +1,14 @@
+moulinette (3.1.0) stable; urgency=low
+
+  * Fix datetime output formats (#163)
+  * Add the missing Info: prefix for info messages
+  * Rework a bit the way we handle async outputs (#166)
+  * Don't crash the moulinette if we fail to format a string (#168)
+
+  Thanks to all contributors : ljf, Bram, Aleks !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 15 Aug 2018 21:44:00 +0000
+
 moulinette (3.0.0) stable; urgency=low
 
   Merging with Jessie's branches
