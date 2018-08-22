@@ -88,14 +88,23 @@ class Translator(object):
             - key -- The key to translate
 
         """
+        failed_to_format = False
         if key in self._translations.get(self.locale, {}):
-            return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
+            try:
+                return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
+            except KeyError as e:
+                logger.exception("Failed to format translated string '%s' with error: %s" % (key, e))
+                failed_to_format = True
 
-        if self.default_locale != self.locale and key in self._translations.get(self.default_locale, {}):
+        if failed_to_format or (self.default_locale != self.locale and key in self._translations.get(self.default_locale, {})):
             logger.info("untranslated key '%s' for locale '%s'",
                         key, self.locale)
 
-            return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+            try:
+                return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+            except KeyError as e:
+                logger.exception("Failed to format translatable string '%s' with error: %s" % (key, e))
+                return self._translations[self.locale][key].encode('utf-8')
 
         logger.exception("unable to retrieve key '%s' for default locale '%s'",
                          key, self.default_locale)
@@ -500,7 +509,7 @@ class MoulinetteLock(object):
             lock_pids = f.read().strip().split('\n')
 
         # Make sure to convert those pids to integers
-        lock_pids = [ int(pid) for pid in lock_pids ]
+        lock_pids = [int(pid) for pid in lock_pids if pid.strip() != '']
 
         return lock_pids
 

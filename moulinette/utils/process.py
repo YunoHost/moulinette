@@ -95,22 +95,33 @@ def call_async_output(args, callback, **kwargs):
         if stdinfo:
             stdinfo_reader, stdinfo_consum = async_file_reading(stdinfo_f, callback[2])
 
-        while not stdout_reader.eof() or not stderr_reader.eof():
+        while not stdout_reader.eof() and not stderr_reader.eof():
+            while not stdout_consum.empty() or not stderr_consum.empty():
+                # alternate between the 2 consumers to avoid desynchronisation
+                # this way is not 100% perfect but should do it
+                stdout_consum.process_next_line()
+                stderr_consum.process_next_line()
+                stdinfo_consum.process_next_line()
             time.sleep(.1)
         stderr_reader.join()
-        stderr_consum.join()
+        # clear the queues
+        stdout_consum.process_current_queue()
+        stderr_consum.process_current_queue()
+        stdinfo_consum.process_current_queue()
     else:
         while not stdout_reader.eof():
+            stdout_consum.process_current_queue()
             time.sleep(.1)
     stdout_reader.join()
-    stdout_consum.join()
+    # clear the queue
+    stdout_consum.process_current_queue()
 
     if stdinfo:
         # Remove the stdinfo pipe
         os.remove(stdinfo)
         os.rmdir(os.path.dirname(stdinfo))
         stdinfo_reader.join()
-        stdinfo_consum.join()
+        stdinfo_consum.process_current_queue()
 
     # on slow hardware, in very edgy situations it is possible that the process
     # isn't finished just after having closed stdout and stderr, so we wait a

@@ -1,3 +1,95 @@
+moulinette (3.1.0) stable; urgency=low
+
+  * Fix datetime output formats (#163)
+  * Add the missing Info: prefix for info messages
+  * Rework a bit the way we handle async outputs (#166)
+  * Don't crash the moulinette if we fail to format a string (#168)
+
+  Thanks to all contributors : ljf, Bram, Aleks !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 15 Aug 2018 21:44:00 +0000
+
+moulinette (3.0.0) stable; urgency=low
+
+  Merging with Jessie's branches
+  Releasing as stable
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 17 Jun 2018 03:46:00 +0000
+
+moulinette (3.0.0~beta1.1) testing; urgency=low
+
+  Merging with Jessie's branches
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 28 May 2018 02:55:00 +0000
+
+moulinette (3.0.0~beta1) testing; urgency=low
+
+  Beta release for Stretch
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 03 May 2018 03:04:45 +0000
+
+moulinette (2.7.14) stable; urgency=low
+
+  * Improve French, Occitan, Portuguese, Arabic translations
+  * Release as stable
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 17 Jun 2018 01:42:12 +0000
+
+moulinette (2.7.13) testing; urgency=low
+
+  * [i18n] Improve translations for Portugueuse, Occitan
+  * [enh] Add read_yaml util (#161)
+
+  Contributors : Bram, by0ne, Quent-in
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 28 May 2018 02:55:00 +0000
+
+moulinette (2.7.12) stable; urgency=low
+
+  * Bumping version number for stable release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 06 May 2018 16:57:18 +0000
+
+moulinette (2.7.11) testing; urgency=low
+
+  * [i18n] Improve translations for Arabic, Dutch, French, Occitan, Spanish
+  * [enh] Improve performances by lazy-loading some imports
+  * [enh] Log time needed to load a python module for an action
+  * [fix] Avoid cases where get_cookie returns None
+  * [mod] Improve exception logging in ldap stuff
+
+  Thanks to all contributors (pitchum, Bram, ButteflyOfFire, J. Keerl, Matthieu, Jibec, David B, Quenti, bjarkan) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 01 May 2018 23:33:59 +0000
+
+moulinette (2.7.7) stable; urgency=low
+
+  (Bumping version for stable release)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 18 Jan 2018 17:41:43 -0500
+
+moulinette (2.7.6) testing; urgency=low
+
+  * [fix] Indicate where those damn logs files are
+  * [i18n] Improve Spanish and French translations
+
+  Thanks to all contributors (Bram, Jibec, David B.) ! <3
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 16 Jan 2018 17:12:19 -0500
+
+moulinette (2.7.5) stable; urgency=low
+
+  (Bumping version for stable release)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 02 Dec 2017 12:26:43 -0500
+
+moulinette (2.7.3) testing; urgency=low
+
+  * Optional expected status code for download_text/json (#153)
+  * Allow to give lock to multiple processes (#154)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 12 Oct 2017 16:09:27 -0400
+
 moulinette (2.7.2) stable; urgency=low
 
   * Revert hack for buildchain, found a proper solution

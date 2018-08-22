@@ -438,7 +438,7 @@ class _ActionsMapPlugin(object):
         try:
             s_secret = self.secrets[s_id]
             s_hash = request.get_cookie('session.hashes',
-                                        secret=s_secret)[authenticator.name]
+                                        secret=s_secret, default={})[authenticator.name]
         except KeyError:
             if authenticator.name == 'default':
                 msg = m18n.g('authentication_required')
