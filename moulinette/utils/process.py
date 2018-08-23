@@ -1,6 +1,7 @@
 import errno
 import time
 import subprocess
+import os
 
 from moulinette.core import MoulinetteError
 
@@ -59,9 +60,20 @@ def call_async_output(args, callback, **kwargs):
             raise ValueError('%s argument not allowed, '
                              'it will be overridden.' % a)
 
+    if "stdinfo" in kwargs and kwargs["stdinfo"] != None:
+        assert len(callback) == 3
+        stdinfo = kwargs.pop("stdinfo")
+        os.mkfifo(stdinfo, 0600)
+        # Open stdinfo for reading (in a nonblocking way, i.e. even
+        # if command does not write in the stdinfo pipe...)
+        stdinfo_f = os.open(stdinfo, os.O_RDONLY|os.O_NONBLOCK)
+    else:
+        kwargs.pop("stdinfo")
+        stdinfo = None
+
     # Validate callback argument
     if isinstance(callback, tuple):
-        if len(callback) != 2:
+        if len(callback) < 2:
             raise ValueError('callback argument should be a 2-tuple')
         kwargs['stdout'] = kwargs['stderr'] = subprocess.PIPE
         separate_stderr = True
@@ -80,17 +92,22 @@ def call_async_output(args, callback, **kwargs):
     stdout_reader, stdout_consum = async_file_reading(p.stdout, callback[0])
     if separate_stderr:
         stderr_reader, stderr_consum = async_file_reading(p.stderr, callback[1])
+        if stdinfo:
+            stdinfo_reader, stdinfo_consum = async_file_reading(stdinfo_f, callback[2])
+
         while not stdout_reader.eof() and not stderr_reader.eof():
             while not stdout_consum.empty() or not stderr_consum.empty():
                 # alternate between the 2 consumers to avoid desynchronisation
                 # this way is not 100% perfect but should do it
                 stdout_consum.process_next_line()
                 stderr_consum.process_next_line()
+                stdinfo_consum.process_next_line()
             time.sleep(.1)
         stderr_reader.join()
         # clear the queues
         stdout_consum.process_current_queue()
         stderr_consum.process_current_queue()
+        stdinfo_consum.process_current_queue()
     else:
         while not stdout_reader.eof():
             stdout_consum.process_current_queue()
@@ -98,6 +115,13 @@ def call_async_output(args, callback, **kwargs):
     stdout_reader.join()
     # clear the queue
     stdout_consum.process_current_queue()
+
+    if stdinfo:
+        # Remove the stdinfo pipe
+        os.remove(stdinfo)
+        os.rmdir(os.path.dirname(stdinfo))
+        stdinfo_reader.join()
+        stdinfo_consum.process_current_queue()
 
     # on slow hardware, in very edgy situations it is possible that the process
     # isn't finished just after having closed stdout and stderr, so we wait a
