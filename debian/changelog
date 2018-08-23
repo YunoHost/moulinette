@@ -1,3 +1,9 @@
+moulinette (3.2.0~testing1) testing; urgency=low
+
+  * Add optional stdinfo communication channel when running commands (#155)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 23 Aug 2018 22:07:00 +0000
+
 moulinette (3.1.0) stable; urgency=low
 
   * Fix datetime output formats (#163)
