@@ -402,6 +402,14 @@ class _ActionsMapPlugin(object):
             - arguments -- A dict of arguments for the route
 
         """
+
+        # Convert POST arguments to boolean if they look like one...
+        for k, v in arguments.items():
+            if v.lower() == "true":
+                arguments[k] = True
+            elif v.lower() == "false":
+                arguments[k] = False
+
         try:
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
