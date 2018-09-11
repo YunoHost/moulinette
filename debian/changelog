@@ -1,3 +1,11 @@
+moulinette (3.2.0) stable; urgency=low
+
+   * Update translations for Catalan and Turkish
+
+  Thanks to all contributors : Xaloc, BoF <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 11 Sep 2018 17:15:00 +0000
+
 moulinette (3.2.0~testing1) testing; urgency=low
 
   * Add optional stdinfo communication channel when running commands (#155)
