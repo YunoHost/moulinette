@@ -30,5 +30,6 @@ setup(name='Moulinette',
           'moulinette.interfaces',
           'moulinette.utils',
       ],
-      data_files=[(LOCALES_DIR, locale_files)]
+      data_files=[(LOCALES_DIR, locale_files)],
+      tests_require=["pytest", "webtest"],
       )
