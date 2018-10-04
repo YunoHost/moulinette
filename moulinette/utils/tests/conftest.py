@@ -8,15 +8,15 @@ sys.path.append("..")
 ###############################################################################
 
 
-old_init = moulinette.core.Moulinette18n.__init__
-
-
-def monkey_path_i18n_init(self, package, default_locale="en"):
-    old_init(self, package, default_locale)
-    self.load_namespace("moulinette")
-
-
-moulinette.core.Moulinette18n.__init__ = monkey_path_i18n_init
+# old_init = moulinette.core.Moulinette18n.__init__
+#
+#
+# def monkey_path_i18n_init(self, package, default_locale="en"):
+#     old_init(self, package, default_locale)
+#     self.load_namespace("moulinette")
+#
+#
+# moulinette.core.Moulinette18n.__init__ = monkey_path_i18n_init
 
 
 ###############################################################################
@@ -24,25 +24,25 @@ moulinette.core.Moulinette18n.__init__ = monkey_path_i18n_init
 ###############################################################################
 
 
-old_translate = moulinette.core.Translator.translate
-
-
-def new_translate(self, key, *args, **kwargs):
-
-    if key not in list(self._translations[self.default_locale].keys()):
-        raise KeyError("Unable to retrieve key %s for default locale !" % key)
-
-    return old_translate(self, key, *args, **kwargs)
-
-
-moulinette.core.Translator.translate = new_translate
-
-
-def new_m18nn(self, key, *args, **kwargs):
-    return self._global.translate(key, *args, **kwargs)
-
-
-moulinette.core.Moulinette18n.g = new_m18nn
+#old_translate = moulinette.core.Translator.translate
+#
+#
+#def new_translate(self, key, *args, **kwargs):
+#
+#    if key not in list(self._translations[self.default_locale].keys()):
+#        raise KeyError("Unable to retrieve key %s for default locale !" % key)
+#
+#    return old_translate(self, key, *args, **kwargs)
+#
+#
+#moulinette.core.Translator.translate = new_translate
+#
+#
+#def new_m18nn(self, key, *args, **kwargs):
+#    return self._global.translate(key, *args, **kwargs)
+#
+#
+#moulinette.core.Moulinette18n.g = new_m18nn
 
 
 ###############################################################################

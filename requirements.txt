@@ -1,0 +1,8 @@
+mock
+argcomplete
+pytest-mock
+requests-mock
+bottle
+gnupg
+ldap
+pyyaml

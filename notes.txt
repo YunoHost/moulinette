@@ -4,8 +4,7 @@
 
 # creating test filesystem structure
 
-    $ mkdir tests
-    $ mkdir tests/moulinette/{authenticators,interfaces,utils}
+    $ mkdir -p tests/moulinette/{authenticators,interfaces,utils}
 
 # move existing tests to new structure
 
@@ -20,4 +19,5 @@
       touch tests/$folder/test_$file
     done
 
+# renamed multiprocessing.process.Process to BaseProcess
 
