@@ -13,9 +13,9 @@ from moulinette.utils import filesystem
 
 
 
-###############################################################################
+########################################################################
 # Test reading a file
-###############################################################################
+########################################################################
 
 #
 # reading a text file
@@ -32,7 +32,7 @@ def test_read_file_raise_error_for_non_existant_file(isfile):
 @mock.patch('builtins.open')
 def test_read_file_raise_error_for_file_with_bad_permission(open, isfile):
     isfile.return_value = True  # the file exists
-    open.side_effect = IOError()
+    open.side_effect = IOError()  # it cannot be opened
 
     with pytest.raises(MoulinetteError):
         filesystem.read_file('non_openable_file.txt')
@@ -43,21 +43,21 @@ def test_read_file_raise_error_for_file_with_bad_permission(open, isfile):
 def test_read_file_return_file_content(open, isfile):
     isfile.return_value = True  # the file exists
     file_content = 'file content'
-    open.return_value = fake_open(file_content)
+    open.return_value = fake_open_for_read(file_content)  # can be open with content
 
     content = filesystem.read_file('fake_file.txt')
 
     assert content == file_content, 'read_file returned expected content'
 
 
-def fake_open(content):
-    """Return a mock for opening a file with given content
+def fake_open_for_read(content):
+    """Return a mock for opening a file to be read with given content
 
     This helper function is for mocking open() when used in a context manager.
 
         @mock.patch('builtins.open')
         def test(open):
-            open.return_value = fake_open('content')
+            open.return_value = fake_open_for_read('content')
             function_using_open('filename.txt')
             ...
 
@@ -82,7 +82,7 @@ def fake_open(content):
 def test_read_json_return_file_content_as_json(open, isfile):
     isfile.return_value = True
     file_content = '{"foo": "abc", "bar": 42}'
-    open.return_value = fake_open(file_content)
+    open.return_value = fake_open_for_read(file_content)
 
     content = filesystem.read_json('fake_file.json')
 
@@ -92,18 +92,58 @@ def test_read_json_return_file_content_as_json(open, isfile):
 
 @mock.patch('os.path.isfile')
 @mock.patch('builtins.open')
-def test_read_json_return_raise_error_on_bad_content(open, isfile):
+def test_read_json_raise_error_on_bad_content(open, isfile):
     isfile.return_value = True
     file_content = '{"foo", "abc", "bar": 42]'
-    open.return_value = fake_open(file_content)
+    open.return_value = fake_open_for_read(file_content)
 
     with pytest.raises(MoulinetteError):
         content = filesystem.read_json('bad_file.json')
 
 
-################################################################################
-##   Test file write                                                           #
-################################################################################
+#
+# reading a yaml file
+
+@mock.patch('os.path.isfile')
+@mock.patch('builtins.open')
+def test_read_yaml_return_file_content_as_yaml(open, isfile):
+    isfile.return_value = True
+    file_content = 'foo:\n- abc\n- 42'
+    open.return_value = fake_open_for_read(file_content)
+
+    content = filesystem.read_yaml('fake_file.yaml')
+
+    yaml_content = {'foo': ['abc', 42]}
+    assert content == yaml_content, 'read_yaml returned expected content'
+
+
+@mock.patch('os.path.isfile')
+@mock.patch('builtins.open')
+def test_read_yaml_raise_error_on_bad_content(open, isfile):
+    isfile.return_value = True
+    file_content = 'foo, bar-\n t:'
+    open.return_value = fake_open_for_read(file_content)
+
+    with pytest.raises(MoulinetteError):
+        content = filesystem.read_yaml('bad_file.yaml')
+
+
+########################################################################
+# Test writing a file
+########################################################################
+
+#@mock.patch('builtins.open')
+#def test_write_to_file_update_file_content(open):
+#    file_content = 'file content'
+#    open.return_value = fake_open_for_write()
+#
+#    filesystem.write_file('fake_file.txt')
+#
+#    assert content == file_content, 'read_file returned expected content'
+
+
+
+
 #
 #
 #def test_write_to_existing_file():

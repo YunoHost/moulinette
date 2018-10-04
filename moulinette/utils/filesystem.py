@@ -83,6 +83,10 @@ def read_yaml(file_path):
         raise MoulinetteError(errno.EINVAL,
                               m18n.g('corrupted_yaml',
                                      ressource=file_path, error=str(e)))
+    except yaml.scanner.ScannerError as e:
+        raise MoulinetteError(errno.EINVAL,
+                              m18n.g('corrupted_yaml',
+                                     ressource=file_path, error=str(e)))
 
     return loaded_yaml
 
