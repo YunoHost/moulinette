@@ -1,0 +1,23 @@
+# running 2to3 on moulinette folder
+
+    $ 2to3 -w .
+
+# creating test filesystem structure
+
+    $ mkdir tests
+    $ mkdir tests/moulinette/{authenticators,interfaces,utils}
+
+# move existing tests to new structure
+
+    $ mv moulinette/utils/tests/* tests/moulinette/utils
+
+# we should have (at least) one test file per moulinette module
+
+    $ for f in $(find moulinette -type f | grep -v __init__)
+    do
+      folder=$(dirname $f)
+      file=$(basename $f)
+      touch tests/$folder/test_$file
+    done
+
+
