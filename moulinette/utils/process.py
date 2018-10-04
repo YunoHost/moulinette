@@ -63,7 +63,7 @@ def call_async_output(args, callback, **kwargs):
     if "stdinfo" in kwargs and kwargs["stdinfo"] != None:
         assert len(callback) == 3
         stdinfo = kwargs.pop("stdinfo")
-        os.mkfifo(stdinfo, 0600)
+        os.mkfifo(stdinfo, 0o600)
         # Open stdinfo for reading (in a nonblocking way, i.e. even
         # if command does not write in the stdinfo pipe...)
         stdinfo_f = os.open(stdinfo, os.O_RDONLY|os.O_NONBLOCK)

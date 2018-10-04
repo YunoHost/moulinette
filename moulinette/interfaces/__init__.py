@@ -286,7 +286,7 @@ class BaseActionsMapParser(object):
                                    "for 'authenticator'")
                 else:
                     auths = {}
-                    for auth_name, auth_conf in auth.items():
+                    for auth_name, auth_conf in list(auth.items()):
                         # Add authenticator profile as a 3-tuple
                         # (identifier, configuration, parameters) with
                         # - identifier: the authenticator vendor and its
@@ -518,7 +518,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 
     def dequeue_callbacks(self, namespace):
         queue = self._get_callbacks_queue(namespace, False)
-        for _i in xrange(len(queue)):
+        for _i in range(len(queue)):
             c, v = queue.popleft()
             # FIXME: break dequeue if callback returns
             c.execute(namespace, v)
@@ -539,7 +539,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
         return queue
 
     def add_arguments(self, arguments, extraparser, format_arg_names=None, validate_extra=True):
-        for argument_name, argument_options in arguments.items():
+        for argument_name, argument_options in list(arguments.items()):
             # will adapt arguments name for cli or api context
             names = format_arg_names(str(argument_name),
                                      argument_options.pop('full', None))
@@ -600,11 +600,11 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 subcategories_subparser = copy.copy(action_group._group_actions[0])
 
                 # Filter "action"-type and "subcategory"-type commands
-                actions_subparser.choices = OrderedDict([(k, v) for k, v in actions_subparser.choices.items() if v.type == "action"])
-                subcategories_subparser.choices = OrderedDict([(k, v) for k, v in subcategories_subparser.choices.items() if v.type == "subcategory"])
+                actions_subparser.choices = OrderedDict([(k, v) for k, v in list(actions_subparser.choices.items()) if v.type == "action"])
+                subcategories_subparser.choices = OrderedDict([(k, v) for k, v in list(subcategories_subparser.choices.items()) if v.type == "subcategory"])
 
-                actions_choices = actions_subparser.choices.keys()
-                subcategories_choices = subcategories_subparser.choices.keys()
+                actions_choices = list(actions_subparser.choices.keys())
+                subcategories_choices = list(subcategories_subparser.choices.keys())
 
                 actions_subparser._choices_actions = [c for c in choice_actions if c.dest in actions_choices]
                 subcategories_subparser._choices_actions = [c for c in choice_actions if c.dest in subcategories_choices]

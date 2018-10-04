@@ -185,7 +185,7 @@ class Moulinette18n(object):
         self.locale = locale
 
         self._global.set_locale(locale)
-        for n in self._namespaces.values():
+        for n in list(self._namespaces.values()):
             n.set_locale(locale)
 
     def g(self, key, *args, **kwargs):
@@ -234,7 +234,7 @@ class MoulinetteSignals(object):
             self.clear_handler(s)
 
         # Iterate over signals to connect
-        for s, h in kwargs.items():
+        for s, h in list(kwargs.items()):
             self.set_handler(s, h)
 
     def set_handler(self, signal, handler):
@@ -366,7 +366,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
     return interface(amap, **kwargs)
 
 
-def init_authenticator((vendor, name), kwargs={}):
+def init_authenticator(xxx_todo_changeme, kwargs={}):
     """Return a new authenticator instance
 
     Retrieve the given authenticator vendor and return a new instance of
@@ -378,6 +378,7 @@ def init_authenticator((vendor, name), kwargs={}):
         - kwargs -- A dict of arguments for the authenticator profile
 
     """
+    (vendor, name) = xxx_todo_changeme
     try:
         mod = import_module('moulinette.authenticators.%s' % vendor)
     except ImportError:

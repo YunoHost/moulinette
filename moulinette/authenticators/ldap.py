@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # TODO: Use Python3 to remove this fix!
-from __future__ import absolute_import
+
 import errno
 import logging
 import random
@@ -232,7 +232,7 @@ class Authenticator(BaseAuthenticator):
             Boolean | MoulinetteError
 
         """
-        for attr, value in value_dict.items():
+        for attr, value in list(value_dict.items()):
             if not self.search(filter=attr + '=' + value):
                 continue
             else:

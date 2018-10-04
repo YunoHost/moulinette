@@ -72,7 +72,7 @@ def test_read_file_badpermissions():
 def test_read_json():
 
     content = read_json(TMP_TEST_JSON)
-    assert "foo" in content.keys()
+    assert "foo" in list(content.keys())
     assert content["foo"] == "bar"
 
 
@@ -162,8 +162,8 @@ def text_write_dict_to_json():
     dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}
     write_to_json(TMP_TEST_FILE, dummy_dict)
     j = read_json(TMP_TEST_FILE)
-    assert "foo" in j.keys()
-    assert "bar" in j.keys()
+    assert "foo" in list(j.keys())
+    assert "bar" in list(j.keys())
     assert j["foo"] == 42
     assert j["bar"] == ["a", "b", "c"]
     assert read_file(TMP_TEST_FILE) == "foo\nbar\nyolo\nswag"
@@ -239,13 +239,13 @@ def test_setpermissions_file():
     assert get_permissions(TMP_TEST_FILE) == ("root", "root", "700")
 
     # Change the permissions
-    set_permissions(TMP_TEST_FILE, NON_ROOT_USER, NON_ROOT_GROUP, 0111)
+    set_permissions(TMP_TEST_FILE, NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
 
     # Check the permissions got changed
     assert get_permissions(TMP_TEST_FILE) == (NON_ROOT_USER, NON_ROOT_GROUP, "111")
 
     # Change the permissions again
-    set_permissions(TMP_TEST_FILE, "root", "root", 0777)
+    set_permissions(TMP_TEST_FILE, "root", "root", 0o777)
 
     # Check the permissions got changed
     assert get_permissions(TMP_TEST_FILE) == ("root", "root", "777")
@@ -257,13 +257,13 @@ def test_setpermissions_directory():
     assert get_permissions(TMP_TEST_DIR) == ("root", "root", "755")
 
     # Change the permissions
-    set_permissions(TMP_TEST_DIR, NON_ROOT_USER, NON_ROOT_GROUP, 0111)
+    set_permissions(TMP_TEST_DIR, NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
 
     # Check the permissions got changed
     assert get_permissions(TMP_TEST_DIR) == (NON_ROOT_USER, NON_ROOT_GROUP, "111")
 
     # Change the permissions again
-    set_permissions(TMP_TEST_DIR, "root", "root", 0777)
+    set_permissions(TMP_TEST_DIR, "root", "root", 0o777)
 
     # Check the permissions got changed
     assert get_permissions(TMP_TEST_DIR) == ("root", "root", "777")
@@ -274,22 +274,22 @@ def test_setpermissions_permissiondenied():
     switch_to_non_root_user()
 
     with pytest.raises(MoulinetteError):
-        set_permissions(TMP_TEST_FILE, NON_ROOT_USER, NON_ROOT_GROUP, 0111)
+        set_permissions(TMP_TEST_FILE, NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
 
 
 def test_setpermissions_badfile():
 
     with pytest.raises(MoulinetteError):
-        set_permissions("/foo/bar/yolo", NON_ROOT_USER, NON_ROOT_GROUP, 0111)
+        set_permissions("/foo/bar/yolo", NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
 
 
 def test_setpermissions_baduser():
 
     with pytest.raises(MoulinetteError):
-        set_permissions(TMP_TEST_FILE, "foo", NON_ROOT_GROUP, 0111)
+        set_permissions(TMP_TEST_FILE, "foo", NON_ROOT_GROUP, 0o111)
 
 
 def test_setpermissions_badgroup():
 
     with pytest.raises(MoulinetteError):
-        set_permissions(TMP_TEST_FILE, NON_ROOT_USER, "foo", 0111)
+        set_permissions(TMP_TEST_FILE, NON_ROOT_USER, "foo", 0o111)

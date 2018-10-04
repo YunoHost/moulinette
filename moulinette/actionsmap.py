@@ -5,7 +5,7 @@ import re
 import errno
 import logging
 import yaml
-import cPickle as pickle
+import pickle as pickle
 from time import time
 from collections import OrderedDict
 
@@ -154,7 +154,7 @@ class PatternParameter(_ExtraParameter):
 
         # Use temporarly utf-8 encoded value
         try:
-            v = unicode(arg_value, 'utf-8')
+            v = str(arg_value, 'utf-8')
         except:
             v = arg_value
 
@@ -240,7 +240,7 @@ class ExtraArgumentParser(object):
             if iface in klass.skipped_iface:
                 continue
             self.extra[klass.name] = klass
-        logger.debug('extra parameter classes loaded: %s', self.extra.keys())
+        logger.debug('extra parameter classes loaded: %s', list(self.extra.keys()))
 
     def validate(self, arg_name, parameters):
         """
@@ -252,7 +252,7 @@ class ExtraArgumentParser(object):
 
         """
         # Iterate over parameters to validate
-        for p, v in parameters.items():
+        for p, v in list(parameters.items()):
             klass = self.extra.get(p, None)
             if not klass:
                 # Remove unknown parameters
@@ -300,9 +300,9 @@ class ExtraArgumentParser(object):
         extra_args.update(self._extra_params.get(tid, {}))
 
         # Iterate over action arguments with extra parameters
-        for arg_name, extra_params in extra_args.items():
+        for arg_name, extra_params in list(extra_args.items()):
             # Iterate over available extra parameters
-            for p, cls in self.extra.items():
+            for p, cls in list(self.extra.items()):
                 try:
                     extra_value = extra_params[p]
                 except KeyError:
@@ -593,7 +593,7 @@ class ActionsMap(object):
         # * namespace define the top "name", for us it will always be
         #   "yunohost" and there well be only this one
         # * actionsmap is the actual actionsmap that we care about
-        for namespace, actionsmap in actionsmaps.items():
+        for namespace, actionsmap in list(actionsmaps.items()):
             # Retrieve global parameters
             _global = actionsmap.pop('_global', {})
 
@@ -605,7 +605,7 @@ class ActionsMap(object):
 
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
-            for category_name, category_values in actionsmap.items():
+            for category_name, category_values in list(actionsmap.items()):
 
                 if "actions" in category_values:
                     actions = category_values.pop('actions')
@@ -623,7 +623,7 @@ class ActionsMap(object):
 
                 # action_name is like "list" of "domain list"
                 # action_options are the values
-                for action_name, action_options in actions.items():
+                for action_name, action_options in list(actions.items()):
                     arguments = action_options.pop('arguments', {})
                     tid = (namespace, category_name, action_name)
 
@@ -647,7 +647,7 @@ class ActionsMap(object):
 
                 # subcategory_name is like "cert" in "domain cert status"
                 # subcategory_values is the values of this subcategory (like actions)
-                for subcategory_name, subcategory_values in subcategories.items():
+                for subcategory_name, subcategory_values in list(subcategories.items()):
 
                     actions = subcategory_values.pop('actions')
 
@@ -656,7 +656,7 @@ class ActionsMap(object):
 
                     # action_name is like "status" of "domain cert status"
                     # action_options are the values
-                    for action_name, action_options in actions.items():
+                    for action_name, action_options in list(actions.items()):
                         arguments = action_options.pop('arguments', {})
                         tid = (namespace, category_name, subcategory_name, action_name)
 

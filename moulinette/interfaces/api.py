@@ -82,7 +82,7 @@ class _HTTPArgumentParser(object):
         return self._parser.get_default(dest)
 
     def add_arguments(self, arguments, extraparser, format_arg_names=None, validate_extra=True):
-        for argument_name, argument_options in arguments.items():
+        for argument_name, argument_options in list(arguments.items()):
             # will adapt arguments name for cli or api context
             names = format_arg_names(str(argument_name),
                                      argument_options.pop('full', None))
@@ -149,7 +149,7 @@ class _HTTPArgumentParser(object):
                 arg_strings = append(arg_strings, args[dest])
 
         # Iterate over optional arguments
-        for dest, opt in self._optional.items():
+        for dest, opt in list(self._optional.items()):
             if dest in args:
                 arg_strings = append(arg_strings, args[dest], opt[0])
 
@@ -262,7 +262,7 @@ class _ActionsMapPlugin(object):
             for a in args:
                 params[a] = True
             # Append other request params
-            for k, v in request.params.dict.items():
+            for k, v in list(request.params.dict.items()):
                 v = _format(v)
                 try:
                     curr_v = params[k]
@@ -558,7 +558,7 @@ class ActionsMapParser(BaseActionsMapParser):
     @property
     def routes(self):
         """Get current routes"""
-        return self._parsers.keys()
+        return list(self._parsers.keys())
 
     # Implement virtual properties
 
@@ -733,7 +733,7 @@ class Interface(BaseInterface):
 
         # Append additional routes
         # TODO: Add optional authentication to those routes?
-        for (m, p), c in routes.items():
+        for (m, p), c in list(routes.items()):
             app.route(p, method=m, callback=c, skip=['actionsmap'])
 
         self._app = app

@@ -29,7 +29,7 @@ old_translate = moulinette.core.Translator.translate
 
 def new_translate(self, key, *args, **kwargs):
 
-    if key not in self._translations[self.default_locale].keys():
+    if key not in list(self._translations[self.default_locale].keys()):
         raise KeyError("Unable to retrieve key %s for default locale !" % key)
 
     return old_translate(self, key, *args, **kwargs)
