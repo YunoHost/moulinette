@@ -14,30 +14,45 @@ from moulinette.utils import filesystem
 
 
 ###############################################################################
-#   Test file read                                                            #
+# Test reading a file
 ###############################################################################
 
 @mock.patch('os.path.isfile')
-def test_unknown_file_cannot_be_read(isfile):
+def test_read_file_raise_error_for_non_existant_file(isfile):
     isfile.return_value = False
     with pytest.raises(MoulinetteError):
-        filesystem.read_file("non existent file")
+        filesystem.read_file('non existent file')
 
-#
-#
-#def test_read_file():
-#
-#    content = read_file(TMP_TEST_FILE)
-#    assert content == "foo\nbar\n"
-#
-#
-#def test_read_file_badpermissions():
-#
-#    switch_to_non_root_user()
-#    with pytest.raises(MoulinetteError):
-#        read_file(TMP_TEST_FILE)
-#
-#
+
+@mock.patch('builtins.open')
+def test_read_file_raise_error_for_file_with_bad_permission(open):
+    open.side_effect = IOError()
+    with pytest.raises(MoulinetteError):
+        filesystem.read_file('non openable file')
+
+
+@mock.patch('os.path.isfile')
+@mock.patch('builtins.open')
+def test_read_file_return_file_content(open, isfile):
+    isfile.return_value = True
+    file_content = 'file content'
+    open.return_value = fake_open(file_content)
+
+    content = filesystem.read_file('fake_file.txt')
+
+    assert content == file_content, 'read_file returned expected content'
+
+
+def fake_open(content):
+    """Return a mock for opening a file with given content
+
+    This function is for mocking open() when used in a context manager.
+    """
+    fake_file = mock.Mock(read=mock.Mock(return_value=content))
+    # open is used as a context manager so we fake __enter__ to return the file
+    return mock.Mock(__enter__=mock.Mock(return_value=fake_file), __exit__=mock.Mock())
+
+
 #def test_read_json():
 #
 #    content = read_json(TMP_TEST_JSON)
