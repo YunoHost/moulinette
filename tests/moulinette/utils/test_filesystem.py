@@ -145,40 +145,55 @@ def test_read_yaml_raise_error_on_bad_content(open, isfile):
 @mock.patch('os.path.isdir')
 @mock.patch('builtins.open')
 def test_write_to_file_update_file_content(open, isdir):
-    isdir.return_value = True
+    # WARNING order is dependant on actual implementation
+    isdir.side_effect = [False, True]
     open.return_value, fake_file = fake_open_for_write()
     content = 'some content\n'
 
-    filesystem.write_to_file('fake_file.txt', content)
+    filesystem.write_to_file('fake/file.txt', content)
 
     fake_file.write.assert_called_with(content)
 
 
 @mock.patch('os.path.isdir')
 @mock.patch('builtins.open')
-def test_write_to_file_raise_error_for_improper_path(open, isdir):
-    isdir.return_value = False
+def test_write_to_file_raise_error_for_folder_used_as_file(open, isdir):
+    # WARNING order is dependant on actual implementation
+    isdir.side_effect = [True, True]
     content = 'some content\n'
 
-    with pytest.raises(MoulinetteError):
-        filesystem.write_to_file('fake_file.txt', content)
+    with pytest.raises(AssertionError):
+        filesystem.write_to_file('folder/file/', content)
 
 
 @mock.patch('os.path.isdir')
 @mock.patch('builtins.open')
-def test_write_to_file_raise_error_when_file_cannot_be_open(open, isdir):
-    isdir.return_value = True  # the folder exists
+def test_write_to_file_raise_error_for_improper_path(open, isdir):
+    # WARNING order is dependant on actual implementation
+    isdir.side_effect = [False, False]
+    content = 'some content\n'
+
+    with pytest.raises(AssertionError):
+        filesystem.write_to_file('non/existant/path/file.txt', content)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_file_raise_error_when_file_cannot_be_opened(open, isdir):
+    # WARNING order is dependant on actual implementation
+    isdir.side_effect = [False, True]
     open.side_effect = IOError()  # it cannot be opened
     content = 'some content\n'
 
     with pytest.raises(MoulinetteError):
-        filesystem.write_to_file('non_openable_file.txt', content)
+        filesystem.write_to_file('bad/path/file.txt', content)
 
 
 @mock.patch('os.path.isdir')
 @mock.patch('builtins.open')
 def test_write_to_file_raise_error_when_file_cannot_be_written(open, isdir):
-    isdir.return_value = True  # the folder exists
+    # WARNING order is dependant on actual implementation
+    isdir.side_effect = [False, True]
     # FIXME it could be write that raises Exception
     open.side_effect = Exception()  # it cannot be written
     content = 'some content\n'
@@ -211,77 +226,6 @@ def fake_open_for_write():
                 __exit__=mock.Mock()),
             fake_file)
 
-
-#
-#
-#def test_write_to_existing_file():
-#
-#    assert os.path.exists(TMP_TEST_FILE)
-#    write_to_file(TMP_TEST_FILE, "yolo\nswag")
-#    assert read_file(TMP_TEST_FILE) == "yolo\nswag"
-#
-#
-#def test_write_to_new_file():
-#
-#    new_file = "%s/barfile" % TMP_TEST_DIR
-#    assert not os.path.exists(new_file)
-#    write_to_file(new_file, "yolo\nswag")
-#    assert os.path.exists(new_file)
-#    assert read_file(new_file) == "yolo\nswag"
-#
-#
-#def test_write_to_existing_file_badpermissions():
-#
-#    assert os.path.exists(TMP_TEST_FILE)
-#    switch_to_non_root_user()
-#    with pytest.raises(MoulinetteError):
-#        write_to_file(TMP_TEST_FILE, "yolo\nswag")
-#
-#
-#def test_write_to_new_file_badpermissions():
-#
-#    switch_to_non_root_user()
-#    new_file = "%s/barfile" % TMP_TEST_DIR
-#    assert not os.path.exists(new_file)
-#    with pytest.raises(MoulinetteError):
-#        write_to_file(new_file, "yolo\nswag")
-#
-#
-#def test_write_to_folder():
-#
-#    with pytest.raises(AssertionError):
-#        write_to_file(TMP_TEST_DIR, "yolo\nswag")
-#
-#
-#def test_write_inside_nonexistent_folder():
-#
-#    with pytest.raises(AssertionError):
-#        write_to_file("/toto/test", "yolo\nswag")
-#
-#
-#def test_write_to_file_with_a_list():
-#
-#    assert os.path.exists(TMP_TEST_FILE)
-#    write_to_file(TMP_TEST_FILE, ["yolo", "swag"])
-#    assert read_file(TMP_TEST_FILE) == "yolo\nswag"
-#
-#
-#def test_append_to_existing_file():
-#
-#    assert os.path.exists(TMP_TEST_FILE)
-#    append_to_file(TMP_TEST_FILE, "yolo\nswag")
-#    assert read_file(TMP_TEST_FILE) == "foo\nbar\nyolo\nswag"
-#
-#
-#def test_append_to_new_file():
-#
-#    new_file = "%s/barfile" % TMP_TEST_DIR
-#    assert not os.path.exists(new_file)
-#    append_to_file(new_file, "yolo\nswag")
-#    assert os.path.exists(new_file)
-#    assert read_file(new_file) == "yolo\nswag"
-#
-#
 #def text_write_dict_to_json():
 #
 #    dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}

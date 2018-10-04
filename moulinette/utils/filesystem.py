@@ -103,11 +103,14 @@ def write_to_file(file_path, data, file_mode="w"):
         by append_to_file to avoid duplicating the code of this function.
     """
     assert isinstance(data, str) or isinstance(data, list)
+    assert not os.path.isdir(file_path)
+    assert os.path.isdir(os.path.dirname(file_path))
 
-    path = os.path.dirname(file_path)
-    if not os.path.isdir(path):
-        raise MoulinetteError(errno.ENOENT,
-                              m18n.g('file_not_exist', path=path))
+    # FIXME assert could be replaced by a test raising MoulinetteError like
+    # path = os.path.dirname(file_path)
+    # if not os.path.isdir(path):
+    #     raise MoulinetteError(errno.ENOENT,
+    #                           m18n.g('file_not_exist', path=path))
 
     # FIXME could be replaced by a writelines
     # If data is a list, check elements are strings and build a single string
