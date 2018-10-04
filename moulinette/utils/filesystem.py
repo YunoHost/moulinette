@@ -154,23 +154,10 @@ def write_to_json(file_path, data):
     """
 
     # Assumptions
-    assert isinstance(file_path, str)
     assert isinstance(data, dict) or isinstance(data, list)
-    assert not os.path.isdir(file_path)
-    assert os.path.isdir(os.path.dirname(file_path))
 
-    # Write dict to file
-    try:
-        with open(file_path, "w") as f:
-            json.dump(data, f)
-    except IOError as e:
-        raise MoulinetteError(errno.EACCES,
-                              m18n.g('cannot_write_file',
-                                     file=file_path, error=str(e)))
-    except Exception as e:
-        raise MoulinetteError(errno.EIO,
-                              m18n.g('_error_writing_file',
-                                     file=file_path, error=str(e)))
+    content = json.dumps(data)
+    write_to_file(file_path, content)
 
 
 def mkdir(path, mode=0o777, parents=False, uid=None, gid=None, force=False):

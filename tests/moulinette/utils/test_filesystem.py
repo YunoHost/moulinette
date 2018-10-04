@@ -60,30 +60,6 @@ def test_read_file_return_file_content(open, isfile):
     assert content == file_content, 'read_file returned expected content'
 
 
-def fake_open_for_read(content):
-    """Return a mock for opening a file to be read with given content
-
-    This helper function is for mocking open() when used in a context manager.
-
-        @mock.patch('builtins.open')
-        def test(open):
-            open.return_value = fake_open_for_read('content')
-            function_using_open('filename.txt')
-            ...
-
-        def function_using_open(filename):
-            with open(filename, 'r') as f:
-                content = f.read()
-    """
-    fake_file = mock.Mock(read=mock.Mock(return_value=content))
-    # open is used as a context manager
-    # - so we fake __enter__ to return the fake file
-    # - so we fake __exit__ to do nothing
-    return mock.Mock(
-        __enter__=mock.Mock(return_value=fake_file),
-        __exit__=mock.Mock())
-
-
 #
 # reading a json file
 
@@ -141,6 +117,9 @@ def test_read_yaml_raise_error_on_bad_content(open, isfile):
 ########################################################################
 # Test writing a file
 ########################################################################
+
+#
+# writing a text file
 
 @mock.patch('os.path.isdir')
 @mock.patch('builtins.open')
@@ -202,6 +181,76 @@ def test_write_to_file_raise_error_when_file_cannot_be_written(open, isdir):
         filesystem.write_to_file('non_writable_file.txt', content)
 
 
+#
+# writing to a json file
+
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_json_update_file_content_from_dict(open, isdir):
+    # WARNING order is dependant on actual implementation of write_to_file
+    isdir.side_effect = [False, True]
+    open.return_value, fake_file = fake_open_for_write()
+    file_content = '{"foo": "abc", "bar": 42}'
+    json_content = {'foo': 'abc', 'bar': 42}
+
+    filesystem.write_to_json('fake/file.json', json_content)
+
+    fake_file.write.assert_called_with(file_content)
+
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_json_update_file_content_from_list(open, isdir):
+    # WARNING order is dependant on actual implementation of write_to_file
+    isdir.side_effect = [False, True]
+    open.return_value, fake_file = fake_open_for_write()
+    file_content = '["foo", "abc", "bar", 42]'
+    json_content = ['foo', 'abc', 'bar', 42]
+
+    filesystem.write_to_json('fake/file.json', json_content)
+
+    fake_file.write.assert_called_with(file_content)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_json_raise_error_for_bad_content(open, isdir):
+    # WARNING order is dependant on actual implementation of write_to_file
+    isdir.side_effect = [False, True]
+    open.return_value, fake_file = fake_open_for_write()
+    json_content = 'foo'
+
+    with pytest.raises(AssertionError):
+        filesystem.write_to_json('fake/file.json', json_content)
+
+
+########################################################################
+# Helper functions
+########################################################################
+
+def fake_open_for_read(content):
+    """Return a mock for opening a file to be read with given content
+
+    This helper function is for mocking open() when used in a context manager.
+
+        @mock.patch('builtins.open')
+        def test(open):
+            open.return_value = fake_open_for_read('content')
+            function_using_open('filename.txt')
+            ...
+
+        def function_using_open(filename):
+            with open(filename, 'r') as f:
+                content = f.read()
+    """
+    fake_file = mock.Mock(read=mock.Mock(return_value=content))
+    # open is used as a context manager
+    # - so we fake __enter__ to return the fake file
+    # - so we fake __exit__ to do nothing
+    return mock.Mock(
+        __enter__=mock.Mock(return_value=fake_file),
+        __exit__=mock.Mock())
+
+
 def fake_open_for_write():
     """Return a mock for opening a file to be writen to as well as the fake file
 
@@ -226,40 +275,7 @@ def fake_open_for_write():
                 __exit__=mock.Mock()),
             fake_file)
 
-#def text_write_dict_to_json():
-#
-#    dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}
-#    write_to_json(TMP_TEST_FILE, dummy_dict)
-#    j = read_json(TMP_TEST_FILE)
-#    assert "foo" in list(j.keys())
-#    assert "bar" in list(j.keys())
-#    assert j["foo"] == 42
-#    assert j["bar"] == ["a", "b", "c"]
-#    assert read_file(TMP_TEST_FILE) == "foo\nbar\nyolo\nswag"
-#
-#
-#def text_write_list_to_json():
-#
-#    dummy_list = ["foo", "bar", "baz"]
-#    write_to_json(TMP_TEST_FILE, dummy_list)
-#    j = read_json(TMP_TEST_FILE)
-#    assert j == ["foo", "bar", "baz"]
-#
-#
-#def test_write_to_json_badpermissions():
-#
-#    switch_to_non_root_user()
-#    dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}
-#    with pytest.raises(MoulinetteError):
-#        write_to_json(TMP_TEST_FILE, dummy_dict)
-#
-#
-#def test_write_json_inside_nonexistent_folder():
-#
-#    with pytest.raises(AssertionError):
-#        write_to_file("/toto/test.json", ["a", "b"])
-#
-#
+
 ################################################################################
 ##   Test file remove                                                          #
 ################################################################################
