@@ -30,9 +30,19 @@ def test_read_file_raise_error_for_non_existant_file(isfile):
 
 @mock.patch('os.path.isfile')
 @mock.patch('builtins.open')
-def test_read_file_raise_error_for_file_with_bad_permission(open, isfile):
+def test_read_file_raise_error_for_non_openable_file(open, isfile):
     isfile.return_value = True  # the file exists
     open.side_effect = IOError()  # it cannot be opened
+
+    with pytest.raises(MoulinetteError):
+        filesystem.read_file('non_openable_file.txt')
+
+
+@mock.patch('os.path.isfile')
+@mock.patch('builtins.open')
+def test_read_file_raise_error_for_non_readable_file(open, isfile):
+    isfile.return_value = True  # the file exists
+    open.side_effect = Exception()  # it cannot be read
 
     with pytest.raises(MoulinetteError):
         filesystem.read_file('non_openable_file.txt')
@@ -132,16 +142,74 @@ def test_read_yaml_raise_error_on_bad_content(open, isfile):
 # Test writing a file
 ########################################################################
 
-#@mock.patch('builtins.open')
-#def test_write_to_file_update_file_content(open):
-#    file_content = 'file content'
-#    open.return_value = fake_open_for_write()
-#
-#    filesystem.write_file('fake_file.txt')
-#
-#    assert content == file_content, 'read_file returned expected content'
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_file_update_file_content(open, isdir):
+    isdir.return_value = True
+    open.return_value, fake_file = fake_open_for_write()
+    content = 'some content\n'
+
+    filesystem.write_to_file('fake_file.txt', content)
+
+    fake_file.write.assert_called_with(content)
 
 
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_file_raise_error_for_improper_path(open, isdir):
+    isdir.return_value = False
+    content = 'some content\n'
+
+    with pytest.raises(MoulinetteError):
+        filesystem.write_to_file('fake_file.txt', content)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_file_raise_error_when_file_cannot_be_open(open, isdir):
+    isdir.return_value = True  # the folder exists
+    open.side_effect = IOError()  # it cannot be opened
+    content = 'some content\n'
+
+    with pytest.raises(MoulinetteError):
+        filesystem.write_to_file('non_openable_file.txt', content)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_file_raise_error_when_file_cannot_be_written(open, isdir):
+    isdir.return_value = True  # the folder exists
+    # FIXME it could be write that raises Exception
+    open.side_effect = Exception()  # it cannot be written
+    content = 'some content\n'
+
+    with pytest.raises(MoulinetteError):
+        filesystem.write_to_file('non_writable_file.txt', content)
+
+
+def fake_open_for_write():
+    """Return a mock for opening a file to be writen to as well as the fake file
+
+    This helper function is for mocking open() when used in a context manager.
+
+        @mock.patch('builtins.open')
+        def test(open):
+            open.return_value, fake_file = fake_open_for_write()
+            function_using_open('filename.txt', 'content')
+            fake_file.write.assert_called('content')
+
+        def function_using_open(filename, content):
+            with open(filename, 'w') as f:
+                content = f.write(content)
+    """
+    fake_file = mock.Mock(write=mock.Mock())
+    # open is used as a context manager
+    # - so we fake __enter__ to return the fake file
+    # - so we fake __exit__ to do nothing
+    return (mock.Mock(
+                __enter__=mock.Mock(return_value=fake_file),
+                __exit__=mock.Mock()),
+            fake_file)
 
 
 #
