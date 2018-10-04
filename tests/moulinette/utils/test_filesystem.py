@@ -22,24 +22,26 @@ from moulinette.utils import filesystem
 
 @mock.patch('os.path.isfile')
 def test_read_file_raise_error_for_non_existant_file(isfile):
-    isfile.return_value = False
+    isfile.return_value = False  # the file does not exist
 
     with pytest.raises(MoulinetteError):
-        filesystem.read_file('non existent file')
+        filesystem.read_file('non_existent_file.txt')
 
 
+@mock.patch('os.path.isfile')
 @mock.patch('builtins.open')
-def test_read_file_raise_error_for_file_with_bad_permission(open):
+def test_read_file_raise_error_for_file_with_bad_permission(open, isfile):
+    isfile.return_value = True  # the file exists
     open.side_effect = IOError()
 
     with pytest.raises(MoulinetteError):
-        filesystem.read_file('non openable file')
+        filesystem.read_file('non_openable_file.txt')
 
 
 @mock.patch('os.path.isfile')
 @mock.patch('builtins.open')
 def test_read_file_return_file_content(open, isfile):
-    isfile.return_value = True
+    isfile.return_value = True  # the file exists
     file_content = 'file content'
     open.return_value = fake_open(file_content)
 
@@ -51,11 +53,21 @@ def test_read_file_return_file_content(open, isfile):
 def fake_open(content):
     """Return a mock for opening a file with given content
 
-    This function is for mocking open() when used in a context manager.
+    This helper function is for mocking open() when used in a context manager.
+
+        @mock.patch('builtins.open')
+        def test(open):
+            open.return_value = fake_open('content')
+            function_using_open('filename.txt')
+            ...
+
+        def function_using_open(filename):
+            with open(filename, 'r') as f:
+                content = f.read()
     """
     fake_file = mock.Mock(read=mock.Mock(return_value=content))
     # open is used as a context manager
-    # - so we fake __enter__ to return the file
+    # - so we fake __enter__ to return the fake file
     # - so we fake __exit__ to do nothing
     return mock.Mock(
         __enter__=mock.Mock(return_value=fake_file),
