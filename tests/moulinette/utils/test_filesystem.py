@@ -17,9 +17,13 @@ from moulinette.utils import filesystem
 # Test reading a file
 ###############################################################################
 
+#
+# reading a text file
+
 @mock.patch('os.path.isfile')
 def test_read_file_raise_error_for_non_existant_file(isfile):
     isfile.return_value = False
+
     with pytest.raises(MoulinetteError):
         filesystem.read_file('non existent file')
 
@@ -27,6 +31,7 @@ def test_read_file_raise_error_for_non_existant_file(isfile):
 @mock.patch('builtins.open')
 def test_read_file_raise_error_for_file_with_bad_permission(open):
     open.side_effect = IOError()
+
     with pytest.raises(MoulinetteError):
         filesystem.read_file('non openable file')
 
@@ -49,25 +54,41 @@ def fake_open(content):
     This function is for mocking open() when used in a context manager.
     """
     fake_file = mock.Mock(read=mock.Mock(return_value=content))
-    # open is used as a context manager so we fake __enter__ to return the file
-    return mock.Mock(__enter__=mock.Mock(return_value=fake_file), __exit__=mock.Mock())
+    # open is used as a context manager
+    # - so we fake __enter__ to return the file
+    # - so we fake __exit__ to do nothing
+    return mock.Mock(
+        __enter__=mock.Mock(return_value=fake_file),
+        __exit__=mock.Mock())
 
 
-#def test_read_json():
 #
-#    content = read_json(TMP_TEST_JSON)
-#    assert "foo" in list(content.keys())
-#    assert content["foo"] == "bar"
-#
-#
-#def test_read_json_badjson():
-#
-#    os.system("echo '{ not valid json lol }' > %s" % TMP_TEST_JSON)
-#
-#    with pytest.raises(MoulinetteError):
-#        read_json(TMP_TEST_JSON)
-#
-#
+# reading a json file
+
+@mock.patch('os.path.isfile')
+@mock.patch('builtins.open')
+def test_read_json_return_file_content_as_json(open, isfile):
+    isfile.return_value = True
+    file_content = '{"foo": "abc", "bar": 42}'
+    open.return_value = fake_open(file_content)
+
+    content = filesystem.read_json('fake_file.json')
+
+    json_content = {'foo': 'abc', 'bar': 42}
+    assert content == json_content, 'read_json returned expected content'
+
+
+@mock.patch('os.path.isfile')
+@mock.patch('builtins.open')
+def test_read_json_return_raise_error_on_bad_content(open, isfile):
+    isfile.return_value = True
+    file_content = '{"foo", "abc", "bar": 42]'
+    open.return_value = fake_open(file_content)
+
+    with pytest.raises(MoulinetteError):
+        content = filesystem.read_json('bad_file.json')
+
+
 ################################################################################
 ##   Test file write                                                           #
 ################################################################################
