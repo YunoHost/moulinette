@@ -388,7 +388,7 @@ class ActionsMap(object):
             if use_cache and os.path.exists(actionsmap_pkl):
                 try:
                     # Attempt to load cache
-                    with open(actionsmap_pkl) as f:
+                    with open(actionsmap_pkl, 'rb') as f:
                         actionsmaps[n] = pickle.load(f)
                 # TODO: Switch to python3 and catch proper exception
                 except (IOError, EOFError):
@@ -554,7 +554,7 @@ class ActionsMap(object):
 
             pkl = '%s-%d-%d.pkl' % (n, am_file_stat.st_size, am_file_stat.st_mtime)
 
-            with open_cachefile(pkl, 'w', subdir='actionsmap') as f:
+            with open_cachefile(pkl, 'wb', subdir='actionsmap') as f:
                 pickle.dump(actionsmaps[n], f)
 
         return actionsmaps
