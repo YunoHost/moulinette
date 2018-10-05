@@ -21,3 +21,7 @@
 
 # renamed multiprocessing.process.Process to BaseProcess
 
+# writing tests for utils (only ones available) using mocks
+
+the goal is to be able to run moulinette tests on any environment just
+after a git clone

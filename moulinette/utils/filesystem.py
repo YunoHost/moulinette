@@ -1,9 +1,12 @@
+# encoding: utf-8
+
 import os
 import yaml
 import errno
 import shutil
 import json
 import grp
+
 from pwd import getpwnam
 
 from moulinette import m18n
@@ -278,13 +281,13 @@ def rm(path, recursive=False, force=False):
         - force -- Ignore nonexistent files
 
     """
-    if recursive and os.path.isdir(path):
-        shutil.rmtree(path, ignore_errors=force)
-    else:
-        try:
+    try:
+        if recursive and os.path.isdir(path):
+            shutil.rmtree(path, ignore_errors=force)
+        else:
             os.remove(path)
-        except OSError as e:
-            if not force:
-                raise MoulinetteError(errno.EIO,
-                                      m18n.g('error_removing',
+    except OSError as e:
+        if not force:
+            raise MoulinetteError(errno.EIO,
+                                  m18n.g('error_removing',
                                              path=path, error=str(e)))

@@ -2,6 +2,11 @@
 
 """
 Testing moulinette utils filesystem
+
+
+WARNING These tests have been written based on the actual implementation and
+thus are dependant on this implementation. This is fragile but allow for a
+first instroduction of tests before doing refactorings.
 """
 
 import mock
@@ -274,6 +279,84 @@ def fake_open_for_write():
                 __enter__=mock.Mock(return_value=fake_file),
                 __exit__=mock.Mock()),
             fake_file)
+
+
+########################################################################
+# Test file remove
+########################################################################
+
+#
+# Removing a file
+
+@mock.patch('os.remove')
+def test_rm_remove_file_if_it_exists(remove):
+    filename = 'file.txt'
+
+    filesystem.rm(filename)
+
+    remove.assert_called_with(filename)
+
+
+@mock.patch('os.remove')
+def test_rm_cannot_remove_non_existing_file(remove):
+    filename = 'do_not_exist.txt'
+    remove.side_effect = FileNotFoundError()
+
+    with pytest.raises(MoulinetteError):
+        filesystem.rm(filename)
+
+
+@mock.patch('os.remove')
+def test_rm_cannot_remove_file_without_permission(remove):
+    filename = 'not_mine.txt'
+    remove.side_effect = PermissionError()
+
+    with pytest.raises(MoulinetteError):
+        filesystem.rm(filename)
+
+
+@mock.patch('os.remove')
+def test_rm_cannot_remove_folder(remove):
+    filename = './folder'
+    remove.side_effect = IsADirectoryError()
+
+    with pytest.raises(MoulinetteError):
+        filesystem.rm(filename)
+
+#
+# Removing a folder
+
+@mock.patch('os.path.isdir')
+@mock.patch('shutil.rmtree')
+def test_rm_remove_folder_if_it_exists(rmtree, isdir):
+    isdir.return_value = True
+    foldername = 'folder'
+
+    filesystem.rm(foldername, recursive=True)
+
+    rmtree.assert_called_with(foldername, ignore_errors=False)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('os.remove')
+def test_rm_cannot_remove_non_existing_folder(remove, isdir):
+    isdir.return_value = False
+    foldername = 'do_not_exist'
+    remove.side_effect = FileNotFoundError()
+
+    with pytest.raises(MoulinetteError):
+        filesystem.rm(foldername, recursive=True)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('shutil.rmtree')
+def test_rm_cannot_remove_folder_without_permission(rmtree, isdir):
+    isdir.return_value = True
+    foldername = 'not_mine'
+    rmtree.side_effect = PermissionError()
+
+    with pytest.raises(MoulinetteError):
+        filesystem.rm(foldername, recursive=True)
 
 
 ################################################################################
