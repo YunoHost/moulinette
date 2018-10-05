@@ -91,7 +91,7 @@ class Translator(object):
         failed_to_format = False
         if key in self._translations.get(self.locale, {}):
             try:
-                return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
+                return self._translations[self.locale][key].format(*args, **kwargs)
             except KeyError as e:
                 logger.exception("Failed to format translated string '%s' with error: %s" % (key, e))
                 failed_to_format = True
@@ -101,10 +101,10 @@ class Translator(object):
                         key, self.locale)
 
             try:
-                return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+                return self._translations[self.default_locale][key].format(*args, **kwargs)
             except KeyError as e:
                 logger.exception("Failed to format translatable string '%s' with error: %s" % (key, e))
-                return self._translations[self.locale][key].encode('utf-8')
+                return self._translations[self.locale][key]
 
         logger.exception("unable to retrieve key '%s' for default locale '%s'",
                          key, self.default_locale)
