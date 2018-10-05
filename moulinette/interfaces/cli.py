@@ -315,7 +315,7 @@ class ActionsMapParser(BaseActionsMapParser):
                                            deprecated_alias=deprecated_alias)
 
     def add_global_arguments(self, arguments):
-        for argument_name, argument_options in list(arguments.items()):
+        for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
             names = self.format_arg_names(str(argument_name),
                                           argument_options.pop('full', None))
