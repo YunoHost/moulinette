@@ -562,8 +562,7 @@ def test_chown_cannot_change_owner_of_non_existant_file(chown):
 @mock.patch('os.chown')
 def test_chown_recursive_update_folder_owner(chown, isdir, walk):
     foldername = 'folder'
-    uid = 1000
-    gid = 1000
+    uid = gid = 1000
     isdir.return_value = True  # foldername is a folder
     walk.return_value = [(foldername, ['subfolder'], ['file.txt'])]
 
@@ -574,5 +573,84 @@ def test_chown_recursive_update_folder_owner(chown, isdir, walk):
              mock.call('folder/file.txt', uid, gid)]
     chown.assert_has_calls(calls)
 
+
+########################################################################
+# Testing creation of folder
+########################################################################
+
+@mock.patch('os.path.exists')
+def test_mkdir_cannot_create_folder_if_it_exist(exists):
+    folder = 'folder'
+    exists.return_value = True
+
+    with pytest.raises(OSError):
+        filesystem.mkdir(folder)
+
+
+@mock.patch('os.path.exists')
+@mock.patch('os.mkdir')
+def test_mkdir_create_folder_if_does_not_exist(mkdir, exists):
+    foldername = 'folder'
+    exists.return_value = False
+
+    filesystem.mkdir(foldername)
+
+    mkdir.assert_called_with(foldername, 0o777)
+
+
+@mock.patch('os.path.exists')
+@mock.patch('os.mkdir')
+@mock.patch('moulinette.utils.filesystem.chown')
+def test_mkdir_create_folder_for_owner_if_provided(chown, mkdir, exists):
+    foldername = 'folder'
+    uid = gid = 1000
+    exists.return_value = False
+
+    filesystem.mkdir(foldername, uid=uid, gid=gid)
+
+    mkdir.assert_called_with(foldername, 0o777)
+    chown.assert_called_with(foldername, uid, gid)
+
+
+@mock.patch('os.path.exists')
+@mock.patch('os.mkdir')
+@mock.patch('os.chown')
+def test_mkdir_update_folder_if_it_exists(chown, mkdir, exists):
+    foldername = 'folder'
+    uid = gid = 1000
+    exists.return_value = True
+    mkdir.side_effect = FileExistsError
+
+    filesystem.mkdir(foldername, uid=uid, gid=gid, force=True)
+
+    chown.assert_called_with(foldername, uid, gid)
+
+
+@mock.patch('os.path.exists')
+@mock.patch('os.path.split')
+@mock.patch('os.mkdir')
+def test_mkdir_create_folder_with_parents_if_necessary(mkdir, split, exists):
+    foldername = 'parent/folder'
+    exists.side_effect = [False, False, False, False]  # folder and parent do not exist
+    split.side_effect = [('parent', 'folder'), ('', 'parent')]
+
+    filesystem.mkdir(foldername, parents=True)
+
+    calls = [mock.call('parent', 0o777),
+             mock.call('parent/folder', 0o777)]
+    mkdir.assert_has_calls(calls)
+
+
+@mock.patch('os.path.exists')
+@mock.patch('os.path.split')
+@mock.patch('os.mkdir')
+def test_mkdir_cannot_create_folder_with_parents_if_no_permission(mkdir, split, exists):
+    foldername = 'parent/folder'
+    mkdir.side_effect = PermissionError
+    exists.side_effect = [False, False, False, False]  # folder and parent do not exist
+    split.side_effect = [('parent', 'folder'), ('', 'parent')]
+
+    with pytest.raises(PermissionError):
+        filesystem.mkdir(foldername, parents=True)
 
 # eof

@@ -202,7 +202,11 @@ def mkdir(path, mode=0o777, parents=False, uid=None, gid=None, force=False):
                 return
 
     # Create directory and set permissions
-    os.mkdir(path, mode)
+    try:
+        os.mkdir(path, mode)
+    except FileExistsError as e:
+        if not force:
+            raise
     if uid is not None or gid is not None:
         chown(path, uid, gid)
 
