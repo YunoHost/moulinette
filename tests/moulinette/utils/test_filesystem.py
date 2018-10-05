@@ -111,9 +111,20 @@ def test_read_yaml_return_file_content_as_yaml(open, isfile):
 
 @mock.patch('os.path.isfile')
 @mock.patch('builtins.open')
-def test_read_yaml_raise_error_on_bad_content(open, isfile):
+def test_read_yaml_raise_error_on_very_bad_content(open, isfile):
     isfile.return_value = True
     file_content = 'foo, bar-\n t:'
+    open.return_value = fake_open_for_read(file_content)
+
+    with pytest.raises(MoulinetteError):
+        content = filesystem.read_yaml('bad_file.yaml')
+
+
+@mock.patch('os.path.isfile')
+@mock.patch('builtins.open')
+def test_read_yaml_raise_error_on_bad_content(open, isfile):
+    isfile.return_value = True
+    file_content = 'foo: bar-\n- to'
     open.return_value = fake_open_for_read(file_content)
 
     with pytest.raises(MoulinetteError):
@@ -129,7 +140,7 @@ def test_read_yaml_raise_error_on_bad_content(open, isfile):
 
 @mock.patch('os.path.isdir')
 @mock.patch('builtins.open')
-def test_write_to_file_update_file_content(open, isdir):
+def test_write_to_file_update_file_content_with_string(open, isdir):
     # WARNING order is dependant on actual implementation
     isdir.side_effect = [False, True]
     open.return_value, fake_file = fake_open_for_write()
@@ -138,6 +149,20 @@ def test_write_to_file_update_file_content(open, isdir):
     filesystem.write_to_file('fake/file.txt', content)
 
     fake_file.write.assert_called_with(content)
+
+
+@mock.patch('os.path.isdir')
+@mock.patch('builtins.open')
+def test_write_to_file_update_file_content_with_list_of_string(open, isdir):
+    # WARNING order is dependant on actual implementation
+    isdir.side_effect = [False, True]
+    open.return_value, fake_file = fake_open_for_write()
+    content = ['some', 'content']
+
+    filesystem.write_to_file('fake/file.txt', content)
+
+    expected_content = 'some\ncontent'
+    fake_file.write.assert_called_with(expected_content)
 
 
 @mock.patch('os.path.isdir')
@@ -413,7 +438,6 @@ def test_chmod_recursive_update_folder_permissions(chmod, isdir, walk):
     calls = [mock.call('folder', mode),
              mock.call('folder/subfolder', mode),
              mock.call('folder/file.txt', mode)]
-
     chmod.assert_has_calls(calls)
 
 
@@ -432,8 +456,123 @@ def test_chmod_recursive_update_folder_permissions_with_fmode(chmod, isdir, walk
     calls = [mock.call('folder', mode),
              mock.call('folder/subfolder', mode),
              mock.call('folder/file.txt', fmode)]
-
     chmod.assert_has_calls(calls)
+
+
+########################################################################
+# Chagin owner of file or folder
+########################################################################
+
+def test_chown_cannot_change_owner_without_providing_uid_or_guid():
+    filename = 'file.txt'
+
+    with pytest.raises(ValueError):
+        filesystem.chown(filename)
+
+
+@mock.patch('os.chown')
+def test_chown_change_owner_of_file_with_given_uid_as_id(chown):
+    filename = 'file.txt'
+    uid = 1000
+
+    filesystem.chown(filename, uid=uid)
+
+    chown.assert_called_with(filename, uid, -1)
+
+@mock.patch('pwd.getpwnam')
+@mock.patch('os.chown')
+def test_chown_change_owner_of_file_with_given_uid_as_name(chown, getpwnam):
+    filename = 'file.txt'
+    name = 'jdoe'
+    uid = 1000
+    getpwnam.return_value = mock.Mock(pw_uid=uid)
+
+    filesystem.chown(filename, uid=name)
+
+    chown.assert_called_with(filename, uid, -1)
+
+
+@mock.patch('pwd.getpwnam')
+@mock.patch('os.chown')
+def test_cannot_change_owner_of_file_with_unknown_user_name(chown, getpwnam):
+    filename = 'file.txt'
+    name = 'jdoe'
+    getpwnam.side_effect = KeyError
+
+    with pytest.raises(MoulinetteError):
+        filesystem.chown(filename, uid=name)
+
+
+@mock.patch('os.chown')
+def test_chown_change_owner_of_file_with_given_gid_as_id(chown):
+    filename = 'file.txt'
+    gid = 1000
+
+    filesystem.chown(filename, gid=gid)
+
+    chown.assert_called_with(filename, -1, gid)
+
+
+@mock.patch('grp.getgrnam')
+@mock.patch('os.chown')
+def test_chown_change_owner_of_file_with_given_gid_as_name(chown, getgrnam):
+    filename = 'file.txt'
+    name = 'jdoe'
+    gid = 1000
+    getgrnam.return_value = mock.Mock(gr_gid=gid)
+
+    filesystem.chown(filename, gid=name)
+
+    chown.assert_called_with(filename, -1, gid)
+
+
+@mock.patch('grp.getgrnam')
+@mock.patch('os.chown')
+def test_cannot_change_owner_of_file_with_unknown_group_name(chown, getgrnam):
+    filename = 'file.txt'
+    name = 'jdoe'
+    getgrnam.side_effect = KeyError
+
+    with pytest.raises(MoulinetteError):
+        filesystem.chown(filename, gid=name)
+
+
+@mock.patch('os.chown')
+def test_chown_cannot_change_owner_of_file_without_permission(chown):
+    filename = 'file.txt'
+    gid = 1000
+    chown.side_effect = PermissionError
+
+    with pytest.raises(MoulinetteError):
+        filesystem.chown(filename, gid=gid)
+
+
+@mock.patch('os.chown')
+def test_chown_cannot_change_owner_of_non_existant_file(chown):
+    filename = 'file.txt'
+    gid = 1000
+    chown.side_effect = FileNotFoundError
+
+    with pytest.raises(MoulinetteError):
+        filesystem.chown(filename, gid=gid)
+
+
+@mock.patch('os.walk')
+@mock.patch('os.path.isdir')
+@mock.patch('os.chown')
+def test_chown_recursive_update_folder_owner(chown, isdir, walk):
+    foldername = 'folder'
+    uid = 1000
+    gid = 1000
+    isdir.return_value = True  # foldername is a folder
+    walk.return_value = [(foldername, ['subfolder'], ['file.txt'])]
+
+    filesystem.chown(foldername, uid=uid, gid=gid, recursive=True)
+
+    calls = [mock.call('folder', uid, gid),
+             mock.call('folder/subfolder', uid, gid),
+             mock.call('folder/file.txt', uid, gid)]
+    chown.assert_has_calls(calls)
 
 
 # eof

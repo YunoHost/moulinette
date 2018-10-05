@@ -1,13 +1,13 @@
 # encoding: utf-8
 
 import os
-import yaml
 import errno
 import shutil
 import json
-import grp
+import yaml
 
-from pwd import getpwnam
+import grp
+import pwd
 
 from moulinette import m18n
 from moulinette.globals import CACHE_DIR
@@ -87,6 +87,11 @@ def read_yaml(file_path):
                               m18n.g('corrupted_yaml',
                                      ressource=file_path, error=str(e)))
     except yaml.scanner.ScannerError as e:
+        raise MoulinetteError(errno.EINVAL,
+                              m18n.g('corrupted_yaml',
+                                     ressource=file_path, error=str(e)))
+
+    except yaml.parser.ParserError as e:
         raise MoulinetteError(errno.EINVAL,
                               m18n.g('corrupted_yaml',
                                      ressource=file_path, error=str(e)))
@@ -217,7 +222,7 @@ def chown(path, uid=None, gid=None, recursive=False):
     # Retrieve uid/gid
     if isinstance(uid, str):
         try:
-            uid = getpwnam(uid).pw_uid
+            uid = pwd.getpwnam(uid).pw_uid
         except KeyError:
             raise MoulinetteError(errno.EINVAL,
                                   m18n.g('unknown_user', user=uid))
