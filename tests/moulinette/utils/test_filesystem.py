@@ -589,6 +589,17 @@ def test_mkdir_cannot_create_folder_if_it_exist(exists):
 
 @mock.patch('os.path.exists')
 @mock.patch('os.mkdir')
+def test_mkdir_cannot_create_folder_if_no_permission(mkdir, exists):
+    folder = 'folder'
+    mkdir.side_effect = PermissionError
+    exists.return_value = False
+
+    with pytest.raises(OSError):
+        filesystem.mkdir(folder)
+
+
+@mock.patch('os.path.exists')
+@mock.patch('os.mkdir')
 def test_mkdir_create_folder_if_does_not_exist(mkdir, exists):
     foldername = 'folder'
     exists.return_value = False
@@ -638,6 +649,21 @@ def test_mkdir_create_folder_with_parents_if_necessary(mkdir, split, exists):
 
     calls = [mock.call('parent', 0o777),
              mock.call('parent/folder', 0o777)]
+    mkdir.assert_has_calls(calls)
+
+
+@mock.patch('os.path.exists')
+@mock.patch('os.path.split')
+@mock.patch('os.mkdir')
+def test_mkdir_create_folder_with_parents_with_trailing_slash(mkdir, split, exists):
+    foldername = 'parent/folder/'
+    exists.side_effect = [False, False, False, False]  # folder and parent do not exist
+    split.side_effect = [('parent/folder', ''), ('parent', 'folder'), ('', 'parent')]
+
+    filesystem.mkdir(foldername, parents=True)
+
+    calls = [mock.call('parent', 0o777),
+             mock.call('parent/folder/', 0o777)]
     mkdir.assert_has_calls(calls)
 
 
