@@ -9,6 +9,7 @@ thus are dependant on this implementation. This is fragile but allow for a
 first instroduction of tests before doing refactorings.
 """
 
+
 import mock
 import pytest
 
@@ -359,105 +360,80 @@ def test_rm_cannot_remove_folder_without_permission(rmtree, isdir):
         filesystem.rm(foldername, recursive=True)
 
 
-################################################################################
-##   Test file remove                                                          #
-################################################################################
+########################################################################
+# Changing permissions
+########################################################################
+
 #
+# changing file permissions
+
+@mock.patch('os.chmod')
+def test_chmod_update_file_permissions(chmod):
+    filename = 'file.txt'
+    mode = '0644'
+
+    filesystem.chmod(filename, mode)
+
+    chmod.assert_called_with(filename, mode)
+
+
+@mock.patch('os.chmod')
+def test_chmod_cannot_update_file_without_permission(chmod):
+    filename = 'file.txt'
+    mode = '0644'
+    chmod.side_effect = PermissionError
+
+    with pytest.raises(MoulinetteError):
+        filesystem.chmod(filename, mode)
+
+
+@mock.patch('os.chmod')
+def test_chmod_cannot_update_non_existant_file(chmod):
+    filename = 'file.txt'
+    mode = '0644'
+    chmod.side_effect = FileNotFoundError
+
+    with pytest.raises(MoulinetteError):
+        filesystem.chmod(filename, mode)
+
 #
-#def test_remove_file():
-#
-#    rm(TMP_TEST_FILE)
-#    assert not os.path.exists(TMP_TEST_FILE)
-#
-#
-#def test_remove_file_badpermissions():
-#
-#    switch_to_non_root_user()
-#    with pytest.raises(MoulinetteError):
-#        rm(TMP_TEST_FILE)
-#
-#
-#def test_remove_directory():
-#
-#    rm(TMP_TEST_DIR, recursive=True)
-#    assert not os.path.exists(TMP_TEST_DIR)
-#
-#
-################################################################################
-##   Test permission change                                                    #
-################################################################################
-#
-#
-#def get_permissions(file_path):
-#    from stat import ST_MODE
-#    return (pwd.getpwuid(os.stat(file_path).st_uid).pw_name,
-#            pwd.getpwuid(os.stat(file_path).st_gid).pw_name,
-#            oct(os.stat(file_path)[ST_MODE])[-3:])
-#
-#
-## FIXME - should split the test of chown / chmod as independent tests
-#def set_permissions(f, owner, group, perms):
-#    chown(f, owner, group)
-#    chmod(f, perms)
-#
-#
-#def test_setpermissions_file():
-#
-#    # Check we're at the default permissions
-#    assert get_permissions(TMP_TEST_FILE) == ("root", "root", "700")
-#
-#    # Change the permissions
-#    set_permissions(TMP_TEST_FILE, NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
-#
-#    # Check the permissions got changed
-#    assert get_permissions(TMP_TEST_FILE) == (NON_ROOT_USER, NON_ROOT_GROUP, "111")
-#
-#    # Change the permissions again
-#    set_permissions(TMP_TEST_FILE, "root", "root", 0o777)
-#
-#    # Check the permissions got changed
-#    assert get_permissions(TMP_TEST_FILE) == ("root", "root", "777")
-#
-#
-#def test_setpermissions_directory():
-#
-#    # Check we're at the default permissions
-#    assert get_permissions(TMP_TEST_DIR) == ("root", "root", "755")
-#
-#    # Change the permissions
-#    set_permissions(TMP_TEST_DIR, NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
-#
-#    # Check the permissions got changed
-#    assert get_permissions(TMP_TEST_DIR) == (NON_ROOT_USER, NON_ROOT_GROUP, "111")
-#
-#    # Change the permissions again
-#    set_permissions(TMP_TEST_DIR, "root", "root", 0o777)
-#
-#    # Check the permissions got changed
-#    assert get_permissions(TMP_TEST_DIR) == ("root", "root", "777")
-#
-#
-#def test_setpermissions_permissiondenied():
-#
-#    switch_to_non_root_user()
-#
-#    with pytest.raises(MoulinetteError):
-#        set_permissions(TMP_TEST_FILE, NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
-#
-#
-#def test_setpermissions_badfile():
-#
-#    with pytest.raises(MoulinetteError):
-#        set_permissions("/foo/bar/yolo", NON_ROOT_USER, NON_ROOT_GROUP, 0o111)
-#
-#
-#def test_setpermissions_baduser():
-#
-#    with pytest.raises(MoulinetteError):
-#        set_permissions(TMP_TEST_FILE, "foo", NON_ROOT_GROUP, 0o111)
-#
-#
-#def test_setpermissions_badgroup():
-#
-#    with pytest.raises(MoulinetteError):
-#        set_permissions(TMP_TEST_FILE, NON_ROOT_USER, "foo", 0o111)
+# changing folder permissions
+
+@mock.patch('os.walk')
+@mock.patch('os.path.isdir')
+@mock.patch('os.chmod')
+def test_chmod_recursive_update_folder_permissions(chmod, isdir, walk):
+    foldername = 'folder'
+    mode = '0644'
+    isdir.return_value = True  # foldername is a folder
+    walk.return_value = [(foldername, ['subfolder'], ['file.txt'])]
+
+    filesystem.chmod(foldername, mode, recursive=True)
+
+    calls = [mock.call('folder', mode),
+             mock.call('folder/subfolder', mode),
+             mock.call('folder/file.txt', mode)]
+
+    chmod.assert_has_calls(calls)
+
+
+@mock.patch('os.walk')
+@mock.patch('os.path.isdir')
+@mock.patch('os.chmod')
+def test_chmod_recursive_update_folder_permissions_with_fmode(chmod, isdir, walk):
+    foldername = 'folder'
+    mode = '0755'
+    fmode = '0644'
+    isdir.return_value = True  # foldername is a folder
+    walk.return_value = [(foldername, ['subfolder'], ['file.txt'])]
+
+    filesystem.chmod(foldername, mode, fmode=fmode, recursive=True)
+
+    calls = [mock.call('folder', mode),
+             mock.call('folder/subfolder', mode),
+             mock.call('folder/file.txt', fmode)]
+
+    chmod.assert_has_calls(calls)
+
+
+# eof
