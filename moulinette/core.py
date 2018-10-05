@@ -129,7 +129,7 @@ class Translator(object):
 
         try:
             with open('%s/%s.json' % (self.locale_dir, locale), 'r') as f:
-                j = json.load(f, 'utf-8')
+                j = json.load(f)
         except IOError:
             return False
         else:
