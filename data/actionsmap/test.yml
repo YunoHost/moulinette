@@ -28,7 +28,7 @@ _global:
                     user_rdn: cn=admin
         argument_auth: true
         lock: false
-
+    arguments: []
 #############################
 #       Test Actions        #
 #############################
