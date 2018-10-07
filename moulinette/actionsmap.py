@@ -593,7 +593,7 @@ class ActionsMap(object):
         # * namespace define the top "name", for us it will always be
         #   "yunohost" and there well be only this one
         # * actionsmap is the actual actionsmap that we care about
-        for namespace, actionsmap in list(actionsmaps.items()):
+        for namespace, actionsmap in actionsmaps.items():
             # Retrieve global parameters
             _global = actionsmap.pop('_global', {})
 
