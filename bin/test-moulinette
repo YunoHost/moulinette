@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import os
@@ -163,7 +163,7 @@ def _init_moulinette(debug=False, quiet=False):
     # Create log directory
     if not os.path.isdir(LOG_DIR):
         try:
-            os.makedirs(LOG_DIR, 0750)
+            os.makedirs(LOG_DIR, 0o750)
         except os.error as e:
             _die(str(e))
 
