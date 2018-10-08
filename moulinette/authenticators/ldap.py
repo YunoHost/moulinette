@@ -104,7 +104,7 @@ class Authenticator(BaseAuthenticator):
             return
 
         # we aren't using sha-512 but something else that is weaker, proceed to upgrade
-        if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
+        if not hashed_password["userPassword"][0].startswith(b"{CRYPT}$6$"):
             self.update("cn=admin", {
                 "userPassword": _hash_user_password(password),
             })
