@@ -59,6 +59,8 @@ class Authenticator(BaseAuthenticator):
 
     @property
     def is_authenticated(self):
+        if not self.con:
+            return False
         try:
             # Retrieve identity
             who = self.con.whoami_s()
