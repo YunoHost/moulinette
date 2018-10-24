@@ -59,7 +59,7 @@ class Authenticator(BaseAuthenticator):
 
     @property
     def is_authenticated(self):
-        if not self.con:
+        if self.con is None:
             return False
         try:
             # Retrieve identity
