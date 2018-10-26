@@ -84,6 +84,25 @@ class _ExtraParameter(object):
         return value
 
 
+class CommentParameter(_ExtraParameter):
+    name = "comment"
+    skipped_iface = ['api']
+
+    def __call__(self, message, arg_name, arg_value):
+        return msignals.display(m18n.n(message))
+
+    @classmethod
+    def validate(klass, value, arg_name):
+        # Deprecated boolean or empty string
+        if isinstance(value, bool) or (isinstance(value, str) and not value):
+            logger.warning("expecting a string for extra parameter '%s' of "
+                           "argument '%s'", klass.name, arg_name)
+            value = arg_name
+        elif not isinstance(value, str):
+            raise TypeError("parameter value must be a string, got %r"
+                            % value)
+        return value
+
 class AskParameter(_ExtraParameter):
     """
     Ask for the argument value if possible and needed.
@@ -215,8 +234,8 @@ The list of available extra parameters classes. It will keep to this list
 order on argument parsing.
 
 """
-extraparameters_list = [AskParameter, PasswordParameter, RequiredParameter,
-                        PatternParameter]
+extraparameters_list = [CommentParameter, AskParameter, PasswordParameter, 
+                        RequiredParameter, PatternParameter]
 
 # Extra parameters argument Parser
 
