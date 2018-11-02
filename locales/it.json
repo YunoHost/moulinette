@@ -40,6 +40,9 @@
     "cannot_open_file": "Impossibile aprire il file {file:s} (motivo: {error:s})",
     "cannot_write_file": "Impossibile scrivere il file {file:s} (motivo: {error:s})",
     "unknown_error_reading_file": "Errore sconosciuto nel tentativo di leggere il file {file:s}",
-    "corrupted_json": "Lettura corrotta del json da {ressource:s} (motivo: {error:s})",
-    "corrupted_yaml": "Lettura yaml corrotta da {ressource:s} (motivo: {error:s})"
+    "corrupted_json": "Lettura json corrotta da {ressource:s} (motivo: {error:s})",
+    "corrupted_yaml": "Lettura yaml corrotta da {ressource:s} (motivo: {error:s})",
+    "error_writing_file": "Errore durante la scrittura del file {file:s}: {error:s}",
+    "error_removing": "Errore durante la rimozione {path:s}: {error:s}",
+    "error_changing_file_permissions": "Errore durante il cambio di permessi da {path:s}: {error:s}"
 }
