@@ -44,5 +44,11 @@
     "corrupted_yaml": "Lettura yaml corrotta da {ressource:s} (motivo: {error:s})",
     "error_writing_file": "Errore durante la scrittura del file {file:s}: {error:s}",
     "error_removing": "Errore durante la rimozione {path:s}: {error:s}",
-    "error_changing_file_permissions": "Errore durante il cambio di permessi da {path:s}: {error:s}"
+    "error_changing_file_permissions": "Errore durante il cambio di permessi per {path:s}: {error:s}",
+    "invalid_url": "URL non valido {url:s} (questo sito esiste?)",
+    "download_ssl_error": "Errore SSL durante la connessione a {url:s}",
+    "download_timeout": "{url:s} ci ha messo troppo a rispondere, abbandonato.",
+    "download_unknown_error": "Errore durante il download di dati da {url:s} : {error:s}",
+    "download_bad_status_code": "{url:s} ha restituito il codice di stato {code:s}",
+    "command_unknown": "Comando '{command:s}' sconosciuto ?"
 }
