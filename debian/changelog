@@ -1,3 +1,13 @@
+moulinette (3.3.0) testing; urgency=low
+
+  * [fix] Remove unappropriate 'whoami' ldap warning (#173)
+  * [enh] Allow to add comments to describe parameters when they are asked (#175)
+  * [i18n] Add Italian translations
+
+  Thanks to all contributors (ljf, Aleks, silkevicious) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 08 Nov 2018 17:30:00 +0000
+
 moulinette (3.2.0) stable; urgency=low
 
    * Update translations for Catalan and Turkish
