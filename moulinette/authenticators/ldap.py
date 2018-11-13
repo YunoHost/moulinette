@@ -234,13 +234,31 @@ class Authenticator(BaseAuthenticator):
             Boolean | MoulinetteError
 
         """
+        attr_found = self.get_conflict(value_dict)
+        if attr_found:
+            logger.info("attribute '%s' with value '%s' is not unique",
+                        attr_found[0], attr_found[1])
+            raise MoulinetteError(errno.EEXIST,
+                                    m18n.g('ldap_attribute_already_exists',
+                                            attribute=attr_found[0], value=attr_found[1]))
+        return True
+
+    def get_conflict(self, value_dict, base_dn=None):
+        """
+        Check uniqueness of values
+
+        Keyword arguments:
+            value_dict -- Dictionnary of attributes/values to check
+
+        Returns:
+            None | list with Fist conflict attribute name and value
+
+        """
         for attr, value in value_dict.items():
-            if not self.search(filter=attr + '=' + value):
+            if not self.search(base=base_dn, filter=attr + '=' + value):
                 continue
             else:
+                return (attr, value)
                 logger.info("attribute '%s' with value '%s' is not unique",
                             attr, value)
-                raise MoulinetteError(errno.EEXIST,
-                                      m18n.g('ldap_attribute_already_exists',
-                                             attribute=attr, value=value))
-        return True
+        return None
