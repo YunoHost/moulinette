@@ -1,7 +1,7 @@
 import os
 import logging
 
-# import all constant because other modules tries to important them from this
+# import all constants because other modules try to import them from this
 # module because SUCCESS is defined in this module
 from logging import (addLevelName, setLoggerClass, Logger, getLogger, NOTSET,
                      DEBUG, INFO, WARNING, ERROR, CRITICAL)
