@@ -196,7 +196,13 @@ def mkdir(path, mode=0777, parents=False, uid=None, gid=None, force=False):
                 return
 
     # Create directory and set permissions
-    os.mkdir(path, mode)
+    try:
+        os.mkdir(path, mode)
+    except OSError:
+        # mimic Python3.2+ os.makedirs exist_ok behaviour
+        if not force or not os.path.isdir(path):
+            raise
+
     if uid is not None or gid is not None:
         chown(path, uid, gid)
 
