@@ -1,9 +1,6 @@
-import errno
 import time
 import subprocess
 import os
-
-from moulinette.core import MoulinetteError
 
 # This import is unused in this file. It will be deleted in future (W0611 PEP8),
 # but for the momment we keep it due to yunohost moulinette script that used

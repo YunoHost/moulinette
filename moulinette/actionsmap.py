@@ -230,6 +230,7 @@ class RequiredParameter(_ExtraParameter):
                             % value)
         return value
 
+
 """
 The list of available extra parameters classes. It will keep to this list
 order on argument parsing.

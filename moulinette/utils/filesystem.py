@@ -7,7 +7,6 @@ import grp
 from pwd import getpwnam
 
 from moulinette import m18n
-from moulinette.globals import CACHE_DIR
 from moulinette.core import MoulinetteError
 
 # Files & directories --------------------------------------------------
