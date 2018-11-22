@@ -60,13 +60,13 @@ def call_async_output(args, callback, **kwargs):
             raise ValueError('%s argument not allowed, '
                              'it will be overridden.' % a)
 
-    if "stdinfo" in kwargs and kwargs["stdinfo"] != None:
+    if "stdinfo" in kwargs and kwargs["stdinfo"] is not None:
         assert len(callback) == 3
         stdinfo = kwargs.pop("stdinfo")
         os.mkfifo(stdinfo, 0600)
         # Open stdinfo for reading (in a nonblocking way, i.e. even
         # if command does not write in the stdinfo pipe...)
-        stdinfo_f = os.open(stdinfo, os.O_RDONLY|os.O_NONBLOCK)
+        stdinfo_f = os.open(stdinfo, os.O_RDONLY | os.O_NONBLOCK)
     else:
         kwargs.pop("stdinfo")
         stdinfo = None

@@ -103,6 +103,7 @@ class CommentParameter(_ExtraParameter):
                             % value)
         return value
 
+
 class AskParameter(_ExtraParameter):
     """
     Ask for the argument value if possible and needed.
@@ -234,7 +235,7 @@ The list of available extra parameters classes. It will keep to this list
 order on argument parsing.
 
 """
-extraparameters_list = [CommentParameter, AskParameter, PasswordParameter, 
+extraparameters_list = [CommentParameter, AskParameter, PasswordParameter,
                         RequiredParameter, PatternParameter]
 
 # Extra parameters argument Parser
