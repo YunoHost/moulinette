@@ -97,7 +97,7 @@ class BaseAuthenticator(object):
             except TypeError:
                 logger.error("unable to extract token parts from '%s'", token)
                 if password is None:
-                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+                    raise MoulinetteError(m18n.g('error_see_log'))
 
                 logger.info("session will not be stored")
                 store_session = False
@@ -114,7 +114,7 @@ class BaseAuthenticator(object):
         except:
             logger.exception("authentication (name: '%s', vendor: '%s') fails",
                              self.name, self.vendor)
-            raise MoulinetteError(errno.EACCES, m18n.g('unable_authenticate'))
+            raise MoulinetteError(m18n.g('unable_authenticate'))
 
         # Store session
         if store_session:
@@ -149,8 +149,7 @@ class BaseAuthenticator(object):
                 enc_pwd = f.read()
         except IOError:
             logger.debug("unable to retrieve session", exc_info=1)
-            raise MoulinetteError(errno.ENOENT,
-                                  m18n.g('unable_retrieve_session'))
+            raise MoulinetteError(m18n.g('unable_retrieve_session'))
         else:
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'
@@ -159,6 +158,5 @@ class BaseAuthenticator(object):
             if decrypted.ok is not True:
                 logger.error("unable to decrypt password for the session: %s",
                              decrypted.status)
-                raise MoulinetteError(errno.EINVAL,
-                                      m18n.g('unable_retrieve_session'))
+                raise MoulinetteError(m18n.g('unable_retrieve_session'))
             return decrypted.data

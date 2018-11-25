@@ -82,7 +82,7 @@ class Authenticator(BaseAuthenticator):
             else:
                 con.simple_bind_s()
         except ldap.INVALID_CREDENTIALS:
-            raise MoulinetteError(errno.EACCES, m18n.g('invalid_password'))
+            raise MoulinetteError(m18n.g('invalid_password'))
         except ldap.SERVER_DOWN:
             logger.exception('unable to reach the server to authenticate')
             raise MoulinetteError(169, m18n.g('ldap_server_down'))
@@ -238,10 +238,9 @@ class Authenticator(BaseAuthenticator):
         if attr_found:
             logger.info("attribute '%s' with value '%s' is not unique",
                         attr_found[0], attr_found[1])
-            raise MoulinetteError(errno.EEXIST,
-                                  m18n.g('ldap_attribute_already_exists',
-                                         attribute=attr_found[0],
-                                         value=attr_found[1]))
+            raise MoulinetteError('ldap_attribute_already_exists',
+                                  attribute=attr_found[0],
+                                  value=attr_found[1])
         return True
 
     def get_conflict(self, value_dict, base_dn=None):
