@@ -239,8 +239,9 @@ class Authenticator(BaseAuthenticator):
             logger.info("attribute '%s' with value '%s' is not unique",
                         attr_found[0], attr_found[1])
             raise MoulinetteError(errno.EEXIST,
-                                    m18n.g('ldap_attribute_already_exists',
-                                            attribute=attr_found[0], value=attr_found[1]))
+                                  m18n.g('ldap_attribute_already_exists',
+                                         attribute=attr_found[0],
+                                         value=attr_found[1]))
         return True
 
     def get_conflict(self, value_dict, base_dn=None):
