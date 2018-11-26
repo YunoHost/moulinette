@@ -138,9 +138,13 @@ class BaseAuthenticator(object):
         """Store a session and its associated password"""
         gpg = gnupg.GPG()
         gpg.encoding = 'utf-8'
+
+        # Encrypt the password using the session hash
+        s = str(gpg.encrypt(password, None, symmetric=True, passphrase=session_hash))
+        assert len(s), "For some reason GPG can't perform encryption, maybe check /root/.gnupg/gpg.conf or re-run with gpg = gnupg.GPG(verbose=True) ?"
+
         with self._open_sessionfile(session_id, 'w') as f:
-            f.write(str(gpg.encrypt(password, None, symmetric=True,
-                                    passphrase=session_hash)))
+            f.write(s)
 
     def _retrieve_session(self, session_id, session_hash):
         """Retrieve a session and return its associated password"""
