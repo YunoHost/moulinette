@@ -17,3 +17,7 @@ def test_auth_cli():
 def test_anonymous():
     return {'action': 'anonymous',
             'authenticator': 'ldap-anonymous', 'authenticate': 'all'}
+
+def test_root():
+    return {'action': 'root-auth',
+            'authenticator': 'as-root', 'authenticate': 'all'}

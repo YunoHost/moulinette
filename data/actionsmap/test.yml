@@ -13,7 +13,7 @@ _global:
                 parameters:
                     uri: ldap://localhost:389
                     base_dn: dc=yunohost,dc=org
-                    user_rdn: cn=admin
+                    user_rdn: cn=admin,dc=yunohost,dc=org
             ldap-anonymous:
                 vendor: ldap
                 parameters:
@@ -25,7 +25,14 @@ _global:
                 parameters:
                     uri: ldap://localhost:389
                     base_dn: dc=yunohost,dc=org
-                    user_rdn: cn=admin
+                    user_rdn: cn=admin,dc=yunohost,dc=org
+            as-root:
+                vendor: ldap
+                parameters:
+                    # We can get this uri by (urllib.quote_plus('/var/run/slapd/ldapi')
+                    uri: ldapi://%2Fvar%2Frun%2Fslapd%2Fldapi
+                    base_dn: dc=yunohost,dc=org
+                    user_rdn: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
         argument_auth: true
         lock: false
 
@@ -52,6 +59,11 @@ test:
             configuration:
                 authenticate:
                     - cli
+        root-auth:
+            api: GET /test/root-auth
+            configuration:
+                authenticate: all
+                authenticator: as-root
         anonymous:
             api: GET /test/anon
             configuration:
