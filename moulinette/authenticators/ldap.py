@@ -260,6 +260,4 @@ class Authenticator(BaseAuthenticator):
                 continue
             else:
                 return (attr, value)
-                logger.info("attribute '%s' with value '%s' is not unique",
-                            attr, value)
         return None
