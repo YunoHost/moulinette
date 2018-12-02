@@ -681,13 +681,6 @@ class Interface(BaseInterface):
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
 
-        # Wrapper which sets proper header
-        def apiheader(callback):
-            def wrapper(*args, **kwargs):
-                response.set_header('Access-Control-Allow-Origin', '*')
-                return callback(*args, **kwargs)
-            return wrapper
-
         # Attempt to retrieve and set locale
         def api18n(callback):
             try:
@@ -698,7 +691,6 @@ class Interface(BaseInterface):
             return callback
 
         # Install plugins
-        app.install(apiheader)
         app.install(api18n)
         app.install(_ActionsMapPlugin(actionsmap, use_websocket, log_queues))
 
