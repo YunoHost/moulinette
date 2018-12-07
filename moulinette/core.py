@@ -414,8 +414,9 @@ def clean_session(session_id, profiles=[]):
 class MoulinetteError(StandardError):
     """Moulinette base exception"""
     def __init__(self, key, *args, **kwargs):
-        msg = m18n.g(key, *args, **kwargs)
+        msg = moulinette.m18n.g(key, *args, **kwargs)
         super(MoulinetteError, self).__init__(msg)
+        self.strerror = msg
 
 
 class MoulinetteLock(object):
