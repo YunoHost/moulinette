@@ -8,6 +8,9 @@ import locale
 import logging
 from argparse import SUPPRESS
 from collections import OrderedDict
+import time
+import pytz
+from datetime import date, datetime
 
 import argcomplete
 
@@ -94,6 +97,24 @@ def plain_print_dict(d, depth=0):
         print(d)
 
 
+def pretty_date(_date):
+    """Display a date in the current time zone without ms and tzinfo
+
+    Argument:
+        - date -- The date or datetime to display
+    """
+    if time.daylight:
+        offsetHour = time.altzone / 3600
+    else:
+        offsetHour = time.timezone / 3600
+    localtz = 'Etc/GMT%+d' % offsetHour
+    _date = _date.astimezone(pytz.timezone(localtz))
+    if isinstance(_date, datetime):
+        return _date.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        return _date.strftime("%Y-%m-%d")
+
+
 def pretty_print_dict(d, depth=0):
     """Print in a pretty way a dictionary recursively
 
@@ -127,10 +148,14 @@ def pretty_print_dict(d, depth=0):
                 else:
                     if isinstance(value, unicode):
                         value = value.encode('utf-8')
+                    elif isinstance(v, date):
+                        v = pretty_date(v)
                     print("{:s}- {}".format("  " * (depth + 1), value))
         else:
             if isinstance(v, unicode):
                 v = v.encode('utf-8')
+            elif isinstance(v, date):
+                v = pretty_date(v)
             print("{:s}{}: {}".format("  " * depth, k, v))
 
 
