@@ -103,6 +103,8 @@ def pretty_date(_date):
     Argument:
         - date -- The date or datetime to display
     """
+    if _date.tzinfo is None:
+        _date = _date.replace(tzinfo=pytz.utc)
     if time.daylight:
         offsetHour = time.altzone / 3600
     else:
