@@ -103,13 +103,19 @@ def pretty_date(_date):
     Argument:
         - date -- The date or datetime to display
     """
+    # Deduce system timezone
+    nowutc = datetime.now(tz=pytz.utc)
+    nowtz = datetime.now()
+    nowtz = nowtz.replace(tzinfo=pytz.utc)
+    offsetHour = nowutc - nowtz
+    offsetHour = int(round(offsetHour.total_seconds() / 3600))
+    localtz = 'Etc/GMT%+d' % offsetHour
+
+    # Transform naive date into UTC date
     if _date.tzinfo is None:
         _date = _date.replace(tzinfo=pytz.utc)
-    if time.daylight:
-        offsetHour = time.altzone / 3600
-    else:
-        offsetHour = time.timezone / 3600
-    localtz = 'Etc/GMT%+d' % offsetHour
+
+    # Convert UTC date into system locale date
     _date = _date.astimezone(pytz.timezone(localtz))
     if isinstance(_date, datetime):
         return _date.strftime("%Y-%m-%d %H:%M:%S")
