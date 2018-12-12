@@ -490,6 +490,32 @@ class ActionsMap(object):
 
         # Lock the moulinette for the namespace
         with MoulinetteLock(namespace, timeout):
+            # Load and execute preactions
+            if self.parser.get_preactions():
+                for module, functions in self.parser.get_preactions().items():
+                    start = time()
+                    try:
+                        logger.debug('loading preaction module %s took %.3fs', module, time() - start)
+                        mod = __import__(module, globals=globals(), fromlist=[functions])
+                    except (AttributeError, ImportError):
+                        logger.exception("unable to load module %s", module)
+                        raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+                    else:
+                        for function in functions:
+                            start = time()
+                            args = {}
+                            try:
+                                func = getattr(mod, function)
+                                func(func_name, arguments)
+                            except AttributeError:
+                                logger.exception("unable to process preaction %s from module %s", function, module)
+                                raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+                            finally:
+                                stop = time()
+                                logger.debug('preaction %s executed in %.3fs',
+                                            function, time() - start)
+
+            # Load and execute main action
             start = time()
             try:
                 mod = __import__('%s.%s' % (namespace, category),
@@ -623,6 +649,9 @@ class ActionsMap(object):
 
             if top_parser.has_global_parser():
                 top_parser.add_global_arguments(_global['arguments'])
+
+            if 'preaction' in _global:
+                top_parser.set_preactions(_global['preaction'])
 
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)

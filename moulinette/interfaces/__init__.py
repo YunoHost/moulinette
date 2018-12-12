@@ -234,6 +234,12 @@ class BaseActionsMapParser(object):
         """
         self._o._conf[action] = self._validate_conf(configuration)
 
+    def set_preactions(self, configuration):
+        self._o._conf['preaction'] = configuration
+
+    def get_preactions(self):
+        return self._o._conf['preaction'] if 'preaction' in self._o._conf else []
+
     def _validate_conf(self, configuration, is_global=False):
         """Validate configuration for the parser
 
