@@ -8,6 +8,9 @@ import locale
 import logging
 from argparse import SUPPRESS
 from collections import OrderedDict
+import time
+import pytz
+from datetime import date, datetime
 
 import argcomplete
 
@@ -94,6 +97,32 @@ def plain_print_dict(d, depth=0):
         print(d)
 
 
+def pretty_date(_date):
+    """Display a date in the current time zone without ms and tzinfo
+
+    Argument:
+        - date -- The date or datetime to display
+    """
+    # Deduce system timezone
+    nowutc = datetime.now(tz=pytz.utc)
+    nowtz = datetime.now()
+    nowtz = nowtz.replace(tzinfo=pytz.utc)
+    offsetHour = nowutc - nowtz
+    offsetHour = int(round(offsetHour.total_seconds() / 3600))
+    localtz = 'Etc/GMT%+d' % offsetHour
+
+    # Transform naive date into UTC date
+    if _date.tzinfo is None:
+        _date = _date.replace(tzinfo=pytz.utc)
+
+    # Convert UTC date into system locale date
+    _date = _date.astimezone(pytz.timezone(localtz))
+    if isinstance(_date, datetime):
+        return _date.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        return _date.strftime("%Y-%m-%d")
+
+
 def pretty_print_dict(d, depth=0):
     """Print in a pretty way a dictionary recursively
 
@@ -127,10 +156,14 @@ def pretty_print_dict(d, depth=0):
                 else:
                     if isinstance(value, unicode):
                         value = value.encode('utf-8')
+                    elif isinstance(v, date):
+                        v = pretty_date(v)
                     print("{:s}- {}".format("  " * (depth + 1), value))
         else:
             if isinstance(v, unicode):
                 v = v.encode('utf-8')
+            elif isinstance(v, date):
+                v = pretty_date(v)
             print("{:s}{}: {}".format("  " * depth, k, v))
 
 
