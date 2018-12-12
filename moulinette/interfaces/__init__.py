@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import errno
 import logging
 import argparse
 import copy
@@ -142,7 +141,7 @@ class BaseActionsMapParser(object):
         # Validate tid and namespace
         if not isinstance(tid, tuple) and \
                 (namespace is None or not hasattr(namespace, TO_RETURN_PROP)):
-            raise MoulinetteError(m18n.g('invalid_usage'))
+            raise MoulinetteError('invalid_usage')
         elif not tid:
             tid = GLOBAL_SECTION
 
@@ -158,7 +157,7 @@ class BaseActionsMapParser(object):
             # TODO: Catch errors
             auth = msignals.authenticate(cls(), **auth_conf)
             if not auth.is_authenticated:
-                raise MoulinetteError(m18n.g('authentication_required_long'))
+                raise MoulinetteError('authentication_required_long')
             if self.get_conf(tid, 'argument_auth') and \
                     self.get_conf(tid, 'authenticate') == 'all':
                 namespace.auth = auth
@@ -262,7 +261,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting 'all', 'False' or a list for "
                              "configuration 'authenticate', got %r", ifaces)
-                raise MoulinetteError(m18n.g('error_see_log'))
+                raise MoulinetteError('error_see_log')
 
         # -- 'authenticator'
         try:
@@ -277,7 +276,7 @@ class BaseActionsMapParser(object):
                 except KeyError:
                     logger.error("requesting profile '%s' which is undefined in "
                                  "global configuration of 'authenticator'", auth)
-                    raise MoulinetteError(m18n.g('error_see_log'))
+                    raise MoulinetteError('error_see_log')
             elif is_global and isinstance(auth, dict):
                 if len(auth) == 0:
                     logger.warning('no profile defined in global configuration '
@@ -300,7 +299,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting a dict of profile(s) or a profile name "
                              "for configuration 'authenticator', got %r", auth)
-                raise MoulinetteError(m18n.g('error_see_log'))
+                raise MoulinetteError('error_see_log')
 
         # -- 'argument_auth'
         try:
@@ -313,7 +312,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting a boolean for configuration "
                              "'argument_auth', got %r", arg_auth)
-                raise MoulinetteError(m18n.g('error_see_log'))
+                raise MoulinetteError('error_see_log')
 
         # -- 'lock'
         try:
@@ -326,7 +325,7 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting a boolean for configuration 'lock', "
                              "got %r", lock)
-                raise MoulinetteError(m18n.g('error_see_log'))
+                raise MoulinetteError('error_see_log')
 
         return conf
 
@@ -426,7 +425,7 @@ class _CallbackAction(argparse.Action):
         except:
             logger.exception("cannot get value from callback method "
                 "'{0}'".format(self.callback_method))
-            raise MoulinetteError(m18n.g('error_see_log'))
+            raise MoulinetteError('error_see_log')
         else:
             if value:
                 if self.callback_return:

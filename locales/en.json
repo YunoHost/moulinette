@@ -27,7 +27,6 @@
     "operation_interrupted": "Operation interrupted",
     "password": "Password",
     "pattern_not_match": "Does not match pattern",
-    "permission_denied": "Permission denied",
     "root_required": "You must be root to perform this action",
     "server_already_running": "A server is already running on that port",
     "success": "Success!",

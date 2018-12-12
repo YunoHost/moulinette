@@ -2,7 +2,6 @@
 
 # TODO: Use Python3 to remove this fix!
 from __future__ import absolute_import
-import errno
 import logging
 import random
 import string
@@ -10,7 +9,6 @@ import crypt
 import ldap
 import ldap.modlist as modlist
 
-from moulinette import m18n
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
 
@@ -82,10 +80,10 @@ class Authenticator(BaseAuthenticator):
             else:
                 con.simple_bind_s()
         except ldap.INVALID_CREDENTIALS:
-            raise MoulinetteError(m18n.g('invalid_password'))
+            raise MoulinetteError('invalid_password')
         except ldap.SERVER_DOWN:
             logger.exception('unable to reach the server to authenticate')
-            raise MoulinetteError(169, m18n.g('ldap_server_down'))
+            raise MoulinetteError('ldap_server_down')
         else:
             self.con = con
             self._ensure_password_uses_strong_hash(password)
@@ -137,7 +135,7 @@ class Authenticator(BaseAuthenticator):
         except Exception as e:
             logger.exception("error during LDAP search operation with: base='%s', "
                              "filter='%s', attrs=%s and exception %s", base, filter, attrs, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
 
         result_list = []
         if not attrs or 'dn' not in attrs:
@@ -168,7 +166,7 @@ class Authenticator(BaseAuthenticator):
         except Exception as e:
             logger.exception("error during LDAP add operation with: rdn='%s', "
                              "attr_dict=%s and exception %s", rdn, attr_dict, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
         else:
             return True
 
@@ -188,7 +186,7 @@ class Authenticator(BaseAuthenticator):
             self.con.delete_s(dn)
         except Exception as e:
             logger.exception("error during LDAP delete operation with: rdn='%s' and exception %s", rdn, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
         else:
             return True
 
@@ -219,7 +217,7 @@ class Authenticator(BaseAuthenticator):
             logger.exception("error during LDAP update operation with: rdn='%s', "
                              "attr_dict=%s, new_rdn=%s and exception: %s", rdn, attr_dict,
                              new_rdn, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
         else:
             return True
 

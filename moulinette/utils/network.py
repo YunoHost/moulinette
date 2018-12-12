@@ -1,7 +1,5 @@
-import errno
 import json
 
-from moulinette import m18n
 from moulinette.core import MoulinetteError
 
 
@@ -25,22 +23,22 @@ def download_text(url, timeout=30, expected_status_code=200):
         r = requests.get(url, timeout=timeout)
     # Invalid URL
     except requests.exceptions.ConnectionError:
-        raise MoulinetteError(m18n.g('invalid_url', url=url))
+        raise MoulinetteError('invalid_url', url=url)
     # SSL exceptions
     except requests.exceptions.SSLError:
-        raise MoulinetteError(m18n.g('download_ssl_error', url=url))
+        raise MoulinetteError('download_ssl_error', url=url)
     # Timeout exceptions
     except requests.exceptions.Timeout:
-        raise MoulinetteError(m18n.g('download_timeout', url=url))
+        raise MoulinetteError('download_timeout', url=url)
     # Unknown stuff
     except Exception as e:
-        raise MoulinetteError(m18n.g('download_unknown_error',
-                                     url=url, error=str(e)))
+        raise MoulinetteError('download_unknown_error',
+                              url=url, error=str(e))
     # Assume error if status code is not 200 (OK)
     if expected_status_code is not None \
        and r.status_code != expected_status_code:
-        raise MoulinetteError(m18n.g('download_bad_status_code',
-                                     url=url, code=str(r.status_code)))
+        raise MoulinetteError('download_bad_status_code',
+                              url=url, code=str(r.status_code))
 
     return r.text
 
@@ -61,6 +59,6 @@ def download_json(url, timeout=30, expected_status_code=200):
     try:
         loaded_json = json.loads(text)
     except ValueError:
-        raise MoulinetteError(m18n.g('corrupted_json', ressource=url))
+        raise MoulinetteError('corrupted_json', ressource=url)
 
     return loaded_json

@@ -189,7 +189,7 @@ class _HTTPArgumentParser(object):
 
     def _error(self, message):
         # TODO: Raise a proper exception
-        raise MoulinetteError(1, message)
+        raise MoulinetteError(message)
 
 
 class _ActionsMapPlugin(object):
@@ -660,7 +660,7 @@ class ActionsMapParser(BaseActionsMapParser):
             tid, parser = self._parsers[route]
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
-            raise MoulinetteError(m18n.g('error_see_log'))
+            raise MoulinetteError('error_see_log')
         ret = argparse.Namespace()
 
         # Perform authentication if needed
@@ -673,7 +673,7 @@ class ActionsMapParser(BaseActionsMapParser):
             # TODO: Catch errors
             auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
-                raise MoulinetteError(m18n.g('authentication_required_long'))
+                raise MoulinetteError('authentication_required_long')
             if self.get_conf(tid, 'argument_auth') and \
                self.get_conf(tid, 'authenticate') == 'all':
                 ret.auth = auth
@@ -796,8 +796,8 @@ class Interface(BaseInterface):
             logger.exception("unable to start the server instance on %s:%d",
                              host, port)
             if e.args[0] == errno.EADDRINUSE:
-                raise MoulinetteError(m18n.g('server_already_running'))
-            raise MoulinetteError(m18n.g('error_see_log'))
+                raise MoulinetteError('server_already_running')
+            raise MoulinetteError('error_see_log')
 
     # Routes handlers
 
