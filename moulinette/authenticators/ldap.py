@@ -76,7 +76,7 @@ class Authenticator(BaseAuthenticator):
 
     def authenticate(self, password):
         try:
-            con = ldap.ldapobject.ReconnectLDAPObject(self.uri, retry_max=5, retry_delay=0.1)
+            con = ldap.ldapobject.ReconnectLDAPObject(self.uri, retry_max=10, retry_delay=0.5)
             if self.userdn:
                 con.simple_bind_s(self.userdn, password)
             else:
