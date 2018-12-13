@@ -19,6 +19,7 @@ CALLBACKS_PROP = '_callbacks'
 # Base Class -----------------------------------------------------------
 
 class BaseActionsMapParser(object):
+
     """Actions map's base Parser
 
     Each interfaces must implement an ActionsMapParser class derived
@@ -352,6 +353,7 @@ class BaseActionsMapParser(object):
 
 
 class BaseInterface(object):
+
     """Moulinette's base Interface
 
     Each interfaces must implement an Interface class derived from this
@@ -424,7 +426,7 @@ class _CallbackAction(argparse.Action):
             value = self.callback(namespace, values, **self.callback_kwargs)
         except:
             logger.exception("cannot get value from callback method "
-                "'{0}'".format(self.callback_method))
+                             "'{0}'".format(self.callback_method))
             raise MoulinetteError('error_see_log')
         else:
             if value:
@@ -435,6 +437,7 @@ class _CallbackAction(argparse.Action):
 
 
 class _ExtendedSubParsersAction(argparse._SubParsersAction):
+
     """Subparsers with extended properties for argparse
 
     It provides the following additional properties at initialization,

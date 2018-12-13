@@ -25,6 +25,7 @@ logger = logging.getLogger('moulinette.actionsmap')
 # Extra parameters definition
 
 class _ExtraParameter(object):
+
     """
     Argument parser for an extra parameter.
 
@@ -104,6 +105,7 @@ class CommentParameter(_ExtraParameter):
 
 
 class AskParameter(_ExtraParameter):
+
     """
     Ask for the argument value if possible and needed.
 
@@ -138,6 +140,7 @@ class AskParameter(_ExtraParameter):
 
 
 class PasswordParameter(AskParameter):
+
     """
     Ask for the password argument value if possible and needed.
 
@@ -159,6 +162,7 @@ class PasswordParameter(AskParameter):
 
 
 class PatternParameter(_ExtraParameter):
+
     """
     Check if the argument value match a pattern.
 
@@ -204,6 +208,7 @@ class PatternParameter(_ExtraParameter):
 
 
 class RequiredParameter(_ExtraParameter):
+
     """
     Check if a required argument is defined or not.
 
@@ -240,6 +245,7 @@ extraparameters_list = [CommentParameter, AskParameter, PasswordParameter,
 
 
 class ExtraArgumentParser(object):
+
     """
     Argument validator and parser for the extra parameters.
 
@@ -357,6 +363,7 @@ def ordered_yaml_load(stream):
 
 
 class ActionsMap(object):
+
     """Validate and process actions defined into an actions map
 
     The actions map defines the features - and their usage - of an

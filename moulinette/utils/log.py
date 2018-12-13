@@ -70,6 +70,7 @@ def getHandlersByClass(classinfo, limit=0):
 
 
 class MoulinetteLogger(Logger):
+
     """Custom logger class
 
     Extend base Logger class to provide the SUCCESS custom log level with
@@ -153,6 +154,7 @@ def getActionLogger(name=None, logger=None, action_id=None):
 
 
 class ActionFilter(object):
+
     """Extend log record for an optionnal action
 
     Filter a given record and look for an `action_id` key. If it is not found

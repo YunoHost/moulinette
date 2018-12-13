@@ -57,11 +57,13 @@ def filter_csrf(callback):
 
 
 class LogQueues(dict):
+
     """Map of session id to queue."""
     pass
 
 
 class APIQueueHandler(logging.Handler):
+
     """
     A handler class which store logging records into a queue, to be used
     and retrieved from the API.
@@ -87,6 +89,7 @@ class APIQueueHandler(logging.Handler):
 
 
 class _HTTPArgumentParser(object):
+
     """Argument parser for HTTP requests
 
     Object for parsing HTTP requests into Python objects. It is based
@@ -193,6 +196,7 @@ class _HTTPArgumentParser(object):
 
 
 class _ActionsMapPlugin(object):
+
     """Actions map Bottle Plugin
 
     Process relevant action for the request using the actions map and
@@ -538,11 +542,11 @@ def error_to_response(error):
         return HTTPUnauthorizedResponse(error.strerror)
     # Client-side error
     elif error.errno in [errno.ENOENT, errno.ESRCH, errno.ENXIO, errno.EEXIST,
-            errno.ENODEV, errno.EINVAL, errno.ENOPKG, errno.EDESTADDRREQ]:
+                         errno.ENODEV, errno.EINVAL, errno.ENOPKG, errno.EDESTADDRREQ]:
         return HTTPBadRequestResponse(error.strerror)
     # Server-side error
     elif error.errno in [errno.EIO, errno.EBUSY, errno.ENODATA, errno.EINTR,
-            errno.ENETUNREACH]:
+                         errno.ENETUNREACH]:
         return HTTPErrorResponse(error.strerror)
     else:
         logger.debug('unknown relevant response for error [%s] %s',
@@ -571,6 +575,7 @@ def format_for_response(content):
 # API Classes Implementation -------------------------------------------
 
 class ActionsMapParser(BaseActionsMapParser):
+
     """Actions map's Parser for the API
 
     Provide actions map parsing methods for a CLI usage. The parser for
@@ -707,6 +712,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
 
 class Interface(BaseInterface):
+
     """Application Programming Interface for the moulinette
 
     Initialize a HTTP server which serves the API connected to a given

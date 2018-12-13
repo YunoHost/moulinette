@@ -12,6 +12,7 @@ logger = logging.getLogger('moulinette.authenticator')
 # Base Class -----------------------------------------------------------
 
 class BaseAuthenticator(object):
+
     """Authenticator base representation
 
     Each authenticators must implement an Authenticator class derived
