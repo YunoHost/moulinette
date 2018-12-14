@@ -410,7 +410,7 @@ def clean_session(session_id, profiles=[]):
 
 # Moulinette core classes ----------------------------------------------
 
-class MoulinetteError(StandardError):
+class MoulinetteError(Exception):
     """Moulinette base exception"""
     def __init__(self, key, raw_msg=False, *args, **kwargs):
         if raw_msg:
