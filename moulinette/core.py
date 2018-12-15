@@ -418,8 +418,8 @@ class MoulinetteError(Exception):
 
     """Moulinette base exception"""
 
-    def __init__(self, key, __raw_msg__=False, *args, **kwargs):
-        if __raw_msg__:
+    def __init__(self, key, raw_msg=False, *args, **kwargs):
+        if raw_msg:
             msg = key
         else:
             msg = moulinette.m18n.g(key, *args, **kwargs)
