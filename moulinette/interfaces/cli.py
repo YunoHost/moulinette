@@ -177,6 +177,7 @@ def get_locale():
 # CLI Classes Implementation -------------------------------------------
 
 class TTYHandler(logging.StreamHandler):
+
     """TTY log handler
 
     A handler class which prints logging records for a tty. The record is
@@ -242,6 +243,7 @@ class TTYHandler(logging.StreamHandler):
 
 
 class ActionsMapParser(BaseActionsMapParser):
+
     """Actions map's Parser for the CLI
 
     Provide actions map parsing methods for a CLI usage. The parser for
@@ -369,6 +371,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
 
 class Interface(BaseInterface):
+
     """Command-line Interface for the moulinette
 
     Initialize an interface connected to the standard input/output

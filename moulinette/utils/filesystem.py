@@ -144,7 +144,7 @@ def write_to_json(file_path, data):
         raise MoulinetteError('_error_writing_file', file=file_path, error=str(e))
 
 
-def mkdir(path, mode=0777, parents=False, uid=None, gid=None, force=False):
+def mkdir(path, mode=0o777, parents=False, uid=None, gid=None, force=False):
     """Create a directory with optional features
 
     Create a directory and optionaly set its permissions to mode and its

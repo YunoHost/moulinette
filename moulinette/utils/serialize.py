@@ -9,6 +9,7 @@ logger = logging.getLogger('moulinette.utils.serialize')
 # JSON utilities -------------------------------------------------------
 
 class JSONExtendedEncoder(JSONEncoder):
+
     """Extended JSON encoder
 
     Extend default JSON encoder to recognize more types and classes. It

@@ -19,6 +19,7 @@ logger = logging.getLogger('moulinette.core')
 # Internationalization -------------------------------------------------
 
 class Translator(object):
+
     """Internationalization class
 
     Provide an internationalization mechanism based on JSON files to
@@ -137,6 +138,7 @@ class Translator(object):
 
 
 class Moulinette18n(object):
+
     """Internationalization service for the moulinette
 
     Manage internationalization and access to the proper keys translation
@@ -214,6 +216,7 @@ class Moulinette18n(object):
 
 
 class MoulinetteSignals(object):
+
     """Signals connector for the moulinette
 
     Allow to easily connect signals from the moulinette to handlers. A
@@ -365,7 +368,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
     return interface(amap, **kwargs)
 
 
-def init_authenticator((vendor, name), kwargs={}):
+def init_authenticator(vendor_and_name, kwargs={}):
     """Return a new authenticator instance
 
     Retrieve the given authenticator vendor and return a new instance of
@@ -377,6 +380,7 @@ def init_authenticator((vendor, name), kwargs={}):
         - kwargs -- A dict of arguments for the authenticator profile
 
     """
+    (vendor, name) = vendor_and_name
     try:
         mod = import_module('moulinette.authenticators.%s' % vendor)
     except ImportError:
@@ -411,7 +415,9 @@ def clean_session(session_id, profiles=[]):
 # Moulinette core classes ----------------------------------------------
 
 class MoulinetteError(Exception):
+
     """Moulinette base exception"""
+
     def __init__(self, key, raw_msg=False, *args, **kwargs):
         if raw_msg:
             msg = key
@@ -422,6 +428,7 @@ class MoulinetteError(Exception):
 
 
 class MoulinetteLock(object):
+
     """Locker for a moulinette instance
 
     It provides a lock mechanism for a given moulinette instance. It can

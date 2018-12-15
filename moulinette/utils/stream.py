@@ -8,6 +8,7 @@ from multiprocessing.queues import SimpleQueue
 # Read from a stream ---------------------------------------------------
 
 class AsynchronousFileReader(Process):
+
     """
     Helper class to implement asynchronous reading of a file
     in a separate thread. Pushes read lines on a queue to
@@ -74,6 +75,7 @@ class AsynchronousFileReader(Process):
 
 
 class Consummer(object):
+
     def __init__(self, queue, callback):
         self.queue = queue
         self.callback = callback

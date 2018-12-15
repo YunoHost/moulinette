@@ -18,6 +18,7 @@ logger = logging.getLogger('moulinette.authenticator.ldap')
 # LDAP Class Implementation --------------------------------------------
 
 class Authenticator(BaseAuthenticator):
+
     """LDAP Authenticator
 
     Initialize a LDAP connexion for the given arguments. It attempts to
