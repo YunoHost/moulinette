@@ -2,7 +2,6 @@
 
 import os
 import sys
-import errno
 import getpass
 import locale
 import logging
@@ -362,7 +361,7 @@ class ActionsMapParser(BaseActionsMapParser):
             raise
         except:
             logger.exception("unable to parse arguments '%s'", ' '.join(args))
-            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+            raise MoulinetteError('error_see_log')
         else:
             self.prepare_action_namespace(getattr(ret, '_tid', None), ret)
             self._parser.dequeue_callbacks(ret)
@@ -409,7 +408,7 @@ class Interface(BaseInterface):
 
         """
         if output_as and output_as not in ['json', 'plain', 'none']:
-            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
+            raise MoulinetteError('invalid_usage')
 
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
@@ -422,7 +421,7 @@ class Interface(BaseInterface):
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
         except (KeyboardInterrupt, EOFError):
-            raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
+            raise MoulinetteError('operation_interrupted')
 
         if ret is None or output_as == 'none':
             return
@@ -472,7 +471,7 @@ class Interface(BaseInterface):
         if confirm:
             m = message[0].lower() + message[1:]
             if prompt(m18n.g('confirm', prompt=m)) != value:
-                raise MoulinetteError(errno.EINVAL, m18n.g('values_mismatch'))
+                raise MoulinetteError('values_mismatch')
 
         return value
 

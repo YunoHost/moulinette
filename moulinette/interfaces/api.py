@@ -189,7 +189,7 @@ class _HTTPArgumentParser(object):
 
     def _error(self, message):
         # TODO: Raise a proper exception
-        raise MoulinetteError(1, message)
+        raise MoulinetteError(message)
 
 
 class _ActionsMapPlugin(object):
@@ -347,7 +347,7 @@ class _ActionsMapPlugin(object):
                     self.logout(profile)
                 except:
                     pass
-            raise error_to_response(e)
+            raise HTTPUnauthorizedResponse(e.strerror)
         else:
             # Update dicts with new values
             s_hashes[profile] = s_hash
@@ -434,7 +434,7 @@ class _ActionsMapPlugin(object):
         try:
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
-            raise error_to_response(e)
+            raise HTTPBadRequestResponse(e.strerror)
         except Exception as e:
             if isinstance(e, HTTPResponse):
                 raise e
@@ -518,36 +518,10 @@ class HTTPUnauthorizedResponse(HTTPResponse):
         super(HTTPUnauthorizedResponse, self).__init__(output, 401)
 
 
-class HTTPForbiddenResponse(HTTPResponse):
-
-    def __init__(self, output=''):
-        super(HTTPForbiddenResponse, self).__init__(output, 403)
-
-
 class HTTPErrorResponse(HTTPResponse):
 
     def __init__(self, output=''):
         super(HTTPErrorResponse, self).__init__(output, 500)
-
-
-def error_to_response(error):
-    """Convert a MoulinetteError to relevant HTTP response."""
-    if error.errno == errno.EPERM:
-        return HTTPForbiddenResponse(error.strerror)
-    elif error.errno == errno.EACCES:
-        return HTTPUnauthorizedResponse(error.strerror)
-    # Client-side error
-    elif error.errno in [errno.ENOENT, errno.ESRCH, errno.ENXIO, errno.EEXIST,
-            errno.ENODEV, errno.EINVAL, errno.ENOPKG, errno.EDESTADDRREQ]:
-        return HTTPBadRequestResponse(error.strerror)
-    # Server-side error
-    elif error.errno in [errno.EIO, errno.EBUSY, errno.ENODATA, errno.EINTR,
-            errno.ENETUNREACH]:
-        return HTTPErrorResponse(error.strerror)
-    else:
-        logger.debug('unknown relevant response for error [%s] %s',
-                     error.errno, error.strerror)
-        return HTTPErrorResponse(error.strerror)
 
 
 def format_for_response(content):
@@ -660,7 +634,7 @@ class ActionsMapParser(BaseActionsMapParser):
             tid, parser = self._parsers[route]
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
-            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+            raise MoulinetteError('error_see_log')
         ret = argparse.Namespace()
 
         # Perform authentication if needed
@@ -673,7 +647,7 @@ class ActionsMapParser(BaseActionsMapParser):
             # TODO: Catch errors
             auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
-                raise MoulinetteError(errno.EACCES, m18n.g('authentication_required_long'))
+                raise MoulinetteError('authentication_required_long')
             if self.get_conf(tid, 'argument_auth') and \
                self.get_conf(tid, 'authenticate') == 'all':
                 ret.auth = auth
@@ -796,9 +770,8 @@ class Interface(BaseInterface):
             logger.exception("unable to start the server instance on %s:%d",
                              host, port)
             if e.args[0] == errno.EADDRINUSE:
-                raise MoulinetteError(errno.EADDRINUSE,
-                                      m18n.g('server_already_running'))
-            raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+                raise MoulinetteError('server_already_running')
+            raise MoulinetteError('error_see_log')
 
     # Routes handlers
 

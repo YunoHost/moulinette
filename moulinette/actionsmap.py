@@ -2,7 +2,6 @@
 
 import os
 import re
-import errno
 import logging
 import yaml
 import cPickle as pickle
@@ -187,9 +186,8 @@ class PatternParameter(_ExtraParameter):
             if msg == message:
                 msg = m18n.g(message)
 
-            raise MoulinetteError(errno.EINVAL,
-                                  m18n.g('invalid_argument',
-                                         argument=arg_name, error=msg))
+            raise MoulinetteError('invalid_argument',
+                                  argument=arg_name, error=msg)
         return arg_value
 
     @staticmethod
@@ -218,9 +216,8 @@ class RequiredParameter(_ExtraParameter):
         if required and (arg_value is None or arg_value == ''):
             logger.debug("argument '%s' is required",
                          arg_name)
-            raise MoulinetteError(errno.EINVAL,
-                                  m18n.g('argument_required',
-                                         argument=arg_name))
+            raise MoulinetteError('argument_required',
+                                  argument=arg_name)
         return arg_value
 
     @staticmethod
@@ -285,7 +282,7 @@ class ExtraArgumentParser(object):
                 except Exception as e:
                     logger.error("unable to validate extra parameter '%s' "
                                  "for argument '%s': %s", p, arg_name, e)
-                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+                    raise MoulinetteError('error_see_log')
 
         return parameters
 
@@ -501,7 +498,7 @@ class ActionsMap(object):
             except (AttributeError, ImportError):
                 logger.exception("unable to load function %s.%s",
                                  namespace, func_name)
-                raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+                raise MoulinetteError('error_see_log')
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):
