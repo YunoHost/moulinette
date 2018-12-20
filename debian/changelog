@@ -1,3 +1,19 @@
+moulinette (3.4.0) testing; urgency=low
+
+  * [fix] Code cleaning with autopep8 (#187)
+  * [fix] Automatically reconnect LDAP authenticator when slapd restarts (#185)
+  * [enh] Display date as system timezone (#184)
+  * [mod] Make sure `gpg.encrypt` actually does something (#182)
+  * [mod] Add possiblity to get attribute name of conflict in LDAP (#181)
+  * [enh] Simplify moulinette error management (#180)
+  * [mod] Remove Access-Control-Allow-Origin (#174)
+  * [enh] Protect against CSRF (#171)
+  * [i18n] Improve Spanish translation
+
+  Thanks to all contributors (Aleks, randomstuff, irina11y, Josue, gdayon, ljf) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 20 Dec 2018 21:53:00 +0000
+
 moulinette (3.3.1) stable; urgency=low
 
   * [fix] 'force' semantics in 'utils.filesystem.mkdir' (#177)
