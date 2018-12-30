@@ -333,7 +333,7 @@ Validate uniqueness
 ===================
 
 There is a method to validate the uniquess of some entry that is used during
-user creation. I haven't used it and I'm not sure on how it work.
+user creation. It's usefull by example to be sure that we have no conflict about email between each user.
 
 Here is how it's used (I don't understand why a path is not provided):
 
@@ -348,6 +348,19 @@ Here is how it's used (I don't understand why a path is not provided):
 And here is its docstring:
 
 .. automethod:: moulinette.authenticators.ldap.Authenticator.update
+
+Get conflict
+============
+
+Like the last function `validate_uniqueness` but give instead of rising an error this function return which attribute with witch value generate a conflict.
+
+::
+    # Validate uniqueness of groupname in LDAP
+    conflict = auth.get_conflict({
+        'cn': groupname
+    }, base_dn='ou=groups,dc=yunohost,dc=org')
+    if conflict:
+        raise YunohostError('group_name_already_exist', name=groupname)
 
 Remove entries from LDAP
 ========================
