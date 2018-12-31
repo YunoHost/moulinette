@@ -122,7 +122,7 @@ Here is the method docstring:
 Users LDAP schema
 -----------------
 
-According to :file:`ldapvi` this is the user schema (on YunoHost 2.7):
+According to :file:`ldapvi` this is the user schema (on YunoHost >3.4):
 
 ::
 
@@ -131,6 +131,7 @@ According to :file:`ldapvi` this is the user schema (on YunoHost 2.7):
     objectClass: mailAccount
     objectClass: inetOrgPerson
     objectClass: posixAccount
+    objectClass: userPermissionYnh
     loginShell: /bin/false
     uidNumber: 80833
     maildrop: the_unix_username  # why?
@@ -147,6 +148,11 @@ According to :file:`ldapvi` this is the user schema (on YunoHost 2.7):
     mail: webmaster@domain.com
     mail: postmaster@domain.com
     givenName: first_name
+    memberOf: cn=the_unix_username,ou=groups,dc=yunohost,dc=org
+    memberOf: cn=all_users,ou=groups,dc=yunohost,dc=org
+    permission: cn=main.mail,ou=permission,dc=yunohost,dc=org
+    permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org
+
 
 The admin user is a special case that looks like this:
 
@@ -175,15 +181,6 @@ Other user related schemas:
     memberUid: admin
     gidNumber: 4001
     cn: admins
-
-    # path: cn=sftpusers,ou=groups,dc=yunohost,dc=org
-    objectClass: posixGroup
-    objectClass: top
-    gidNumber: 4002
-    cn: sftpusers
-    memberUid: admin
-    memberUid: alice
-    # and all other users
 
     # path: cn=admin,ou=sudo,dc=yunohost,dc=org
     # this entry seems to specify which unix user is a sudoer
@@ -220,8 +217,89 @@ Apparently we could also access one user using the following path (and not query
 
 If you want specific attributes look at the general documentation on how to read from LDAP a bit above of this section.
 
-Users LDAP schema
+
+Group LDAP schema
 -----------------
+
+According to :file:`ldapvi` this is the user schema (on YunoHost >3.4):
+
+The groups will look like this:
+
+::
+    dn: cn=the_unix_username,ou=groups,dc=yunohost,dc=org
+    objectClass: top
+    objectClass: groupOfNamesYnh
+    objectClass: posixGroup
+    gidNumber: 48335
+    cn: the_unix_username
+    structuralObjectClass: posixGroup
+    member: uid=the_unix_username,ou=users,dc=yunohost,dc=org
+
+By default you will find in all case a group named `all_users` which will contains all Yunohost users.
+
+::
+    # path dn: cn=all_users,ou=groups,dc=yunohost,dc=org
+    objectClass: posixGroup
+    objectClass: groupOfNamesYnh
+    gidNumber: 4002
+    cn: all_users
+    structuralObjectClass: posixGroup
+    permission: cn=main.mail,ou=permission,dc=yunohost,dc=org
+    permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org
+    member: uid=the_unix_username,ou=users,dc=yunohost,dc=org
+    memberUid: the_unix_username
+
+Reading group from LDAP
+-----------------------
+
+The group schema is located at this path: :file:`ou=groups,dc=yunohost,dc=org`
+
+The queries we uses are the 2 following python calls:
+
+::
+    # all groups
+    auth.search('ou=groups,dc=yunohost,dc=org', '(objectclass=groupOfNamesYnh)')
+
+    # one groups
+    auth.search(base='ou=groups,dc=yunohost,dc=org', filter='cn=' + groupname)
+
+
+Permission LDAP schema
+----------------------
+
+According to :file:`ldapvi` this is the user schema (on YunoHost >3.4):
+
+The permission will look like this:
+
+::
+    dn: cn=main.mail,ou=permission,dc=yunohost,dc=org
+    objectClass: posixGroup
+    objectClass: permissionYnh
+    gidNumber: 5001
+    groupPermission: cn=all_users,ou=groups,dc=yunohost,dc=org
+    cn: main.mail
+    structuralObjectClass: posixGroup
+    memberUid: the_unix_username
+    inheritPermission: uid=the_unix_username,ou=users,dc=yunohost,dc=org
+
+By default you will have a permission for the mail and for metronome. When you install an application a permission also created.
+
+Reading permissions from LDAP
+-----------------------
+
+The permission schema is located at this path: :file:`ou=permission,dc=yunohost,dc=org`
+
+The queries we uses are the 2 following python calls:
+
+::
+    # For all permission
+    auth.search('ou=permission,dc=yunohost,dc=org', '(objectclass=permissionYnh)')
+
+    # For one permission
+    auth.search(base='ou=permission,dc=yunohost,dc=org', filter='cn=' + permission_name)
+
+Domain LDAP schema
+------------------
 
 According to :file:`ldapvi` this is the domain schema (on YunoHost 2.7):
 
@@ -385,3 +463,80 @@ Here how it looks like for domain and user:
 (:file:`None` ?) so you need to check it returns code.
 
 .. automethod:: moulinette.authenticators.ldap.Authenticator.remove
+
+
+=============================
+LDAP architecture in Yunohost
+=============================
+
+In Yunohost to be able to manage the user and the permession we use 3 parts:
+
+* User object
+* Permission object
+* Group object
+
+We can see the interaction between these object as this following:
+
+.. image:: Yunohost_LDAP_documentation/LDAP_Liaison_logique_entre_objets.png
+
+As you can see there are link between these 3 objets. 
+
+* The first link is between the user and the group. It define which user is in which group. Note that all user has a group with his name. Note that in all yunohost instance you have a group named `all_users`. In this group you will find all Yunohost users.
+* The second link is between the permission and the groups. This link is defined by the administrator. By default all permission are linked to the group `all_users`, so all user will be allowed to access to this permission.
+* The third link between the User and the Permission is more technical. It give the possibility to the application to get a list of all user allowed to access to. This link is dynamically generated by core. The function `permission_sync_to_user` in the module `permission` do this work.
+
+To be able to have an attribute in both is of theses 3 link we use the `memberOf` overlay in LDAP. This foolwing line define the configuration to have these 3 link dynamically updated :
+
+::
+    # Link user <-> group
+    #dn: olcOverlay={0}memberof,olcDatabase={1}mdb,cn=config
+    overlay                 memberof
+    memberof-group-oc       groupOfNamesYnh
+    memberof-member-ad      member
+    memberof-memberof-ad    memberOf
+    memberof-dangling       error
+    memberof-refint         TRUE
+
+    # Link permission <-> groupes
+    #dn: olcOverlay={1}memberof,olcDatabase={1}mdb,cn=config
+    overlay                 memberof
+    memberof-group-oc       permissionYnh
+    memberof-member-ad      groupPermission
+    memberof-memberof-ad    permission
+    memberof-dangling       error
+    memberof-refint         TRUE
+
+    # Link permission <-> user
+    #dn: olcOverlay={2}memberof,olcDatabase={1}mdb,cn=config
+    overlay                 memberof
+    memberof-group-oc       permissionYnh
+    memberof-member-ad      inheritPermission
+    memberof-memberof-ad    permission
+    memberof-dangling       error
+    memberof-refint         TRUE
+
+This foolwing example show how will be represented in LDAP as simple concept of permission.
+
+.. image:: Yunohost_LDAP_documentation/LDAP_Representation_logique.png
+
+This schema show what will be in LDAP in these following schema:
+
+.. image:: Yunohost_LDAP_documentation/LDAP_Schema_1.png
+.. image:: Yunohost_LDAP_documentation/LDAP_Schema_2.png
+
+=========================================
+LDAP integration in Yunohost applications
+=========================================
+
+To have a complete integration of LDAP in your application you need to configure LDAP as follow :
+
+::
+    Host:               ldap://localhost
+    Port:               389
+    Base DN:            dc=yunohost,dc=org
+    User DN:            ou=users,dc=yunohost,dc=org
+    fiter :             (&(objectClass=posixAccount)(permission=cn=YOUR_APP.main,ou=permission,dc=yunohost,dc=org))
+    LDAP Username:      uid
+    LDAP Email Address: mail
+
+By this your application will get the list of all user allowed to access to your application.
