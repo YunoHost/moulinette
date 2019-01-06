@@ -1,1 +1,5 @@
-{}
+{
+    "argument_required": "争论{argument}是必须的",
+    "authentication_profile_required": "必须验证配置文件{profile}",
+    "authentication_required": "需要验证"
+}
