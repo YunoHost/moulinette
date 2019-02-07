@@ -36,5 +36,8 @@
     "corrupted_yaml": "Повреждённой yaml получен от {ressource:s} (причина: {error:s})",
     "error_writing_file": "Ошибка при записи файла {file:s}: {error:s}",
     "error_removing": "Ошибка при удалении {path:s}: {error:s}",
-    "invalid_url": "Неправильный url {url:s} (dpэтотисайт существует ?)"
+    "invalid_url": "Неправильный url {url:s} (этот сайт существует ?)",
+    "download_ssl_error": "Ошибка SSL при соединении с {url:s}",
+    "download_timeout": "Превышено время ожидания ответа от {url:s}",
+    "download_unknown_error": "Ошибка при загрузке данных с {url:s} : {error:s}"
 }
