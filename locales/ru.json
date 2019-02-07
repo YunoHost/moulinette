@@ -43,6 +43,6 @@
     "instance_already_running": "Процесс уже запущен",
     "ldap_operation_error": "Ошибка в процессе работы LDAP",
     "root_required": "Чтобы выполнить это действие, вы должны иметь права root",
-    "corrupted_json": "Повреждённой json получен от  {ressource:s} (причина: {error:s})",
+    "corrupted_json": "Повреждённый json получен от  {ressource:s} (причина: {error:s})",
     "command_unknown": "Команда '{command:s}' неизвестна ?"
 }
