@@ -22,5 +22,19 @@
     "operation_interrupted": "Действие прервано",
     "password": "Пароль",
     "pattern_not_match": "Не соответствует образцу",
-    "server_already_running": "Сервер уже выполняется на этом порте"
+    "server_already_running": "Сервер уже запущен на этом порте",
+    "success": "Отлично!",
+    "unable_authenticate": "Аутентификация невозможна",
+    "unknown_group": "Неизвестная '{group}' группа",
+    "unknown_user": "Неизвестный '{user}' пользователь",
+    "values_mismatch": "Неверные значения",
+    "warning": "Внимание :",
+    "websocket_request_expected": "Ожидается запрос WebSocket",
+    "cannot_open_file": "Не могу открыть файл {file:s} (причина: {error:s})",
+    "cannot_write_file": "Не могу записать файл {file:s} (причина: {error:s})",
+    "unknown_error_reading_file": "Неизвестная ошибка при чтении файла {file:s}",
+    "corrupted_yaml": "Повреждённой yaml получен от {ressource:s} (причина: {error:s})",
+    "error_writing_file": "Ошибка при записи файла {file:s}: {error:s}",
+    "error_removing": "Ошибка при удалении {path:s}: {error:s}",
+    "invalid_url": "Неправильный url {url:s} (dpэтотисайт существует ?)"
 }
