@@ -1,3 +1,11 @@
+moulinette (3.5.0) testing; urgency=low
+
+  * [i18n] Improve Russian and Chinese (Mandarin) translations
+
+  Contributors : n3uz, Алексей 
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 13 Mar 2019 17:20:00 +0000
+
 moulinette (3.4.2) stable; urgency=low
 
   * [i18n] Improve Basque translation
