@@ -65,7 +65,8 @@ def call_async_output(args, callback, **kwargs):
         # if command does not write in the stdinfo pipe...)
         stdinfo_f = os.open(stdinfo, os.O_RDONLY | os.O_NONBLOCK)
     else:
-        kwargs.pop("stdinfo")
+        if "stdinfo" in kwargs:
+            kwargs.pop("stdinfo")
         stdinfo = None
 
     # Validate callback argument
@@ -98,13 +99,15 @@ def call_async_output(args, callback, **kwargs):
                 # this way is not 100% perfect but should do it
                 stdout_consum.process_next_line()
                 stderr_consum.process_next_line()
-                stdinfo_consum.process_next_line()
+                if stdinfo:
+                    stdinfo_consum.process_next_line()
             time.sleep(.1)
         stderr_reader.join()
         # clear the queues
         stdout_consum.process_current_queue()
         stderr_consum.process_current_queue()
-        stdinfo_consum.process_current_queue()
+        if stdinfo:
+            stdinfo_consum.process_current_queue()
     else:
         while not stdout_reader.eof():
             stdout_consum.process_current_queue()
