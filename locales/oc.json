@@ -50,5 +50,6 @@
     "download_bad_status_code": "{url:s} tòrna lo còdi d’estat {code:s}",
     "command_unknown": "Comanda {command:s} desconeguda ?",
     "corrupted_json": "Fichièr Json corromput legit de {ressource:s} (rason : {error:s})",
-    "corrupted_yaml": "Fichièr YAML corromput legit de {ressource:s} (rason : {error:s})"
+    "corrupted_yaml": "Fichièr YAML corromput legit de {ressource:s} (rason : {error:s})",
+    "info": "Info :"
 }
