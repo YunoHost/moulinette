@@ -1,3 +1,12 @@
+moulinette (3.5.1) testing; urgency=low
+
+  * [fix] Fix case where stdinfo is not provided in call_async_output (0a300e5)
+  * [i18n] Improve translation for Greek, Hungarian, Polish, Swedish, French, Catalan, Occitan
+
+  Thanks to all contributors (Aleks, ariasuni, Quenti, ppr, Xaloc) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 03 Apr 2019 02:25:00 +0000
+
 moulinette (3.5.0) testing; urgency=low
 
   * [i18n] Improve Russian and Chinese (Mandarin) translations
