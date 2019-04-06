@@ -45,10 +45,11 @@
     "error_removing": "خطأ أثناء عملية حذف {path:s}: {error:s}",
     "error_changing_file_permissions": "خطأ أثناء عملية تعديل التصريحات لـ {path:s}: {error:s}",
     "invalid_url": "خطأ في عنوان الرابط {url:s} (هل هذا الموقع موجود حقًا ؟)",
-    "download_ssl_error": "خطأ في الإتصال الآمن عبر الـ SSL أثناء محاولة الإتصال بـ {url:s}",
+    "download_ssl_error": "خطأ في الاتصال الآمن عبر الـ SSL أثناء محاولة الربط بـ {url:s}",
     "download_timeout": "{url:s} استغرق مدة طويلة جدا للإستجابة، فتوقّف.",
     "download_unknown_error": "خطأ أثناء عملية تنزيل البيانات مِن {url:s} : {error:s}",
     "download_bad_status_code": "{url:s} أعاد رمز الحالة {code:s}",
     "command_unknown": "الأمر '{command:s}' غير معروف ؟",
-    "corrupted_yaml": "قراءة مُشوّهة لنسق yaml مِن {ressource:s} (السبب : {error:s})"
+    "corrupted_yaml": "قراءة مُشوّهة لنسق yaml مِن {ressource:s} (السبب : {error:s})",
+    "info": "معلومة:"
 }
