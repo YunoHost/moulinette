@@ -497,7 +497,10 @@ class MoulinetteLock(object):
 
         """
         if self._locked:
-            os.unlink(self._lockfile)
+            if os.path.exists(self._lockfile):
+                os.unlink(self._lockfile)
+            else:
+                logger.warning("Uhoh, somehow the lock %s did not exist ..." % self._lockfile)
             logger.debug('lock has been released')
             self._locked = False
 
