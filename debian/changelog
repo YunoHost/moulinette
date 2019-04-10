@@ -1,3 +1,13 @@
+moulinette (3.5.2) stable; urgency=low
+
+  - Release as stable !
+  - [fix] Do not miserably crash if the lock does not exist when attempting to release it
+  - [i18n] Update translation for Arabic, Italian
+
+  Thanks to all contributors (Aleks, BoF, silkevicious) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 10 Apr 2019 02:14:00 +0000
+
 moulinette (3.5.1) testing; urgency=low
 
   * [fix] Fix case where stdinfo is not provided in call_async_output (0a300e5)
