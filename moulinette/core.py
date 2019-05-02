@@ -3,7 +3,6 @@
 import os
 import time
 import json
-import errno
 import logging
 import psutil
 
@@ -20,6 +19,7 @@ logger = logging.getLogger('moulinette.core')
 # Internationalization -------------------------------------------------
 
 class Translator(object):
+
     """Internationalization class
 
     Provide an internationalization mechanism based on JSON files to
@@ -138,6 +138,7 @@ class Translator(object):
 
 
 class Moulinette18n(object):
+
     """Internationalization service for the moulinette
 
     Manage internationalization and access to the proper keys translation
@@ -215,6 +216,7 @@ class Moulinette18n(object):
 
 
 class MoulinetteSignals(object):
+
     """Signals connector for the moulinette
 
     Allow to easily connect signals from the moulinette to handlers. A
@@ -344,7 +346,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
         mod = import_module('moulinette.interfaces.%s' % name)
     except ImportError:
         logger.exception("unable to load interface '%s'", name)
-        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+        raise MoulinetteError('error_see_log')
     else:
         try:
             # Retrieve interface classes
@@ -352,7 +354,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
             interface = mod.Interface
         except AttributeError:
             logger.exception("unable to retrieve classes of interface '%s'", name)
-            raise MoulinetteError(errno.EIO, moulinette.m18n.g('error_see_log'))
+            raise MoulinetteError('error_see_log')
 
     # Instantiate or retrieve ActionsMap
     if isinstance(actionsmap, dict):
@@ -361,12 +363,12 @@ def init_interface(name, kwargs={}, actionsmap={}):
         amap = actionsmap
     else:
         logger.error("invalid actionsmap value %r", actionsmap)
-        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+        raise MoulinetteError('error_see_log')
 
     return interface(amap, **kwargs)
 
 
-def init_authenticator((vendor, name), kwargs={}):
+def init_authenticator(vendor_and_name, kwargs={}):
     """Return a new authenticator instance
 
     Retrieve the given authenticator vendor and return a new instance of
@@ -378,11 +380,12 @@ def init_authenticator((vendor, name), kwargs={}):
         - kwargs -- A dict of arguments for the authenticator profile
 
     """
+    (vendor, name) = vendor_and_name
     try:
         mod = import_module('moulinette.authenticators.%s' % vendor)
     except ImportError:
         logger.exception("unable to load authenticator vendor '%s'", vendor)
-        raise MoulinetteError(errno.EINVAL, moulinette.m18n.g('error_see_log'))
+        raise MoulinetteError('error_see_log')
     else:
         return mod.Authenticator(name, **kwargs)
 
@@ -411,12 +414,21 @@ def clean_session(session_id, profiles=[]):
 
 # Moulinette core classes ----------------------------------------------
 
-class MoulinetteError(OSError):
+class MoulinetteError(Exception):
+
     """Moulinette base exception"""
-    pass
+
+    def __init__(self, key, raw_msg=False, *args, **kwargs):
+        if raw_msg:
+            msg = key
+        else:
+            msg = moulinette.m18n.g(key, *args, **kwargs)
+        super(MoulinetteError, self).__init__(msg)
+        self.strerror = msg
 
 
 class MoulinetteLock(object):
+
     """Locker for a moulinette instance
 
     It provides a lock mechanism for a given moulinette instance. It can
@@ -471,8 +483,7 @@ class MoulinetteLock(object):
                     break
 
             if self.timeout is not None and (time.time() - start_time) > self.timeout:
-                raise MoulinetteError(errno.EBUSY,
-                                      moulinette.m18n.g('instance_already_running'))
+                raise MoulinetteError('instance_already_running')
             # Wait before checking again
             time.sleep(self.interval)
 
@@ -486,7 +497,10 @@ class MoulinetteLock(object):
 
         """
         if self._locked:
-            os.unlink(self._lockfile)
+            if os.path.exists(self._lockfile):
+                os.unlink(self._lockfile)
+            else:
+                logger.warning("Uhoh, somehow the lock %s did not exist ..." % self._lockfile)
             logger.debug('lock has been released')
             self._locked = False
 
@@ -495,10 +509,7 @@ class MoulinetteLock(object):
             with open(self._lockfile, 'w') as f:
                 f.write(str(os.getpid()))
         except IOError:
-            raise MoulinetteError(
-                errno.EPERM, '%s. %s.'.format(
-                    moulinette.m18n.g('permission_denied'),
-                    moulinette.m18n.g('root_required')))
+            raise MoulinetteError('root_required')
 
     def _lock_PIDs(self):
 

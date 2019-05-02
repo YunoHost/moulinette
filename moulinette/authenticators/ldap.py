@@ -2,7 +2,6 @@
 
 # TODO: Use Python3 to remove this fix!
 from __future__ import absolute_import
-import errno
 import logging
 import random
 import string
@@ -11,7 +10,6 @@ import ldap
 import ldap.sasl
 import ldap.modlist as modlist
 
-from moulinette import m18n
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
 
@@ -21,6 +19,7 @@ logger = logging.getLogger('moulinette.authenticator.ldap')
 # LDAP Class Implementation --------------------------------------------
 
 class Authenticator(BaseAuthenticator):
+
     """LDAP Authenticator
 
     Initialize a LDAP connexion for the given arguments. It attempts to
@@ -80,7 +79,7 @@ class Authenticator(BaseAuthenticator):
 
     def authenticate(self, password):
         try:
-            con = ldap.initialize(self.uri)
+            con = ldap.ldapobject.ReconnectLDAPObject(self.uri, retry_max=10, retry_delay=0.5)
             if self.userdn:
                 if 'cn=external,cn=auth' in self.userdn:
                     con.sasl_non_interactive_bind_s('EXTERNAL')
@@ -89,10 +88,10 @@ class Authenticator(BaseAuthenticator):
             else:
                 con.simple_bind_s()
         except ldap.INVALID_CREDENTIALS:
-            raise MoulinetteError(errno.EACCES, m18n.g('invalid_password'))
+            raise MoulinetteError('invalid_password')
         except ldap.SERVER_DOWN:
             logger.exception('unable to reach the server to authenticate')
-            raise MoulinetteError(169, m18n.g('ldap_server_down'))
+            raise MoulinetteError('ldap_server_down')
         else:
             self.con = con
             self._ensure_password_uses_strong_hash(password)
@@ -144,7 +143,7 @@ class Authenticator(BaseAuthenticator):
         except Exception as e:
             logger.exception("error during LDAP search operation with: base='%s', "
                              "filter='%s', attrs=%s and exception %s", base, filter, attrs, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
 
         result_list = []
         if not attrs or 'dn' not in attrs:
@@ -175,7 +174,7 @@ class Authenticator(BaseAuthenticator):
         except Exception as e:
             logger.exception("error during LDAP add operation with: rdn='%s', "
                              "attr_dict=%s and exception %s", rdn, attr_dict, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
         else:
             return True
 
@@ -195,7 +194,7 @@ class Authenticator(BaseAuthenticator):
             self.con.delete_s(dn)
         except Exception as e:
             logger.exception("error during LDAP delete operation with: rdn='%s' and exception %s", rdn, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
         else:
             return True
 
@@ -226,7 +225,7 @@ class Authenticator(BaseAuthenticator):
             logger.exception("error during LDAP update operation with: rdn='%s', "
                              "attr_dict=%s, new_rdn=%s and exception: %s", rdn, attr_dict,
                              new_rdn, e)
-            raise MoulinetteError(169, m18n.g('ldap_operation_error'))
+            raise MoulinetteError('ldap_operation_error')
         else:
             return True
 
@@ -241,13 +240,29 @@ class Authenticator(BaseAuthenticator):
             Boolean | MoulinetteError
 
         """
+        attr_found = self.get_conflict(value_dict)
+        if attr_found:
+            logger.info("attribute '%s' with value '%s' is not unique",
+                        attr_found[0], attr_found[1])
+            raise MoulinetteError('ldap_attribute_already_exists',
+                                  attribute=attr_found[0],
+                                  value=attr_found[1])
+        return True
+
+    def get_conflict(self, value_dict, base_dn=None):
+        """
+        Check uniqueness of values
+
+        Keyword arguments:
+            value_dict -- Dictionnary of attributes/values to check
+
+        Returns:
+            None | list with Fist conflict attribute name and value
+
+        """
         for attr, value in value_dict.items():
-            if not self.search(filter=attr + '=' + value):
+            if not self.search(base=base_dn, filter=attr + '=' + value):
                 continue
             else:
-                logger.info("attribute '%s' with value '%s' is not unique",
-                            attr, value)
-                raise MoulinetteError(errno.EEXIST,
-                                      m18n.g('ldap_attribute_already_exists',
-                                             attribute=attr, value=value))
-        return True
+                return (attr, value)
+        return None

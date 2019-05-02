@@ -137,5 +137,5 @@ def cli(namespaces, args, use_cache=True, output_as=None,
     except MoulinetteError as e:
         import logging
         logging.getLogger(namespaces[0]).error(e.strerror)
-        return e.errno
+        return 1
     return 0

@@ -2,7 +2,6 @@
 
 import os
 import re
-import errno
 import logging
 import yaml
 import cPickle as pickle
@@ -26,6 +25,7 @@ logger = logging.getLogger('moulinette.actionsmap')
 # Extra parameters definition
 
 class _ExtraParameter(object):
+
     """
     Argument parser for an extra parameter.
 
@@ -105,6 +105,7 @@ class CommentParameter(_ExtraParameter):
 
 
 class AskParameter(_ExtraParameter):
+
     """
     Ask for the argument value if possible and needed.
 
@@ -139,6 +140,7 @@ class AskParameter(_ExtraParameter):
 
 
 class PasswordParameter(AskParameter):
+
     """
     Ask for the password argument value if possible and needed.
 
@@ -160,6 +162,7 @@ class PasswordParameter(AskParameter):
 
 
 class PatternParameter(_ExtraParameter):
+
     """
     Check if the argument value match a pattern.
 
@@ -187,9 +190,8 @@ class PatternParameter(_ExtraParameter):
             if msg == message:
                 msg = m18n.g(message)
 
-            raise MoulinetteError(errno.EINVAL,
-                                  m18n.g('invalid_argument',
-                                         argument=arg_name, error=msg))
+            raise MoulinetteError('invalid_argument',
+                                  argument=arg_name, error=msg)
         return arg_value
 
     @staticmethod
@@ -206,6 +208,7 @@ class PatternParameter(_ExtraParameter):
 
 
 class RequiredParameter(_ExtraParameter):
+
     """
     Check if a required argument is defined or not.
 
@@ -218,9 +221,8 @@ class RequiredParameter(_ExtraParameter):
         if required and (arg_value is None or arg_value == ''):
             logger.debug("argument '%s' is required",
                          arg_name)
-            raise MoulinetteError(errno.EINVAL,
-                                  m18n.g('argument_required',
-                                         argument=arg_name))
+            raise MoulinetteError('argument_required',
+                                  argument=arg_name)
         return arg_value
 
     @staticmethod
@@ -243,6 +245,7 @@ extraparameters_list = [CommentParameter, AskParameter, PasswordParameter,
 
 
 class ExtraArgumentParser(object):
+
     """
     Argument validator and parser for the extra parameters.
 
@@ -285,7 +288,7 @@ class ExtraArgumentParser(object):
                 except Exception as e:
                     logger.error("unable to validate extra parameter '%s' "
                                  "for argument '%s': %s", p, arg_name, e)
-                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+                    raise MoulinetteError('error_see_log')
 
         return parameters
 
@@ -360,6 +363,7 @@ def ordered_yaml_load(stream):
 
 
 class ActionsMap(object):
+
     """Validate and process actions defined into an actions map
 
     The actions map defines the features - and their usage - of an
@@ -501,7 +505,7 @@ class ActionsMap(object):
             except (AttributeError, ImportError):
                 logger.exception("unable to load function %s.%s",
                                  namespace, func_name)
-                raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+                raise MoulinetteError('error_see_log')
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):

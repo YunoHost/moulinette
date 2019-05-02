@@ -11,6 +11,7 @@ from gevent.queue import Queue
 from geventwebsocket import WebSocketError
 
 from bottle import run, request, response, Bottle, HTTPResponse
+from bottle import get, post, install, abort, delete, put
 
 from moulinette import msignals, m18n, DATA_DIR
 from moulinette.core import MoulinetteError, clean_session
@@ -26,12 +27,43 @@ logger = log.getLogger('moulinette.interface.api')
 
 # API helpers ----------------------------------------------------------
 
+CSRF_TYPES = set(["text/plain",
+                  "application/x-www-form-urlencoded",
+                  "multipart/form-data"])
+
+
+def is_csrf():
+    """Checks is this is a CSRF request."""
+
+    if request.method != "POST":
+        return False
+    if request.content_type is None:
+        return True
+    content_type = request.content_type.lower().split(';')[0]
+    if content_type not in CSRF_TYPES:
+        return False
+
+    return request.headers.get("X-Requested-With") is None
+
+
+# Protection against CSRF
+def filter_csrf(callback):
+    def wrapper(*args, **kwargs):
+        if is_csrf():
+            abort(403, "CSRF protection")
+        else:
+            return callback(*args, **kwargs)
+    return wrapper
+
+
 class LogQueues(dict):
+
     """Map of session id to queue."""
     pass
 
 
 class APIQueueHandler(logging.Handler):
+
     """
     A handler class which store logging records into a queue, to be used
     and retrieved from the API.
@@ -57,6 +89,7 @@ class APIQueueHandler(logging.Handler):
 
 
 class _HTTPArgumentParser(object):
+
     """Argument parser for HTTP requests
 
     Object for parsing HTTP requests into Python objects. It is based
@@ -159,10 +192,11 @@ class _HTTPArgumentParser(object):
 
     def _error(self, message):
         # TODO: Raise a proper exception
-        raise MoulinetteError(1, message)
+        raise MoulinetteError(message)
 
 
 class _ActionsMapPlugin(object):
+
     """Actions map Bottle Plugin
 
     Process relevant action for the request using the actions map and
@@ -317,7 +351,7 @@ class _ActionsMapPlugin(object):
                     self.logout(profile)
                 except:
                     pass
-            raise error_to_response(e)
+            raise HTTPUnauthorizedResponse(e.strerror)
         else:
             # Update dicts with new values
             s_hashes[profile] = s_hash
@@ -404,7 +438,7 @@ class _ActionsMapPlugin(object):
         try:
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
-            raise error_to_response(e)
+            raise HTTPBadRequestResponse(e.strerror)
         except Exception as e:
             if isinstance(e, HTTPResponse):
                 raise e
@@ -488,36 +522,10 @@ class HTTPUnauthorizedResponse(HTTPResponse):
         super(HTTPUnauthorizedResponse, self).__init__(output, 401)
 
 
-class HTTPForbiddenResponse(HTTPResponse):
-
-    def __init__(self, output=''):
-        super(HTTPForbiddenResponse, self).__init__(output, 403)
-
-
 class HTTPErrorResponse(HTTPResponse):
 
     def __init__(self, output=''):
         super(HTTPErrorResponse, self).__init__(output, 500)
-
-
-def error_to_response(error):
-    """Convert a MoulinetteError to relevant HTTP response."""
-    if error.errno == errno.EPERM:
-        return HTTPForbiddenResponse(error.strerror)
-    elif error.errno == errno.EACCES:
-        return HTTPUnauthorizedResponse(error.strerror)
-    # Client-side error
-    elif error.errno in [errno.ENOENT, errno.ESRCH, errno.ENXIO, errno.EEXIST,
-            errno.ENODEV, errno.EINVAL, errno.ENOPKG, errno.EDESTADDRREQ]:
-        return HTTPBadRequestResponse(error.strerror)
-    # Server-side error
-    elif error.errno in [errno.EIO, errno.EBUSY, errno.ENODATA, errno.EINTR,
-            errno.ENETUNREACH]:
-        return HTTPErrorResponse(error.strerror)
-    else:
-        logger.debug('unknown relevant response for error [%s] %s',
-                     error.errno, error.strerror)
-        return HTTPErrorResponse(error.strerror)
 
 
 def format_for_response(content):
@@ -541,6 +549,7 @@ def format_for_response(content):
 # API Classes Implementation -------------------------------------------
 
 class ActionsMapParser(BaseActionsMapParser):
+
     """Actions map's Parser for the API
 
     Provide actions map parsing methods for a CLI usage. The parser for
@@ -630,7 +639,7 @@ class ActionsMapParser(BaseActionsMapParser):
             tid, parser = self._parsers[route]
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
-            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+            raise MoulinetteError('error_see_log')
         ret = argparse.Namespace()
 
         # Perform authentication if needed
@@ -643,7 +652,7 @@ class ActionsMapParser(BaseActionsMapParser):
             # TODO: Catch errors
             auth = msignals.authenticate(klass(), **auth_conf)
             if not auth.is_authenticated:
-                raise MoulinetteError(errno.EACCES, m18n.g('authentication_required_long'))
+                raise MoulinetteError('authentication_required_long')
             if self.get_conf(tid, 'argument_auth') and \
                self.get_conf(tid, 'authenticate') == 'all':
                 ret.auth = auth
@@ -677,6 +686,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
 
 class Interface(BaseInterface):
+
     """Application Programming Interface for the moulinette
 
     Initialize a HTTP server which serves the API connected to a given
@@ -722,6 +732,7 @@ class Interface(BaseInterface):
             return callback
 
         # Install plugins
+        app.install(filter_csrf)
         app.install(apiheader)
         app.install(api18n)
         app.install(_ActionsMapPlugin(actionsmap, use_websocket, log_queues))
@@ -765,9 +776,8 @@ class Interface(BaseInterface):
             logger.exception("unable to start the server instance on %s:%d",
                              host, port)
             if e.args[0] == errno.EADDRINUSE:
-                raise MoulinetteError(errno.EADDRINUSE,
-                                      m18n.g('server_already_running'))
-            raise MoulinetteError(errno.EIO, m18n.g('error_see_log'))
+                raise MoulinetteError('server_already_running')
+            raise MoulinetteError('error_see_log')
 
     # Routes handlers
 

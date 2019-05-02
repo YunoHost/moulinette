@@ -16,7 +16,8 @@ Depends: ${misc:Depends}, ${python:Depends},
     python-gnupg,
     python-gevent-websocket,
     python-argcomplete,
-    python-psutil
+    python-psutil,
+    python-tz
 Replaces: yunohost-cli
 Breaks: yunohost-cli
 Description: prototype interfaces with ease in Python

@@ -1,6 +1,7 @@
 import logging
 from json.encoder import JSONEncoder
 import datetime
+import pytz
 
 logger = logging.getLogger('moulinette.utils.serialize')
 
@@ -8,6 +9,7 @@ logger = logging.getLogger('moulinette.utils.serialize')
 # JSON utilities -------------------------------------------------------
 
 class JSONExtendedEncoder(JSONEncoder):
+
     """Extended JSON encoder
 
     Extend default JSON encoder to recognize more types and classes. It
@@ -26,7 +28,9 @@ class JSONExtendedEncoder(JSONEncoder):
             return list(o)
 
         # Display the date in its iso format ISO-8601 Internet Profile (RFC 3339)
-        if isinstance(o, datetime.datetime) or isinstance(o, datetime.date):
+        if isinstance(o, datetime.date):
+            if o.tzinfo is None:
+                o = o.replace(tzinfo=pytz.utc)
             return o.isoformat()
 
         # Return the repr for object that json can't encode

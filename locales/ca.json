@@ -50,5 +50,6 @@
     "download_timeout": "{url:s} ha tardat massa en respondre, s'ha deixat d'esperar.",
     "download_unknown_error": "Error al baixar dades des de {url:s}: {error:s}",
     "download_bad_status_code": "{url:s} ha retornat el codi d'estat {code:s}",
-    "command_unknown": "Ordre '{command:s}' desconegut ?"
+    "command_unknown": "Ordre '{command:s}' desconegut ?",
+    "info": "Info:"
 }

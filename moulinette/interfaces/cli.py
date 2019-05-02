@@ -2,12 +2,14 @@
 
 import os
 import sys
-import errno
 import getpass
 import locale
 import logging
 from argparse import SUPPRESS
 from collections import OrderedDict
+import time
+import pytz
+from datetime import date, datetime
 
 import argcomplete
 
@@ -94,6 +96,32 @@ def plain_print_dict(d, depth=0):
         print(d)
 
 
+def pretty_date(_date):
+    """Display a date in the current time zone without ms and tzinfo
+
+    Argument:
+        - date -- The date or datetime to display
+    """
+    # Deduce system timezone
+    nowutc = datetime.now(tz=pytz.utc)
+    nowtz = datetime.now()
+    nowtz = nowtz.replace(tzinfo=pytz.utc)
+    offsetHour = nowutc - nowtz
+    offsetHour = int(round(offsetHour.total_seconds() / 3600))
+    localtz = 'Etc/GMT%+d' % offsetHour
+
+    # Transform naive date into UTC date
+    if _date.tzinfo is None:
+        _date = _date.replace(tzinfo=pytz.utc)
+
+    # Convert UTC date into system locale date
+    _date = _date.astimezone(pytz.timezone(localtz))
+    if isinstance(_date, datetime):
+        return _date.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        return _date.strftime("%Y-%m-%d")
+
+
 def pretty_print_dict(d, depth=0):
     """Print in a pretty way a dictionary recursively
 
@@ -127,10 +155,14 @@ def pretty_print_dict(d, depth=0):
                 else:
                     if isinstance(value, unicode):
                         value = value.encode('utf-8')
+                    elif isinstance(v, date):
+                        v = pretty_date(v)
                     print("{:s}- {}".format("  " * (depth + 1), value))
         else:
             if isinstance(v, unicode):
                 v = v.encode('utf-8')
+            elif isinstance(v, date):
+                v = pretty_date(v)
             print("{:s}{}: {}".format("  " * depth, k, v))
 
 
@@ -145,6 +177,7 @@ def get_locale():
 # CLI Classes Implementation -------------------------------------------
 
 class TTYHandler(logging.StreamHandler):
+
     """TTY log handler
 
     A handler class which prints logging records for a tty. The record is
@@ -210,6 +243,7 @@ class TTYHandler(logging.StreamHandler):
 
 
 class ActionsMapParser(BaseActionsMapParser):
+
     """Actions map's Parser for the CLI
 
     Provide actions map parsing methods for a CLI usage. The parser for
@@ -329,7 +363,7 @@ class ActionsMapParser(BaseActionsMapParser):
             raise
         except:
             logger.exception("unable to parse arguments '%s'", ' '.join(args))
-            raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+            raise MoulinetteError('error_see_log')
         else:
             self.prepare_action_namespace(getattr(ret, '_tid', None), ret)
             self._parser.dequeue_callbacks(ret)
@@ -337,6 +371,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
 
 class Interface(BaseInterface):
+
     """Command-line Interface for the moulinette
 
     Initialize an interface connected to the standard input/output
@@ -376,7 +411,7 @@ class Interface(BaseInterface):
 
         """
         if output_as and output_as not in ['json', 'plain', 'none']:
-            raise MoulinetteError(errno.EINVAL, m18n.g('invalid_usage'))
+            raise MoulinetteError('invalid_usage')
 
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
@@ -389,7 +424,7 @@ class Interface(BaseInterface):
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
         except (KeyboardInterrupt, EOFError):
-            raise MoulinetteError(errno.EINTR, m18n.g('operation_interrupted'))
+            raise MoulinetteError('operation_interrupted')
 
         if ret is None or output_as == 'none':
             return
@@ -439,7 +474,7 @@ class Interface(BaseInterface):
         if confirm:
             m = message[0].lower() + message[1:]
             if prompt(m18n.g('confirm', prompt=m)) != value:
-                raise MoulinetteError(errno.EINVAL, m18n.g('values_mismatch'))
+                raise MoulinetteError('values_mismatch')
 
         return value
 

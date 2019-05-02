@@ -1,3 +1,63 @@
+moulinette (3.5.2) stable; urgency=low
+
+  - Release as stable !
+  - [fix] Do not miserably crash if the lock does not exist when attempting to release it
+  - [i18n] Update translation for Arabic, Italian
+
+  Thanks to all contributors (Aleks, BoF, silkevicious) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 10 Apr 2019 02:14:00 +0000
+
+moulinette (3.5.1) testing; urgency=low
+
+  * [fix] Fix case where stdinfo is not provided in call_async_output (0a300e5)
+  * [i18n] Improve translation for Greek, Hungarian, Polish, Swedish, French, Catalan, Occitan
+
+  Thanks to all contributors (Aleks, ariasuni, Quenti, ppr, Xaloc) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 03 Apr 2019 02:25:00 +0000
+
+moulinette (3.5.0) testing; urgency=low
+
+  * [i18n] Improve Russian and Chinese (Mandarin) translations
+
+  Contributors : n3uz, Алексей 
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 13 Mar 2019 17:20:00 +0000
+
+moulinette (3.4.2) stable; urgency=low
+
+  * [i18n] Improve Basque translation
+
+  Thanks to all contributors (A. Garaialde) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 29 Jan 2019 16:50:00 +0000
+
+moulinette (3.4.1) testing; urgency=low
+
+  * [i18n] Improve Chinese(Mandarin) translation
+  * [i18n] Misc orthotypograhy
+
+  Thanks to all contributors (Jibec, aleiyer) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 17 Jan 2019 21:50:00 +0000
+
+moulinette (3.4.0) testing; urgency=low
+
+  * [fix] Code cleaning with autopep8 (#187)
+  * [fix] Automatically reconnect LDAP authenticator when slapd restarts (#185)
+  * [enh] Display date as system timezone (#184)
+  * [mod] Make sure `gpg.encrypt` actually does something (#182)
+  * [mod] Add possiblity to get attribute name of conflict in LDAP (#181)
+  * [enh] Simplify moulinette error management (#180)
+  * [mod] Remove Access-Control-Allow-Origin (#174)
+  * [enh] Protect against CSRF (#171)
+  * [i18n] Improve Spanish translation
+
+  Thanks to all contributors (Aleks, randomstuff, irina11y, Josue, gdayon, ljf) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 20 Dec 2018 21:53:00 +0000
+
 moulinette (3.3.1) stable; urgency=low
 
   * [fix] 'force' semantics in 'utils.filesystem.mkdir' (#177)

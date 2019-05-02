@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import errno
 import gnupg
 import logging
 
-from moulinette import m18n
 from moulinette.cache import open_cachefile
 from moulinette.core import MoulinetteError
 
@@ -14,6 +12,7 @@ logger = logging.getLogger('moulinette.authenticator')
 # Base Class -----------------------------------------------------------
 
 class BaseAuthenticator(object):
+
     """Authenticator base representation
 
     Each authenticators must implement an Authenticator class derived
@@ -97,7 +96,7 @@ class BaseAuthenticator(object):
             except TypeError:
                 logger.error("unable to extract token parts from '%s'", token)
                 if password is None:
-                    raise MoulinetteError(errno.EINVAL, m18n.g('error_see_log'))
+                    raise MoulinetteError('error_see_log')
 
                 logger.info("session will not be stored")
                 store_session = False
@@ -114,7 +113,7 @@ class BaseAuthenticator(object):
         except:
             logger.exception("authentication (name: '%s', vendor: '%s') fails",
                              self.name, self.vendor)
-            raise MoulinetteError(errno.EACCES, m18n.g('unable_authenticate'))
+            raise MoulinetteError('unable_authenticate')
 
         # Store session
         if store_session:
@@ -138,9 +137,13 @@ class BaseAuthenticator(object):
         """Store a session and its associated password"""
         gpg = gnupg.GPG()
         gpg.encoding = 'utf-8'
+
+        # Encrypt the password using the session hash
+        s = str(gpg.encrypt(password, None, symmetric=True, passphrase=session_hash))
+        assert len(s), "For some reason GPG can't perform encryption, maybe check /root/.gnupg/gpg.conf or re-run with gpg = gnupg.GPG(verbose=True) ?"
+
         with self._open_sessionfile(session_id, 'w') as f:
-            f.write(str(gpg.encrypt(password, None, symmetric=True,
-                                    passphrase=session_hash)))
+            f.write(s)
 
     def _retrieve_session(self, session_id, session_hash):
         """Retrieve a session and return its associated password"""
@@ -149,8 +152,7 @@ class BaseAuthenticator(object):
                 enc_pwd = f.read()
         except IOError:
             logger.debug("unable to retrieve session", exc_info=1)
-            raise MoulinetteError(errno.ENOENT,
-                                  m18n.g('unable_retrieve_session'))
+            raise MoulinetteError('unable_retrieve_session')
         else:
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'
@@ -159,6 +161,5 @@ class BaseAuthenticator(object):
             if decrypted.ok is not True:
                 logger.error("unable to decrypt password for the session: %s",
                              decrypted.status)
-                raise MoulinetteError(errno.EINVAL,
-                                      m18n.g('unable_retrieve_session'))
+                raise MoulinetteError('unable_retrieve_session')
             return decrypted.data
