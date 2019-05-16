@@ -526,6 +526,18 @@ class ActionsMap(object):
                     logger.debug('action [%s] executed in %.3fs',
                                  log_id, stop - start)
 
+                    # For some reason we need to do this now before the
+                    # garbage collector kicks in ...
+                    # ... because sometimes the ldap library is already half
+                    # gone when trying to properly close the ldap object
+                    # which leads to  :
+                    # TypeError: "'NoneType' object is not callable" in <bound method Authenticator.__del__ of <moulinette.authenticators.ldap.Authenticator object at 0xabcdef123456>> ignored
+                    # (here the NoneType stuff refers to RequestControlTuples in ldapobject.py ...)
+                    # I got this when running `yunohost user list` (but not when running `yunohost domain list` for some reason)
+                    from moulinette.authenticators.ldap import Authenticator
+                    for i in Authenticator.instances:
+                        i().freecon()
+
     @staticmethod
     def get_namespaces():
         """

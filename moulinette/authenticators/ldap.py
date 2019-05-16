@@ -9,6 +9,7 @@ import crypt
 import ldap
 import ldap.sasl
 import ldap.modlist as modlist
+import weakref
 
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
@@ -33,11 +34,13 @@ class Authenticator(BaseAuthenticator):
 
     """
 
+    instances = []
     def __init__(self, name, uri, base_dn, user_rdn=None):
         logger.debug("initialize authenticator '%s' with: uri='%s', "
                      "base_dn='%s', user_rdn='%s'", name, uri, base_dn, user_rdn)
         super(Authenticator, self).__init__(name)
 
+        self.__class__.instances.append(weakref.proxy(self))
         self.uri = uri
         self.basedn = base_dn
         if user_rdn:
@@ -52,9 +55,13 @@ class Authenticator(BaseAuthenticator):
             self.authenticate(None)
 
     def __del__(self):
+        self.freecon()
+
+    def freecon(self):
         """Disconnect and free ressources"""
-        if self.con:
+        if self.con and hasattr(self.con, "_l"):
             self.con.unbind_s()
+
 
     # Implement virtual properties
 
