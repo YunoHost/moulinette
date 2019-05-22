@@ -31,5 +31,19 @@ setup(name='Moulinette',
           'moulinette.utils',
       ],
       data_files=[(LOCALES_DIR, locale_files)],
-      tests_require=["pytest", "webtest"],
+      install_requires=[
+        'PyYAML >= 5.1',
+        'bottle >= 0.10',
+        'gnupg >= 0.3',
+        'python-ldap >= 2.4',
+      ],
+      tests_require=[
+        'pytest',
+        'webtest'
+        'gevent',
+        'gevent-websocket',
+        'pytz',
+        'requests',
+        'requests_mock',
+      ],
       )
