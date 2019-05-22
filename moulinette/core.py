@@ -4,7 +4,6 @@ import os
 import time
 import json
 import logging
-import psutil
 
 from importlib import import_module
 
@@ -525,6 +524,10 @@ class MoulinetteLock(object):
         return lock_pids
 
     def _is_son_of(self, lock_pids):
+        # in order to avoid a setuptools installation issue which fails at
+        # installation time, we only import psutil when appropriate and not
+        # globally at the module level
+        import psutil
 
         if lock_pids == []:
             return False
