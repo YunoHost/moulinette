@@ -46,6 +46,19 @@ operation on an interface for example (see
 ### Authenticators
 ...
 
+Development Install
+-------------------
+
+```bash
+$ pip install -e .
+```
+
+Test
+----
+
+```bash
+$ pytest
+```
 
 Requirements
 ------------
