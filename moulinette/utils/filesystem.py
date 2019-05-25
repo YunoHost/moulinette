@@ -77,7 +77,7 @@ def read_yaml(file_path):
     return loaded_yaml
 
 
-def read_ldif(file_path):
+def read_ldif(file_path, filtred_entries=[]):
     """
     Safely read a LDIF file and create struct in the same style than
     what return the auth objet with the seach method
@@ -85,14 +85,22 @@ def read_ldif(file_path):
     with the "dn" and the LDAP entry.
 
     Keyword argument:
-        file_path -- Path to the ldif file
+        file_path       -- Path to the ldif file
+        filtred_entries -- The entries to don't include in the result
     """
     from ldif import LDIFRecordList
+
+    class LDIFPar(LDIFRecordList):
+        def handle(self,dn,entry):
+            for e in filtred_entries:
+                if e in entry:
+                    entry.pop(e)
+            self.all_records.append((dn,entry))
 
     # Open file and read content
     try:
         with open(file_path, "r") as f:
-            parser = LDIFRecordList(f)
+            parser = LDIFPar(f)
             parser.parse()
     except IOError as e:
         raise MoulinetteError('cannot_open_file', file=file_path, error=str(e))
