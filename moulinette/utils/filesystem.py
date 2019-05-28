@@ -91,11 +91,11 @@ def read_ldif(file_path, filtred_entries=[]):
     from ldif import LDIFRecordList
 
     class LDIFPar(LDIFRecordList):
-        def handle(self,dn,entry):
+        def handle(self, dn, entry):
             for e in filtred_entries:
                 if e in entry:
                     entry.pop(e)
-            self.all_records.append((dn,entry))
+            self.all_records.append((dn, entry))
 
     # Open file and read content
     try:
