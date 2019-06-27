@@ -1,11 +1,10 @@
 #!/usr/bin/env python
+
 import os
 import sys
-
 from distutils.core import setup
 
 from moulinette.globals import LOCALES_DIR
-
 
 # Extend installation
 locale_files = []
@@ -31,5 +30,19 @@ setup(name='Moulinette',
           'moulinette.utils',
       ],
       data_files=[(LOCALES_DIR, locale_files)],
-      tests_require=["pytest", "webtest"],
+      python_requires='==2.7.*',
+      install_requires=[
+          'argcomplete',
+          'psutil',
+          'pytz',
+          'pyyaml',
+      ],
+      tests_require=[
+          'pytest',
+          'pytest-cov',
+          'pytest-env',
+          'pytest-mock',
+          'requests',
+          'requests-mock',
+      ],
       )
