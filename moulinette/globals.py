@@ -1,4 +1,8 @@
-DATA_DIR = '/usr/share/moulinette'
-LIB_DIR = '/usr/lib/moulinette'
-LOCALES_DIR = '/usr/share/moulinette/locale'
-CACHE_DIR = '/var/cache/moulinette'
+"""Moulinette global configuration core."""
+
+from os import environ
+
+DATA_DIR = environ.get('MOULINETTE_DATA_DIR', '/usr/share/moulinette')
+LIB_DIR = environ.get('MOULINETTE_LIB_DIR', '/usr/lib/moulinette')
+LOCALES_DIR = environ.get('MOULINETTE_LOCALES_DIR', '/usr/share/moulinette/locale')
+CACHE_DIR = environ.get('MOULINETTE_CACHE_DIR', '/var/cache/moulinette')
