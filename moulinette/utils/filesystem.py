@@ -31,8 +31,9 @@ def read_file(file_path):
             file_content = f.read()
     except IOError as e:
         raise MoulinetteError('cannot_open_file', file=file_path, error=str(e))
-    except Exception as e:
-        raise MoulinetteError('error_reading_file', file=file_path, error=str(e))
+    except Exception:
+        raise MoulinetteError('unknown_error_reading_file',
+                              file=file_path, error=str(e))
 
     return file_content
 
@@ -105,7 +106,8 @@ def read_ldif(file_path, filtred_entries=[]):
     except IOError as e:
         raise MoulinetteError('cannot_open_file', file=file_path, error=str(e))
     except Exception as e:
-        raise MoulinetteError('error_reading_file', file=file_path, error=str(e))
+        raise MoulinetteError('unknown_error_reading_file',
+                              file=file_path, error=str(e))
 
     return parser.all_records
 
