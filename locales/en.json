@@ -40,7 +40,7 @@
     "websocket_request_expected": "Expected a WebSocket request",
     "cannot_open_file": "Could not open file {file:s} (reason: {error:s})",
     "cannot_write_file": "Could not write file {file:s} (reason: {error:s})",
-    "unknown_error_reading_file": "Unknown error while trying to read file {file:s}",
+    "unknown_error_reading_file": "Unknown error while trying to read file {file:s} (reason: {error:s})",
     "corrupted_json": "Corrupted json read from {ressource:s} (reason: {error:s})",
     "corrupted_yaml": "Corrupted yaml read from {ressource:s} (reason: {error:s})",
     "error_writing_file":  "Error when writing file {file:s}: {error:s}",
