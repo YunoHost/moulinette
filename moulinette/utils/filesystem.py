@@ -91,7 +91,7 @@ def read_toml(file_path):
     # Read file
     file_content = read_file(file_path)
 
-    # Try to load toml to check if it's syntaxically correct
+    # Try to load toml to check if it's syntactically correct
     try:
         loaded_toml = toml.loads(file_content, _dict=OrderedDict)
     except Exception as e:
