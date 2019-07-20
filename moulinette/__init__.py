@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from moulinette.core import init_interface, MoulinetteError, MoulinetteSignals, Moulinette18n
-from moulinette.globals import DATA_DIR, LIB_DIR, LOCALES_DIR, CACHE_DIR
+from moulinette.globals import init_moulinette_env
 
 __title__ = 'moulinette'
 __version__ = '0.1'
@@ -28,9 +28,8 @@ __credits__ = """
     along with this program; if not, see http://www.gnu.org/licenses
     """
 __all__ = [
-    'init', 'api', 'cli', 'm18n',
+    'init', 'api', 'cli', 'm18n', 'env',
     'init_interface', 'MoulinetteError',
-    'DATA_DIR', 'LIB_DIR', 'LOCALES_DIR', 'CACHE_DIR',
 ]
 
 
@@ -62,7 +61,7 @@ def init(logging_config=None, **kwargs):
     configure_logging(logging_config)
 
     # Add library directory to python path
-    sys.path.insert(0, LIB_DIR)
+    sys.path.insert(0, init_moulinette_env()['LIB_DIR'])
 
 
 # Easy access to interfaces
@@ -139,3 +138,8 @@ def cli(namespaces, args, use_cache=True, output_as=None,
         logging.getLogger(namespaces[0]).error(e.strerror)
         return 1
     return 0
+
+
+def env():
+    """Initialise moulinette specific configuration."""
+    return init_moulinette_env()

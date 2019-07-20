@@ -10,7 +10,7 @@ from collections import OrderedDict
 
 from moulinette import m18n, msignals
 from moulinette.cache import open_cachefile
-from moulinette.globals import CACHE_DIR, DATA_DIR
+from moulinette.globals import init_moulinette_env
 from moulinette.core import (MoulinetteError, MoulinetteLock)
 from moulinette.interfaces import (
     BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
@@ -393,6 +393,10 @@ class ActionsMap(object):
         self.parser_class = parser_class
         self.use_cache = use_cache
 
+        moulinette_env = init_moulinette_env()
+        DATA_DIR = moulinette_env['DATA_DIR']
+        CACHE_DIR = moulinette_env['CACHE_DIR']
+
         if len(namespaces) == 0:
             namespaces = self.get_namespaces()
         actionsmaps = OrderedDict()
@@ -537,6 +541,9 @@ class ActionsMap(object):
         """
         namespaces = []
 
+        moulinette_env = init_moulinette_env()
+        DATA_DIR = moulinette_env['DATA_DIR']
+
         for f in os.listdir('%s/actionsmap' % DATA_DIR):
             if f.endswith('.yml'):
                 namespaces.append(f[:-4])
@@ -554,6 +561,10 @@ class ActionsMap(object):
             A dict of actions map for each namespaces
 
         """
+        moulinette_env = init_moulinette_env()
+        CACHE_DIR = moulinette_env['CACHE_DIR']
+        DATA_DIR = moulinette_env['DATA_DIR']
+
         actionsmaps = {}
         if not namespaces:
             namespaces = klass.get_namespaces()
