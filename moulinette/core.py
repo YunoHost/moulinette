@@ -461,6 +461,8 @@ class MoulinetteLock(object):
         """
         start_time = time.time()
 
+        logger.debug('acquiring lock...')
+
         while True:
 
             lock_pids = self._lock_PIDs()
