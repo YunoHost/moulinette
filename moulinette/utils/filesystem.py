@@ -1,10 +1,13 @@
 import os
 import yaml
+import toml
 import errno
 import shutil
 import json
 import grp
+
 from pwd import getpwnam
+from collections import OrderedDict
 
 from moulinette import m18n
 from moulinette.core import MoulinetteError
@@ -76,6 +79,28 @@ def read_yaml(file_path):
         raise MoulinetteError('corrupted_yaml', ressource=file_path, error=str(e))
 
     return loaded_yaml
+
+
+def read_toml(file_path):
+    """
+    Safely read a toml file
+
+    Keyword argument:
+        file_path -- Path to the toml file
+    """
+
+    # Read file
+    file_content = read_file(file_path)
+
+    # Try to load toml to check if it's syntactically correct
+    try:
+        loaded_toml = toml.loads(file_content, _dict=OrderedDict)
+    except Exception as e:
+        raise MoulinetteError(errno.EINVAL,
+                              m18n.g('corrupted_toml',
+                                     ressource=file_path, error=str(e)))
+
+    return loaded_toml
 
 
 def read_ldif(file_path, filtred_entries=[]):
