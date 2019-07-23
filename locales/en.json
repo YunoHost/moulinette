@@ -31,7 +31,7 @@
     "server_already_running": "A server is already running on that port",
     "success": "Success!",
     "unable_authenticate": "Unable to authenticate",
-    "unable_retrieve_session": "Unable to retrieve the session",
+    "unable_retrieve_session": "Unable to retrieve the session because '{exception}'",
     "unknown_group": "Unknown '{group}' group",
     "unknown_user": "Unknown '{user}' user",
     "values_mismatch": "Values don't match",

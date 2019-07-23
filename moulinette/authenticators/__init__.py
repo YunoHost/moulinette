@@ -152,16 +152,16 @@ class BaseAuthenticator(object):
         try:
             with self._open_sessionfile(session_id, 'r') as f:
                 enc_pwd = f.read()
-        except IOError:
+        except IOError as e:
             logger.debug("unable to retrieve session", exc_info=1)
-            raise MoulinetteError('unable_retrieve_session')
+            raise MoulinetteError('unable_retrieve_session', exception=e)
         else:
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'
 
             decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
             if decrypted.ok is not True:
-                logger.error("unable to decrypt password for the session: %s",
-                             decrypted.status)
-                raise MoulinetteError('unable_retrieve_session')
+                error_message = "unable to decrypt password for the session: %s", decrypted.status
+                logger.error(error_message)
+                raise MoulinetteError('unable_retrieve_session', exception=error_message)
             return decrypted.data
