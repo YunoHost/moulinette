@@ -10,6 +10,7 @@ Homepage: https://github.com/YunoHost/moulinette
 Package: moulinette
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends},
+    gnupg1,
     python-ldap,
     python-yaml,
     python-bottle (>= 0.12),
