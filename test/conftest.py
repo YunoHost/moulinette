@@ -91,8 +91,8 @@ def patch_logging(moulinette):
     )
 
 
-@pytest.fixture
-def moulinette(scope='session', autouse=True):
+@pytest.fixture(scope='session', autouse=True)
+def moulinette():
     import moulinette
 
     patch_init(moulinette)
