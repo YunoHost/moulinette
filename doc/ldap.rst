@@ -470,6 +470,19 @@ Here how it looks like for domain and user:
 
 .. automethod:: moulinette.authenticators.ldap.Authenticator.remove
 
+Reading LDIF file
+=================
+
+Reading parsing a ldif to be able to insert in the LDAP database is really easy. Here is how to get the content of a LDIF file
+
+::
+
+    from moulinette.utils.filesystem import read_ldif
+
+    my_reslut = read_ldif("your_file.ldif")
+
+
+Note that the main difference of what the auth object return with the search method is that this function return a 2-tuples with the "dn" and the LDAP entry.
 
 =============================
 LDAP architecture in Yunohost

@@ -50,5 +50,6 @@
     "download_unknown_error": "Error al descargar datos desde {url:s} : {error:s}",
     "download_bad_status_code": "{url:s} devolvió el código de estado {code:s}",
     "command_unknown": "Comando '{command:s}' desconocido ?",
-    "corrupted_yaml": "yaml corrupto leido desde {ressource:s} (motivo: {error:s})"
+    "corrupted_yaml": "yaml corrupto leido desde {ressource:s} (motivo: {error:s})",
+    "info": "Información:"
 }

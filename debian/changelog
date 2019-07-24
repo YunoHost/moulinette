@@ -1,3 +1,70 @@
+moulinette (3.6.4) stable; urgency=low
+
+  Bumping version number for stable release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 04 Jul 2019 23:30:00  +0000
+
+moulinette (3.6.1) testing; urgency=low
+
+  - [enh] Add LDIF parsing utility (#201)
+
+  Thanks to all contributors <3 ! (Josué)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 04 Jun 2019 13:20:00  +0000
+
+moulinette (3.6.0) testing; urgency=low
+
+  - [enh] Allow to use SASL authentication for LDAP (by root user) (#183)
+  - [i18n] Improve translation for Spanish
+
+  Thanks to all contributors (Josue, advocatux) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 22 May 2019 19:45:00 +0000
+
+moulinette (3.5.2) stable; urgency=low
+
+  - Release as stable !
+  - [fix] Do not miserably crash if the lock does not exist when attempting to release it
+  - [i18n] Update translation for Arabic, Italian
+
+  Thanks to all contributors (Aleks, BoF, silkevicious) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 10 Apr 2019 02:14:00 +0000
+
+moulinette (3.5.1) testing; urgency=low
+
+  * [fix] Fix case where stdinfo is not provided in call_async_output (0a300e5)
+  * [i18n] Improve translation for Greek, Hungarian, Polish, Swedish, French, Catalan, Occitan
+
+  Thanks to all contributors (Aleks, ariasuni, Quenti, ppr, Xaloc) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 03 Apr 2019 02:25:00 +0000
+
+moulinette (3.5.0) testing; urgency=low
+
+  * [i18n] Improve Russian and Chinese (Mandarin) translations
+
+  Contributors : n3uz, Алексей 
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 13 Mar 2019 17:20:00 +0000
+
+moulinette (3.4.2) stable; urgency=low
+
+  * [i18n] Improve Basque translation
+
+  Thanks to all contributors (A. Garaialde) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 29 Jan 2019 16:50:00 +0000
+
+moulinette (3.4.1) testing; urgency=low
+
+  * [i18n] Improve Chinese(Mandarin) translation
+  * [i18n] Misc orthotypograhy
+
+  Thanks to all contributors (Jibec, aleiyer) <3 !
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 17 Jan 2019 21:50:00 +0000
+
 moulinette (3.4.0) testing; urgency=low
 
   * [fix] Code cleaning with autopep8 (#187)

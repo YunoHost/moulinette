@@ -4,6 +4,7 @@ File system operation utils
 .. autofunction:: moulinette.utils.filesystem.read_file
 .. autofunction:: moulinette.utils.filesystem.read_json
 .. autofunction:: moulinette.utils.filesystem.read_yaml
+.. autofunction:: moulinette.utils.filesystem.read_toml
 .. autofunction:: moulinette.utils.filesystem.write_to_file
 .. autofunction:: moulinette.utils.filesystem.append_to_file
 .. autofunction:: moulinette.utils.filesystem.write_to_json

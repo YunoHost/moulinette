@@ -1,5 +1,7 @@
 language: python
-install: "pip install pep8"
+install: pip install tox pep8
 python:
-    - "2.7"
-script: "pep8 --ignore E501,E128,E731 moulinette"
+    - 2.7
+script: 
+  - pep8 moulinette
+  - tox

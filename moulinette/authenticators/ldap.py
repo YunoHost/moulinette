@@ -7,6 +7,7 @@ import random
 import string
 import crypt
 import ldap
+import ldap.sasl
 import ldap.modlist as modlist
 
 from moulinette.core import MoulinetteError
@@ -40,8 +41,11 @@ class Authenticator(BaseAuthenticator):
         self.uri = uri
         self.basedn = base_dn
         if user_rdn:
-            self.userdn = '%s,%s' % (user_rdn, base_dn)
-            self.con = None
+            self.userdn = user_rdn
+            if 'cn=external,cn=auth' in user_rdn:
+                self.authenticate(None)
+            else:
+                self.con = None
         else:
             # Initialize anonymous usage
             self.userdn = ''
@@ -77,7 +81,10 @@ class Authenticator(BaseAuthenticator):
         try:
             con = ldap.ldapobject.ReconnectLDAPObject(self.uri, retry_max=10, retry_delay=0.5)
             if self.userdn:
-                con.simple_bind_s(self.userdn, password)
+                if 'cn=external,cn=auth' in self.userdn:
+                    con.sasl_non_interactive_bind_s('EXTERNAL')
+                else:
+                    con.simple_bind_s(self.userdn, password)
             else:
                 con.simple_bind_s()
         except ldap.INVALID_CREDENTIALS:

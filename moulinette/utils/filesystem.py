@@ -1,10 +1,13 @@
 import os
 import yaml
+import toml
 import errno
 import shutil
 import json
 import grp
+
 from pwd import getpwnam
+from collections import OrderedDict
 
 from moulinette import m18n
 from moulinette.core import MoulinetteError
@@ -31,8 +34,9 @@ def read_file(file_path):
             file_content = f.read()
     except IOError as e:
         raise MoulinetteError('cannot_open_file', file=file_path, error=str(e))
-    except Exception as e:
-        raise MoulinetteError('error_reading_file', file=file_path, error=str(e))
+    except Exception:
+        raise MoulinetteError('unknown_error_reading_file',
+                              file=file_path, error=str(e))
 
     return file_content
 
@@ -75,6 +79,62 @@ def read_yaml(file_path):
         raise MoulinetteError('corrupted_yaml', ressource=file_path, error=str(e))
 
     return loaded_yaml
+
+
+def read_toml(file_path):
+    """
+    Safely read a toml file
+
+    Keyword argument:
+        file_path -- Path to the toml file
+    """
+
+    # Read file
+    file_content = read_file(file_path)
+
+    # Try to load toml to check if it's syntactically correct
+    try:
+        loaded_toml = toml.loads(file_content, _dict=OrderedDict)
+    except Exception as e:
+        raise MoulinetteError(errno.EINVAL,
+                              m18n.g('corrupted_toml',
+                                     ressource=file_path, error=str(e)))
+
+    return loaded_toml
+
+
+def read_ldif(file_path, filtred_entries=[]):
+    """
+    Safely read a LDIF file and create struct in the same style than
+    what return the auth objet with the seach method
+    The main difference with the auth object is that this function return a 2-tuples
+    with the "dn" and the LDAP entry.
+
+    Keyword argument:
+        file_path       -- Path to the ldif file
+        filtred_entries -- The entries to don't include in the result
+    """
+    from ldif import LDIFRecordList
+
+    class LDIFPar(LDIFRecordList):
+        def handle(self, dn, entry):
+            for e in filtred_entries:
+                if e in entry:
+                    entry.pop(e)
+            self.all_records.append((dn, entry))
+
+    # Open file and read content
+    try:
+        with open(file_path, "r") as f:
+            parser = LDIFPar(f)
+            parser.parse()
+    except IOError as e:
+        raise MoulinetteError('cannot_open_file', file=file_path, error=str(e))
+    except Exception as e:
+        raise MoulinetteError('unknown_error_reading_file',
+                              file=file_path, error=str(e))
+
+    return parser.all_records
 
 
 def write_to_file(file_path, data, file_mode="w"):
