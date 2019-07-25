@@ -504,6 +504,10 @@ class MoulinetteLock(object):
             # Wait before checking again
             time.sleep(self.interval)
 
+        # we have warned the user that we were waiting, for better UX also them
+        # that we have stop waiting and that the command is processing now
+        if warning_treshold != 15:
+            logger.warning(moulinette.m18n.g('warn_the_user_that_lock_is_acquired'))
         logger.debug('lock has been acquired')
         self._locked = True
 
