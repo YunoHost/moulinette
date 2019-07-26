@@ -105,7 +105,7 @@ class Translator(object):
                 logger.exception("Failed to format translatable string '%s' with error: %s" % (key, e))
                 return self._translations[self.locale][key].encode('utf-8')
 
-        logger.exception("unable to retrieve key '%s' for default locale '%s'",
+        logger.exception("unable to retrieve key '%s' for default locale '%s' (don't panic this is just a warning)",
                          key, self.default_locale)
         return key
 
