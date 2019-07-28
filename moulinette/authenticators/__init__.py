@@ -93,8 +93,8 @@ class BaseAuthenticator(object):
             try:
                 # Extract id and hash from token
                 s_id, s_hash = token
-            except TypeError:
-                logger.error("unable to extract token parts from '%s'", token)
+            except TypeError as e:
+                logger.error("unable to extract token parts from '%s' because '%s'", token, e)
                 if password is None:
                     raise MoulinetteError('error_see_log')
 
@@ -110,17 +110,19 @@ class BaseAuthenticator(object):
             self.authenticate(password)
         except MoulinetteError:
             raise
-        except:
-            logger.exception("authentication (name: '%s', vendor: '%s') fails",
-                             self.name, self.vendor)
+        except Exception as e:
+            logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
+                             self.name, self.vendor, e)
             raise MoulinetteError('unable_authenticate')
 
         # Store session
         if store_session:
             try:
                 self._store_session(s_id, s_hash, password)
-            except:
-                logger.exception("unable to store session")
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                logger.exception("unable to store session because %s", e)
             else:
                 logger.debug("session has been stored")
 
@@ -150,16 +152,16 @@ class BaseAuthenticator(object):
         try:
             with self._open_sessionfile(session_id, 'r') as f:
                 enc_pwd = f.read()
-        except IOError:
+        except IOError as e:
             logger.debug("unable to retrieve session", exc_info=1)
-            raise MoulinetteError('unable_retrieve_session')
+            raise MoulinetteError('unable_retrieve_session', exception=e)
         else:
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'
 
             decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
             if decrypted.ok is not True:
-                logger.error("unable to decrypt password for the session: %s",
-                             decrypted.status)
-                raise MoulinetteError('unable_retrieve_session')
+                error_message = "unable to decrypt password for the session: %s", decrypted.status
+                logger.error(error_message)
+                raise MoulinetteError('unable_retrieve_session', exception=error_message)
             return decrypted.data
