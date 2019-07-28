@@ -2,7 +2,7 @@
 
 import os
 import sys
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 from moulinette.globals import LOCALES_DIR
 
@@ -23,12 +23,7 @@ setup(name='Moulinette',
       author_email='yunohost@yunohost.org',
       url='http://yunohost.org',
       license='AGPL',
-      packages=[
-          'moulinette',
-          'moulinette.authenticators',
-          'moulinette.interfaces',
-          'moulinette.utils',
-      ],
+      packages=find_packages(),
       data_files=[(LOCALES_DIR, locale_files)],
       python_requires='==2.7.*',
       install_requires=[
