@@ -55,3 +55,11 @@ Requirements
 * python-gnupg (>= 0.3)
 * python-ldap (>= 2.4)
 * PyYAML
+
+Testing
+-------
+
+```
+$ pip install tox
+$ tox
+```
