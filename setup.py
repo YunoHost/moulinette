@@ -36,6 +36,7 @@ setup(name='Moulinette',
           'psutil',
           'pytz',
           'pyyaml',
+          'toml',
       ],
       tests_require=[
           'pytest',
