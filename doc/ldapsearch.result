@@ -27,6 +27,12 @@ description: LDAP Administrator
 uidNumber: 1007
 uid: admin
 
+# users, yunohost.org
+dn: ou=users,dc=yunohost,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
 # domains, yunohost.org
 dn: ou=domains,dc=yunohost,dc=org
 objectClass: organizationalUnit
@@ -51,11 +57,24 @@ objectClass: organizationalUnit
 objectClass: top
 ou: apps
 
-# users, yunohost.org
-dn: ou=users,dc=yunohost,dc=org
+# permission, yunohost.org
+dn: ou=permission,dc=yunohost,dc=org
 objectClass: organizationalUnit
 objectClass: top
-ou: users
+ou: permission
+
+# all_users, groups, yunohost.org
+dn: cn=all_users,ou=groups,dc=yunohost,dc=org
+objectClass: posixGroup
+objectClass: groupOfNamesYnh
+gidNumber: 4002
+cn: all_users
+permission: cn=main.mail,ou=permission,dc=yunohost,dc=org
+permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org
+member: uid=alice,ou=users,dc=yunohost,dc=org
+member: uid=example_admin_user,ou=users,dc=yunohost,dc=org
+memberUid: alice
+memberUid: example_admin_user
 
 # admins, groups, yunohost.org
 dn: cn=admins,ou=groups,dc=yunohost,dc=org
@@ -64,17 +83,6 @@ objectClass: top
 memberUid: admin
 gidNumber: 4001
 cn: admins
-
-# sftpusers, groups, yunohost.org
-dn: cn=sftpusers,ou=groups,dc=yunohost,dc=org
-objectClass: posixGroup
-objectClass: top
-gidNumber: 4002
-cn: sftpusers
-memberUid: admin
-memberUid: neutrinet
-memberUid: alice
-memberUid: bob
 
 # admin, sudo, yunohost.org
 dn: cn=admin,ou=sudo,dc=yunohost,dc=org
@@ -85,6 +93,30 @@ objectClass: sudoRole
 objectClass: top
 sudoOption: !authenticate
 sudoHost: ALL
+
+# main.mail, permission, yunohost.org
+dn: cn=main.mail,ou=permission,dc=yunohost,dc=org
+objectClass: posixGroup
+objectClass: permissionYnh
+gidNumber: 5001
+groupPermission: cn=all_users,ou=groups,dc=yunohost,dc=org
+cn: main.mail
+memberUid: alice
+memberUid: example_admin_user
+inheritPermission: uid=alice,ou=users,dc=yunohost,dc=org
+inheritPermission: uid=example_admin_user,ou=users,dc=yunohost,dc=org
+
+# main.metronome, permission, yunohost.org
+dn: cn=main.metronome,ou=permission,dc=yunohost,dc=org
+objectClass: posixGroup
+objectClass: permissionYnh
+gidNumber: 5002
+groupPermission: cn=all_users,ou=groups,dc=yunohost,dc=org
+cn: main.metronome
+memberUid: alice
+memberUid: example_admin_user
+inheritPermission: uid=alice,ou=users,dc=yunohost,dc=org
+inheritPermission: uid=example_admin_user,ou=users,dc=yunohost,dc=org
 
 # domain.com, domains, yunohost.org
 dn: virtualdomain=domain.com,ou=domains,dc=yunohost,dc=org
@@ -98,13 +130,14 @@ uid: example_admin_user
 objectClass: mailAccount
 objectClass: inetOrgPerson
 objectClass: posixAccount
+objectClass: userPermissionYnh
 loginShell: /bin/false
-uidNumber: 80833
+uidNumber: 23431
 maildrop: example_admin_user
 cn: firstname lastname
 displayName: firstname lastname
 mailuserquota: 0
-gidNumber: 80833
+gidNumber: 23431
 sn: lastname
 homeDirectory: /home/example_admin_user
 mail: example_admin_user@domain.com
@@ -113,6 +146,17 @@ mail: admin@domain.com
 mail: webmaster@domain.com
 mail: postmaster@domain.com
 givenName: firstname
+permission: cn=main.mail,ou=permission,dc=yunohost,dc=org
+permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org
+
+# example_admin_user, groups, yunohost.org
+dn: cn=example_admin_user,ou=groups,dc=yunohost,dc=org
+objectClass: top
+objectClass: groupOfNamesYnh
+objectClass: posixGroup
+gidNumber: 23431
+cn: example_admin_user
+member: uid=example_admin_user,ou=users,dc=yunohost,dc=org
 
 # alice, users, yunohost.org
 dn: uid=alice,ou=users,dc=yunohost,dc=org
@@ -120,21 +164,33 @@ uid: alice
 objectClass: mailAccount
 objectClass: inetOrgPerson
 objectClass: posixAccount
-uidNumber: 41580
+objectClass: userPermissionYnh
+loginShell: /bin/false
+uidNumber: 98803
 maildrop: alice
 cn: alice pouet
 displayName: alice pouet
 mailuserquota: 0
-gidNumber: 41580
+gidNumber: 98803
 sn: pouet
 homeDirectory: /home/alice
-mail: alice@ynh.local
+mail: alice@domain.com
 givenName: alice
-loginShell: /bin/bash
+permission: cn=main.mail,ou=permission,dc=yunohost,dc=org
+permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org
+
+# alice, groups, yunohost.org
+dn: cn=alice,ou=groups,dc=yunohost,dc=org
+objectClass: top
+objectClass: groupOfNamesYnh
+objectClass: posixGroup
+gidNumber: 98803
+cn: alice
+member: uid=alice,ou=users,dc=yunohost,dc=org
 
 # search result
 search: 2
 result: 0 Success
 
-# numResponses: 21
-# numEntries: 20
+# numResponses: 19
+# numEntries: 18

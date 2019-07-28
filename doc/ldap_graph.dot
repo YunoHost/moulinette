@@ -87,6 +87,24 @@ strict digraph "<stdin>" {
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: ou=users,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">ou: users</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+  n0->n2
+
+
+
+  n3 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
     dn: ou=domains,dc=yunohost,dc=org
     </FONT></TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
@@ -97,11 +115,11 @@ strict digraph "<stdin>" {
     </TD></TR>
     </TABLE>
   >]
-  n0->n2
+  n0->n3
 
 
 
-  n3 [label=<
+  n4 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -115,11 +133,11 @@ strict digraph "<stdin>" {
     </TD></TR>
     </TABLE>
   >]
-  n0->n3
+  n0->n4
 
 
 
-  n4 [label=<
+  n5 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -133,11 +151,11 @@ strict digraph "<stdin>" {
     </TD></TR>
     </TABLE>
   >]
-  n0->n4
+  n0->n5
 
 
 
-  n5 [label=<
+  n6 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -151,29 +169,71 @@ strict digraph "<stdin>" {
     </TD></TR>
     </TABLE>
   >]
-  n0->n5
-
-
-
-  n6 [label=<
-    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
-    <FONT FACE="Helvetica Bold" COLOR="white">
-    dn: ou=users,dc=yunohost,dc=org
-    </FONT></TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
-    </TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">ou: users</FONT>
-    </TD></TR>
-    </TABLE>
-  >]
   n0->n6
 
 
 
   n7 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: ou=permission,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: organizationalUnit</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">ou: permission</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+  n0->n7
+
+
+
+  n8 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=all_users,ou=groups,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: groupOfNamesYnh</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 4002</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: all_users</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">permission: cn=main.mail,ou=permission,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">member: uid=alice,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">member: uid=example_admin_user,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: example_admin_user</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+  n4->n8
+
+
+
+  n9 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -193,44 +253,11 @@ strict digraph "<stdin>" {
     </TD></TR>
     </TABLE>
   >]
-  n3->n7
+  n4->n9
 
 
 
-  n8 [label=<
-    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
-        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
-    <FONT FACE="Helvetica Bold" COLOR="white">
-    dn: cn=sftpusers,ou=groups,dc=yunohost,dc=org
-    </FONT></TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
-    </TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">gidNumber: 4002</FONT>
-    </TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">cn: sftpusers</FONT>
-    </TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">memberUid: admin</FONT>
-    </TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">memberUid: neutrinet</FONT>
-    </TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">memberUid: alice</FONT>
-    </TD></TR>
-        <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">memberUid: bob</FONT>
-    </TD></TR>
-    </TABLE>
-  >]
-  n3->n8
-
-
-
-  n9 [label=<
+  n10 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -256,11 +283,89 @@ strict digraph "<stdin>" {
     </TD></TR>
     </TABLE>
   >]
-  n4->n9
+  n5->n10
 
 
 
-  n10 [label=<
+  n11 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=main.mail,ou=permission,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: permissionYnh</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 5001</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">groupPermission: cn=all_users,ou=groups,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: main.mail</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: example_admin_user</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">inheritPermission: uid=alice,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">inheritPermission: uid=example_admin_user,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+  n7->n11
+
+
+
+  n12 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=main.metronome,ou=permission,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: permissionYnh</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 5002</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">groupPermission: cn=all_users,ou=groups,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: main.metronome</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">memberUid: example_admin_user</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">inheritPermission: uid=alice,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">inheritPermission: uid=example_admin_user,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+  n7->n12
+
+
+
+  n13 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -274,11 +379,11 @@ strict digraph "<stdin>" {
     </TD></TR>
     </TABLE>
   >]
-  n2->n10
+  n3->n13
 
 
 
-  n11 [label=<
+  n14 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -297,10 +402,13 @@ strict digraph "<stdin>" {
     <FONT FACE="Helvetica Bold">objectClass: posixAccount</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: userPermissionYnh</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
     <FONT FACE="Helvetica Bold">loginShell: /bin/false</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">uidNumber: 80833</FONT>
+    <FONT FACE="Helvetica Bold">uidNumber: 23431</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
     <FONT FACE="Helvetica Bold">maildrop: example_admin_user</FONT>
@@ -315,7 +423,7 @@ strict digraph "<stdin>" {
     <FONT FACE="Helvetica Bold">mailuserquota: 0</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">gidNumber: 80833</FONT>
+    <FONT FACE="Helvetica Bold">gidNumber: 23431</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
     <FONT FACE="Helvetica Bold">sn: lastname</FONT>
@@ -341,13 +449,46 @@ strict digraph "<stdin>" {
         <TR><TD BORDER="0" ALIGN="LEFT">
     <FONT FACE="Helvetica Bold">givenName: firstname</FONT>
     </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">permission: cn=main.mail,ou=permission,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org</FONT>
+    </TD></TR>
     </TABLE>
   >]
-  n6->n11
+  n2->n14
 
 
 
-  n12 [label=<
+  n15 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=example_admin_user,ou=groups,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: groupOfNamesYnh</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 23431</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: example_admin_user</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">member: uid=example_admin_user,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+  n4->n15
+
+
+
+  n16 [label=<
     <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
         <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
     <FONT FACE="Helvetica Bold" COLOR="white">
@@ -366,7 +507,13 @@ strict digraph "<stdin>" {
     <FONT FACE="Helvetica Bold">objectClass: posixAccount</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">uidNumber: 41580</FONT>
+    <FONT FACE="Helvetica Bold">objectClass: userPermissionYnh</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">loginShell: /bin/false</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">uidNumber: 98803</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
     <FONT FACE="Helvetica Bold">maildrop: alice</FONT>
@@ -381,7 +528,7 @@ strict digraph "<stdin>" {
     <FONT FACE="Helvetica Bold">mailuserquota: 0</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">gidNumber: 41580</FONT>
+    <FONT FACE="Helvetica Bold">gidNumber: 98803</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
     <FONT FACE="Helvetica Bold">sn: pouet</FONT>
@@ -390,17 +537,47 @@ strict digraph "<stdin>" {
     <FONT FACE="Helvetica Bold">homeDirectory: /home/alice</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">mail: alice@ynh.local</FONT>
+    <FONT FACE="Helvetica Bold">mail: alice@domain.com</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
     <FONT FACE="Helvetica Bold">givenName: alice</FONT>
     </TD></TR>
         <TR><TD BORDER="0" ALIGN="LEFT">
-    <FONT FACE="Helvetica Bold">loginShell: /bin/bash</FONT>
+    <FONT FACE="Helvetica Bold">permission: cn=main.mail,ou=permission,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">permission: cn=main.metronome,ou=permission,dc=yunohost,dc=org</FONT>
     </TD></TR>
     </TABLE>
   >]
-  n6->n12
+  n2->n16
+
+
+
+  n17 [label=<
+    <TABLE BGCOLOR="palegoldenrod" BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD CELLPADDING="4" ALIGN="CENTER" BGCOLOR="olivedrab4">
+    <FONT FACE="Helvetica Bold" COLOR="white">
+    dn: cn=alice,ou=groups,dc=yunohost,dc=org
+    </FONT></TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: groupOfNamesYnh</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">objectClass: posixGroup</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">gidNumber: 98803</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">cn: alice</FONT>
+    </TD></TR>
+        <TR><TD BORDER="0" ALIGN="LEFT">
+    <FONT FACE="Helvetica Bold">member: uid=alice,ou=users,dc=yunohost,dc=org</FONT>
+    </TD></TR>
+    </TABLE>
+  >]
+  n4->n17
 
 }
 
