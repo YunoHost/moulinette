@@ -161,7 +161,7 @@ class BaseAuthenticator(object):
 
             decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
             if decrypted.ok is not True:
-                error_message = "unable to decrypt password for the session: %s", decrypted.status
+                error_message = "unable to decrypt password for the session: %s" % decrypted.status
                 logger.error(error_message)
                 raise MoulinetteError('unable_retrieve_session', exception=error_message)
             return decrypted.data
