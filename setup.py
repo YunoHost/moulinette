@@ -23,7 +23,7 @@ setup(name='Moulinette',
       author_email='yunohost@yunohost.org',
       url='http://yunohost.org',
       license='AGPL',
-      packages=find_packages(),
+      packages=find_packages(exclude=['test']),
       data_files=[(LOCALES_DIR, locale_files)],
       python_requires='==2.7.*',
       install_requires=[
