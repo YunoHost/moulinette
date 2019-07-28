@@ -461,6 +461,15 @@ class MoulinetteLock(object):
         """
         start_time = time.time()
 
+        # for UX reason, we are going to warn the user that we are waiting for
+        # another yunohost command to end, otherwise the user is very confused
+        # and don't understand that and think yunohost is broken
+        # we are going to warn the user after 15 seconds of waiting time then
+        # after 15*4 seconds, then 15*4*4 seconds...
+        warning_treshold = 15
+
+        logger.debug('acquiring lock...')
+
         while True:
 
             lock_pids = self._lock_PIDs()
@@ -483,9 +492,22 @@ class MoulinetteLock(object):
 
             if self.timeout is not None and (time.time() - start_time) > self.timeout:
                 raise MoulinetteError('instance_already_running')
+
+            # warn the user if it's been too much time since they are waiting
+            if (time.time() - start_time) > warning_treshold:
+                if warning_treshold == 15:
+                    logger.warning(moulinette.m18n.g('warn_the_user_about_waiting_lock'))
+                else:
+                    logger.warning(moulinette.m18n.g('warn_the_user_about_waiting_lock_again'))
+                warning_treshold *= 4
+
             # Wait before checking again
             time.sleep(self.interval)
 
+        # we have warned the user that we were waiting, for better UX also them
+        # that we have stop waiting and that the command is processing now
+        if warning_treshold != 15:
+            logger.warning(moulinette.m18n.g('warn_the_user_that_lock_is_acquired'))
         logger.debug('lock has been acquired')
         self._locked = True
 
