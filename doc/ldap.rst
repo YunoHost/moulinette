@@ -122,7 +122,7 @@ Here is the method docstring:
 Users LDAP schema
 -----------------
 
-According to :file:`ldapvi` this is the user schema (on YunoHost >3.4):
+According to :file:`ldapvi` this is the user schema (on YunoHost >3.7):
 
 ::
 
