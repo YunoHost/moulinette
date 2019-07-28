@@ -92,7 +92,13 @@ class Translator(object):
             try:
                 return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
             except KeyError as e:
-                logger.exception("Failed to format translated string '%s' with error: %s (don't panic this is just a warning)" % (key, e))
+                unformatted_string = self._translations[self.locale][key].encode('utf-8')
+                error_message = "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)" % (
+                    key, unformatted_string, args, kwargs, e.__class__.__name__, e
+                )
+
+                logger.exception(error_message)
+
                 failed_to_format = True
 
         if failed_to_format or (self.default_locale != self.locale and key in self._translations.get(self.default_locale, {})):
@@ -102,10 +108,14 @@ class Translator(object):
             try:
                 return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
             except KeyError as e:
-                logger.exception("Failed to format translatable string '%s' with error: %s (don't panic this is just a warning)" % (key, e))
+                unformatted_string = self._translations[self.default_locale][key].encode('utf-8')
+                error_message = "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)" % (
+                    key, unformatted_string, args, kwargs, e.__class__.__name__, e
+                )
+                logger.exception(error_message)
                 return self._translations[self.locale][key].encode('utf-8')
 
-        logger.exception("unable to retrieve key '%s' for default locale '%s' (don't panic this is just a warning)",
+        logger.exception("unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)",
                          key, self.default_locale)
         return key
 
