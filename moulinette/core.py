@@ -15,6 +15,10 @@ from moulinette.cache import get_cachedir
 logger = logging.getLogger('moulinette.core')
 
 
+def during_unittests_run():
+    return "TESTS_RUN" in os.environ
+
+
 # Internationalization -------------------------------------------------
 
 class Translator(object):
@@ -97,7 +101,10 @@ class Translator(object):
                     key, unformatted_string, args, kwargs, e.__class__.__name__, e
                 )
 
-                logger.exception(error_message)
+                if not during_unittests_run():
+                    logger.exception(error_message)
+                else:
+                    raise Exception(error_message)
 
                 failed_to_format = True
 
@@ -112,11 +119,20 @@ class Translator(object):
                 error_message = "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)" % (
                     key, unformatted_string, args, kwargs, e.__class__.__name__, e
                 )
-                logger.exception(error_message)
+                if not during_unittests_run():
+                    logger.exception(error_message)
+                else:
+                    raise Exception(error_message)
+
                 return self._translations[self.locale][key].encode('utf-8')
 
-        logger.exception("unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)",
-                         key, self.default_locale)
+        error_message = "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)" % key, self.default_locale
+
+        if not during_unittests_run():
+            logger.exception(error_message)
+        else:
+            raise Exception(error_message)
+
         return key
 
     def _load_translations(self, locale, overwrite=False):
