@@ -58,7 +58,7 @@ def download_json(url, timeout=30, expected_status_code=200):
     # Try to load json to check if it's syntaxically correct
     try:
         loaded_json = json.loads(text)
-    except ValueError:
-        raise MoulinetteError('corrupted_json', ressource=url)
+    except ValueError as e:
+        raise MoulinetteError('corrupted_json', ressource=url, error=e)
 
     return loaded_json
