@@ -124,7 +124,7 @@ class Translator(object):
                 else:
                     raise Exception(error_message)
 
-                return self._translations[self.locale][key].encode('utf-8')
+                return self._translations[self.default_locale][key].encode('utf-8')
 
         error_message = "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)" % key, self.default_locale
 
