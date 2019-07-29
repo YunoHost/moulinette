@@ -126,7 +126,7 @@ class Translator(object):
 
                 return self._translations[self.default_locale][key].encode('utf-8')
 
-        error_message = "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)" % key, self.default_locale
+        error_message = "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)" % (key, self.default_locale)
 
         if not during_unittests_run():
             logger.exception(error_message)
