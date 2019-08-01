@@ -7,7 +7,6 @@ import locale
 import logging
 from argparse import SUPPRESS
 from collections import OrderedDict
-import time
 import pytz
 from datetime import date, datetime
 

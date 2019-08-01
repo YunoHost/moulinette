@@ -11,7 +11,7 @@ from gevent.queue import Queue
 from geventwebsocket import WebSocketError
 
 from bottle import run, request, response, Bottle, HTTPResponse
-from bottle import get, post, install, abort, delete, put
+from bottle import abort
 
 from moulinette import msignals, m18n, DATA_DIR
 from moulinette.core import MoulinetteError, clean_session

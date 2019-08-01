@@ -645,7 +645,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
 
     def _format_usage(self, usage, actions, groups, prefix):
         if prefix is None:
-                # TWEAK : not using gettext here...
+            # TWEAK : not using gettext here...
             prefix = 'usage: '
 
         # if usage is specified, use that
