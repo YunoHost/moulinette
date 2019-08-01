@@ -13,7 +13,7 @@ from geventwebsocket import WebSocketError
 from bottle import run, request, response, Bottle, HTTPResponse
 from bottle import abort
 
-from moulinette import msignals, m18n, DATA_DIR
+from moulinette import msignals, m18n, env
 from moulinette.core import MoulinetteError, clean_session
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
@@ -789,6 +789,8 @@ class Interface(BaseInterface):
             category -- Name of the category
 
         """
+        DATA_DIR = env()['DATA_DIR']
+
         if category is None:
             with open('%s/../doc/resources.json' % DATA_DIR) as f:
                 return f.read()
