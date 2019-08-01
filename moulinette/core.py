@@ -8,7 +8,7 @@ import logging
 from importlib import import_module
 
 import moulinette
-from moulinette.globals import LOCALES_DIR, LIB_DIR
+from moulinette.globals import init_moulinette_env
 from moulinette.cache import get_cachedir
 
 
@@ -179,8 +179,12 @@ class Moulinette18n(object):
         self.default_locale = default_locale
         self.locale = default_locale
 
+        moulinette_env = init_moulinette_env()
+        self.locales_dir = moulinette_env['LOCALES_DIR']
+        self.lib_dir = moulinette_env['LIB_DIR']
+
         # Init global translator
-        self._global = Translator(LOCALES_DIR, default_locale)
+        self._global = Translator(self.locales_dir, default_locale)
 
         # Define namespace related variables
         self._namespaces = {}
@@ -198,7 +202,7 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            translator = Translator('%s/%s/locales' % (LIB_DIR, namespace),
+            translator = Translator('%s/%s/locales' % (self.lib_dir, namespace),
                                     self.default_locale)
             translator.set_locale(self.locale)
             self._namespaces[namespace] = translator

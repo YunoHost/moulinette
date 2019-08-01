@@ -2,7 +2,7 @@
 
 import os
 
-from moulinette.globals import CACHE_DIR
+from moulinette.globals import init_moulinette_env
 
 
 def get_cachedir(subdir='', make_dir=True):
@@ -16,6 +16,8 @@ def get_cachedir(subdir='', make_dir=True):
         - make_dir -- False to not make directory if it not exists
 
     """
+    CACHE_DIR = init_moulinette_env()['CACHE_DIR']
+
     path = os.path.join(CACHE_DIR, subdir)
 
     if make_dir and not os.path.isdir(path):
@@ -40,4 +42,6 @@ def open_cachefile(filename, mode='r', **kwargs):
     # Set make_dir if not given
     kwargs['make_dir'] = kwargs.get('make_dir',
                                     True if mode[0] == 'w' else False)
-    return open('%s/%s' % (get_cachedir(**kwargs), filename), mode)
+    cache_dir = get_cachedir(**kwargs)
+    file_path = os.path.join(cache_dir, filename)
+    return open(file_path, mode)
