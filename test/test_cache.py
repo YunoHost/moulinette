@@ -1,5 +1,6 @@
 import os.path
 
+
 def test_open_cachefile_creates(monkeypatch, tmp_path):
     monkeypatch.setenv('MOULINETTE_CACHE_DIR', str(tmp_path))
 
