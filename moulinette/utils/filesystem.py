@@ -201,7 +201,7 @@ def write_to_json(file_path, data):
     except IOError as e:
         raise MoulinetteError('cannot_write_file', file=file_path, error=str(e))
     except Exception as e:
-        raise MoulinetteError('_error_writing_file', file=file_path, error=str(e))
+        raise MoulinetteError('error_writing_file', file=file_path, error=str(e))
 
 
 def mkdir(path, mode=0o777, parents=False, uid=None, gid=None, force=False):
