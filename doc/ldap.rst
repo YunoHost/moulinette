@@ -549,8 +549,8 @@ This foolwing example show how will be represented in LDAP as simple concept of 
 
 This schema show what will be in LDAP in these following schema:
 
-.. image:: Yunohost_LDAP_documentation/LDAP_Schema_1.png
-.. image:: Yunohost_LDAP_documentation/LDAP_Schema_2.png
+.. image:: Yunohost_LDAP_documentation/Schema_LDAP_1.png
+.. image:: Yunohost_LDAP_documentation/Schema_LDAP_2.png
 
 =========================================
 LDAP integration in Yunohost applications
