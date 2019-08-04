@@ -46,7 +46,7 @@ def call_async_output(args, callback, **kwargs):
     Keyword arguments:
         - args -- String or sequence of program arguments
         - callback -- Method or object to call with output as argument
-        - **kwargs -- Additional arguments for the Popen constructor
+        - kwargs -- Additional arguments for the Popen constructor
 
     Returns:
         Exit status of the command
@@ -167,7 +167,7 @@ def run_commands(cmds, callback=None, separate_stderr=False, shell=True,
                       callback is given, a "subprocess.CalledProcessError"
                       will be raised in case of command failure.
         - separate_stderr -- True to return command output as a 2-tuple
-        - **kwargs -- Additional arguments for the Popen constructor
+        - kwargs -- Additional arguments for the Popen constructor
 
     Returns:
         Number of failed commands

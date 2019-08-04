@@ -2,7 +2,7 @@
 Role and syntax of the actionsmap
 =================================
 
-.. _actionmap:
+.. _actionsmap:
 
 Principle
 =========
