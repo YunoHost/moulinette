@@ -226,6 +226,7 @@ According to :file:`ldapvi` this is the user schema (on YunoHost >3.4):
 The groups will look like this:
 
 ::
+
     dn: cn=the_unix_username,ou=groups,dc=yunohost,dc=org
     objectClass: top
     objectClass: groupOfNamesYnh
@@ -238,6 +239,7 @@ The groups will look like this:
 By default you will find in all case a group named `all_users` which will contains all Yunohost users.
 
 ::
+
     # path dn: cn=all_users,ou=groups,dc=yunohost,dc=org
     objectClass: posixGroup
     objectClass: groupOfNamesYnh
@@ -257,6 +259,7 @@ The group schema is located at this path: :file:`ou=groups,dc=yunohost,dc=org`
 The queries we uses are the 2 following python calls:
 
 ::
+
     # all groups
     auth.search('ou=groups,dc=yunohost,dc=org', '(objectclass=groupOfNamesYnh)')
 
@@ -272,6 +275,7 @@ According to :file:`ldapvi` this is the user schema (on YunoHost >3.4):
 The permission will look like this:
 
 ::
+
     dn: cn=main.mail,ou=permission,dc=yunohost,dc=org
     objectClass: posixGroup
     objectClass: permissionYnh
@@ -292,6 +296,7 @@ The permission schema is located at this path: :file:`ou=permission,dc=yunohost,
 The queries we uses are the 2 following python calls:
 
 ::
+
     # For all permission
     auth.search('ou=permission,dc=yunohost,dc=org', '(objectclass=permissionYnh)')
 
@@ -437,6 +442,7 @@ Get conflict
 Like the last function `validate_uniqueness` but give instead of rising an error this function return which attribute with witch value generate a conflict.
 
 ::
+
     # Validate uniqueness of groupname in LDAP
     conflict = auth.get_conflict({
         'cn': groupname
@@ -509,6 +515,7 @@ The option `force` of the function `permission_sync_to_user` is used when you ad
 To be able to have an attribute in both is of theses 3 link we use the `memberOf` overlay in LDAP. This following line define the configuration to have these 3 link dynamically updated :
 
 ::
+
     # Link user <-> group
     #dn: olcOverlay={0}memberof,olcDatabase={1}mdb,cn=config
     overlay                 memberof
@@ -552,6 +559,7 @@ LDAP integration in Yunohost applications
 To have a complete integration of LDAP in your application you need to configure LDAP as follow :
 
 ::
+
     Host:               ldap://localhost
     Port:               389
     Base DN:            dc=yunohost,dc=org
