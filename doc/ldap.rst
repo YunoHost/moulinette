@@ -289,7 +289,7 @@ The permission will look like this:
 By default you will have a permission for the mail and for metronome. When you install an application a permission also created.
 
 Reading permissions from LDAP
------------------------
+-----------------------------
 
 The permission schema is located at this path: :file:`ou=permission,dc=yunohost,dc=org`
 
