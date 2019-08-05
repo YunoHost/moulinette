@@ -71,7 +71,7 @@ def read_yaml(file_path):
     # Try to load yaml to check if it's syntaxically correct
     try:
         loaded_yaml = yaml.safe_load(file_content)
-    except ValueError as e:
+    except Exception as e:
         raise MoulinetteError('corrupted_yaml', ressource=file_path, error=str(e))
 
     return loaded_yaml
