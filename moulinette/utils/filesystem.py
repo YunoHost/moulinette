@@ -204,6 +204,30 @@ def write_to_json(file_path, data):
         raise MoulinetteError('error_writing_file', file=file_path, error=str(e))
 
 
+def write_to_yaml(file_path, data):
+    """
+    Write a dictionnary or a list to a yaml file
+
+    Keyword argument:
+        file_path -- Path to the output yaml file
+        data -- The data to write (must be a dict or a list)
+    """
+    # Assumptions
+    assert isinstance(file_path, basestring)
+    assert isinstance(data, dict) or isinstance(data, list)
+    assert not os.path.isdir(file_path)
+    assert os.path.isdir(os.path.dirname(file_path))
+
+    # Write dict to file
+    try:
+        with open(file_path, "w") as f:
+            yaml.safe_dump(data, f, default_flow_style=False)
+    except IOError as e:
+        raise MoulinetteError('cannot_write_file', file=file_path, error=str(e))
+    except Exception as e:
+        raise MoulinetteError('error_writing_file', file=file_path, error=str(e))
+
+
 def mkdir(path, mode=0o777, parents=False, uid=None, gid=None, force=False):
     """Create a directory with optional features
 
