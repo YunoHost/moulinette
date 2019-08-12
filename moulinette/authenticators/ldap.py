@@ -4,9 +4,6 @@
 from __future__ import absolute_import
 import os
 import logging
-import random
-import string
-import crypt
 import ldap
 import ldap.sasl
 import time
@@ -114,30 +111,6 @@ class Authenticator(BaseAuthenticator):
                 raise MoulinetteError("Not logged in with the expected userdn ?!")
             else:
                 self.con = con
-                self._ensure_password_uses_strong_hash(password)
-
-    def _ensure_password_uses_strong_hash(self, password):
-        # XXX this has been copy pasted from YunoHost, should we put that into moulinette?
-        def _hash_user_password(password):
-            char_set = (
-                string.ascii_uppercase + string.ascii_lowercase + string.digits + "./"
-            )
-            salt = "".join([random.SystemRandom().choice(char_set) for x in range(16)])
-            salt = "$6$" + salt + "$"
-            return "{CRYPT}" + crypt.crypt(str(password), salt)
-
-        hashed_password = self.search(self.admindn, attrs=["userPassword"])[0]
-
-        # post-install situation, password is not already set
-        if "userPassword" not in hashed_password or not hashed_password["userPassword"]:
-            return
-
-        # we aren't using sha-512 but something else that is weaker, proceed to upgrade
-        if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
-            self.update(
-                "cn=%s" % self.adminuser,
-                {"userPassword": [_hash_user_password(password)]},
-            )
 
     # Additional LDAP methods
     # TODO: Review these methods
