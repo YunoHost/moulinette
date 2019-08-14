@@ -31,7 +31,7 @@
     "server_already_running": "Un serveur est déjà en cours d’exécution sur ce port",
     "success": "Succès !",
     "unable_authenticate": "Impossible de vous authentifier",
-    "unable_retrieve_session": "Impossible de récupérer la session",
+    "unable_retrieve_session": "Impossible de récupérer la session à cause de '{exception}'",
     "unknown_group": "Groupe '{group}' inconnu",
     "unknown_user": "L'utilisateur « {user} » est inconnu",
     "values_mismatch": "Les valeurs ne correspondent pas",
@@ -39,7 +39,7 @@
     "websocket_request_expected": "Une requête WebSocket est attendue",
     "cannot_open_file": "Impossible d’ouvrir le fichier {file:s} (raison : {error:s})",
     "cannot_write_file": "Ne peut pas écrire le fichier {file:s} (raison : {error:s})",
-    "unknown_error_reading_file": "Erreur inconnue en essayant de lire le fichier {file:s}",
+    "unknown_error_reading_file": "Erreur inconnue en essayant de lire le fichier {file:s} (cause:{error:s})",
     "corrupted_json": "Fichier JSON corrompu en lecture depuis {ressource:s} (raison : {error:s})",
     "error_writing_file": "Erreur en écrivant le fichier {file:s} : {error:s}",
     "error_removing": "Erreur lors de la suppression {path:s} : {error:s}",
@@ -51,5 +51,6 @@
     "download_bad_status_code": "{url:s} renvoie le code d'état {code:s}",
     "command_unknown": "Commande '{command:s}' inconnue ?",
     "corrupted_yaml": "Fichier YAML corrompu en lecture depuis {ressource:s} (raison : {error:s})",
-    "info": "Info :"
+    "info": "Info :",
+    "corrupted_toml": "Fichier toml corrompu lu depuis {ressources:s}(cause: {error:s})"
 }
