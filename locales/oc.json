@@ -24,7 +24,7 @@
     "pattern_not_match": "Correspond pas al patron",
     "permission_denied": "Permission refusada",
     "root_required": "Cal èsser root per realizar aquesta accion",
-    "unable_retrieve_session": "Impossible de recuperar la session",
+    "unable_retrieve_session": "Recuperacion impossibla de la session a causa de « {exception} »",
     "unknown_group": "Grop « {group} » desconegut",
     "unknown_user": "Utilizaire « {user} » desconegut",
     "values_mismatch": "Las valors correspondon pas",
@@ -39,7 +39,7 @@
     "websocket_request_expected": "Una requèsta WebSocket èra esperada",
     "cannot_open_file": "Impossible de dobrir lo fichièr {file:s} (rason : {error:s})",
     "cannot_write_file": "Escritura impossibla del fichièr {file:s} (rason : {error:s})",
-    "unknown_error_reading_file": "Error desconeguda en ensajar de legir lo fichièr {file:s}",
+    "unknown_error_reading_file": "Error desconeguda en ensajar de legir lo fichièr {file:s} (rason : {error:s})",
     "error_writing_file": "Error en escriure lo fichièr {file:s} : {error:s}",
     "error_removing": "Error en suprimir {path:s} : {error:s}",
     "error_changing_file_permissions": "Error en modificar las permissions per {path:s} : {error:s}",
@@ -48,8 +48,12 @@
     "download_timeout": "{url:s} a trigat per respondre, avèm quitat d’esperar.",
     "download_unknown_error": "Error en telecargar de donadas de {url:s} : {error:s}",
     "download_bad_status_code": "{url:s} tòrna lo còdi d’estat {code:s}",
-    "command_unknown": "Comanda {command:s} desconeguda ?",
+    "command_unknown": "Comanda « {command:s} » desconeguda ?",
     "corrupted_json": "Fichièr Json corromput legit de {ressource:s} (rason : {error:s})",
     "corrupted_yaml": "Fichièr YAML corromput legit de {ressource:s} (rason : {error:s})",
-    "info": "Info :"
+    "info": "Info :",
+    "corrupted_toml": "Fichièr TOML corromput en lectura de {ressource:s} estant (rason : {error:s})",
+    "warn_the_user_about_waiting_lock": "Una autra comanda YunoHost es en execucion, sèm a esperar qu’acabe abans d’aviar aquesta d’aquí",
+    "warn_the_user_about_waiting_lock_again": "Encara en espèra…",
+    "warn_the_user_that_lock_is_acquired": "l’autra comanda ven d’acabar, lançament d’aquesta comanda"
 }
