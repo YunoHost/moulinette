@@ -98,7 +98,7 @@ def api(namespaces, host='localhost', port=80, routes={},
     except MoulinetteError as e:
         import logging
         logging.getLogger(namespaces[0]).error(e.strerror)
-        return e.errno
+        return e.errno if hasattr(e, "errno") else 1
     except KeyboardInterrupt:
         import logging
         logging.getLogger(namespaces[0]).info(m18n.g('operation_interrupted'))
