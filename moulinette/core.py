@@ -287,7 +287,7 @@ class MoulinetteSignals(object):
     """The list of available signals"""
     signals = {'authenticate', 'prompt', 'display'}
 
-    def authenticate(self, authenticator, help):
+    def authenticate(self, authenticator):
         """Process the authentication
 
         Attempt to authenticate to the given authenticator and return
@@ -297,7 +297,6 @@ class MoulinetteSignals(object):
 
         Keyword arguments:
             - authenticator -- The authenticator object to use
-            - help -- The translation key of the authenticator's help message
 
         Returns:
             The authenticator object
@@ -305,7 +304,7 @@ class MoulinetteSignals(object):
         """
         if authenticator.is_authenticated:
             return authenticator
-        return self._authenticate(authenticator, help)
+        return self._authenticate(authenticator)
 
     def prompt(self, message, is_password=False, confirm=False):
         """Prompt for a value
@@ -397,7 +396,7 @@ def init_interface(name, kwargs={}, actionsmap={}):
     return interface(amap, **kwargs)
 
 
-def init_authenticator(vendor_and_name, kwargs={}):
+def init_authenticator(auth_conf):
     """Return a new authenticator instance
 
     Retrieve the given authenticator vendor and return a new instance of
@@ -409,15 +408,13 @@ def init_authenticator(vendor_and_name, kwargs={}):
         - kwargs -- A dict of arguments for the authenticator profile
 
     """
-    (vendor, name) = vendor_and_name
     try:
-        mod = import_module('moulinette.authenticators.%s' % vendor)
+        mod = import_module('moulinette.authenticators.%s' % auth_conf["vendor"])
     except ImportError:
-        logger.exception("unable to load authenticator vendor '%s'", vendor)
+        logger.exception("unable to load authenticator vendor '%s'", auth_conf["vendor"])
         raise MoulinetteError('error_see_log')
     else:
-        return mod.Authenticator(name, **kwargs)
-
+        return mod.Authenticator(**auth_conf)
 
 def clean_session(session_id, profiles=[]):
     """Clean a session cache

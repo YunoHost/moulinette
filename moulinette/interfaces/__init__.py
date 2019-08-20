@@ -266,17 +266,10 @@ class BaseActionsMapParser(object):
                 else:
                     auths = {}
                     for auth_name, auth_conf in auth.items():
-                        # Add authenticator profile as a 3-tuple
-                        # (identifier, configuration, parameters) with
-                        # - identifier: the authenticator vendor and its
-                        #     profile name as a 2-tuple
-                        # - configuration: a dict of additional global
-                        #     configuration (i.e. 'help')
-                        # - parameters: a dict of arguments for the
-                        #     authenticator profile
-                        auths[auth_name] = ((auth_conf.get('vendor'), auth_name),
-                                            {'help': auth_conf.get('help', None)},
-                                            auth_conf.get('parameters', {}))
+                        auths[auth_name] = {'name': auth_name,
+                                            'vendor': auth_conf.get('vendor'),
+                                            'parameters': auth_conf.get('parameters', {}),
+                                            'extra': {'help': auth_conf.get('help', None)}}
                     conf['authenticator'] = auths
             else:
                 logger.error("expecting a dict of profile(s) or a profile name "

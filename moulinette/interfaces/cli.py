@@ -435,7 +435,7 @@ class Interface(BaseInterface):
         # Set handler for authentication
         if password:
             msignals.set_handler('authenticate',
-                                 lambda a, h: a(password=password))
+                                 lambda a: a(password=password))
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
@@ -460,13 +460,14 @@ class Interface(BaseInterface):
 
     # Signals handlers
 
-    def _do_authenticate(self, authenticator, help):
+    def _do_authenticate(self, authenticator):
         """Process the authentication
 
         Handle the core.MoulinetteSignals.authenticate signal.
 
         """
         # TODO: Allow token authentication?
+        help = authenticator.extra.get("help")
         msg = m18n.n(help) if help else m18n.g('password')
         return authenticator(password=self._do_prompt(msg, True, False,
                                                       color='yellow'))

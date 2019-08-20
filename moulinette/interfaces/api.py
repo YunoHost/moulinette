@@ -461,7 +461,7 @@ class _ActionsMapPlugin(object):
 
     # Signals handlers
 
-    def _do_authenticate(self, authenticator, help):
+    def _do_authenticate(self, authenticator):
         """Process the authentication
 
         Handle the core.MoulinetteSignals.authenticate signal.

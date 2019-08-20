@@ -33,23 +33,20 @@ class Authenticator(BaseAuthenticator):
 
     """
 
-    def __init__(self, name, uri, base_dn, user_rdn=None):
+    def __init__(self, name, vendor, parameters, extra):
+        self.uri = parameters["uri"]
+        self.basedn = parameters["base_dn"]
+        self.userdn = parameters["user_rdn"]
+        self.extra = extra
         logger.debug("initialize authenticator '%s' with: uri='%s', "
-                     "base_dn='%s', user_rdn='%s'", name, uri, base_dn, user_rdn)
+                     "base_dn='%s', user_rdn='%s'", name, self.uri, self.basedn, self.userdn)
         super(Authenticator, self).__init__(name)
 
-        self.uri = uri
-        self.basedn = base_dn
-        if user_rdn:
-            self.userdn = user_rdn
-            if 'cn=external,cn=auth' in user_rdn:
+        if self.userdn:
+            if 'cn=external,cn=auth' in self.userdn:
                 self.authenticate(None)
             else:
                 self.con = None
-        else:
-            # Initialize anonymous usage
-            self.userdn = ''
-            self.authenticate(None)
 
     def __del__(self):
         """Disconnect and free ressources"""
