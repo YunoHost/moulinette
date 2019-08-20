@@ -396,28 +396,6 @@ def init_interface(name, kwargs={}, actionsmap={}):
     return interface(amap, **kwargs)
 
 
-def clean_session(session_id, profiles=[]):
-    """Clean a session cache
-
-    Remove cache for the session 'session_id' and for profiles in
-    'profiles' or for all of them if the list is empty.
-
-    Keyword arguments:
-        - session_id -- The session id to clean
-        - profiles -- A list of profiles to clean
-
-    """
-    sessiondir = get_cachedir('session')
-    if not profiles:
-        profiles = os.listdir(sessiondir)
-
-    for p in profiles:
-        try:
-            os.unlink(os.path.join(sessiondir, p, '%s.asc' % session_id))
-        except OSError:
-            pass
-
-
 # Moulinette core classes ----------------------------------------------
 
 class MoulinetteError(Exception):

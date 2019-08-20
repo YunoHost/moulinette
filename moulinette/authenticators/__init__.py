@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import os
 import gnupg
 import logging
 
-from moulinette.cache import open_cachefile
+from moulinette.cache import open_cachefile, get_cachedir
 from moulinette.core import MoulinetteError
 
 logger = logging.getLogger('moulinette.authenticator')
@@ -165,3 +166,20 @@ class BaseAuthenticator(object):
                 logger.error(error_message)
                 raise MoulinetteError('unable_retrieve_session', exception=error_message)
             return decrypted.data
+
+    def _clean_session(self, session_id):
+        """Clean a session cache
+
+        Remove cache for the session 'session_id' and for this authenticator profile
+
+        Keyword arguments:
+            - session_id -- The session id to clean
+        """
+        sessiondir = get_cachedir('session')
+
+        try:
+            os.remove(os.path.join(sessiondir, self.name, '%s.asc' % session_id))
+        except OSError:
+            pass
+
+

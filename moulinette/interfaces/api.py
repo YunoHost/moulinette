@@ -14,7 +14,7 @@ from bottle import run, request, response, Bottle, HTTPResponse
 from bottle import abort
 
 from moulinette import msignals, m18n, env
-from moulinette.core import MoulinetteError, clean_session
+from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
 )
@@ -251,10 +251,7 @@ class _ActionsMapPlugin(object):
         def _logout(callback):
             def wrapper():
                 kwargs = {}
-                try:
-                    kwargs['profile'] = request.POST.get('profile')
-                except KeyError:
-                    pass
+                kwargs['profile'] = request.POST.get('profile', "default")
                 return callback(**kwargs)
             return wrapper
 
@@ -362,7 +359,7 @@ class _ActionsMapPlugin(object):
                                 secret=s_secret)
             return m18n.g('logged_in')
 
-    def logout(self, profile=None):
+    def logout(self, profile):
         """Log out from an authenticator profile
 
         Attempt to unregister a given profile - or all by default - from
@@ -374,14 +371,21 @@ class _ActionsMapPlugin(object):
         """
         s_id = request.get_cookie('session.id')
         try:
-            del self.secrets[s_id]
+            # We check that there's a (signed) session.hash available
+            # for additional security ?
+            # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
+            s_secret = self.secrets[s_id]
+            s_hash = request.get_cookie('session.hashes',
+                                        secret=s_secret, default={})[profile]
         except KeyError:
             raise HTTPUnauthorizedResponse(m18n.g('not_logged_in'))
         else:
+            del self.secrets[s_id]
+            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator._clean_session(s_id)
             # TODO: Clean the session for profile only
             # Delete cookie and clean the session
             response.set_cookie('session.hashes', '', max_age=-1)
-            clean_session(s_id)
         return m18n.g('logged_out')
 
     def messages(self):
