@@ -347,12 +347,6 @@ class ActionsMapParser(BaseActionsMapParser):
                                            deprecated=deprecated,
                                            deprecated_alias=deprecated_alias)
 
-    def auth_required(self, args, **kwargs):
-        # No auth is required for CLI,
-        # e.g. in the context of Yunohost we only run as root
-        # but we could someday change this code to check for
-        return False
-
     def add_global_arguments(self, arguments):
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
@@ -360,6 +354,23 @@ class ActionsMapParser(BaseActionsMapParser):
                                           argument_options.pop('full', None))
 
             self.global_parser.add_argument(*names, **argument_options)
+
+    def auth_required(self, args, **kwargs):
+        # FIXME? idk .. this try/except is duplicated from parse_args below
+        # Just to be able to obtain the tid
+        try:
+            ret = self._parser.parse_args(args)
+        except SystemExit:
+            raise
+        except:
+            logger.exception("unable to parse arguments '%s'", ' '.join(args))
+            raise MoulinetteError('error_see_log')
+
+        tid = getattr(ret, '_tid', None)
+        if self.get_conf(tid, 'authenticate'):
+            return self.get_conf(tid, 'authenticator')
+        else:
+            return False
 
     def parse_args(self, args, **kwargs):
         try:

@@ -343,8 +343,8 @@ class _ActionsMapPlugin(object):
 
         try:
             # Attempt to authenticate
-            auth = self.actionsmap.get_authenticator(profile)
-            auth(password, token=(s_id, s_hash))
+            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator(password, token=(s_id, s_hash))
         except MoulinetteError as e:
             if len(s_hashes) > 0:
                 try:
@@ -634,9 +634,9 @@ class ActionsMapParser(BaseActionsMapParser):
                 # dependent of the route being hit ...
                 # e.g. in the context of friend2friend stuff that could
                 # auth with some custom auth system to access some
-                # data
+                # data with something like :
                 # return self.get_conf(tid, 'authenticator')
-                return self.get_global_conf('authenticator', 'default')
+                return 'default'
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
             raise MoulinetteError('error_see_log')

@@ -7,7 +7,7 @@ import copy
 from collections import deque, OrderedDict
 
 from moulinette import msignals, msettings, m18n
-from moulinette.core import (init_authenticator, MoulinetteError)
+from moulinette.core import MoulinetteError
 
 logger = logging.getLogger('moulinette.interface')
 
@@ -119,6 +119,19 @@ class BaseActionsMapParser(object):
         raise NotImplementedError("derived class '%s' must override this method" %
                                   self.__class__.__name__)
 
+    def auth_required(self, args, **kwargs):
+        """Check if authentication is required to run the requested action
+
+        Keyword arguments:
+            - args -- Arguments string or dict (TODO)
+
+        Returns:
+            False, or the authentication profile required
+
+        """
+        raise NotImplementedError("derived class '%s' must override this method" %
+                                  self.__class__.__name__)
+
     def parse_args(self, args, **kwargs):
         """Parse arguments
 
@@ -151,15 +164,6 @@ class BaseActionsMapParser(object):
             namespace = argparse.Namespace()
         namespace._tid = tid
 
-        # Perform authentication if needed
-        if self.get_conf(tid, 'authenticate'):
-            auth_conf, cls = self.get_conf(tid, 'authenticator')
-
-            # TODO: Catch errors
-            auth = msignals.authenticate(cls(), **auth_conf)
-            if not auth.is_authenticated:
-                raise MoulinetteError('authentication_required_long')
-
         return namespace
 
     # Configuration access
@@ -168,24 +172,6 @@ class BaseActionsMapParser(object):
     def global_conf(self):
         """Return the global configuration of the parser"""
         return self._o._global_conf
-
-    def get_global_conf(self, name, profile='default'):
-        """Get the global value of a configuration
-
-        Return the formated global value of the configuration 'name' for
-        the given profile. If the configuration doesn't provide profile,
-        the formated default value is returned.
-
-        Keyword arguments:
-            - name -- The configuration name
-            - profile -- The profile of the configuration
-
-        """
-        if name == 'authenticator':
-            value = self.global_conf[name][profile]
-        else:
-            value = self.global_conf[name]
-        return self._format_conf(name, value)
 
     def set_global_conf(self, configuration):
         """Set global configuration
@@ -211,11 +197,9 @@ class BaseActionsMapParser(object):
 
         """
         try:
-            value = self._o._conf[action][name]
+            return self._o._conf[action][name]
         except KeyError:
-            return self.get_global_conf(name)
-        else:
-            return self._format_conf(name, value)
+            return self.global_conf[name]
 
     def set_conf(self, action, configuration):
         """Set configuration for an action
@@ -300,27 +284,6 @@ class BaseActionsMapParser(object):
                 raise MoulinetteError('error_see_log')
 
         return conf
-
-    def _format_conf(self, name, value):
-        """Format a configuration value
-
-        Return the formated value of the configuration 'name' from its
-        given value.
-
-        Keyword arguments:
-            - name -- The name of the configuration
-            - value -- The value to format
-
-        """
-        if name == 'authenticator' and value:
-            (identifier, configuration, parameters) = value
-
-            # Return global configuration and an authenticator
-            # instanciator as a 2-tuple
-            return (configuration,
-                    lambda: init_authenticator(identifier, parameters))
-
-        return value
 
 
 class BaseInterface(object):
