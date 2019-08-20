@@ -76,7 +76,7 @@ class BaseAuthenticator(object):
         instance is returned and the session is registered for the token
         if 'token' and 'password' are given.
         The token is composed by the session identifier and a session
-        hash - to use for encryption - as a 2-tuple.
+        hash (the "true token") - to use for encryption - as a 2-tuple.
 
         Keyword arguments:
             - password -- A clear text password
@@ -92,8 +92,8 @@ class BaseAuthenticator(object):
 
         if token:
             try:
-                # Extract id and hash from token
-                s_id, s_hash = token
+                # Extract id and actual token
+                s_id, s_token = token
             except TypeError as e:
                 logger.error("unable to extract token parts from '%s' because '%s'", token, e)
                 if password is None:
@@ -104,7 +104,7 @@ class BaseAuthenticator(object):
             else:
                 if password is None:
                     # Retrieve session
-                    password = self._retrieve_session(s_id, s_hash)
+                    password = self._retrieve_session(s_id, s_token)
 
         try:
             # Attempt to authenticate
@@ -119,7 +119,7 @@ class BaseAuthenticator(object):
         # Store session
         if store_session:
             try:
-                self._store_session(s_id, s_hash, password)
+                self._store_session(s_id, s_token, password)
             except Exception as e:
                 import traceback
                 traceback.print_exc()
@@ -136,19 +136,19 @@ class BaseAuthenticator(object):
         return open_cachefile('%s.asc' % session_id, mode,
                               subdir='session/%s' % self.name)
 
-    def _store_session(self, session_id, session_hash, password):
+    def _store_session(self, session_id, session_token, password):
         """Store a session and its associated password"""
         gpg = gnupg.GPG()
         gpg.encoding = 'utf-8'
 
-        # Encrypt the password using the session hash
-        s = str(gpg.encrypt(password, None, symmetric=True, passphrase=session_hash))
+        # Encrypt the password using the session token
+        s = str(gpg.encrypt(password, None, symmetric=True, passphrase=session_token))
         assert len(s), "For some reason GPG can't perform encryption, maybe check /root/.gnupg/gpg.conf or re-run with gpg = gnupg.GPG(verbose=True) ?"
 
         with self._open_sessionfile(session_id, 'w') as f:
             f.write(s)
 
-    def _retrieve_session(self, session_id, session_hash):
+    def _retrieve_session(self, session_id, session_token):
         """Retrieve a session and return its associated password"""
         try:
             with self._open_sessionfile(session_id, 'r') as f:
@@ -160,7 +160,7 @@ class BaseAuthenticator(object):
             gpg = gnupg.GPG()
             gpg.encoding = 'utf-8'
 
-            decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
+            decrypted = gpg.decrypt(enc_pwd, passphrase=session_token)
             if decrypted.ok is not True:
                 error_message = "unable to decrypt password for the session: %s" % decrypted.status
                 logger.error(error_message)

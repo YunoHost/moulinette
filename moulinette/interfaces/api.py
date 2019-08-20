@@ -332,18 +332,18 @@ class _ActionsMapPlugin(object):
         try:
             s_secret = self.secrets[s_id]
         except KeyError:
-            s_hashes = {}
+            s_tokens = {}
         else:
-            s_hashes = request.get_cookie('session.hashes',
+            s_tokens = request.get_cookie('session.tokens',
                                           secret=s_secret) or {}
-        s_hash = random_ascii()
+        s_new_token = random_ascii()
 
         try:
             # Attempt to authenticate
             authenticator = self.actionsmap.get_authenticator_for_profile(profile)
-            authenticator(password, token=(s_id, s_hash))
+            authenticator(password, token=(s_id, s_new_token))
         except MoulinetteError as e:
-            if len(s_hashes) > 0:
+            if len(s_tokens) > 0:
                 try:
                     self.logout(profile)
                 except:
@@ -351,11 +351,11 @@ class _ActionsMapPlugin(object):
             raise HTTPUnauthorizedResponse(e.strerror)
         else:
             # Update dicts with new values
-            s_hashes[profile] = s_hash
+            s_tokens[profile] = s_new_token
             self.secrets[s_id] = s_secret = random_ascii()
 
             response.set_cookie('session.id', s_id, secure=True)
-            response.set_cookie('session.hashes', s_hashes, secure=True,
+            response.set_cookie('session.tokens', s_tokens, secure=True,
                                 secret=s_secret)
             return m18n.g('logged_in')
 
@@ -375,8 +375,8 @@ class _ActionsMapPlugin(object):
             # for additional security ?
             # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
             s_secret = self.secrets[s_id]
-            s_hash = request.get_cookie('session.hashes',
-                                        secret=s_secret, default={})[profile]
+            s_token = request.get_cookie('session.tokens',
+                                         secret=s_secret, default={})[profile]
         except KeyError:
             raise HTTPUnauthorizedResponse(m18n.g('not_logged_in'))
         else:
@@ -385,7 +385,7 @@ class _ActionsMapPlugin(object):
             authenticator._clean_session(s_id)
             # TODO: Clean the session for profile only
             # Delete cookie and clean the session
-            response.set_cookie('session.hashes', '', max_age=-1)
+            response.set_cookie('session.tokens', '', max_age=-1)
         return m18n.g('logged_out')
 
     def messages(self):
@@ -474,13 +474,13 @@ class _ActionsMapPlugin(object):
         s_id = request.get_cookie('session.id')
         try:
             s_secret = self.secrets[s_id]
-            s_hash = request.get_cookie('session.hashes',
+            s_token = request.get_cookie('session.tokens',
                                         secret=s_secret, default={})[authenticator.name]
         except KeyError:
             msg = m18n.g('authentication_required')
             raise HTTPUnauthorizedResponse(msg)
         else:
-            return authenticator(token=(s_id, s_hash))
+            return authenticator(token=(s_id, s_token))
 
     def _do_display(self, message, style):
         """Display a message
