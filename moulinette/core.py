@@ -396,26 +396,6 @@ def init_interface(name, kwargs={}, actionsmap={}):
     return interface(amap, **kwargs)
 
 
-def init_authenticator(auth_conf):
-    """Return a new authenticator instance
-
-    Retrieve the given authenticator vendor and return a new instance of
-    its Authenticator class for the given profile.
-
-    Keyword arguments:
-        - vendor -- The authenticator vendor name
-        - name -- The authenticator profile name
-        - kwargs -- A dict of arguments for the authenticator profile
-
-    """
-    try:
-        mod = import_module('moulinette.authenticators.%s' % auth_conf["vendor"])
-    except ImportError:
-        logger.exception("unable to load authenticator vendor '%s'", auth_conf["vendor"])
-        raise MoulinetteError('error_see_log')
-    else:
-        return mod.Authenticator(**auth_conf)
-
 def clean_session(session_id, profiles=[]):
     """Clean a session cache
 

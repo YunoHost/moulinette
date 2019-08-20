@@ -7,9 +7,9 @@ import yaml
 import cPickle as pickle
 from time import time
 from collections import OrderedDict
+from importlib import import_module
 
 from moulinette import m18n, msignals
-from moulinette.core import init_authenticator
 from moulinette.cache import open_cachefile
 from moulinette.globals import init_moulinette_env
 from moulinette.core import (MoulinetteError, MoulinetteLock)
@@ -445,12 +445,20 @@ class ActionsMap(object):
 
     def get_authenticator_for_profile(self, auth_profile):
 
+        # Fetch the configuration for the authenticator module as defined in the actionmap
         try:
             auth_conf = self.parser.global_conf['authenticator'][auth_profile]
         except KeyError:
             raise ValueError("Unknown authenticator profile '%s'" % auth_profile)
 
-        return init_authenticator(auth_conf)
+        # Load and initialize the authenticator module
+        try:
+            mod = import_module('moulinette.authenticators.%s' % auth_conf["vendor"])
+        except ImportError:
+            logger.exception("unable to load authenticator vendor '%s'", auth_conf["vendor"])
+            raise MoulinetteError('error_see_log')
+        else:
+            return mod.Authenticator(**auth_conf)
 
     def check_authentication_if_required(self, args, **kwargs):
 
