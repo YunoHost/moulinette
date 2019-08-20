@@ -347,6 +347,12 @@ class ActionsMapParser(BaseActionsMapParser):
                                            deprecated=deprecated,
                                            deprecated_alias=deprecated_alias)
 
+    def auth_required(self, args, **kwargs):
+        # No auth is required for CLI,
+        # e.g. in the context of Yunohost we only run as root
+        # but we could someday change this code to check for
+        return False
+
     def add_global_arguments(self, arguments):
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context

@@ -473,6 +473,17 @@ class ActionsMap(object):
             - **kwargs -- Additional interface arguments
 
         """
+
+        # Perform authentication if needed
+        auth_required = self.parser.auth_required(args, **kwargs)
+        if auth_required:
+            auth_conf, klass = auth_required
+
+            # TODO: Catch errors
+            auth = msignals.authenticate(klass(), **auth_conf)
+            if not auth.is_authenticated:
+                raise MoulinetteError('authentication_required_long')
+
         # Parse arguments
         arguments = vars(self.parser.parse_args(args, **kwargs))
 

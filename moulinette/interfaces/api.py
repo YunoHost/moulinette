@@ -623,6 +623,24 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
+    def auth_required(self, args, route, **kwargs):
+        try:
+            # Retrieve the tid for the route
+            tid, _ = self._parsers[route]
+            if not self.get_conf(tid, 'authenticate'):
+                return False
+            else:
+                # TODO: In the future, we could make the authentication
+                # dependent of the route being hit ...
+                # e.g. in the context of friend2friend stuff that could
+                # auth with some custom auth system to access some
+                # data
+                # return self.get_conf(tid, 'authenticator')
+                return self.get_global_conf('authenticator', 'default')
+        except KeyError:
+            logger.error("no argument parser found for route '%s'", route)
+            raise MoulinetteError('error_see_log')
+
     def parse_args(self, args, route, **kwargs):
         """Parse arguments
 
@@ -631,27 +649,12 @@ class ActionsMapParser(BaseActionsMapParser):
 
         """
         try:
-            # Retrieve the tid and the parser for the route
-            tid, parser = self._parsers[route]
+            # Retrieve the parser for the route
+            _, parser = self._parsers[route]
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
             raise MoulinetteError('error_see_log')
         ret = argparse.Namespace()
-
-        # Perform authentication if needed
-        if self.get_conf(tid, 'authenticate'):
-            # TODO: Clean this hard fix and find a way to set an authenticator
-            # to use for the api only
-            # auth_conf, klass = self.get_conf(tid, 'authenticator')
-            auth_conf, klass = self.get_global_conf('authenticator', 'default')
-
-            # TODO: Catch errors
-            auth = msignals.authenticate(klass(), **auth_conf)
-            if not auth.is_authenticated:
-                raise MoulinetteError('authentication_required_long')
-            if self.get_conf(tid, 'argument_auth') and \
-               self.get_conf(tid, 'authenticate') == 'all':
-                ret.auth = auth
 
         # TODO: Catch errors?
         ret = parser.parse_args(args, ret)
