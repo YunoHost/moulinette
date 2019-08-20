@@ -16,6 +16,7 @@
     "instance_already_running": "An instance is already running",
     "invalid_argument": "Invalid argument '{argument}': {error}",
     "invalid_password": "Invalid password",
+    "invalid_token": "Invalid token - please authenticate",
     "invalid_usage": "Invalid usage, pass --help to see help",
     "ldap_attribute_already_exists": "Attribute '{attribute}' already exists with value '{value}'",
     "ldap_operation_error": "An error occurred during LDAP operation",

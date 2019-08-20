@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import gnupg
 import logging
+import hashlib
 
 from moulinette.cache import open_cachefile, get_cachedir
 from moulinette.core import MoulinetteError
@@ -88,44 +88,53 @@ class BaseAuthenticator(object):
         """
         if self.is_authenticated:
             return self
-        store_session = True if password and token else False
 
-        if token:
+        #
+        # Authenticate using the password
+        #
+        if password:
             try:
-                # Extract id and actual token
-                s_id, s_token = token
-            except TypeError as e:
-                logger.error("unable to extract token parts from '%s' because '%s'", token, e)
-                if password is None:
-                    raise MoulinetteError('error_see_log')
-
-                logger.info("session will not be stored")
-                store_session = False
-            else:
-                if password is None:
-                    # Retrieve session
-                    password = self._retrieve_session(s_id, s_token)
-
-        try:
-            # Attempt to authenticate
-            self.authenticate(password)
-        except MoulinetteError:
-            raise
-        except Exception as e:
-            logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
-                             self.name, self.vendor, e)
-            raise MoulinetteError('unable_authenticate')
-
-        # Store session
-        if store_session:
-            try:
-                self._store_session(s_id, s_token, password)
+                # Attempt to authenticate
+                self.authenticate(password)
+            except MoulinetteError:
+                raise
             except Exception as e:
-                import traceback
-                traceback.print_exc()
-                logger.exception("unable to store session because %s", e)
-            else:
-                logger.debug("session has been stored")
+                logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
+                                 self.name, self.vendor, e)
+                raise MoulinetteError('unable_authenticate')
+
+            # Store session for later using the provided (new) token if any
+            if token:
+                try:
+                    s_id, s_token = token
+                    self._store_session(s_id, s_token)
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    logger.exception("unable to store session because %s", e)
+                else:
+                    logger.debug("session has been stored")
+
+        #
+        # Authenticate using the token provided
+        #
+        elif token:
+            try:
+                s_id, s_token = token
+                # Attempt to authenticate
+                self._authenticate_session(s_id, s_token)
+            except MoulinetteError:
+                raise
+            except Exception as e:
+                logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
+                                 self.name, self.vendor, e)
+                raise MoulinetteError('unable_authenticate')
+
+        #
+        # No credentials given, can't authenticate
+        #
+        else:
+            raise MoulinetteError('unable_authenticate')
 
         return self
 
@@ -136,36 +145,31 @@ class BaseAuthenticator(object):
         return open_cachefile('%s.asc' % session_id, mode,
                               subdir='session/%s' % self.name)
 
-    def _store_session(self, session_id, session_token, password):
-        """Store a session and its associated password"""
-        gpg = gnupg.GPG()
-        gpg.encoding = 'utf-8'
+    def _store_session(self, session_id, session_token):
+        """Store a session to be able to use it later to reauthenticate"""
 
-        # Encrypt the password using the session token
-        s = str(gpg.encrypt(password, None, symmetric=True, passphrase=session_token))
-        assert len(s), "For some reason GPG can't perform encryption, maybe check /root/.gnupg/gpg.conf or re-run with gpg = gnupg.GPG(verbose=True) ?"
-
+        # We store a hash of the session_id and the session_token (the token is assumed to be secret)
+        to_hash = "{id}:{token}".format(id=session_id, token=session_token)
+        hash_ = hashlib.sha256sum(to_hash).hexdigest()
         with self._open_sessionfile(session_id, 'w') as f:
-            f.write(s)
+            f.write(hash_)
 
-    def _retrieve_session(self, session_id, session_token):
+    def _authenticate_session(self, session_id, session_token):
         """Retrieve a session and return its associated password"""
         try:
             with self._open_sessionfile(session_id, 'r') as f:
-                enc_pwd = f.read()
+                stored_hash = f.read()
         except IOError as e:
             logger.debug("unable to retrieve session", exc_info=1)
             raise MoulinetteError('unable_retrieve_session', exception=e)
         else:
-            gpg = gnupg.GPG()
-            gpg.encoding = 'utf-8'
+            to_hash = "{id}:{token}".format(id=session_id, token=session_token)
+            hash_ = hashlib.sha256sum(to_hash).hexdigest()
 
-            decrypted = gpg.decrypt(enc_pwd, passphrase=session_token)
-            if decrypted.ok is not True:
-                error_message = "unable to decrypt password for the session: %s" % decrypted.status
-                logger.error(error_message)
-                raise MoulinetteError('unable_retrieve_session', exception=error_message)
-            return decrypted.data
+            if hash_ != stored_hash:
+                raise MoulinetteError('invalid_token')
+            else:
+                return
 
     def _clean_session(self, session_id):
         """Clean a session cache
@@ -181,5 +185,3 @@ class BaseAuthenticator(object):
             os.remove(os.path.join(sessiondir, self.name, '%s.asc' % session_id))
         except OSError:
             pass
-
-
