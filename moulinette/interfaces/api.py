@@ -473,11 +473,7 @@ class _ActionsMapPlugin(object):
             s_hash = request.get_cookie('session.hashes',
                                         secret=s_secret, default={})[authenticator.name]
         except KeyError:
-            if authenticator.name == 'default':
-                msg = m18n.g('authentication_required')
-            else:
-                msg = m18n.g('authentication_profile_required',
-                             profile=authenticator.name)
+            msg = m18n.g('authentication_required')
             raise HTTPUnauthorizedResponse(msg)
         else:
             return authenticator(token=(s_id, s_hash))

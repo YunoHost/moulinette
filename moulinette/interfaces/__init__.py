@@ -159,9 +159,6 @@ class BaseActionsMapParser(object):
             auth = msignals.authenticate(cls(), **auth_conf)
             if not auth.is_authenticated:
                 raise MoulinetteError('authentication_required_long')
-            if self.get_conf(tid, 'argument_auth') and \
-                    self.get_conf(tid, 'authenticate') == 'all':
-                namespace.auth = auth
 
         return namespace
 
@@ -300,32 +297,6 @@ class BaseActionsMapParser(object):
             else:
                 logger.error("expecting a dict of profile(s) or a profile name "
                              "for configuration 'authenticator', got %r", auth)
-                raise MoulinetteError('error_see_log')
-
-        # -- 'argument_auth'
-        try:
-            arg_auth = configuration['argument_auth']
-        except KeyError:
-            pass
-        else:
-            if isinstance(arg_auth, bool):
-                conf['argument_auth'] = arg_auth
-            else:
-                logger.error("expecting a boolean for configuration "
-                             "'argument_auth', got %r", arg_auth)
-                raise MoulinetteError('error_see_log')
-
-        # -- 'lock'
-        try:
-            lock = configuration['lock']
-        except KeyError:
-            pass
-        else:
-            if isinstance(lock, bool):
-                conf['lock'] = lock
-            else:
-                logger.error("expecting a boolean for configuration 'lock', "
-                             "got %r", lock)
                 raise MoulinetteError('error_see_log')
 
         return conf

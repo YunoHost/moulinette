@@ -1,6 +1,5 @@
 {
     "argument_required": "Argument '{argument}' is required",
-    "authentication_profile_required": "Authentication to profile '{profile}' required",
     "authentication_required": "Authentication required",
     "authentication_required_long": "Authentication is required to perform this action",
     "colon": "{}: ",
