@@ -32,6 +32,7 @@ class BaseAuthenticator(object):
 
     def __init__(self, name):
         self._name = name
+        self.is_authenticated = False
 
     @property
     def name(self):
@@ -43,12 +44,6 @@ class BaseAuthenticator(object):
 
     """The vendor name of the authenticator"""
     vendor = None
-
-    @property
-    def is_authenticated(self):
-        """Either the instance is authenticated or not"""
-        raise NotImplementedError("derived class '%s' must override this property" %
-                                  self.__class__.__name__)
 
     # Virtual methods
     # Each authenticator classes must implement these methods.
@@ -103,6 +98,8 @@ class BaseAuthenticator(object):
                                  self.name, self.vendor, e)
                 raise MoulinetteError('unable_authenticate')
 
+            self.is_authenticated = True
+
             # Store session for later using the provided (new) token if any
             if token:
                 try:
@@ -123,12 +120,14 @@ class BaseAuthenticator(object):
                 s_id, s_token = token
                 # Attempt to authenticate
                 self._authenticate_session(s_id, s_token)
-            except MoulinetteError:
+            except MoulinetteError as e:
                 raise
             except Exception as e:
                 logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
                                  self.name, self.vendor, e)
                 raise MoulinetteError('unable_authenticate')
+            else:
+                self.is_authenticated = True
 
         #
         # No credentials given, can't authenticate

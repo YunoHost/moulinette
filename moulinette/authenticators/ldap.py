@@ -57,21 +57,6 @@ class Authenticator(BaseAuthenticator):
 
     vendor = 'ldap'
 
-    @property
-    def is_authenticated(self):
-        if self.con is None:
-            return False
-        try:
-            # Retrieve identity
-            who = self.con.whoami_s()
-        except Exception as e:
-            logger.warning("Error during ldap authentication process: %s", e)
-            return False
-        else:
-            if who[3:] == self.userdn:
-                return True
-        return False
-
     # Implement virtual methods
 
     def authenticate(self, password):
@@ -89,9 +74,19 @@ class Authenticator(BaseAuthenticator):
         except ldap.SERVER_DOWN:
             logger.exception('unable to reach the server to authenticate')
             raise MoulinetteError('ldap_server_down')
+
+        # Check that we are indeed logged in with the right identity
+        try:
+            who = con.whoami_s()
+        except Exception as e:
+            logger.warning("Error during ldap authentication process: %s", e)
+            raise
         else:
-            self.con = con
-            self._ensure_password_uses_strong_hash(password)
+            if who[3:] != self.userdn:
+                raise MoulinetteError("Not logged in with the expected userdn ?!")
+            else:
+                self.con = con
+                self._ensure_password_uses_strong_hash(password)
 
     def _ensure_password_uses_strong_hash(self, password):
         # XXX this has been copy pasted from YunoHost, should we put that into moulinette?
