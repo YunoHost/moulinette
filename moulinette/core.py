@@ -9,7 +9,6 @@ from importlib import import_module
 
 import moulinette
 from moulinette.globals import init_moulinette_env
-from moulinette.cache import get_cachedir
 
 
 logger = logging.getLogger('moulinette.core')

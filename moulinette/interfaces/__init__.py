@@ -6,7 +6,7 @@ import argparse
 import copy
 from collections import deque, OrderedDict
 
-from moulinette import msignals, msettings, m18n
+from moulinette import msettings, m18n
 from moulinette.core import MoulinetteError
 
 logger = logging.getLogger('moulinette.interface')

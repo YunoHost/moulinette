@@ -375,8 +375,8 @@ class _ActionsMapPlugin(object):
             # for additional security ?
             # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
             s_secret = self.secrets[s_id]
-            s_token = request.get_cookie('session.tokens',
-                                         secret=s_secret, default={})[profile]
+            request.get_cookie('session.tokens',
+                               secret=s_secret, default={})[profile]
         except KeyError:
             raise HTTPUnauthorizedResponse(m18n.g('not_logged_in'))
         else:
