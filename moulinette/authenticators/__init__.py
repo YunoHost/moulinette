@@ -150,7 +150,7 @@ class BaseAuthenticator(object):
 
         # We store a hash of the session_id and the session_token (the token is assumed to be secret)
         to_hash = "{id}:{token}".format(id=session_id, token=session_token)
-        hash_ = hashlib.sha256sum(to_hash).hexdigest()
+        hash_ = hashlib.sha256(to_hash).hexdigest()
         with self._open_sessionfile(session_id, 'w') as f:
             f.write(hash_)
 
@@ -164,7 +164,7 @@ class BaseAuthenticator(object):
             raise MoulinetteError('unable_retrieve_session', exception=e)
         else:
             to_hash = "{id}:{token}".format(id=session_id, token=session_token)
-            hash_ = hashlib.sha256sum(to_hash).hexdigest()
+            hash_ = hashlib.sha256(to_hash).hexdigest()
 
             if hash_ != stored_hash:
                 raise MoulinetteError('invalid_token')
