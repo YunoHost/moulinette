@@ -180,7 +180,6 @@ class Moulinette18n(object):
 
         moulinette_env = init_moulinette_env()
         self.locales_dir = moulinette_env['LOCALES_DIR']
-        self.lib_dir = moulinette_env['LIB_DIR']
 
         # Init global translator
         self._global = Translator(self.locales_dir, default_locale)
@@ -201,7 +200,8 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            translator = Translator('%s/%s/locales' % (self.lib_dir, namespace),
+            lib_dir = init_moulinette_env()["LIB_DIR"]
+            translator = Translator('%s/%s/locales' % (lib_dir, namespace),
                                     self.default_locale)
             translator.set_locale(self.locale)
             self._namespaces[namespace] = translator
@@ -371,8 +371,8 @@ def init_interface(name, kwargs={}, actionsmap={}):
 
     try:
         mod = import_module('moulinette.interfaces.%s' % name)
-    except ImportError:
-        logger.exception("unable to load interface '%s'", name)
+    except ImportError as e:
+        logger.exception("unable to load interface '%s' : %s", name, e)
         raise MoulinetteError('error_see_log')
     else:
         try:

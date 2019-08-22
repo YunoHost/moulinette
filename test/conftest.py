@@ -1,8 +1,10 @@
 """Pytest fixtures for testing."""
 
+from multiprocessing import Process
+import time
 import json
 import os
-
+import shutil
 import pytest
 
 
@@ -42,7 +44,7 @@ def patch_logging(moulinette):
     root_handlers = set(handlers)
 
     level = 'INFO'
-    tty_level = 'SUCCESS'
+    tty_level = 'INFO'
 
     logging = {
         'version': 1,
@@ -61,6 +63,10 @@ def patch_logging(moulinette):
             },
         },
         'handlers': {
+            'api': {
+                'level': level,
+                'class': 'moulinette.interfaces.api.APIQueueHandler',
+            },
             'tty': {
                 'level': tty_level,
                 'class': 'moulinette.interfaces.cli.TTYHandler',
@@ -100,6 +106,26 @@ def moulinette():
     patch_logging(moulinette)
 
     return moulinette
+
+
+@pytest.fixture(scope='session')
+def moulinette_webapi(moulinette, tmp_path_factory):
+    namespace = "test"
+    tmp_data = str(tmp_path_factory.mktemp("data"))
+    tmp_locales = str(tmp_path_factory.mktemp("data"))
+    os.environ['MOULINETTE_DATA_DIR'] = tmp_data
+    os.environ['MOULINETTE_LIB_DIR'] = tmp_locales
+    shutil.copytree("./data/actionsmap", "%s/actionsmap" % tmp_data)
+    shutil.copytree("./locales", "%s/%s/locales" % (tmp_locales, namespace))
+
+    api_thread = Process(target=moulinette.api,
+                         args=([namespace],),
+                         kwargs={"host": "localhost", "port": 12342, "use_websocket": False})
+    api_thread.start()
+    time.sleep(0.5)
+    assert api_thread.is_alive()
+    yield "http://localhost:12342"
+    api_thread.terminate()
 
 
 @pytest.fixture
