@@ -40,13 +40,13 @@ def patch_translate(moulinette):
 
 def patch_logging(moulinette):
     """Configure logging to use the custom logger."""
-    handlers = set(['tty'])
+    handlers = set(['tty', 'api'])
     root_handlers = set(handlers)
 
     level = 'INFO'
     tty_level = 'INFO'
 
-    logging = {
+    return {
         'version': 1,
         'disable_existing_loggers': True,
         'formatters': {
@@ -91,32 +91,39 @@ def patch_logging(moulinette):
         },
     }
 
+
+
+@pytest.fixture(scope='session', autouse=True)
+def moulinette(tmp_path_factory):
+    import moulinette
+
+    # Can't call the namespace just 'test' because
+    # that would lead to some "import test" not importing the right stuff
+    namespace = "moulitest"
+    tmp_data = str(tmp_path_factory.mktemp("data"))
+    tmp_lib = str(tmp_path_factory.mktemp("lib"))
+    os.environ['MOULINETTE_DATA_DIR'] = tmp_data
+    os.environ['MOULINETTE_LIB_DIR'] = tmp_lib
+    shutil.copytree("./test/actionsmap", "%s/actionsmap" % tmp_data)
+    shutil.copytree("./test/src", "%s/%s" % (tmp_lib, namespace))
+    shutil.copytree("./test/locales", "%s/%s/locales" % (tmp_lib, namespace))
+
+    patch_init(moulinette)
+    patch_translate(moulinette)
+    logging = patch_logging(moulinette)
+
     moulinette.init(
         logging_config=logging,
         _from_source=False
     )
 
-
-@pytest.fixture(scope='session', autouse=True)
-def moulinette():
-    import moulinette
-
-    patch_init(moulinette)
-    patch_translate(moulinette)
-    patch_logging(moulinette)
-
     return moulinette
 
 
 @pytest.fixture(scope='session')
-def moulinette_webapi(moulinette, tmp_path_factory):
-    namespace = "test"
-    tmp_data = str(tmp_path_factory.mktemp("data"))
-    tmp_locales = str(tmp_path_factory.mktemp("data"))
-    os.environ['MOULINETTE_DATA_DIR'] = tmp_data
-    os.environ['MOULINETTE_LIB_DIR'] = tmp_locales
-    shutil.copytree("./data/actionsmap", "%s/actionsmap" % tmp_data)
-    shutil.copytree("./locales", "%s/%s/locales" % (tmp_locales, namespace))
+def moulinette_webapi(moulinette):
+
+    namespace = "moulitest"
 
     api_thread = Process(target=moulinette.api,
                          args=([namespace],),
