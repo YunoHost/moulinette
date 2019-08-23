@@ -156,6 +156,9 @@ class BaseAuthenticator(object):
     def _authenticate_session(self, session_id, session_token):
         """Retrieve a session and return its associated password"""
         try:
+            # FIXME : shouldn't we also add a check that this session file
+            # is not too old ? e.g. not older than 24 hours ? idk...
+
             with self._open_sessionfile(session_id, 'r') as f:
                 stored_hash = f.read()
         except IOError as e:
