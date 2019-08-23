@@ -1,0 +1,42 @@
+
+#############################
+#     Global parameters     #
+#############################
+_global:
+    configuration:
+        authenticate:
+            - all
+        authenticator:
+            default:
+                vendor: dummy
+                help: Dummy Password
+            yoloswag:
+                vendor: dummy
+                help: Dummy Yoloswag Password
+
+#############################
+#       Test Actions        #
+#############################
+testauth:
+    actions:
+
+        none:
+            api: GET /test-auth/none
+            configuration:
+                authenticate: false
+
+        default:
+            api: GET /test-auth/default
+            configuration:
+                authenticate: all
+                authenticator: default
+
+#        only-api:
+#            api: GET /test-auth/only-api
+#            configuration:
+#                authenticate: api
+#
+        other-profile:
+            api: GET /test-auth/other-profile
+            configuration:
+                authenticator: yoloswag

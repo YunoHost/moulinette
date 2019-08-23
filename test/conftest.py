@@ -92,7 +92,6 @@ def patch_logging(moulinette):
     }
 
 
-
 @pytest.fixture(scope='session', autouse=True)
 def moulinette(tmp_path_factory):
     import moulinette
@@ -100,8 +99,10 @@ def moulinette(tmp_path_factory):
     # Can't call the namespace just 'test' because
     # that would lead to some "import test" not importing the right stuff
     namespace = "moulitest"
+    tmp_cache = str(tmp_path_factory.mktemp("cache"))
     tmp_data = str(tmp_path_factory.mktemp("data"))
     tmp_lib = str(tmp_path_factory.mktemp("lib"))
+    os.environ['MOULINETTE_CACHE_DIR'] = tmp_cache
     os.environ['MOULINETTE_DATA_DIR'] = tmp_data
     os.environ['MOULINETTE_LIB_DIR'] = tmp_lib
     shutil.copytree("./test/actionsmap", "%s/actionsmap" % tmp_data)
