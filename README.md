@@ -37,15 +37,10 @@ operation on an interface for example (see
 [Authenticators](#authenticators)).
 
 
-### Actions Map
-...
+Dev Documentation
+-----------------
 
-### Interfaces
-...
-
-### Authenticators
-...
-
+https://moulinette.readthedocs.org
 
 Requirements
 ------------
