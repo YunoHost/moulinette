@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/YunoHost/moulinette.svg?branch=stretch-unstable)](https://travis-ci.org/YunoHost/moulinette)
+[![GitHub license](https://img.shields.io/github/license/YunoHost/moulinette)](https://github.com/YunoHost/moulinette/blob/stretch-unstable/LICENSE)
+
 Moulinette
 ==========
 
