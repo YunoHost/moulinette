@@ -12,9 +12,10 @@ class JSONExtendedEncoder(JSONEncoder):
 
     """Extended JSON encoder
 
-    Extend default JSON encoder to recognize more types and classes. It
-    will never raise if the object can't be encoded and return its repr
+    Extend default JSON encoder to recognize more types and classes. It will
+    never raise an exception if the object can't be encoded and return its repr
     instead.
+
     The following objects and types are supported:
         - set: converted into list
 

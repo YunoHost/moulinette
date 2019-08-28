@@ -10,7 +10,7 @@ def search(pattern, text, count=0, flags=0):
     """Search for pattern in a text
 
     Scan through text looking for all locations where the regular
-    expresion pattern matches, and return them as a list of strings.
+    expression pattern matches, and return them as a list of strings.
 
     The optional argument count is the maximum number of pattern
     occurences to return; count must be an integer. If omitted or zero,
