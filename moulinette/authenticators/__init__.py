@@ -165,6 +165,22 @@ class BaseAuthenticator(object):
             logger.debug("unable to retrieve session", exc_info=1)
             raise MoulinetteError('unable_retrieve_session', exception=e)
         else:
+            #
+            # session_id (or just id) : This is unique id for the current session from the user. Not too important 
+            # if this info gets stolen somehow. It is stored in the client's side (browser) using regular cookies.
+            #
+            # session_token (or just token) : This is a secret info, like some sort of ephemeral password, 
+            # used to authenticate the session without the user having to retype the password all the time... 
+            #    - It is generated on our side during the initial auth of the user (which happens with the actual admin password)
+            #    - It is stored on the client's side (browser) using (signed) cookies.
+            #    - We also store it on our side in the form of a hash of {id}:{token} (c.f. _store_session). 
+            #      We could simply store the raw token, but hashing it is an additonal low-cost security layer
+            #      in case this info gets exposed for some reason (e.g. bad file perms for reasons...)
+            #
+            # When the user comes back, we fetch the session_id and session_token from its cookies. Then we
+            # re-hash the {id}:{token} and compare it to the previously stored hash for this session_id ...
+            # It it matches, then the user is authenticated. Otherwise, the token is invalid.
+            #
             to_hash = "{id}:{token}".format(id=session_id, token=session_token)
             hash_ = hashlib.sha256(to_hash).hexdigest()
 
