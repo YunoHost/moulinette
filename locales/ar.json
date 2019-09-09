@@ -31,7 +31,7 @@
     "server_already_running": "هناك خادم يشتغل على ذاك المنفذ",
     "success": "تم بنجاح !",
     "unable_authenticate": "تعذرت المصادقة",
-    "unable_retrieve_session": "تعذرت مواصلة الجلسة",
+    "unable_retrieve_session": "تعذرت مواصلة الجلسة بسبب '{exception}'",
     "unknown_group": "الفريق '{group}' مجهول",
     "unknown_user": "المستخدم '{user}' مجهول",
     "values_mismatch": "القيمتين غير متطابقتين",
@@ -39,7 +39,7 @@
     "websocket_request_expected": "كان ينتظر طلبًا عبر الويب سوكت WebSocket",
     "cannot_open_file": "ليس بالإمكان فتح الملف {file:s} (السبب : {error:s})",
     "cannot_write_file": "لا يمكن الكتابة في الملف {file:s} (السبب : {error:s})",
-    "unknown_error_reading_file": "طرأ هناك خطأ ما أثناء عملية قراءة الملف {file:s}",
+    "unknown_error_reading_file": "طرأ هناك خطأ ما أثناء عملية قراءة الملف {file:s} (السبب: {error:s})",
     "corrupted_json": "قراءة json مُشوّهة مِن {ressource:s} (السبب : {error:s})",
     "error_writing_file": "طرأ هناك خطأ أثناء الكتابة في الملف {file:s}: {error:s}",
     "error_removing": "خطأ أثناء عملية حذف {path:s}: {error:s}",
@@ -49,7 +49,8 @@
     "download_timeout": "{url:s} استغرق مدة طويلة جدا للإستجابة، فتوقّف.",
     "download_unknown_error": "خطأ أثناء عملية تنزيل البيانات مِن {url:s} : {error:s}",
     "download_bad_status_code": "{url:s} أعاد رمز الحالة {code:s}",
-    "command_unknown": "الأمر '{command:s}' غير معروف ؟",
+    "command_unknown": "الأمر '{command:s}' مجهول؟",
     "corrupted_yaml": "قراءة مُشوّهة لنسق yaml مِن {ressource:s} (السبب : {error:s})",
-    "info": "معلومة:"
+    "info": "معلومة:",
+    "warn_the_user_about_waiting_lock_again": "جارٍ الانتظار…"
 }
