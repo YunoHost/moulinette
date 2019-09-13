@@ -3,8 +3,18 @@ import logging
 
 # import all constants because other modules try to import them from this
 # module because SUCCESS is defined in this module
-from logging import (addLevelName, setLoggerClass, Logger, getLogger, NOTSET,  # noqa
-                     DEBUG, INFO, WARNING, ERROR, CRITICAL)
+from logging import (  # noqa
+    addLevelName,
+    setLoggerClass,
+    Logger,
+    getLogger,
+    NOTSET,
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR,
+    CRITICAL,
+)
 
 
 # Global configuration and functions -----------------------------------
@@ -15,9 +25,7 @@ DEFAULT_LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'simple': {
-            'format': '%(asctime)-15s %(levelname)-8s %(name)s - %(message)s'
-        },
+        'simple': {'format': '%(asctime)-15s %(levelname)-8s %(name)s - %(message)s'}
     },
     'handlers': {
         'console': {
@@ -25,14 +33,9 @@ DEFAULT_LOGGING = {
             'formatter': 'simple',
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stdout',
-        },
+        }
     },
-    'loggers': {
-        'moulinette': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        },
-    },
+    'loggers': {'moulinette': {'level': 'DEBUG', 'handlers': ['console']}},
 }
 
 
@@ -65,7 +68,7 @@ def getHandlersByClass(classinfo, limit=0):
                 return o
             handlers.append(o)
     if limit != 0 and len(handlers) > limit:
-        return handlers[:limit - 1]
+        return handlers[: limit - 1]
     return handlers
 
 
@@ -79,6 +82,7 @@ class MoulinetteLogger(Logger):
     LogRecord extra and can be used with the ActionFilter.
 
     """
+
     action_id = None
 
     def success(self, msg, *args, **kwargs):

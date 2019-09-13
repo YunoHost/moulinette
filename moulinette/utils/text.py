@@ -6,6 +6,7 @@ import binascii
 
 # Pattern searching ----------------------------------------------------
 
+
 def search(pattern, text, count=0, flags=0):
     """Search for pattern in a text
 
@@ -55,6 +56,7 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
 
 # Text formatting ------------------------------------------------------
 
+
 def prependlines(text, prepend):
     """Prepend a string to each line of a text"""
     lines = text.splitlines(True)
@@ -62,6 +64,7 @@ def prependlines(text, prepend):
 
 
 # Randomize ------------------------------------------------------------
+
 
 def random_ascii(length=20):
     """Return a random ascii string"""

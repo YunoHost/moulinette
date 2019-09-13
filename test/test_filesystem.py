@@ -4,8 +4,14 @@ import pytest
 
 from moulinette import m18n
 from moulinette.core import MoulinetteError
-from moulinette.utils.filesystem import (append_to_file, read_file, read_json,
-                                         rm, write_to_file, write_to_json)
+from moulinette.utils.filesystem import (
+    append_to_file,
+    read_file,
+    read_json,
+    rm,
+    write_to_file,
+    write_to_json,
+)
 
 
 def test_read_file(test_file):

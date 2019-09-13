@@ -40,8 +40,7 @@ def open_cachefile(filename, mode='r', **kwargs):
 
     """
     # Set make_dir if not given
-    kwargs['make_dir'] = kwargs.get('make_dir',
-                                    True if mode[0] == 'w' else False)
+    kwargs['make_dir'] = kwargs.get('make_dir', True if mode[0] == 'w' else False)
     cache_dir = get_cachedir(**kwargs)
     file_path = os.path.join(cache_dir, filename)
     return open(file_path, mode)

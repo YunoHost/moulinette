@@ -11,6 +11,7 @@ logger = logging.getLogger('moulinette.authenticator')
 
 # Base Class -----------------------------------------------------------
 
+
 class BaseAuthenticator(object):
 
     """Authenticator base representation
@@ -46,8 +47,9 @@ class BaseAuthenticator(object):
     @property
     def is_authenticated(self):
         """Either the instance is authenticated or not"""
-        raise NotImplementedError("derived class '%s' must override this property" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this property" % self.__class__.__name__
+        )
 
     # Virtual methods
     # Each authenticator classes must implement these methods.
@@ -62,8 +64,9 @@ class BaseAuthenticator(object):
             - password -- A clear text password
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     # Authentication methods
 
@@ -94,7 +97,9 @@ class BaseAuthenticator(object):
                 # Extract id and hash from token
                 s_id, s_hash = token
             except TypeError as e:
-                logger.error("unable to extract token parts from '%s' because '%s'", token, e)
+                logger.error(
+                    "unable to extract token parts from '%s' because '%s'", token, e
+                )
                 if password is None:
                     raise MoulinetteError('error_see_log')
 
@@ -111,8 +116,12 @@ class BaseAuthenticator(object):
         except MoulinetteError:
             raise
         except Exception as e:
-            logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
-                             self.name, self.vendor, e)
+            logger.exception(
+                "authentication (name: '%s', vendor: '%s') fails because '%s'",
+                self.name,
+                self.vendor,
+                e,
+            )
             raise MoulinetteError('unable_authenticate')
 
         # Store session
@@ -121,6 +130,7 @@ class BaseAuthenticator(object):
                 self._store_session(s_id, s_hash, password)
             except Exception as e:
                 import traceback
+
                 traceback.print_exc()
                 logger.exception("unable to store session because %s", e)
             else:
@@ -132,8 +142,9 @@ class BaseAuthenticator(object):
 
     def _open_sessionfile(self, session_id, mode='r'):
         """Open a session file for this instance in given mode"""
-        return open_cachefile('%s.asc' % session_id, mode,
-                              subdir='session/%s' % self.name)
+        return open_cachefile(
+            '%s.asc' % session_id, mode, subdir='session/%s' % self.name
+        )
 
     def _store_session(self, session_id, session_hash, password):
         """Store a session and its associated password"""
@@ -142,7 +153,9 @@ class BaseAuthenticator(object):
 
         # Encrypt the password using the session hash
         s = str(gpg.encrypt(password, None, symmetric=True, passphrase=session_hash))
-        assert len(s), "For some reason GPG can't perform encryption, maybe check /root/.gnupg/gpg.conf or re-run with gpg = gnupg.GPG(verbose=True) ?"
+        assert len(
+            s
+        ), "For some reason GPG can't perform encryption, maybe check /root/.gnupg/gpg.conf or re-run with gpg = gnupg.GPG(verbose=True) ?"
 
         with self._open_sessionfile(session_id, 'w') as f:
             f.write(s)
@@ -161,7 +174,11 @@ class BaseAuthenticator(object):
 
             decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
             if decrypted.ok is not True:
-                error_message = "unable to decrypt password for the session: %s" % decrypted.status
+                error_message = (
+                    "unable to decrypt password for the session: %s" % decrypted.status
+                )
                 logger.error(error_message)
-                raise MoulinetteError('unable_retrieve_session', exception=error_message)
+                raise MoulinetteError(
+                    'unable_retrieve_session', exception=error_message
+                )
             return decrypted.data

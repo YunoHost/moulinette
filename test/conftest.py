@@ -48,47 +48,31 @@ def patch_logging(moulinette):
         'version': 1,
         'disable_existing_loggers': True,
         'formatters': {
-            'tty-debug': {
-                'format': '%(relativeCreated)-4d %(fmessage)s'
-            },
+            'tty-debug': {'format': '%(relativeCreated)-4d %(fmessage)s'},
             'precise': {
                 'format': '%(asctime)-15s %(levelname)-8s %(name)s %(funcName)s - %(fmessage)s'  # noqa
             },
         },
-        'filters': {
-            'action': {
-                '()': 'moulinette.utils.log.ActionFilter',
-            },
-        },
+        'filters': {'action': {'()': 'moulinette.utils.log.ActionFilter'}},
         'handlers': {
             'tty': {
                 'level': tty_level,
                 'class': 'moulinette.interfaces.cli.TTYHandler',
                 'formatter': '',
-            },
+            }
         },
         'loggers': {
-            'moulinette': {
-                'level': level,
-                'handlers': [],
-                'propagate': True,
-            },
+            'moulinette': {'level': level, 'handlers': [], 'propagate': True},
             'moulinette.interface': {
                 'level': level,
                 'handlers': handlers,
                 'propagate': False,
             },
         },
-        'root': {
-            'level': level,
-            'handlers': root_handlers,
-        },
+        'root': {'level': level, 'handlers': root_handlers},
     }
 
-    moulinette.init(
-        logging_config=logging,
-        _from_source=False
-    )
+    moulinette.init(logging_config=logging, _from_source=False)
 
 
 @pytest.fixture(scope='session', autouse=True)

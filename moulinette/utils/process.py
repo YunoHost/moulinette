@@ -11,6 +11,7 @@ except ImportError:
     from shlex import quote  # Python3 >= 3.3
 
 from .stream import async_file_reading
+
 quote  # This line is here to avoid W0611 PEP8 error (see comments above)
 
 # Prevent to import subprocess only for common classes
@@ -18,6 +19,7 @@ CalledProcessError = subprocess.CalledProcessError
 
 
 # Alternative subprocess methods ---------------------------------------
+
 
 def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs):
     """Run command with arguments and return its output as a byte string
@@ -30,6 +32,7 @@ def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs):
 
 
 # Call with stream access ----------------------------------------------
+
 
 def call_async_output(args, callback, **kwargs):
     """Run command and provide its output asynchronously
@@ -54,8 +57,7 @@ def call_async_output(args, callback, **kwargs):
     """
     for a in ['stdout', 'stderr']:
         if a in kwargs:
-            raise ValueError('%s argument not allowed, '
-                             'it will be overridden.' % a)
+            raise ValueError('%s argument not allowed, ' 'it will be overridden.' % a)
 
     if "stdinfo" in kwargs and kwargs["stdinfo"] is not None:
         assert len(callback) == 3
@@ -101,7 +103,7 @@ def call_async_output(args, callback, **kwargs):
                 stderr_consum.process_next_line()
                 if stdinfo:
                     stdinfo_consum.process_next_line()
-            time.sleep(.1)
+            time.sleep(0.1)
         stderr_reader.join()
         # clear the queues
         stdout_consum.process_current_queue()
@@ -111,7 +113,7 @@ def call_async_output(args, callback, **kwargs):
     else:
         while not stdout_reader.eof():
             stdout_consum.process_current_queue()
-            time.sleep(.1)
+            time.sleep(0.1)
     stdout_reader.join()
     # clear the queue
     stdout_consum.process_current_queue()
@@ -131,15 +133,15 @@ def call_async_output(args, callback, **kwargs):
     while time.time() - start < 10:
         if p.poll() is not None:
             return p.poll()
-        time.sleep(.1)
+        time.sleep(0.1)
 
     return p.poll()
 
 
 # Call multiple commands -----------------------------------------------
 
-def run_commands(cmds, callback=None, separate_stderr=False, shell=True,
-                 **kwargs):
+
+def run_commands(cmds, callback=None, separate_stderr=False, shell=True, **kwargs):
     """Run multiple commands with error management
 
     Run a list of commands and allow to manage how to treat errors either
@@ -178,14 +180,14 @@ def run_commands(cmds, callback=None, separate_stderr=False, shell=True,
     # overriden by user input
     for a in ['stdout', 'stderr']:
         if a in kwargs:
-            raise ValueError('%s argument not allowed, '
-                             'it will be overridden.' % a)
+            raise ValueError('%s argument not allowed, ' 'it will be overridden.' % a)
 
     # If no callback specified...
     if callback is None:
         # Raise CalledProcessError on command failure
         def callback(r, c, o):
             raise CalledProcessError(r, c, o)
+
     elif not callable(callback):
         raise ValueError('callback argument must be callable')
 
@@ -201,8 +203,9 @@ def run_commands(cmds, callback=None, separate_stderr=False, shell=True,
     error = 0
     for cmd in cmds:
 
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                   stderr=_stderr, shell=shell, **kwargs)
+        process = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=_stderr, shell=shell, **kwargs
+        )
 
         output = _get_output(*process.communicate())
         retcode = process.poll()

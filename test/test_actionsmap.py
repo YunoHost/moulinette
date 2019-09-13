@@ -5,7 +5,7 @@ from moulinette.actionsmap import (
     AskParameter,
     PatternParameter,
     RequiredParameter,
-    ActionsMap
+    ActionsMap,
 )
 from moulinette.interfaces import BaseActionsMapParser
 from moulinette.core import MoulinetteError
@@ -58,11 +58,9 @@ def test_pattern_parameter_bad_str_value(iface, caplog):
     assert any('expecting a list' in message for message in caplog.messages)
 
 
-@pytest.mark.parametrize('iface', [
-    [],
-    ['pattern_alone'],
-    ['pattern', 'message', 'extra stuff']
-])
+@pytest.mark.parametrize(
+    'iface', [[], ['pattern_alone'], ['pattern', 'message', 'extra stuff']]
+)
 def test_pattern_parameter_bad_list_len(iface):
     pattern = PatternParameter(iface)
     with pytest.raises(TypeError):

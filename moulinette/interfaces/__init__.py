@@ -7,7 +7,7 @@ import copy
 from collections import deque, OrderedDict
 
 from moulinette import msignals, msettings, m18n
-from moulinette.core import (init_authenticator, MoulinetteError)
+from moulinette.core import init_authenticator, MoulinetteError
 
 logger = logging.getLogger('moulinette.interface')
 
@@ -17,6 +17,7 @@ CALLBACKS_PROP = '_callbacks'
 
 
 # Base Class -----------------------------------------------------------
+
 
 class BaseActionsMapParser(object):
 
@@ -37,8 +38,7 @@ class BaseActionsMapParser(object):
         if parent:
             self._o = parent
         else:
-            logger.debug('initializing base actions map parser for %s',
-                         self.interface)
+            logger.debug('initializing base actions map parser for %s', self.interface)
             msettings['interface'] = self.interface
 
             self._o = self
@@ -70,8 +70,9 @@ class BaseActionsMapParser(object):
             A list of option strings
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def has_global_parser(self):
         return False
@@ -85,8 +86,9 @@ class BaseActionsMapParser(object):
             An ArgumentParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def add_category_parser(self, name, **kwargs):
         """Add a parser for a category
@@ -100,8 +102,9 @@ class BaseActionsMapParser(object):
             A BaseParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def add_action_parser(self, name, tid, **kwargs):
         """Add a parser for an action
@@ -116,8 +119,9 @@ class BaseActionsMapParser(object):
             An ArgumentParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def parse_args(self, args, **kwargs):
         """Parse arguments
@@ -132,16 +136,18 @@ class BaseActionsMapParser(object):
             The populated namespace
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     # Arguments helpers
 
     def prepare_action_namespace(self, tid, namespace=None):
         """Prepare the namespace for a given action"""
         # Validate tid and namespace
-        if not isinstance(tid, tuple) and \
-                (namespace is None or not hasattr(namespace, TO_RETURN_PROP)):
+        if not isinstance(tid, tuple) and (
+            namespace is None or not hasattr(namespace, TO_RETURN_PROP)
+        ):
             raise MoulinetteError('invalid_usage')
         elif not tid:
             tid = GLOBAL_SECTION
@@ -159,8 +165,10 @@ class BaseActionsMapParser(object):
             auth = msignals.authenticate(cls(), **auth_conf)
             if not auth.is_authenticated:
                 raise MoulinetteError('authentication_required_long')
-            if self.get_conf(tid, 'argument_auth') and \
-                    self.get_conf(tid, 'authenticate') == 'all':
+            if (
+                self.get_conf(tid, 'argument_auth')
+                and self.get_conf(tid, 'authenticate') == 'all'
+            ):
                 namespace.auth = auth
 
         return namespace
@@ -260,8 +268,11 @@ class BaseActionsMapParser(object):
                 # Store only if authentication is needed
                 conf['authenticate'] = True if self.interface in ifaces else False
             else:
-                logger.error("expecting 'all', 'False' or a list for "
-                             "configuration 'authenticate', got %r", ifaces)
+                logger.error(
+                    "expecting 'all', 'False' or a list for "
+                    "configuration 'authenticate', got %r",
+                    ifaces,
+                )
                 raise MoulinetteError('error_see_log')
 
         # -- 'authenticator'
@@ -275,13 +286,18 @@ class BaseActionsMapParser(object):
                     # Store needed authenticator profile
                     conf['authenticator'] = self.global_conf['authenticator'][auth]
                 except KeyError:
-                    logger.error("requesting profile '%s' which is undefined in "
-                                 "global configuration of 'authenticator'", auth)
+                    logger.error(
+                        "requesting profile '%s' which is undefined in "
+                        "global configuration of 'authenticator'",
+                        auth,
+                    )
                     raise MoulinetteError('error_see_log')
             elif is_global and isinstance(auth, dict):
                 if len(auth) == 0:
-                    logger.warning('no profile defined in global configuration '
-                                   "for 'authenticator'")
+                    logger.warning(
+                        'no profile defined in global configuration '
+                        "for 'authenticator'"
+                    )
                 else:
                     auths = {}
                     for auth_name, auth_conf in auth.items():
@@ -293,13 +309,18 @@ class BaseActionsMapParser(object):
                         #     configuration (i.e. 'help')
                         # - parameters: a dict of arguments for the
                         #     authenticator profile
-                        auths[auth_name] = ((auth_conf.get('vendor'), auth_name),
-                                            {'help': auth_conf.get('help', None)},
-                                            auth_conf.get('parameters', {}))
+                        auths[auth_name] = (
+                            (auth_conf.get('vendor'), auth_name),
+                            {'help': auth_conf.get('help', None)},
+                            auth_conf.get('parameters', {}),
+                        )
                     conf['authenticator'] = auths
             else:
-                logger.error("expecting a dict of profile(s) or a profile name "
-                             "for configuration 'authenticator', got %r", auth)
+                logger.error(
+                    "expecting a dict of profile(s) or a profile name "
+                    "for configuration 'authenticator', got %r",
+                    auth,
+                )
                 raise MoulinetteError('error_see_log')
 
         # -- 'argument_auth'
@@ -311,8 +332,10 @@ class BaseActionsMapParser(object):
             if isinstance(arg_auth, bool):
                 conf['argument_auth'] = arg_auth
             else:
-                logger.error("expecting a boolean for configuration "
-                             "'argument_auth', got %r", arg_auth)
+                logger.error(
+                    "expecting a boolean for configuration " "'argument_auth', got %r",
+                    arg_auth,
+                )
                 raise MoulinetteError('error_see_log')
 
         # -- 'lock'
@@ -324,8 +347,9 @@ class BaseActionsMapParser(object):
             if isinstance(lock, bool):
                 conf['lock'] = lock
             else:
-                logger.error("expecting a boolean for configuration 'lock', "
-                             "got %r", lock)
+                logger.error(
+                    "expecting a boolean for configuration 'lock', " "got %r", lock
+                )
                 raise MoulinetteError('error_see_log')
 
         return conf
@@ -346,8 +370,7 @@ class BaseActionsMapParser(object):
 
             # Return global configuration and an authenticator
             # instanciator as a 2-tuple
-            return (configuration,
-                    lambda: init_authenticator(identifier, parameters))
+            return (configuration, lambda: init_authenticator(identifier, parameters))
 
         return value
 
@@ -364,38 +387,45 @@ class BaseInterface(object):
         - actionsmap -- The ActionsMap instance to connect to
 
     """
+
     # TODO: Add common interface methods and try to standardize default ones
 
     def __init__(self, actionsmap):
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
 
 # Argument parser ------------------------------------------------------
 
-class _CallbackAction(argparse.Action):
 
-    def __init__(self,
-                 option_strings,
-                 dest,
-                 nargs=0,
-                 callback={},
-                 default=argparse.SUPPRESS,
-                 help=None):
+class _CallbackAction(argparse.Action):
+    def __init__(
+        self,
+        option_strings,
+        dest,
+        nargs=0,
+        callback={},
+        default=argparse.SUPPRESS,
+        help=None,
+    ):
         if not callback or 'method' not in callback:
-            raise ValueError('callback must be provided with at least '
-                             'a method key')
+            raise ValueError('callback must be provided with at least ' 'a method key')
         super(_CallbackAction, self).__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=nargs,
             default=default,
-            help=help)
+            help=help,
+        )
         self.callback_method = callback.get('method')
         self.callback_kwargs = callback.get('kwargs', {})
         self.callback_return = callback.get('return', False)
-        logger.debug("registering new callback action '{0}' to {1}".format(
-            self.callback_method, option_strings))
+        logger.debug(
+            "registering new callback action '{0}' to {1}".format(
+                self.callback_method, option_strings
+            )
+        )
 
     @property
     def callback(self):
@@ -407,12 +437,10 @@ class _CallbackAction(argparse.Action):
         # Attempt to retrieve callback method
         mod_name, func_name = (self.callback_method).rsplit('.', 1)
         try:
-            mod = __import__(mod_name, globals=globals(), level=0,
-                             fromlist=[func_name])
+            mod = __import__(mod_name, globals=globals(), level=0, fromlist=[func_name])
             func = getattr(mod, func_name)
         except (AttributeError, ImportError):
-            raise ValueError('unable to import method {0}'.format(
-                self.callback_method))
+            raise ValueError('unable to import method {0}'.format(self.callback_method))
         self._callback = func
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -425,8 +453,10 @@ class _CallbackAction(argparse.Action):
             # Execute callback and get returned value
             value = self.callback(namespace, values, **self.callback_kwargs)
         except:
-            logger.exception("cannot get value from callback method "
-                             "'{0}'".format(self.callback_method))
+            logger.exception(
+                "cannot get value from callback method "
+                "'{0}'".format(self.callback_method)
+            )
             raise MoulinetteError('error_see_log')
         else:
             if value:
@@ -467,8 +497,7 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
             if 'help' in kwargs:
                 del kwargs['help']
 
-        parser = super(_ExtendedSubParsersAction, self).add_parser(
-            name, **kwargs)
+        parser = super(_ExtendedSubParsersAction, self).add_parser(name, **kwargs)
 
         # Append each deprecated command alias name
         for command in deprecated_alias:
@@ -490,23 +519,30 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         else:
             # Warn the user about deprecated command
             if correct_name is None:
-                logger.warning(m18n.g('deprecated_command', prog=parser.prog,
-                                      command=parser_name))
+                logger.warning(
+                    m18n.g('deprecated_command', prog=parser.prog, command=parser_name)
+                )
             else:
-                logger.warning(m18n.g('deprecated_command_alias',
-                                      old=parser_name, new=correct_name,
-                                      prog=parser.prog))
+                logger.warning(
+                    m18n.g(
+                        'deprecated_command_alias',
+                        old=parser_name,
+                        new=correct_name,
+                        prog=parser.prog,
+                    )
+                )
                 values[0] = correct_name
 
         return super(_ExtendedSubParsersAction, self).__call__(
-            parser, namespace, values, option_string)
+            parser, namespace, values, option_string
+        )
 
 
 class ExtendedArgumentParser(argparse.ArgumentParser):
-
     def __init__(self, *args, **kwargs):
-        super(ExtendedArgumentParser, self).__init__(formatter_class=PositionalsFirstHelpFormatter,
-                                                     *args, **kwargs)
+        super(ExtendedArgumentParser, self).__init__(
+            formatter_class=PositionalsFirstHelpFormatter, *args, **kwargs
+        )
 
         # Register additional actions
         self.register('action', 'callback', _CallbackAction)
@@ -538,11 +574,14 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 queue = list()
         return queue
 
-    def add_arguments(self, arguments, extraparser, format_arg_names=None, validate_extra=True):
+    def add_arguments(
+        self, arguments, extraparser, format_arg_names=None, validate_extra=True
+    ):
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
-            names = format_arg_names(str(argument_name),
-                                     argument_options.pop('full', None))
+            names = format_arg_names(
+                str(argument_name), argument_options.pop('full', None)
+            )
 
             if "type" in argument_options:
                 argument_options['type'] = eval(argument_options['type'])
@@ -550,8 +589,9 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             if "extra" in argument_options:
                 extra = argument_options.pop('extra')
                 argument_dest = self.add_argument(*names, **argument_options).dest
-                extraparser.add_argument(self.get_default("_tid"),
-                                         argument_dest, extra, validate_extra)
+                extraparser.add_argument(
+                    self.get_default("_tid"), argument_dest, extra, validate_extra
+                )
                 continue
 
             self.add_argument(*names, **argument_options)
@@ -560,8 +600,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
         if action.nargs == argparse.PARSER and not action.required:
             return '([-AO]*)'
         else:
-            return super(ExtendedArgumentParser, self)._get_nargs_pattern(
-                action)
+            return super(ExtendedArgumentParser, self)._get_nargs_pattern(action)
 
     def _get_values(self, action, arg_strings):
         if action.nargs == argparse.PARSER and not action.required:
@@ -571,8 +610,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             else:
                 value = argparse.SUPPRESS
         else:
-            value = super(ExtendedArgumentParser, self)._get_values(
-                action, arg_strings)
+            value = super(ExtendedArgumentParser, self)._get_values(action, arg_strings)
         return value
 
     # Adapted from :
@@ -581,8 +619,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
         formatter = self._get_formatter()
 
         # usage
-        formatter.add_usage(self.usage, self._actions,
-                            self._mutually_exclusive_groups)
+        formatter.add_usage(self.usage, self._actions, self._mutually_exclusive_groups)
 
         # description
         formatter.add_text(self.description)
@@ -600,14 +637,30 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 subcategories_subparser = copy.copy(action_group._group_actions[0])
 
                 # Filter "action"-type and "subcategory"-type commands
-                actions_subparser.choices = OrderedDict([(k, v) for k, v in actions_subparser.choices.items() if v.type == "action"])
-                subcategories_subparser.choices = OrderedDict([(k, v) for k, v in subcategories_subparser.choices.items() if v.type == "subcategory"])
+                actions_subparser.choices = OrderedDict(
+                    [
+                        (k, v)
+                        for k, v in actions_subparser.choices.items()
+                        if v.type == "action"
+                    ]
+                )
+                subcategories_subparser.choices = OrderedDict(
+                    [
+                        (k, v)
+                        for k, v in subcategories_subparser.choices.items()
+                        if v.type == "subcategory"
+                    ]
+                )
 
                 actions_choices = actions_subparser.choices.keys()
                 subcategories_choices = subcategories_subparser.choices.keys()
 
-                actions_subparser._choices_actions = [c for c in choice_actions if c.dest in actions_choices]
-                subcategories_subparser._choices_actions = [c for c in choice_actions if c.dest in subcategories_choices]
+                actions_subparser._choices_actions = [
+                    c for c in choice_actions if c.dest in actions_choices
+                ]
+                subcategories_subparser._choices_actions = [
+                    c for c in choice_actions if c.dest in subcategories_choices
+                ]
 
                 # Display each section (actions and subcategories)
                 if actions_choices != []:
@@ -642,7 +695,6 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 # and fix is inspired from here :
 # https://stackoverflow.com/questions/26985650/argparse-do-not-catch-positional-arguments-with-nargs/26986546#26986546
 class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
-
     def _format_usage(self, usage, actions, groups, prefix):
         if prefix is None:
             # TWEAK : not using gettext here...
@@ -706,7 +758,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
                     if line:
                         lines.append(indent + ' '.join(line))
                     if prefix is not None:
-                        lines[0] = lines[0][len(indent):]
+                        lines[0] = lines[0][len(indent) :]
                     return lines
 
                 # if prog is short, follow it with optionals or positionals

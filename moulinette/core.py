@@ -21,6 +21,7 @@ def during_unittests_run():
 
 # Internationalization -------------------------------------------------
 
+
 class Translator(object):
 
     """Internationalization class
@@ -41,8 +42,9 @@ class Translator(object):
 
         # Attempt to load default translations
         if not self._load_translations(default_locale):
-            logger.error("unable to load locale '%s' from '%s'",
-                         default_locale, locale_dir)
+            logger.error(
+                "unable to load locale '%s' from '%s'", default_locale, locale_dir
+            )
         self.default_locale = default_locale
 
     def get_locales(self):
@@ -70,8 +72,11 @@ class Translator(object):
         """
         if locale not in self._translations:
             if not self._load_translations(locale):
-                logger.debug("unable to load locale '%s' from '%s'",
-                             self.default_locale, self.locale_dir)
+                logger.debug(
+                    "unable to load locale '%s' from '%s'",
+                    self.default_locale,
+                    self.locale_dir,
+                )
 
                 # Revert to default locale
                 self.locale = self.default_locale
@@ -94,11 +99,18 @@ class Translator(object):
         failed_to_format = False
         if key in self._translations.get(self.locale, {}):
             try:
-                return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
+                return (
+                    self._translations[self.locale][key]
+                    .encode('utf-8')
+                    .format(*args, **kwargs)
+                )
             except KeyError as e:
-                unformatted_string = self._translations[self.locale][key].encode('utf-8')
-                error_message = "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)" % (
-                    key, unformatted_string, args, kwargs, e.__class__.__name__, e
+                unformatted_string = self._translations[self.locale][key].encode(
+                    'utf-8'
+                )
+                error_message = (
+                    "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)"
+                    % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
                 )
 
                 if not during_unittests_run():
@@ -108,16 +120,25 @@ class Translator(object):
 
                 failed_to_format = True
 
-        if failed_to_format or (self.default_locale != self.locale and key in self._translations.get(self.default_locale, {})):
-            logger.info("untranslated key '%s' for locale '%s'",
-                        key, self.locale)
+        if failed_to_format or (
+            self.default_locale != self.locale
+            and key in self._translations.get(self.default_locale, {})
+        ):
+            logger.info("untranslated key '%s' for locale '%s'", key, self.locale)
 
             try:
-                return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+                return (
+                    self._translations[self.default_locale][key]
+                    .encode('utf-8')
+                    .format(*args, **kwargs)
+                )
             except KeyError as e:
-                unformatted_string = self._translations[self.default_locale][key].encode('utf-8')
-                error_message = "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)" % (
-                    key, unformatted_string, args, kwargs, e.__class__.__name__, e
+                unformatted_string = self._translations[self.default_locale][
+                    key
+                ].encode('utf-8')
+                error_message = (
+                    "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)"
+                    % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
                 )
                 if not during_unittests_run():
                     logger.exception(error_message)
@@ -126,7 +147,10 @@ class Translator(object):
 
                 return self._translations[self.default_locale][key].encode('utf-8')
 
-        error_message = "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)" % (key, self.default_locale)
+        error_message = (
+            "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)"
+            % (key, self.default_locale)
+        )
 
         if not during_unittests_run():
             logger.exception(error_message)
@@ -202,8 +226,9 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            translator = Translator('%s/%s/locales' % (self.lib_dir, namespace),
-                                    self.default_locale)
+            translator = Translator(
+                '%s/%s/locales' % (self.lib_dir, namespace), self.default_locale
+            )
             translator.set_locale(self.locale)
             self._namespaces[namespace] = translator
 
@@ -354,6 +379,7 @@ class MoulinetteSignals(object):
 
 # Interfaces & Authenticators management -------------------------------
 
+
 def init_interface(name, kwargs={}, actionsmap={}):
     """Return a new interface instance
 
@@ -444,6 +470,7 @@ def clean_session(session_id, profiles=[]):
 
 # Moulinette core classes ----------------------------------------------
 
+
 class MoulinetteError(Exception):
 
     """Moulinette base exception"""
@@ -473,7 +500,7 @@ class MoulinetteLock(object):
 
     """
 
-    def __init__(self, namespace, timeout=None, interval=.5):
+    def __init__(self, namespace, timeout=None, interval=0.5):
         self.namespace = namespace
         self.timeout = timeout
         self.interval = interval
@@ -527,9 +554,13 @@ class MoulinetteLock(object):
             # warn the user if it's been too much time since they are waiting
             if (time.time() - start_time) > warning_treshold:
                 if warning_treshold == 15:
-                    logger.warning(moulinette.m18n.g('warn_the_user_about_waiting_lock'))
+                    logger.warning(
+                        moulinette.m18n.g('warn_the_user_about_waiting_lock')
+                    )
                 else:
-                    logger.warning(moulinette.m18n.g('warn_the_user_about_waiting_lock_again'))
+                    logger.warning(
+                        moulinette.m18n.g('warn_the_user_about_waiting_lock_again')
+                    )
                 warning_treshold *= 4
 
             # Wait before checking again
@@ -552,7 +583,9 @@ class MoulinetteLock(object):
             if os.path.exists(self._lockfile):
                 os.unlink(self._lockfile)
             else:
-                logger.warning("Uhoh, somehow the lock %s did not exist ..." % self._lockfile)
+                logger.warning(
+                    "Uhoh, somehow the lock %s did not exist ..." % self._lockfile
+                )
             logger.debug('lock has been released')
             self._locked = False
 

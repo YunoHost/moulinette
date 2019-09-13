@@ -18,6 +18,7 @@ logger = logging.getLogger('moulinette.authenticator.ldap')
 
 # LDAP Class Implementation --------------------------------------------
 
+
 class Authenticator(BaseAuthenticator):
 
     """LDAP Authenticator
@@ -34,8 +35,14 @@ class Authenticator(BaseAuthenticator):
     """
 
     def __init__(self, name, uri, base_dn, user_rdn=None):
-        logger.debug("initialize authenticator '%s' with: uri='%s', "
-                     "base_dn='%s', user_rdn='%s'", name, uri, base_dn, user_rdn)
+        logger.debug(
+            "initialize authenticator '%s' with: uri='%s', "
+            "base_dn='%s', user_rdn='%s'",
+            name,
+            uri,
+            base_dn,
+            user_rdn,
+        )
         super(Authenticator, self).__init__(name)
 
         self.uri = uri
@@ -79,7 +86,9 @@ class Authenticator(BaseAuthenticator):
 
     def authenticate(self, password):
         try:
-            con = ldap.ldapobject.ReconnectLDAPObject(self.uri, retry_max=10, retry_delay=0.5)
+            con = ldap.ldapobject.ReconnectLDAPObject(
+                self.uri, retry_max=10, retry_delay=0.5
+            )
             if self.userdn:
                 if 'cn=external,cn=auth' in self.userdn:
                     con.sasl_non_interactive_bind_s('EXTERNAL')
@@ -99,13 +108,16 @@ class Authenticator(BaseAuthenticator):
     def _ensure_password_uses_strong_hash(self, password):
         # XXX this has been copy pasted from YunoHost, should we put that into moulinette?
         def _hash_user_password(password):
-            char_set = string.ascii_uppercase + string.ascii_lowercase + string.digits + "./"
+            char_set = (
+                string.ascii_uppercase + string.ascii_lowercase + string.digits + "./"
+            )
             salt = ''.join([random.SystemRandom().choice(char_set) for x in range(16)])
             salt = '$6$' + salt + '$'
             return '{CRYPT}' + crypt.crypt(str(password), salt)
 
-        hashed_password = self.search("cn=admin,dc=yunohost,dc=org",
-                                      attrs=["userPassword"])[0]
+        hashed_password = self.search(
+            "cn=admin,dc=yunohost,dc=org", attrs=["userPassword"]
+        )[0]
 
         # post-install situation, password is not already set
         if "userPassword" not in hashed_password or not hashed_password["userPassword"]:
@@ -113,9 +125,7 @@ class Authenticator(BaseAuthenticator):
 
         # we aren't using sha-512 but something else that is weaker, proceed to upgrade
         if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
-            self.update("cn=admin", {
-                "userPassword": _hash_user_password(password),
-            })
+            self.update("cn=admin", {"userPassword": _hash_user_password(password)})
 
     # Additional LDAP methods
     # TODO: Review these methods
@@ -141,8 +151,14 @@ class Authenticator(BaseAuthenticator):
         try:
             result = self.con.search_s(base, ldap.SCOPE_SUBTREE, filter, attrs)
         except Exception as e:
-            logger.exception("error during LDAP search operation with: base='%s', "
-                             "filter='%s', attrs=%s and exception %s", base, filter, attrs, e)
+            logger.exception(
+                "error during LDAP search operation with: base='%s', "
+                "filter='%s', attrs=%s and exception %s",
+                base,
+                filter,
+                attrs,
+                e,
+            )
             raise MoulinetteError('ldap_operation_error')
 
         result_list = []
@@ -172,8 +188,13 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.add_s(dn, ldif)
         except Exception as e:
-            logger.exception("error during LDAP add operation with: rdn='%s', "
-                             "attr_dict=%s and exception %s", rdn, attr_dict, e)
+            logger.exception(
+                "error during LDAP add operation with: rdn='%s', "
+                "attr_dict=%s and exception %s",
+                rdn,
+                attr_dict,
+                e,
+            )
             raise MoulinetteError('ldap_operation_error')
         else:
             return True
@@ -193,7 +214,11 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.delete_s(dn)
         except Exception as e:
-            logger.exception("error during LDAP delete operation with: rdn='%s' and exception %s", rdn, e)
+            logger.exception(
+                "error during LDAP delete operation with: rdn='%s' and exception %s",
+                rdn,
+                e,
+            )
             raise MoulinetteError('ldap_operation_error')
         else:
             return True
@@ -222,9 +247,14 @@ class Authenticator(BaseAuthenticator):
 
             self.con.modify_ext_s(dn, ldif)
         except Exception as e:
-            logger.exception("error during LDAP update operation with: rdn='%s', "
-                             "attr_dict=%s, new_rdn=%s and exception: %s", rdn, attr_dict,
-                             new_rdn, e)
+            logger.exception(
+                "error during LDAP update operation with: rdn='%s', "
+                "attr_dict=%s, new_rdn=%s and exception: %s",
+                rdn,
+                attr_dict,
+                new_rdn,
+                e,
+            )
             raise MoulinetteError('ldap_operation_error')
         else:
             return True
@@ -242,11 +272,16 @@ class Authenticator(BaseAuthenticator):
         """
         attr_found = self.get_conflict(value_dict)
         if attr_found:
-            logger.info("attribute '%s' with value '%s' is not unique",
-                        attr_found[0], attr_found[1])
-            raise MoulinetteError('ldap_attribute_already_exists',
-                                  attribute=attr_found[0],
-                                  value=attr_found[1])
+            logger.info(
+                "attribute '%s' with value '%s' is not unique",
+                attr_found[0],
+                attr_found[1],
+            )
+            raise MoulinetteError(
+                'ldap_attribute_already_exists',
+                attribute=attr_found[0],
+                value=attr_found[1],
+            )
         return True
 
     def get_conflict(self, value_dict, base_dn=None):

@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/YunoHost/moulinette.svg?branch=stretch-unstable)](https://travis-ci.org/YunoHost/moulinette)
 [![GitHub license](https://img.shields.io/github/license/YunoHost/moulinette)](https://github.com/YunoHost/moulinette/blob/stretch-unstable/LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Moulinette
 ==========
@@ -61,3 +62,10 @@ Testing
 $ pip install tox
 $ tox
 ```
+
+A note regarding the use of [Black](https://github.com/psf/black) for source
+code formatting. The actual source code of Moulinette is still written using
+Python 2. Black can still format this code but it must within a Python 3
+environment. Therefore, you'll need to manage this environment switching when
+you invoke Black through Tox (`tox -e format`). An environment created with
+your system Python 3 should suffice (`python3 -m venv .venv` etc.).

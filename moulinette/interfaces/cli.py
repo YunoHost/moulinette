@@ -15,7 +15,9 @@ import argcomplete
 from moulinette import msignals, m18n
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
-    BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
+    BaseActionsMapParser,
+    BaseInterface,
+    ExtendedArgumentParser,
 )
 from moulinette.utils import log
 
@@ -175,6 +177,7 @@ def get_locale():
 
 # CLI Classes Implementation -------------------------------------------
 
+
 class TTYHandler(logging.StreamHandler):
 
     """TTY log handler
@@ -192,6 +195,7 @@ class TTYHandler(logging.StreamHandler):
     stderr. Otherwise, they are sent to stdout.
 
     """
+
     LEVELS_COLOR = {
         log.NOTSET: 'white',
         log.DEBUG: 'white',
@@ -218,8 +222,7 @@ class TTYHandler(logging.StreamHandler):
                 # add translated level name before message
                 level = '%s ' % m18n.g(record.levelname.lower())
             color = self.LEVELS_COLOR.get(record.levelno, 'white')
-            msg = '{0}{1}{2}{3}'.format(
-                colors_codes[color], level, END_CLI_COLOR, msg)
+            msg = '{0}{1}{2}{3}'.format(colors_codes[color], level, END_CLI_COLOR, msg)
         if self.formatter:
             # use user-defined formatter
             record.__dict__[self.message_key] = msg
@@ -256,8 +259,9 @@ class ActionsMapParser(BaseActionsMapParser):
 
     """
 
-    def __init__(self, parent=None, parser=None, subparser_kwargs=None,
-                 top_parser=None, **kwargs):
+    def __init__(
+        self, parent=None, parser=None, subparser_kwargs=None, top_parser=None, **kwargs
+    ):
         super(ActionsMapParser, self).__init__(parent)
 
         if subparser_kwargs is None:
@@ -300,13 +304,10 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ActionsMapParser object for the category
 
         """
-        parser = self._subparsers.add_parser(name,
-                                             description=category_help,
-                                             help=category_help,
-                                             **kwargs)
-        return self.__class__(self, parser, {
-            'title': "subcommands", 'required': True
-        })
+        parser = self._subparsers.add_parser(
+            name, description=category_help, help=category_help, **kwargs
+        )
+        return self.__class__(self, parser, {'title': "subcommands", 'required': True})
 
     def add_subcategory_parser(self, name, subcategory_help=None, **kwargs):
         """Add a parser for a subcategory
@@ -318,17 +319,24 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ActionsMapParser object for the category
 
         """
-        parser = self._subparsers.add_parser(name,
-                                             type_="subcategory",
-                                             description=subcategory_help,
-                                             help=subcategory_help,
-                                             **kwargs)
-        return self.__class__(self, parser, {
-            'title': "actions", 'required': True
-        })
+        parser = self._subparsers.add_parser(
+            name,
+            type_="subcategory",
+            description=subcategory_help,
+            help=subcategory_help,
+            **kwargs
+        )
+        return self.__class__(self, parser, {'title': "actions", 'required': True})
 
-    def add_action_parser(self, name, tid, action_help=None, deprecated=False,
-                          deprecated_alias=[], **kwargs):
+    def add_action_parser(
+        self,
+        name,
+        tid,
+        action_help=None,
+        deprecated=False,
+        deprecated_alias=[],
+        **kwargs
+    ):
         """Add a parser for an action
 
         Keyword arguments:
@@ -340,18 +348,21 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ExtendedArgumentParser object for the action
 
         """
-        return self._subparsers.add_parser(name,
-                                           type_="action",
-                                           help=action_help,
-                                           description=action_help,
-                                           deprecated=deprecated,
-                                           deprecated_alias=deprecated_alias)
+        return self._subparsers.add_parser(
+            name,
+            type_="action",
+            help=action_help,
+            description=action_help,
+            deprecated=deprecated,
+            deprecated_alias=deprecated_alias,
+        )
 
     def add_global_arguments(self, arguments):
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
-            names = self.format_arg_names(str(argument_name),
-                                          argument_options.pop('full', None))
+            names = self.format_arg_names(
+                str(argument_name), argument_options.pop('full', None)
+            )
 
             self.global_parser.add_argument(*names, **argument_options)
 
@@ -417,8 +428,7 @@ class Interface(BaseInterface):
 
         # Set handler for authentication
         if password:
-            msignals.set_handler('authenticate',
-                                 lambda a, h: a(password=password))
+            msignals.set_handler('authenticate', lambda a, h: a(password=password))
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
@@ -433,6 +443,7 @@ class Interface(BaseInterface):
             if output_as == 'json':
                 import json
                 from moulinette.utils.serialize import JSONExtendedEncoder
+
                 print(json.dumps(ret, cls=JSONExtendedEncoder))
             else:
                 plain_print_dict(ret)
@@ -451,8 +462,7 @@ class Interface(BaseInterface):
         """
         # TODO: Allow token authentication?
         msg = m18n.n(help) if help else m18n.g('password')
-        return authenticator(password=self._do_prompt(msg, True, False,
-                                                      color='yellow'))
+        return authenticator(password=self._do_prompt(msg, True, False, color='yellow'))
 
     def _do_prompt(self, message, is_password, confirm, color='blue'):
         """Prompt for a value
@@ -464,8 +474,7 @@ class Interface(BaseInterface):
 
         """
         if is_password:
-            prompt = lambda m: getpass.getpass(colorize(m18n.g('colon', m),
-                                                        color))
+            prompt = lambda m: getpass.getpass(colorize(m18n.g('colon', m), color))
         else:
             prompt = lambda m: raw_input(colorize(m18n.g('colon', m), color))
         value = prompt(message)

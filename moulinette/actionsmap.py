@@ -11,10 +11,8 @@ from collections import OrderedDict
 from moulinette import m18n, msignals
 from moulinette.cache import open_cachefile
 from moulinette.globals import init_moulinette_env
-from moulinette.core import (MoulinetteError, MoulinetteLock)
-from moulinette.interfaces import (
-    BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
-)
+from moulinette.core import MoulinetteError, MoulinetteLock
+from moulinette.interfaces import BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
 
 logger = logging.getLogger('moulinette.actionsmap')
@@ -23,6 +21,7 @@ logger = logging.getLogger('moulinette.actionsmap')
 # Extra parameters ----------------------------------------------------
 
 # Extra parameters definition
+
 
 class _ExtraParameter(object):
 
@@ -95,12 +94,15 @@ class CommentParameter(_ExtraParameter):
     def validate(klass, value, arg_name):
         # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logger.warning("expecting a non-empty string for extra parameter '%s' of "
-                           "argument '%s'", klass.name, arg_name)
+            logger.warning(
+                "expecting a non-empty string for extra parameter '%s' of "
+                "argument '%s'",
+                klass.name,
+                arg_name,
+            )
             value = arg_name
         elif not isinstance(value, str):
-            raise TypeError("parameter value must be a string, got %r"
-                            % value)
+            raise TypeError("parameter value must be a string, got %r" % value)
         return value
 
 
@@ -113,6 +115,7 @@ class AskParameter(_ExtraParameter):
     when asking the argument value.
 
     """
+
     name = 'ask'
     skipped_iface = ['api']
 
@@ -130,12 +133,15 @@ class AskParameter(_ExtraParameter):
     def validate(klass, value, arg_name):
         # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logger.warning("expecting a non-empty string for extra parameter '%s' of "
-                           "argument '%s'", klass.name, arg_name)
+            logger.warning(
+                "expecting a non-empty string for extra parameter '%s' of "
+                "argument '%s'",
+                klass.name,
+                arg_name,
+            )
             value = arg_name
         elif not isinstance(value, str):
-            raise TypeError("parameter value must be a string, got %r"
-                            % value)
+            raise TypeError("parameter value must be a string, got %r" % value)
         return value
 
 
@@ -148,6 +154,7 @@ class PasswordParameter(AskParameter):
     when asking the password.
 
     """
+
     name = 'password'
 
     def __call__(self, message, arg_name, arg_value):
@@ -170,6 +177,7 @@ class PatternParameter(_ExtraParameter):
     the message to display if it doesn't match.
 
     """
+
     name = 'pattern'
 
     def __call__(self, arguments, arg_name, arg_value):
@@ -182,28 +190,32 @@ class PatternParameter(_ExtraParameter):
             v = arg_value
 
         if v and not re.match(pattern, v or '', re.UNICODE):
-            logger.debug("argument value '%s' for '%s' doesn't match pattern '%s'",
-                         v, arg_name, pattern)
+            logger.debug(
+                "argument value '%s' for '%s' doesn't match pattern '%s'",
+                v,
+                arg_name,
+                pattern,
+            )
 
             # Attempt to retrieve message translation
             msg = m18n.n(message)
             if msg == message:
                 msg = m18n.g(message)
 
-            raise MoulinetteError('invalid_argument',
-                                  argument=arg_name, error=msg)
+            raise MoulinetteError('invalid_argument', argument=arg_name, error=msg)
         return arg_value
 
     @staticmethod
     def validate(value, arg_name):
         # Deprecated string type
         if isinstance(value, str):
-            logger.warning("expecting a list as extra parameter 'pattern' of "
-                           "argument '%s'", arg_name)
+            logger.warning(
+                "expecting a list as extra parameter 'pattern' of " "argument '%s'",
+                arg_name,
+            )
             value = [value, 'pattern_not_match']
         elif not isinstance(value, list) or len(value) != 2:
-            raise TypeError("parameter value must be a list, got %r"
-                            % value)
+            raise TypeError("parameter value must be a list, got %r" % value)
         return value
 
 
@@ -215,21 +227,19 @@ class RequiredParameter(_ExtraParameter):
     The value of this parameter must be a boolean which is set to False by
     default.
     """
+
     name = 'required'
 
     def __call__(self, required, arg_name, arg_value):
         if required and (arg_value is None or arg_value == ''):
-            logger.debug("argument '%s' is required",
-                         arg_name)
-            raise MoulinetteError('argument_required',
-                                  argument=arg_name)
+            logger.debug("argument '%s' is required", arg_name)
+            raise MoulinetteError('argument_required', argument=arg_name)
         return arg_value
 
     @staticmethod
     def validate(value, arg_name):
         if not isinstance(value, bool):
-            raise TypeError("parameter value must be a list, got %r"
-                            % value)
+            raise TypeError("parameter value must be a list, got %r" % value)
         return value
 
 
@@ -238,8 +248,13 @@ The list of available extra parameters classes. It will keep to this list
 order on argument parsing.
 
 """
-extraparameters_list = [CommentParameter, AskParameter, PasswordParameter,
-                        RequiredParameter, PatternParameter]
+extraparameters_list = [
+    CommentParameter,
+    AskParameter,
+    PasswordParameter,
+    RequiredParameter,
+    PatternParameter,
+]
 
 # Extra parameters argument Parser
 
@@ -286,8 +301,13 @@ class ExtraArgumentParser(object):
                     # Validate parameter value
                     parameters[p] = klass.validate(v, arg_name)
                 except Exception as e:
-                    logger.error("unable to validate extra parameter '%s' "
-                                 "for argument '%s': %s", p, arg_name, e)
+                    logger.error(
+                        "unable to validate extra parameter '%s' "
+                        "for argument '%s': %s",
+                        p,
+                        arg_name,
+                        e,
+                    )
                     raise MoulinetteError('error_see_log')
 
         return parameters
@@ -353,12 +373,15 @@ class ExtraArgumentParser(object):
 
 # Main class ----------------------------------------------------------
 
+
 def ordered_yaml_load(stream):
     class OrderedLoader(yaml.Loader):
         pass
+
     OrderedLoader.add_constructor(
         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        lambda loader, node: OrderedDict(loader.construct_pairs(node)))
+        lambda loader, node: OrderedDict(loader.construct_pairs(node)),
+    )
     return yaml.load(stream, OrderedLoader)
 
 
@@ -386,8 +409,7 @@ class ActionsMap(object):
 
     """
 
-    def __init__(self, parser_class, namespaces=[], use_cache=True,
-                 parser_kwargs={}):
+    def __init__(self, parser_class, namespaces=[], use_cache=True, parser_kwargs={}):
         if not issubclass(parser_class, BaseActionsMapParser):
             raise ValueError("Invalid parser class '%s'" % parser_class.__name__)
         self.parser_class = parser_class
@@ -411,7 +433,7 @@ class ActionsMap(object):
                 CACHE_DIR,
                 n,
                 actionsmap_yml_stat.st_size,
-                actionsmap_yml_stat.st_mtime
+                actionsmap_yml_stat.st_mtime,
             )
 
             if use_cache and os.path.exists(actionsmap_pkl):
@@ -487,8 +509,17 @@ class ActionsMap(object):
         # Retrieve action information
         if len(tid) == 4:
             namespace, category, subcategory, action = tid
-            func_name = '%s_%s_%s' % (category, subcategory.replace('-', '_'), action.replace('-', '_'))
-            full_action_name = "%s.%s.%s.%s" % (namespace, category, subcategory, action)
+            func_name = '%s_%s_%s' % (
+                category,
+                subcategory.replace('-', '_'),
+                action.replace('-', '_'),
+            )
+            full_action_name = "%s.%s.%s.%s" % (
+                namespace,
+                category,
+                subcategory,
+                action,
+            )
         else:
             assert len(tid) == 3
             namespace, category, action = tid
@@ -500,25 +531,33 @@ class ActionsMap(object):
         with MoulinetteLock(namespace, timeout):
             start = time()
             try:
-                mod = __import__('%s.%s' % (namespace, category),
-                                 globals=globals(), level=0,
-                                 fromlist=[func_name])
-                logger.debug('loading python module %s took %.3fs',
-                             '%s.%s' % (namespace, category), time() - start)
+                mod = __import__(
+                    '%s.%s' % (namespace, category),
+                    globals=globals(),
+                    level=0,
+                    fromlist=[func_name],
+                )
+                logger.debug(
+                    'loading python module %s took %.3fs',
+                    '%s.%s' % (namespace, category),
+                    time() - start,
+                )
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
-                logger.exception("unable to load function %s.%s",
-                                 namespace, func_name)
+                logger.exception("unable to load function %s.%s", namespace, func_name)
                 raise MoulinetteError('error_see_log')
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):
                     # Log arguments in debug mode only for safety reasons
-                    logger.info('processing action [%s]: %s with args=%s',
-                                log_id, full_action_name, arguments)
+                    logger.info(
+                        'processing action [%s]: %s with args=%s',
+                        log_id,
+                        full_action_name,
+                        arguments,
+                    )
                 else:
-                    logger.info('processing action [%s]: %s',
-                                log_id, full_action_name)
+                    logger.info('processing action [%s]: %s', log_id, full_action_name)
 
                 # Load translation and process the action
                 m18n.load_namespace(namespace)
@@ -527,8 +566,7 @@ class ActionsMap(object):
                     return func(**arguments)
                 finally:
                     stop = time()
-                    logger.debug('action [%s] executed in %.3fs',
-                                 log_id, stop - start)
+                    logger.debug('action [%s] executed in %.3fs', log_id, stop - start)
 
     @staticmethod
     def get_namespaces():
@@ -654,8 +692,9 @@ class ActionsMap(object):
                     subcategories = {}
 
                 # Get category parser
-                category_parser = top_parser.add_category_parser(category_name,
-                                                                 **category_values)
+                category_parser = top_parser.add_category_parser(
+                    category_name, **category_values
+                )
 
                 # action_name is like "list" of "domain list"
                 # action_options are the values
@@ -664,19 +703,21 @@ class ActionsMap(object):
                     tid = (namespace, category_name, action_name)
 
                     # Get action parser
-                    action_parser = category_parser.add_action_parser(action_name,
-                                                                      tid,
-                                                                      **action_options)
+                    action_parser = category_parser.add_action_parser(
+                        action_name, tid, **action_options
+                    )
 
                     if action_parser is None:  # No parser for the action
                         continue
 
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
-                    action_parser.add_arguments(arguments,
-                                                extraparser=self.extraparser,
-                                                format_arg_names=top_parser.format_arg_names,
-                                                validate_extra=validate_extra)
+                    action_parser.add_arguments(
+                        arguments,
+                        extraparser=self.extraparser,
+                        format_arg_names=top_parser.format_arg_names,
+                        validate_extra=validate_extra,
+                    )
 
                     if 'configuration' in action_options:
                         category_parser.set_conf(tid, action_options['configuration'])
@@ -688,7 +729,9 @@ class ActionsMap(object):
                     actions = subcategory_values.pop('actions')
 
                     # Get subcategory parser
-                    subcategory_parser = category_parser.add_subcategory_parser(subcategory_name, **subcategory_values)
+                    subcategory_parser = category_parser.add_subcategory_parser(
+                        subcategory_name, **subcategory_values
+                    )
 
                     # action_name is like "status" of "domain cert status"
                     # action_options are the values
@@ -698,19 +741,25 @@ class ActionsMap(object):
 
                         try:
                             # Get action parser
-                            action_parser = subcategory_parser.add_action_parser(action_name, tid, **action_options)
+                            action_parser = subcategory_parser.add_action_parser(
+                                action_name, tid, **action_options
+                            )
                         except AttributeError:
                             # No parser for the action
                             continue
 
                         # Store action identifier and add arguments
                         action_parser.set_defaults(_tid=tid)
-                        action_parser.add_arguments(arguments,
-                                                    extraparser=self.extraparser,
-                                                    format_arg_names=top_parser.format_arg_names,
-                                                    validate_extra=validate_extra)
+                        action_parser.add_arguments(
+                            arguments,
+                            extraparser=self.extraparser,
+                            format_arg_names=top_parser.format_arg_names,
+                            validate_extra=validate_extra,
+                        )
 
                         if 'configuration' in action_options:
-                            category_parser.set_conf(tid, action_options['configuration'])
+                            category_parser.set_conf(
+                                tid, action_options['configuration']
+                            )
 
         return top_parser

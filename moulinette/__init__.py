@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from moulinette.core import init_interface, MoulinetteError, MoulinetteSignals, Moulinette18n
+from moulinette.core import (
+    init_interface,
+    MoulinetteError,
+    MoulinetteSignals,
+    Moulinette18n,
+)
 from moulinette.globals import init_moulinette_env
 
 __title__ = 'moulinette'
 __version__ = '0.1'
-__author__ = ['Kload',
-              'jlebleu',
-              'titoko',
-              'beudbeud',
-              'npze']
+__author__ = ['Kload', 'jlebleu', 'titoko', 'beudbeud', 'npze']
 __license__ = 'AGPL 3.0'
 __credits__ = """
     Copyright (C) 2014 YUNOHOST.ORG
@@ -27,10 +28,7 @@ __credits__ = """
     You should have received a copy of the GNU Affero General Public License
     along with this program; if not, see http://www.gnu.org/licenses
     """
-__all__ = [
-    'init', 'api', 'cli', 'm18n', 'env',
-    'init_interface', 'MoulinetteError',
-]
+__all__ = ['init', 'api', 'cli', 'm18n', 'env', 'init_interface', 'MoulinetteError']
 
 
 msignals = MoulinetteSignals()
@@ -39,6 +37,7 @@ m18n = Moulinette18n()
 
 
 # Package functions
+
 
 def init(logging_config=None, **kwargs):
     """Package initialization
@@ -66,8 +65,10 @@ def init(logging_config=None, **kwargs):
 
 # Easy access to interfaces
 
-def api(namespaces, host='localhost', port=80, routes={},
-        use_websocket=True, use_cache=True):
+
+def api(
+    namespaces, host='localhost', port=80, routes={}, use_websocket=True, use_cache=True
+):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
@@ -84,29 +85,33 @@ def api(namespaces, host='localhost', port=80, routes={},
 
     """
     try:
-        moulinette = init_interface('api',
-            kwargs={
-                'routes': routes,
-                'use_websocket': use_websocket
-            },
-            actionsmap={
-                'namespaces': namespaces,
-                'use_cache': use_cache
-            }
+        moulinette = init_interface(
+            'api',
+            kwargs={'routes': routes, 'use_websocket': use_websocket},
+            actionsmap={'namespaces': namespaces, 'use_cache': use_cache},
         )
         moulinette.run(host, port)
     except MoulinetteError as e:
         import logging
+
         logging.getLogger(namespaces[0]).error(e.strerror)
         return e.errno if hasattr(e, "errno") else 1
     except KeyboardInterrupt:
         import logging
+
         logging.getLogger(namespaces[0]).info(m18n.g('operation_interrupted'))
     return 0
 
 
-def cli(namespaces, args, use_cache=True, output_as=None,
-        password=None, timeout=None, parser_kwargs={}):
+def cli(
+    namespaces,
+    args,
+    use_cache=True,
+    output_as=None,
+    password=None,
+    timeout=None,
+    parser_kwargs={},
+):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -125,7 +130,8 @@ def cli(namespaces, args, use_cache=True, output_as=None,
 
     """
     try:
-        moulinette = init_interface('cli',
+        moulinette = init_interface(
+            'cli',
             actionsmap={
                 'namespaces': namespaces,
                 'use_cache': use_cache,
@@ -135,6 +141,7 @@ def cli(namespaces, args, use_cache=True, output_as=None,
         moulinette.run(args, output_as=output_as, password=password, timeout=timeout)
     except MoulinetteError as e:
         import logging
+
         logging.getLogger(namespaces[0]).error(e.strerror)
         return 1
     return 0
