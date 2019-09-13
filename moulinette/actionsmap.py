@@ -95,7 +95,7 @@ class CommentParameter(_ExtraParameter):
     def validate(klass, value, arg_name):
         # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logger.warning("expecting a string for extra parameter '%s' of "
+            logger.warning("expecting a non-empty string for extra parameter '%s' of "
                            "argument '%s'", klass.name, arg_name)
             value = arg_name
         elif not isinstance(value, str):
@@ -130,7 +130,7 @@ class AskParameter(_ExtraParameter):
     def validate(klass, value, arg_name):
         # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logger.warning("expecting a string for extra parameter '%s' of "
+            logger.warning("expecting a non-empty string for extra parameter '%s' of "
                            "argument '%s'", klass.name, arg_name)
             value = arg_name
         elif not isinstance(value, str):
@@ -198,7 +198,7 @@ class PatternParameter(_ExtraParameter):
     def validate(value, arg_name):
         # Deprecated string type
         if isinstance(value, str):
-            logger.warning("expecting a list for extra parameter 'pattern' of "
+            logger.warning("expecting a list as extra parameter 'pattern' of "
                            "argument '%s'", arg_name)
             value = [value, 'pattern_not_match']
         elif not isinstance(value, list) or len(value) != 2:
