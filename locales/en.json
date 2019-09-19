@@ -14,7 +14,7 @@
     "folder_exists": "Folder already exists: '{path}'",
     "folder_not_exist": "Folder does not exist",
     "info": "Info:",
-    "instance_already_running": "There is already a YunoHost command running, please wait for it to finish before doing this one",
+    "instance_already_running": "There is already a YunoHost operation running. Please wait for it to finish before running another one.",
     "invalid_argument": "Invalid argument '{argument}': {error}",
     "invalid_password": "Invalid password",
     "invalid_usage": "Invalid usage, pass --help to see help",
