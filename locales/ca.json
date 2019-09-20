@@ -31,7 +31,7 @@
     "server_already_running": "Ja s'està executant un servidor en aquest port",
     "success": "Èxit!",
     "unable_authenticate": "No s'ha pogut autenticar",
-    "unable_retrieve_session": "No s'ha pogut recuperar la sessió",
+    "unable_retrieve_session": "No s'ha pogut recuperar la sessió a causa de «{exception}»",
     "unknown_group": "Grup '{group}' desconegut",
     "unknown_user": "Usuari '{user}' desconegut",
     "values_mismatch": "Els valors no coincideixen",
@@ -39,7 +39,7 @@
     "websocket_request_expected": "S'esperava una petició WebSocket",
     "cannot_open_file": "No s'ha pogut obrir el fitxer {file:s} (motiu: {error:s})",
     "cannot_write_file": "No s'ha pogut escriure el fitxer {file:s} (motiu: {error:s})",
-    "unknown_error_reading_file": "Error desconegut al intentar llegir el fitxer {file:s}",
+    "unknown_error_reading_file": "Error desconegut al intentar llegir el fitxer {file:s} (motiu: {error:s})",
     "corrupted_json": "Json corrupte llegit des de {ressource:s} (motiu: {error:s})",
     "corrupted_yaml": "Yaml corrupte llegit des de {ressource:s} (motiu: {error:s})",
     "error_writing_file": "Error al escriure el fitxer {file:s}: {error:s}",
@@ -51,5 +51,9 @@
     "download_unknown_error": "Error al baixar dades des de {url:s}: {error:s}",
     "download_bad_status_code": "{url:s} ha retornat el codi d'estat {code:s}",
     "command_unknown": "Ordre '{command:s}' desconegut ?",
-    "info": "Info:"
+    "info": "Info:",
+    "corrupted_toml": "El fitxer TOML ha estat corromput en la lectura des de {ressource:s} (motiu: {error:s})",
+    "warn_the_user_about_waiting_lock": "Hi ha una altra ordre de YunoHost en execució, s'executarà aquesta ordre un cop l'anterior hagi acabat",
+    "warn_the_user_about_waiting_lock_again": "Encara en espera…",
+    "warn_the_user_that_lock_is_acquired": "l'altra ordre tot just ha acabat, ara s'executarà aquesta ordre"
 }
