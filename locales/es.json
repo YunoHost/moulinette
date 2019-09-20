@@ -13,7 +13,7 @@
     "file_not_exist": "El archivo no existe: «{path}»",
     "folder_exists": "El directorio ya existe: «{path}»",
     "folder_not_exist": "La carpeta no existe",
-    "instance_already_running": "Una instancia ya se está ejecutando",
+    "instance_already_running": "Ya se está ejecutando una instancia de YunoHost. Espere a que termine antes de ejecutar otra.",
     "invalid_argument": "Argumento no válido «{argument}»: {error}",
     "invalid_password": "Contraseña no válida",
     "invalid_usage": "Uso no válido, utilice --help para ver la ayuda",
