@@ -11,7 +11,7 @@
     "file_not_exist": "Datei  ist nicht vorhanden: '{path}'",
     "folder_exists": "Ordner existiert bereits: '{path}'",
     "folder_not_exist": "Ordner existiert nicht",
-    "instance_already_running": "Eine Instanz läuft bereits",
+    "instance_already_running": "Es läuft bereits eine YunoHost-Operation. Bitte warte, bis sie fertig ist, bevor du eine weitere startest.",
     "invalid_argument": "Argument ungültig '{argument}': {error}",
     "invalid_password": "Passwort falsch",
     "invalid_usage": "Falscher Aufruf, verwende --help für den Hilfstext",
@@ -29,12 +29,13 @@
     "server_already_running": "Einen anderer Dienst arbeitet bereits auf diesem Port",
     "success": "Erfolg!",
     "unable_authenticate": "Anmelden fehlgeschlagen",
-    "unable_retrieve_session": "Sitzung konnte nicht abgerufen werden",
+    "unable_retrieve_session": "Sitzung konnte nicht abgerufen werden. Grund: '{exception}'",
     "values_mismatch": "Die Werte passen nicht",
     "warning": "Warnung:",
     "websocket_request_expected": "Eine WebSocket Anfrage wurde erwartet",
     "deprecated_command": "'{prog} {command}' ist veraltet und wird bald entfernt werden",
     "deprecated_command_alias": "'{prog} {old}' ist veraltet und wird bald entfernt werden, benutze '{prog} {new}' stattdessen",
     "unknown_group": "Gruppe '{group}' ist unbekannt",
-    "unknown_user": "Benutzer '{user}' ist unbekannt"
+    "unknown_user": "Benutzer '{user}' ist unbekannt",
+    "info": "Info:"
 }
