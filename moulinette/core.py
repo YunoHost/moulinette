@@ -307,7 +307,7 @@ class MoulinetteSignals(object):
             return authenticator
         return self._authenticate(authenticator, help)
 
-    def prompt(self, message, is_password=False, confirm=False):
+    def prompt(self, message, is_password=False, confirm=False, color='blue'):
         """Prompt for a value
 
         Prompt the interface for a parameter value which is a password
@@ -320,12 +320,13 @@ class MoulinetteSignals(object):
             - message -- The message to display
             - is_password -- True if the parameter is a password
             - confirm -- True if the value must be confirmed
+            - color -- Color to use for the prompt ...
 
         Returns:
             The collected value
 
         """
-        return self._prompt(message, is_password, confirm)
+        return self._prompt(message, is_password, confirm, color=color)
 
     def display(self, message, style='info'):
         """Display a message
