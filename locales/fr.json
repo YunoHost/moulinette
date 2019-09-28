@@ -13,7 +13,7 @@
     "file_not_exist": "Le fichier '{path}' n’existe pas",
     "folder_exists": "Le dossier existe déjà : '{path}'",
     "folder_not_exist": "Le dossier n’existe pas",
-    "instance_already_running": "Une instance est déjà en cours d’exécution",
+    "instance_already_running": "Une instance est déjà en cours d’exécution, merci d'attendre sa fin avant d'en lancer une autre.",
     "invalid_argument": "Argument '{argument}' incorrect : {error}",
     "invalid_password": "Mot de passe incorrect",
     "invalid_usage": "Utilisation erronée, utilisez --help pour accéder à l’aide",
