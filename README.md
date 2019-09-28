@@ -21,19 +21,19 @@ Initially, the moulinette was an application made for the
 related operations into a single program called *moulinette*. Those
 operations were available from a command-line interface and a Web server
 providing an API. Moreover, the usage of these operations (e.g.
-required/optional arguments) was defined into a simple yaml file -
+required/optional arguments) was defined into a simple YAML file -
 called *actionsmap*. This file was parsed in order to construct an
 *ArgumentParser* object and to parse the command arguments to process
 the proper operation.
 
-During a long refactoring with the goal of unify both interfaces, the
-idea to separate the core of the YunoHost operations has emerged.
-The core kept the same name *moulinette* and try to follow the same
-initial principle. An [Actions Map](#actions-map) - which defines
-available operations and their usage - is parsed and it's used to
-process an operation from several unified [Interfaces](#interfaces). It
-also supports a configuration mechanism - which allows to restrict an
-operation on an interface for example (see
+During a lengthy refactoring process with the goal of unifying both interfaces,
+the idea to separate the core of the YunoHost operations has emerged.
+The core kept the same name *moulinette* and tries to follow the same
+initial principle. An [Actions Map](#actions-map) - defining
+available operations and their usage - is parsed and used to
+process an operation from several unified [interfaces](#interfaces). It
+also supports a configuration mechanism - which allows restricting an
+operation on an interface, for example (see
 [Authenticators](#authenticators)).
 
 
