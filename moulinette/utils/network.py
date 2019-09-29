@@ -59,6 +59,6 @@ def download_json(url, timeout=30, expected_status_code=200):
     try:
         loaded_json = json.loads(text)
     except ValueError as e:
-        raise MoulinetteError('corrupted_json', ressource=url, error=e)
+        raise MoulinetteError('corrupted_json', ressource=url, error=str(e))
 
     return loaded_json

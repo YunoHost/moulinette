@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import getpass
@@ -86,12 +84,10 @@ def plain_print_dict(d, depth=0):
         for v in d:
             plain_print_dict(v, depth + 1)
     elif isinstance(d, dict):
-        for k, v in d.items():
-            print("{}{}".format("#" * (depth + 1), k))
+        for k, v in list(d.items()):
+            print(("{}{}".format("#" * (depth + 1), k)))
             plain_print_dict(v, depth + 1)
     else:
-        if isinstance(d, unicode):
-            d = d.encode('utf-8')
         print(d)
 
 
@@ -131,7 +127,7 @@ def pretty_print_dict(d, depth=0):
         - depth -- The recursive depth of the dictionary
 
     """
-    keys = d.keys()
+    keys = list(d.keys())
     if not isinstance(d, OrderedDict):
         keys = sorted(keys)
     for k in keys:
@@ -142,27 +138,23 @@ def pretty_print_dict(d, depth=0):
         if isinstance(v, list) and len(v) == 1:
             v = v[0]
         if isinstance(v, dict):
-            print("{:s}{}: ".format("  " * depth, k))
+            print(("{:s}{}: ".format("  " * depth, k)))
             pretty_print_dict(v, depth + 1)
         elif isinstance(v, list):
-            print("{:s}{}: ".format("  " * depth, k))
+            print(("{:s}{}: ".format("  " * depth, k)))
             for key, value in enumerate(v):
                 if isinstance(value, tuple):
                     pretty_print_dict({value[0]: value[1]}, depth + 1)
                 elif isinstance(value, dict):
                     pretty_print_dict({key: value}, depth + 1)
                 else:
-                    if isinstance(value, unicode):
-                        value = value.encode('utf-8')
-                    elif isinstance(v, date):
+                    if isinstance(v, date):
                         v = pretty_date(v)
-                    print("{:s}- {}".format("  " * (depth + 1), value))
+                    print(("{:s}- {}".format("  " * (depth + 1), value)))
         else:
-            if isinstance(v, unicode):
-                v = v.encode('utf-8')
-            elif isinstance(v, date):
+            if isinstance(v, date):
                 v = pretty_date(v)
-            print("{:s}{}: {}".format("  " * depth, k, v))
+            print(("{:s}{}: {}".format("  " * depth, k, v)))
 
 
 def get_locale():
@@ -348,7 +340,7 @@ class ActionsMapParser(BaseActionsMapParser):
                                            deprecated_alias=deprecated_alias)
 
     def add_global_arguments(self, arguments):
-        for argument_name, argument_options in arguments.items():
+        for argument_name, argument_options in list(arguments.items()):
             # will adapt arguments name for cli or api context
             names = self.format_arg_names(str(argument_name),
                                           argument_options.pop('full', None))
@@ -433,7 +425,7 @@ class Interface(BaseInterface):
             if output_as == 'json':
                 import json
                 from moulinette.utils.serialize import JSONExtendedEncoder
-                print(json.dumps(ret, cls=JSONExtendedEncoder))
+                print((json.dumps(ret, cls=JSONExtendedEncoder)))
             else:
                 plain_print_dict(ret)
         elif isinstance(ret, dict):
@@ -467,7 +459,7 @@ class Interface(BaseInterface):
             prompt = lambda m: getpass.getpass(colorize(m18n.g('colon', m),
                                                         color))
         else:
-            prompt = lambda m: raw_input(colorize(m18n.g('colon', m), color))
+            prompt = lambda m: eval(input(colorize(m18n.g('colon', m), color)))
         value = prompt(message)
 
         if confirm:
@@ -483,13 +475,11 @@ class Interface(BaseInterface):
         Handle the core.MoulinetteSignals.display signal.
 
         """
-        if isinstance(message, unicode):
-            message = message.encode('utf-8')
         if style == 'success':
-            print('{} {}'.format(colorize(m18n.g('success'), 'green'), message))
+            print(('{} {}'.format(colorize(m18n.g('success'), 'green'), message)))
         elif style == 'warning':
-            print('{} {}'.format(colorize(m18n.g('warning'), 'yellow'), message))
+            print(('{} {}'.format(colorize(m18n.g('warning'), 'yellow'), message)))
         elif style == 'error':
-            print('{} {}'.format(colorize(m18n.g('error'), 'red'), message))
+            print(('{} {}'.format(colorize(m18n.g('error'), 'red'), message)))
         else:
             print(message)

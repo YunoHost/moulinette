@@ -45,7 +45,7 @@ def test_download_json(test_url):
     with requests_mock.Mocker() as mock:
         mock.register_uri('GET', test_url, text='{"foo":"bar"}')
         fetched_json = download_json(test_url)
-    assert 'foo' in fetched_json.keys()
+    assert 'foo' in list(fetched_json.keys())
     assert fetched_json['foo'] == 'bar'
 
 

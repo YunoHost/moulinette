@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 
 from moulinette.globals import init_moulinette_env

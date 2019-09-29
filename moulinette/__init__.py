@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from moulinette.core import init_interface, MoulinetteError, MoulinetteSignals, Moulinette18n
 from moulinette.globals import init_moulinette_env
 

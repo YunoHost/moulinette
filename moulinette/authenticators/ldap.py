@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# TODO: Use Python3 to remove this fix!
-from __future__ import absolute_import
 import logging
 import random
 import string
@@ -260,7 +256,7 @@ class Authenticator(BaseAuthenticator):
             None | list with Fist conflict attribute name and value
 
         """
-        for attr, value in value_dict.items():
+        for attr, value in list(value_dict.items()):
             if not self.search(base=base_dn, filter=attr + '=' + value):
                 continue
             else:

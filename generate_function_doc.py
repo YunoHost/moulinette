@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """ License
 
@@ -38,7 +37,7 @@ def main():
     resources = {}
 
     del action_map['general_arguments']
-    for category, category_params in action_map.items():
+    for category, category_params in list(action_map.items()):
         if 'category_help' not in category_params: category_params['category_help'] = ''
 
         with open('yunohost_'+ category +'.py', 'r') as f:
@@ -58,7 +57,7 @@ def main():
                 if re.search(r'^""" yunohost_'+ category, line):
                     in_block = True
 
-        for action, action_params in category_params['actions'].items():
+        for action, action_params in list(category_params['actions'].items()):
             if 'action_help' not in action_params:
                 action_params['action_help'] = ''
 
@@ -70,7 +69,7 @@ def main():
 
             if 'arguments' in action_params:
                 help_lines.append('    Keyword argument:')
-                for arg_name, arg_params in action_params['arguments'].items():
+                for arg_name, arg_params in list(action_params['arguments'].items()):
                     if 'help' in arg_params:
                         help = ' -- '+ arg_params['help']
                     else:

@@ -27,18 +27,18 @@ def test_read_file_missing_file():
 def test_read_file_cannot_read_ioerror(test_file, mocker):
     error = 'foobar'
 
-    with mocker.patch('__builtin__.open', side_effect=IOError(error)):
+    with mocker.patch('builtins.open', side_effect=IOError(error)):
         with pytest.raises(MoulinetteError) as exception:
             read_file(str(test_file))
 
-    translation = m18n.g('cannot_open_file', file=str(test_file), error=error)
-    expected_msg = translation.format(file=str(test_file), error=error)
+    translation = m18n.g('cannot_open_file', file=str(test_file), error=str(error))
+    expected_msg = translation.format(file=str(test_file), error=str(error))
     assert expected_msg in str(exception)
 
 
 def test_read_json(test_json):
     content = read_json(str(test_json))
-    assert 'foo' in content.keys()
+    assert 'foo' in list(content.keys())
     assert content['foo'] == 'bar'
 
 
@@ -49,8 +49,8 @@ def test_read_json_cannot_read(test_json, mocker):
         with pytest.raises(MoulinetteError) as exception:
             read_json(str(test_json))
 
-    translation = m18n.g('corrupted_json', ressource=str(test_json), error=error)
-    expected_msg = translation.format(ressource=str(test_json), error=error)
+    translation = m18n.g('corrupted_json', ressource=str(test_json), error=str(error))
+    expected_msg = translation.format(ressource=str(test_json), error=str(error))
     assert expected_msg in str(exception)
 
 
@@ -71,12 +71,12 @@ def test_write_to_new_file(tmp_path):
 def test_write_to_existing_file_bad_perms(test_file, mocker):
     error = 'foobar'
 
-    with mocker.patch('__builtin__.open', side_effect=IOError(error)):
+    with mocker.patch('builtins.open', side_effect=IOError(error)):
         with pytest.raises(MoulinetteError) as exception:
             write_to_file(str(test_file), 'yolo\nswag')
 
-    translation = m18n.g('cannot_write_file', file=str(test_file), error=error)
-    expected_msg = translation.format(file=str(test_file), error=error)
+    translation = m18n.g('cannot_write_file', file=str(test_file), error=str(error))
+    expected_msg = translation.format(file=str(test_file), error=str(error))
     assert expected_msg in str(exception)
 
 
@@ -116,8 +116,8 @@ def text_write_dict_to_json(tmp_path):
     write_to_json(str(new_file), dummy_dict)
     _json = read_json(str(new_file))
 
-    assert 'foo' in _json.keys()
-    assert 'bar' in _json.keys()
+    assert 'foo' in list(_json.keys())
+    assert 'bar' in list(_json.keys())
 
     assert _json['foo'] == 42
     assert _json['bar'] == ['a', 'b', 'c']
@@ -136,12 +136,12 @@ def text_write_list_to_json(tmp_path):
 def test_write_to_json_bad_perms(test_json, mocker):
     error = 'foobar'
 
-    with mocker.patch('__builtin__.open', side_effect=IOError(error)):
+    with mocker.patch('builtins.open', side_effect=IOError(error)):
         with pytest.raises(MoulinetteError) as exception:
             write_to_json(str(test_json), {'a': 1})
 
-    translation = m18n.g('cannot_write_file', file=str(test_json), error=error)
-    expected_msg = translation.format(file=str(test_json), error=error)
+    translation = m18n.g('cannot_write_file', file=str(test_json), error=str(error))
+    expected_msg = translation.format(file=str(test_json), error=str(error))
     assert expected_msg in str(exception)
 
 
@@ -163,8 +163,8 @@ def test_remove_file_bad_perms(test_file, mocker):
         with pytest.raises(MoulinetteError) as exception:
             rm(str(test_file))
 
-    translation = m18n.g('error_removing', path=str(test_file), error=error)
-    expected_msg = translation.format(path=str(test_file), error=error)
+    translation = m18n.g('error_removing', path=str(test_file), error=str(error))
+    expected_msg = translation.format(path=str(test_file), error=str(error))
     assert expected_msg in str(exception)
 
 

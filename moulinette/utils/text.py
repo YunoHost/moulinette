@@ -47,9 +47,9 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
 
     """
     with open(path, 'r+') as f:
-        data = mmap.mmap(f.fileno(), 0)
-        match = search(pattern, data, count, flags)
-        data.close()
+        with mmap.mmap(f.fileno(), 0) as data:
+            data = data.read().decode('utf-8')
+            match = search(pattern, data, count, flags)
     return match
 
 

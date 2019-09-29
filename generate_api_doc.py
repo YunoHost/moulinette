@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 """ License
 
@@ -56,7 +55,7 @@ def main():
     resources = {}
 
     del action_map['general_arguments']
-    for category, category_params in action_map.items():
+    for category, category_params in list(action_map.items()):
         if 'category_help' not in category_params: category_params['category_help'] = ''
         resource_path = '/api/'+ category
         resource_list['apis'].append({
@@ -74,7 +73,7 @@ def main():
 
         registered_paths = {}
 
-        for action, action_params in category_params['actions'].items():
+        for action, action_params in list(category_params['actions'].items()):
             if 'action_help' not in action_params:
                 action_params['action_help'] = ''
             if 'api' not in action_params:
@@ -99,7 +98,7 @@ def main():
 
             if 'arguments' in action_params:
                 operation['parameters'] = []
-                for arg_name, arg_params in action_params['arguments'].items():
+                for arg_name, arg_params in list(action_params['arguments'].items()):
                     if 'help' not in arg_params:
                         arg_params['help'] = ''
                     param_type = 'query'
@@ -169,7 +168,7 @@ def main():
     try: os.listdir(os.getcwd() +'/doc')
     except OSError: os.makedirs(os.getcwd() +'/doc')
 
-    for category, api_dict in resources.items():
+    for category, api_dict in list(resources.items()):
         with open(os.getcwd() +'/doc/'+ category +'.json', 'w') as f:
               json.dump(api_dict, f)
 

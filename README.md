@@ -48,7 +48,7 @@ https://moulinette.readthedocs.org
 Requirements
 ------------
 
-* Python 2.7
+* Python >= 3.5
 * python-bottle (>= 0.10)
 * python-gnupg (>= 0.3)
 * python-ldap (>= 2.4)

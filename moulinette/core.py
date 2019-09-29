@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import time
 import json
@@ -94,9 +92,9 @@ class Translator(object):
         failed_to_format = False
         if key in self._translations.get(self.locale, {}):
             try:
-                return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
+                return self._translations[self.locale][key].format(*args, **kwargs)
             except KeyError as e:
-                unformatted_string = self._translations[self.locale][key].encode('utf-8')
+                unformatted_string = self._translations[self.locale][key]
                 error_message = "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)" % (
                     key, unformatted_string, args, kwargs, e.__class__.__name__, e
                 )
@@ -113,18 +111,18 @@ class Translator(object):
                         key, self.locale)
 
             try:
-                return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+                return self._translations[self.default_locale][key].format(*args, **kwargs)
             except KeyError as e:
-                unformatted_string = self._translations[self.default_locale][key].encode('utf-8')
+                unformatted_string = self._translations[self.default_locale][key]
                 error_message = "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)" % (
-                    key, unformatted_string, args, kwargs, e.__class__.__name__, e
+                    key, unformatted_string, args, kwargs, e.__class__.__name__, str(e)
                 )
                 if not during_unittests_run():
                     logger.exception(error_message)
                 else:
                     raise Exception(error_message)
 
-                return self._translations[self.default_locale][key].encode('utf-8')
+                return self._translations[self.default_locale][key]
 
         error_message = "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)" % (key, self.default_locale)
 
@@ -154,7 +152,7 @@ class Translator(object):
 
         try:
             with open('%s/%s.json' % (self.locale_dir, locale), 'r') as f:
-                j = json.load(f, 'utf-8')
+                j = json.load(f)
         except IOError:
             return False
         else:
@@ -215,7 +213,7 @@ class Moulinette18n(object):
         self.locale = locale
 
         self._global.set_locale(locale)
-        for n in self._namespaces.values():
+        for n in list(self._namespaces.values()):
             n.set_locale(locale)
 
     def g(self, key, *args, **kwargs):
@@ -265,7 +263,7 @@ class MoulinetteSignals(object):
             self.clear_handler(s)
 
         # Iterate over signals to connect
-        for s, h in kwargs.items():
+        for s, h in list(kwargs.items()):
             self.set_handler(s, h)
 
     def set_handler(self, signal, handler):

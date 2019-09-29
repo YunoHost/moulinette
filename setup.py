@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -27,7 +27,7 @@ setup(name='Moulinette',
       license='AGPL',
       packages=find_packages(exclude=['test']),
       data_files=[(LOCALES_DIR, locale_files)],
-      python_requires='==2.7.*',
+      python_requires='>=3.5',
       install_requires=[
           'argcomplete',
           'psutil',

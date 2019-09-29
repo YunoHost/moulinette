@@ -22,7 +22,7 @@ def patch_translate(moulinette):
     old_translate = moulinette.core.Translator.translate
 
     def new_translate(self, key, *args, **kwargs):
-        if key not in self._translations[self.default_locale].keys():
+        if key not in list(self._translations[self.default_locale].keys()):
             message = 'Unable to retrieve key %s for default locale!' % key
             raise KeyError(message)
 
@@ -106,7 +106,7 @@ def moulinette():
 def test_file(tmp_path):
     test_text = 'foo\nbar\n'
     test_file = tmp_path / 'test.txt'
-    test_file.write_bytes(test_text)
+    test_file.write_text(test_text)
     return test_file
 
 
@@ -114,7 +114,7 @@ def test_file(tmp_path):
 def test_json(tmp_path):
     test_json = json.dumps({'foo': 'bar'})
     test_file = tmp_path / 'test.json'
-    test_file.write_bytes(test_json)
+    test_file.write_text(test_json)
     return test_file
 
 
