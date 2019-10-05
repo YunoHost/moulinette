@@ -16,7 +16,7 @@
     "file_not_exist": "Lo fichièr « {path} » existís pas",
     "folder_exists": "Lo repertòri existís ja : « {path} »",
     "folder_not_exist": "Lo repertòri existís pas",
-    "instance_already_running": "Una instància es ja en execucion",
+    "instance_already_running": "I a ja una operacion de YunoHost en cors. Mercés d’esperar que s’acabe abans de ne lançar una mai.",
     "invalid_argument": "Argument « {argument} » incorrècte : {error}",
     "invalid_password": "Senhal incorrècte",
     "ldap_server_down": "Impossible d’aténher lo servidor LDAP",
