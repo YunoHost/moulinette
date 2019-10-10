@@ -13,7 +13,7 @@
     "file_not_exist": "El fitxer no existeix: '{path}'",
     "folder_exists": "La carpeta ja existeix: '{path}'",
     "folder_not_exist": "La carpeta no existeix",
-    "instance_already_running": "Una instància ja s'està executant",
+    "instance_already_running": "Ja hi ha una operació de YunoHost en curs. Espereu a que s'acabi abans d'executar-ne una altra.",
     "invalid_argument": "Argument invàlid '{argument}': {error}",
     "invalid_password": "Contrasenya invàlida",
     "invalid_usage": "Utilització invàlida, utilitzeu --help per veure l'ajuda",
