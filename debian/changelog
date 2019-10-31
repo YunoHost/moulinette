@@ -1,3 +1,27 @@
+moulinette (3.7.0) testing; urgency=low
+
+  # ~ Major stuff
+
+  - [enh] Add group and permission mechanism ([Moulinette#189](https://github.com/YunoHost/moulinette/pull/189)
+  - [mod] Be able to customize prompt colors ([Moulinette/808f620](https://github.com/YunoHost/Moulinette/commit/808f620))
+  - [enh] Support app manifests in toml ([Moulinette#204](https://github.com/YunoHost/moulinette/pull/204), [Moulinette/55515cb](https://github.com/YunoHost/Moulinette/commit/55515cb))
+  - [enh] Quite a lot of messages improvements, string cleaning, language rework... ([Moulinette/599bec3](https://github.com/YunoHost/Moulinette/commit/599bec3), [Moulinette#208](https://github.com/YunoHost/moulinette/pull/208), [Moulinette#213](https://github.com/YunoHost/moulinette/pull/213), [Moulinette/b7d415d](https://github.com/YunoHost/Moulinette/commit/b7d415d), [Moulinette/a8966b8](https://github.com/YunoHost/Moulinette/commit/a8966b8), [Moulinette/fdf9a71](https://github.com/YunoHost/Moulinette/commit/fdf9a71), [Moulinette/d895ae3](https://github.com/YunoHost/Moulinette/commit/d895ae3), [Moulinette/bdf0a1c](https://github.com/YunoHost/Moulinette/commit/bdf0a1c))
+  - [i18n] Improved translations for Catalan, Occitan, French, Arabic, Spanish, German, Norwegian Bokmål
+
+  # Smaller or pretty technical fix/enh
+
+  - [enh] Preparations for moulinette Python3 migration (Tox, Pytest and unit tests) ([Moulinette#203](https://github.com/YunoHost/moulinette/pull/203), [Moulinette#206](https://github.com/YunoHost/moulinette/pull/206), [Moulinette#207](https://github.com/YunoHost/moulinette/pull/207), [Moulinette#210](https://github.com/YunoHost/moulinette/pull/210), [Moulinette#211](https://github.com/YunoHost/moulinette/pull/211) [Moulinette#212](https://github.com/YunoHost/moulinette/pull/212), [Moulinette/2403ee1](https://github.com/YunoHost/Moulinette/commit/2403ee1),  [Moulinette/69b0d49](https://github.com/YunoHost/Moulinette/commit/69b0d49), [Moulinette/49c749c](https://github.com/YunoHost/Moulinette/commit/49c749c), [Moulinette/2c84ee1](https://github.com/YunoHost/Moulinette/commit/2c84ee1), [Moulinette/cef72f7](https://github.com/YunoHost/Moulinette/commit/cef72f7))
+  - [enh] Add a write_to_yaml utility similar to write_to_json ([Moulinette/2e2e627](https://github.com/YunoHost/Moulinette/commit/2e2e627))
+  - [enh] Warn the user about long locks ([Moulinette#205](https://github.com/YunoHost/moulinette/pull/205))
+  - [mod] Tweak stuff about setuptools and moulinette deps? ([Moulinette/b739f27](https://github.com/YunoHost/Moulinette/commit/b739f27), [Moulinette/da00fc9](https://github.com/YunoHost/Moulinette/commit/da00fc9), [Moulinette/d8cbbb0](https://github.com/YunoHost/Moulinette/commit/d8cbbb0))
+  - [fix] Misc micro bugfixes or improvements ([Moulinette/83d9e77](https://github.com/YunoHost/Moulinette/commit/83d9e77))
+  - [doc] Fix doc building + add doc build tests with Tox ([Moulinette/f1ac5b8](https://github.com/YunoHost/Moulinette/commit/f1ac5b8), [Moulinette/df7d478](https://github.com/YunoHost/Moulinette/commit/df7d478), [Moulinette/74c8f79](https://github.com/YunoHost/Moulinette/commit/74c8f79), [Moulinette/bcf92c7](https://github.com/YunoHost/Moulinette/commit/bcf92c7), [Moulinette/af2c80c](https://github.com/YunoHost/Moulinette/commit/af2c80c), [Moulinette/d52a574](https://github.com/YunoHost/Moulinette/commit/d52a574), [Moulinette/307f660](https://github.com/YunoHost/Moulinette/commit/307f660), [Moulinette/dced104](https://github.com/YunoHost/Moulinette/commit/dced104), [Moulinette/ed3823b](https://github.com/YunoHost/Moulinette/commit/ed3823b))
+  - [enh] READMEs improvements ([Moulinette/1541b74](https://github.com/YunoHost/Moulinette/commit/1541b74), [Moulinette/ad1eeef](https://github.com/YunoHost/Moulinette/commit/ad1eeef))
+
+  Thanks to all contributors <3 ! (accross all repo: Yunohost, Moulinette, SSOwat, Yunohost-admin) : advocatux, Aksel K., Aleks, Allan N., amirale qt, Armin P., Bram, ButterflyOfFire, Carles S. A., chema o. r., decentral1se, Emmanuel V., Etienne M., Filip B., Geoff M., htsr, Jibec, Josué, Julien J., Kayou, liberodark, ljf, lucaskev, Lukas D., madtibo, Martin D., Mélanie C., nr 458 h, pitfd, ppr, Quentí, sidddy, troll, tufek yamero, xaloc33, yalh76
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 31 Oct 2019 18:40:00  +0000
+
 moulinette (3.6.4.1) stable; urgency=low
 
   - [fix] Catch all exceptions in read_yaml helper
