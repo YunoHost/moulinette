@@ -89,6 +89,9 @@ class CommentParameter(_ExtraParameter):
     skipped_iface = ['api']
 
     def __call__(self, message, arg_name, arg_value):
+        if arg_value:
+            return
+        
         return msignals.display(m18n.n(message))
 
     @classmethod
