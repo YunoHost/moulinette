@@ -3,6 +3,7 @@
 import os
 import logging
 import hashlib
+import hmac
 
 from moulinette.cache import open_cachefile, get_cachedir
 from moulinette.core import MoulinetteError
