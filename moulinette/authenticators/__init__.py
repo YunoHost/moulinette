@@ -167,14 +167,14 @@ class BaseAuthenticator(object):
             raise MoulinetteError('unable_retrieve_session', exception=e)
         else:
             #
-            # session_id (or just id) : This is unique id for the current session from the user. Not too important 
+            # session_id (or just id) : This is unique id for the current session from the user. Not too important
             # if this info gets stolen somehow. It is stored in the client's side (browser) using regular cookies.
             #
-            # session_token (or just token) : This is a secret info, like some sort of ephemeral password, 
-            # used to authenticate the session without the user having to retype the password all the time... 
+            # session_token (or just token) : This is a secret info, like some sort of ephemeral password,
+            # used to authenticate the session without the user having to retype the password all the time...
             #    - It is generated on our side during the initial auth of the user (which happens with the actual admin password)
             #    - It is stored on the client's side (browser) using (signed) cookies.
-            #    - We also store it on our side in the form of a hash of {id}:{token} (c.f. _store_session). 
+            #    - We also store it on our side in the form of a hash of {id}:{token} (c.f. _store_session).
             #      We could simply store the raw token, but hashing it is an additonal low-cost security layer
             #      in case this info gets exposed for some reason (e.g. bad file perms for reasons...)
             #

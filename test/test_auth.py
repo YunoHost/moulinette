@@ -57,9 +57,6 @@ def test_login_then_legit_request(moulinette_webapi):
 
     login(moulinette_webapi)
 
-    #for cookie in moulinette_webapi.cookiejar:
-    #    cookie.domain = "localhost"
-
     assert moulinette_webapi.get("/test-auth/default", status=200).text == '"some_data_from_default"'
 
 
