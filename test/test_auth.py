@@ -1,46 +1,36 @@
 import os
-import requests
 
 
-def login(webapi, cookies=None, csrf=False, profile=None):
+def login(webapi, csrf=False, profile=None, status=200):
 
     data = {"password": "Yoloswag"}
     if profile:
         data["profile"] = profile
 
-    return requests.post(webapi + "/login",
-                         cookies=cookies,
-                         data=data,
-                         headers=None if csrf else {"X-Requested-With": ""})
+    return webapi.post("/login", data,
+                       status=status,
+                       headers=None if csrf else {"X-Requested-With": ""})
 
 
 def test_request_no_auth_needed(moulinette_webapi):
 
-    r = requests.get(moulinette_webapi + "/test-auth/none")
-
-    assert r.status_code == 200
-    assert r.text == '"some_data_from_none"'
+    assert moulinette_webapi.get("/test-auth/none", status=200).text == '"some_data_from_none"'
 
 
 def test_request_with_auth_but_not_logged(moulinette_webapi):
 
-    r = requests.get(moulinette_webapi + "/test-auth/default")
-
-    assert r.status_code == 401
-    assert r.text == "Authentication required"
+    assert moulinette_webapi.get("/test-auth/default", status=401).text == "Authentication required"
 
 
 def test_login(moulinette_webapi):
 
-    r = login(moulinette_webapi)
+    assert login(moulinette_webapi).text == "Logged in"
 
-    assert r.status_code == 200
-    assert r.text == "Logged in"
-    assert "session.id" in r.cookies
-    assert "session.tokens" in r.cookies
+    assert "session.id" in moulinette_webapi.cookies
+    assert "session.tokens" in moulinette_webapi.cookies
 
     cache_session_default = os.environ['MOULINETTE_CACHE_DIR'] + "/session/default/"
-    assert r.cookies["session.id"] + ".asc" in os.listdir(cache_session_default)
+    assert moulinette_webapi.cookies["session.id"] + ".asc" in os.listdir(cache_session_default)
 
 
 def test_login_csrf_attempt(moulinette_webapi):
@@ -49,51 +39,37 @@ def test_login_csrf_attempt(moulinette_webapi):
     # https://security.stackexchange.com/a/58308
     # https://stackoverflow.com/a/22533680
 
-    r = login(moulinette_webapi, csrf=True)
-
-    assert r.status_code == 403
-    assert "session.id" not in r.cookies
-    assert "session.tokens" not in r.cookies
-    assert "CSRF protection" in r.text
+    assert "CSRF protection" in login(moulinette_webapi, csrf=True, status=403).text
+    assert not any(c.name == "session.id" for c in moulinette_webapi.cookiejar)
+    assert not any(c.name == "session.tokens" for c in moulinette_webapi.cookiejar)
 
 
 def test_login_then_legit_request_without_cookies(moulinette_webapi):
 
     login(moulinette_webapi)
 
-    r = requests.get(moulinette_webapi + "/test-auth/default")
+    moulinette_webapi.cookiejar.clear()
 
-    assert r.status_code == 401
-    assert r.text == "Authentication required"
+    moulinette_webapi.get("/test-auth/default", status=401)
 
 
 def test_login_then_legit_request(moulinette_webapi):
 
-    r_login = login(moulinette_webapi)
+    login(moulinette_webapi)
 
-    r = requests.get(moulinette_webapi + "/test-auth/default",
-                     cookies={"session.id": r_login.cookies["session.id"],
-                              "session.tokens": r_login.cookies["session.tokens"], })
+    #for cookie in moulinette_webapi.cookiejar:
+    #    cookie.domain = "localhost"
 
-    assert r.status_code == 200
-    assert r.text == '"some_data_from_default"'
+    assert moulinette_webapi.get("/test-auth/default", status=200).text == '"some_data_from_default"'
 
 
 def test_login_then_logout(moulinette_webapi):
 
-    r_login = login(moulinette_webapi)
+    login(moulinette_webapi)
 
-    r = requests.get(moulinette_webapi + "/logout",
-                     cookies={"session.id": r_login.cookies["session.id"],
-                              "session.tokens": r_login.cookies["session.tokens"], })
+    moulinette_webapi.get("/logout", status=200)
 
-    assert r.status_code == 200
     cache_session_default = os.environ['MOULINETTE_CACHE_DIR'] + "/session/default/"
-    assert not r_login.cookies["session.id"] + ".asc" in os.listdir(cache_session_default)
+    assert not moulinette_webapi.cookies["session.id"] + ".asc" in os.listdir(cache_session_default)
 
-    r = requests.get(moulinette_webapi + "/test-auth/default",
-                     cookies={"session.id": r_login.cookies["session.id"],
-                              "session.tokens": r_login.cookies["session.tokens"], })
-
-    assert r.status_code == 401
-    assert r.text == "Authentication required"
+    assert moulinette_webapi.get("/test-auth/default", status=401).text == "Authentication required"

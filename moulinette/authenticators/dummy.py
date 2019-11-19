@@ -17,7 +17,7 @@ class Authenticator(BaseAuthenticator):
     vendor = 'dummy'
 
     def __init__(self, name, vendor, parameters, extra):
-        logger.debug("initialize authenticator '%s")
+        logger.debug("initialize authenticator dummy")
         super(Authenticator, self).__init__(name)
 
     def authenticate(self, password):

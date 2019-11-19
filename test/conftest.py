@@ -1,7 +1,5 @@
 """Pytest fixtures for testing."""
 
-from multiprocessing import Process
-import time
 import json
 import os
 import shutil
@@ -121,19 +119,25 @@ def moulinette(tmp_path_factory):
     return moulinette
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def moulinette_webapi(moulinette):
 
-    namespace = "moulitest"
+    from webtest import TestApp
+    from webtest.app import CookiePolicy
 
-    api_thread = Process(target=moulinette.api,
-                         args=([namespace],),
-                         kwargs={"host": "localhost", "port": 12342, "use_websocket": False})
-    api_thread.start()
-    time.sleep(0.5)
-    assert api_thread.is_alive()
-    yield "http://localhost:12342"
-    api_thread.terminate()
+    # Dirty hack needed, otherwise cookies ain't reused between request .. not
+    # sure why :|
+    def return_true(self, cookie, request):
+        return True
+    CookiePolicy.return_ok_secure = return_true
+
+    moulinette_webapi = moulinette.core.init_interface(
+        'api',
+        kwargs={'routes': {}, 'use_websocket': False},
+        actionsmap={'namespaces': ["moulitest"], 'use_cache': True}
+    )
+
+    return TestApp(moulinette_webapi._app)
 
 
 @pytest.fixture
