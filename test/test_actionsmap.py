@@ -83,5 +83,5 @@ def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
 
     amap = ActionsMap(BaseActionsMapParser)
     with pytest.raises(ValueError) as exception:
-        amap.get_authenticator(profile='unknown')
+        amap.get_authenticator_for_profile('unknown')
     assert 'Unknown authenticator' in str(exception)
