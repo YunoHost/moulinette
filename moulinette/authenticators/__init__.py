@@ -154,7 +154,7 @@ class BaseAuthenticator(object):
             f.write(hash_)
 
     def _authenticate_session(self, session_id, session_token):
-         """Checks session and token against the stored session token"""
+        """Checks session and token against the stored session token"""
         try:
             # FIXME : shouldn't we also add a check that this session file
             # is not too old ? e.g. not older than 24 hours ? idk...
