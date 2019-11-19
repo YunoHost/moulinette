@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/YunoHost/moulinette.svg?branch=stretch-unstable)](https://travis-ci.org/YunoHost/moulinette)
+[![GitHub license](https://img.shields.io/github/license/YunoHost/moulinette)](https://github.com/YunoHost/moulinette/blob/stretch-unstable/LICENSE)
+
 Moulinette
 ==========
 
@@ -37,15 +40,10 @@ operation on an interface for example (see
 [Authenticators](#authenticators)).
 
 
-### Actions Map
-...
+Dev Documentation
+-----------------
 
-### Interfaces
-...
-
-### Authenticators
-...
-
+https://moulinette.readthedocs.org
 
 Requirements
 ------------
