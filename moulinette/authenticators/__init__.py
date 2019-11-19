@@ -184,7 +184,7 @@ class BaseAuthenticator(object):
             to_hash = "{id}:{token}".format(id=session_id, token=session_token)
             hash_ = hashlib.sha256(to_hash).hexdigest()
 
-            if hash_ != stored_hash:
+            if not hmac.compare_digest(hash_, stored_hash):
                 raise MoulinetteError('invalid_token')
             else:
                 return
