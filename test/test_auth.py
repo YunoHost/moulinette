@@ -22,7 +22,7 @@ def test_request_no_auth_needed(moulinette_webapi):
     assert r.text == '"some_data_from_none"'
 
 
-def test_request_with_auth_but_not_logged(monkeypatch, tmp_path, moulinette_webapi):
+def test_request_with_auth_but_not_logged(moulinette_webapi):
 
     r = requests.get(moulinette_webapi + "/test-auth/default")
 
@@ -30,7 +30,7 @@ def test_request_with_auth_but_not_logged(monkeypatch, tmp_path, moulinette_weba
     assert r.text == "Authentication required"
 
 
-def test_login(monkeypatch, moulinette_webapi):
+def test_login(moulinette_webapi):
 
     r = login(moulinette_webapi)
 
