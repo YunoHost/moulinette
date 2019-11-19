@@ -14,7 +14,7 @@ def login(webapi, cookies=None, csrf=False, profile=None):
                          headers=None if csrf else {"X-Requested-With": ""})
 
 
-def test_request_no_auth_needed(monkeypatch, tmp_path, moulinette_webapi):
+def test_request_no_auth_needed(moulinette_webapi):
 
     r = requests.get(moulinette_webapi + "/test-auth/none")
 
