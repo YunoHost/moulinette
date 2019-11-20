@@ -13,7 +13,7 @@
     "file_not_exist": "الملف غير موجود : '{path}'",
     "folder_exists": "إنّ المجلد موجود من قبل : '{path}'",
     "folder_not_exist": "المجلد غير موجود",
-    "instance_already_running": "هناك نسخة خادوم تشتغل مِن قبل",
+    "instance_already_running": "هناك بالفعل عملية YunoHost جارية. الرجاء الانتظار حتى ينتهي الأمر قبل تشغيل آخر.",
     "invalid_argument": "المُعامِل غير صالح '{argument}': {error}",
     "invalid_password": "كلمة السر خاطئة",
     "invalid_usage": "إستعمال غير صالح، إستخدم --help لعرض المساعدة",
