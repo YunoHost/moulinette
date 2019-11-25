@@ -9,14 +9,15 @@ from collections import deque, OrderedDict
 from moulinette import msettings, m18n
 from moulinette.core import MoulinetteError
 
-logger = logging.getLogger('moulinette.interface')
+logger = logging.getLogger("moulinette.interface")
 
-GLOBAL_SECTION = '_global'
-TO_RETURN_PROP = '_to_return'
-CALLBACKS_PROP = '_callbacks'
+GLOBAL_SECTION = "_global"
+TO_RETURN_PROP = "_to_return"
+CALLBACKS_PROP = "_callbacks"
 
 
 # Base Class -----------------------------------------------------------
+
 
 class BaseActionsMapParser(object):
 
@@ -37,9 +38,8 @@ class BaseActionsMapParser(object):
         if parent:
             self._o = parent
         else:
-            logger.debug('initializing base actions map parser for %s',
-                         self.interface)
-            msettings['interface'] = self.interface
+            logger.debug("initializing base actions map parser for %s", self.interface)
+            msettings["interface"] = self.interface
 
             self._o = self
             self._global_conf = {}
@@ -70,8 +70,9 @@ class BaseActionsMapParser(object):
             A list of option strings
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def has_global_parser(self):
         return False
@@ -85,8 +86,9 @@ class BaseActionsMapParser(object):
             An ArgumentParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def add_category_parser(self, name, **kwargs):
         """Add a parser for a category
@@ -100,8 +102,9 @@ class BaseActionsMapParser(object):
             A BaseParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def add_action_parser(self, name, tid, **kwargs):
         """Add a parser for an action
@@ -116,8 +119,9 @@ class BaseActionsMapParser(object):
             An ArgumentParser based object
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def auth_required(self, args, **kwargs):
         """Check if authentication is required to run the requested action
@@ -129,8 +133,9 @@ class BaseActionsMapParser(object):
             False, or the authentication profile required
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     def parse_args(self, args, **kwargs):
         """Parse arguments
@@ -145,17 +150,19 @@ class BaseActionsMapParser(object):
             The populated namespace
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     # Arguments helpers
 
     def prepare_action_namespace(self, tid, namespace=None):
         """Prepare the namespace for a given action"""
         # Validate tid and namespace
-        if not isinstance(tid, tuple) and \
-                (namespace is None or not hasattr(namespace, TO_RETURN_PROP)):
-            raise MoulinetteError('invalid_usage')
+        if not isinstance(tid, tuple) and (
+            namespace is None or not hasattr(namespace, TO_RETURN_PROP)
+        ):
+            raise MoulinetteError("invalid_usage")
         elif not tid:
             tid = GLOBAL_SECTION
 
@@ -229,52 +236,65 @@ class BaseActionsMapParser(object):
 
         # -- 'authenficate'
         try:
-            ifaces = configuration['authenticate']
+            ifaces = configuration["authenticate"]
         except KeyError:
             pass
         else:
-            if ifaces == 'all':
-                conf['authenticate'] = ifaces
+            if ifaces == "all":
+                conf["authenticate"] = ifaces
             elif ifaces is False:
-                conf['authenticate'] = False
+                conf["authenticate"] = False
             elif isinstance(ifaces, list):
                 # Store only if authentication is needed
-                conf['authenticate'] = True if self.interface in ifaces else False
+                conf["authenticate"] = True if self.interface in ifaces else False
             else:
-                logger.error("expecting 'all', 'False' or a list for "
-                             "configuration 'authenticate', got %r", ifaces)
-                raise MoulinetteError('error_see_log')
+                logger.error(
+                    "expecting 'all', 'False' or a list for "
+                    "configuration 'authenticate', got %r",
+                    ifaces,
+                )
+                raise MoulinetteError("error_see_log")
 
         # -- 'authenticator'
         try:
-            auth = configuration['authenticator']
+            auth = configuration["authenticator"]
         except KeyError:
             pass
         else:
             if not is_global and isinstance(auth, str):
                 try:
                     # Store needed authenticator profile
-                    conf['authenticator'] = self.global_conf['authenticator'][auth]
+                    conf["authenticator"] = self.global_conf["authenticator"][auth]
                 except KeyError:
-                    logger.error("requesting profile '%s' which is undefined in "
-                                 "global configuration of 'authenticator'", auth)
-                    raise MoulinetteError('error_see_log')
+                    logger.error(
+                        "requesting profile '%s' which is undefined in "
+                        "global configuration of 'authenticator'",
+                        auth,
+                    )
+                    raise MoulinetteError("error_see_log")
             elif is_global and isinstance(auth, dict):
                 if len(auth) == 0:
-                    logger.warning('no profile defined in global configuration '
-                                   "for 'authenticator'")
+                    logger.warning(
+                        "no profile defined in global configuration "
+                        "for 'authenticator'"
+                    )
                 else:
                     auths = {}
                     for auth_name, auth_conf in auth.items():
-                        auths[auth_name] = {'name': auth_name,
-                                            'vendor': auth_conf.get('vendor'),
-                                            'parameters': auth_conf.get('parameters', {}),
-                                            'extra': {'help': auth_conf.get('help', None)}}
-                    conf['authenticator'] = auths
+                        auths[auth_name] = {
+                            "name": auth_name,
+                            "vendor": auth_conf.get("vendor"),
+                            "parameters": auth_conf.get("parameters", {}),
+                            "extra": {"help": auth_conf.get("help", None)},
+                        }
+                    conf["authenticator"] = auths
             else:
-                logger.error("expecting a dict of profile(s) or a profile name "
-                             "for configuration 'authenticator', got %r", auth)
-                raise MoulinetteError('error_see_log')
+                logger.error(
+                    "expecting a dict of profile(s) or a profile name "
+                    "for configuration 'authenticator', got %r",
+                    auth,
+                )
+                raise MoulinetteError("error_see_log")
 
         return conf
 
@@ -291,55 +311,60 @@ class BaseInterface(object):
         - actionsmap -- The ActionsMap instance to connect to
 
     """
+
     # TODO: Add common interface methods and try to standardize default ones
 
     def __init__(self, actionsmap):
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
 
 # Argument parser ------------------------------------------------------
 
-class _CallbackAction(argparse.Action):
 
-    def __init__(self,
-                 option_strings,
-                 dest,
-                 nargs=0,
-                 callback={},
-                 default=argparse.SUPPRESS,
-                 help=None):
-        if not callback or 'method' not in callback:
-            raise ValueError('callback must be provided with at least '
-                             'a method key')
+class _CallbackAction(argparse.Action):
+    def __init__(
+        self,
+        option_strings,
+        dest,
+        nargs=0,
+        callback={},
+        default=argparse.SUPPRESS,
+        help=None,
+    ):
+        if not callback or "method" not in callback:
+            raise ValueError("callback must be provided with at least " "a method key")
         super(_CallbackAction, self).__init__(
             option_strings=option_strings,
             dest=dest,
             nargs=nargs,
             default=default,
-            help=help)
-        self.callback_method = callback.get('method')
-        self.callback_kwargs = callback.get('kwargs', {})
-        self.callback_return = callback.get('return', False)
-        logger.debug("registering new callback action '{0}' to {1}".format(
-            self.callback_method, option_strings))
+            help=help,
+        )
+        self.callback_method = callback.get("method")
+        self.callback_kwargs = callback.get("kwargs", {})
+        self.callback_return = callback.get("return", False)
+        logger.debug(
+            "registering new callback action '{0}' to {1}".format(
+                self.callback_method, option_strings
+            )
+        )
 
     @property
     def callback(self):
-        if not hasattr(self, '_callback'):
+        if not hasattr(self, "_callback"):
             self._retrieve_callback()
         return self._callback
 
     def _retrieve_callback(self):
         # Attempt to retrieve callback method
-        mod_name, func_name = (self.callback_method).rsplit('.', 1)
+        mod_name, func_name = (self.callback_method).rsplit(".", 1)
         try:
-            mod = __import__(mod_name, globals=globals(), level=0,
-                             fromlist=[func_name])
+            mod = __import__(mod_name, globals=globals(), level=0, fromlist=[func_name])
             func = getattr(mod, func_name)
         except (AttributeError, ImportError):
-            raise ValueError('unable to import method {0}'.format(
-                self.callback_method))
+            raise ValueError("unable to import method {0}".format(self.callback_method))
         self._callback = func
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -352,9 +377,11 @@ class _CallbackAction(argparse.Action):
             # Execute callback and get returned value
             value = self.callback(namespace, values, **self.callback_kwargs)
         except:
-            logger.exception("cannot get value from callback method "
-                             "'{0}'".format(self.callback_method))
-            raise MoulinetteError('error_see_log')
+            logger.exception(
+                "cannot get value from callback method "
+                "'{0}'".format(self.callback_method)
+            )
+            raise MoulinetteError("error_see_log")
         else:
             if value:
                 if self.callback_return:
@@ -379,23 +406,22 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
     """
 
     def __init__(self, *args, **kwargs):
-        required = kwargs.pop('required', False)
+        required = kwargs.pop("required", False)
         super(_ExtendedSubParsersAction, self).__init__(*args, **kwargs)
 
         self.required = required
         self._deprecated_command_map = {}
 
     def add_parser(self, name, type_=None, **kwargs):
-        deprecated = kwargs.pop('deprecated', False)
-        deprecated_alias = kwargs.pop('deprecated_alias', [])
+        deprecated = kwargs.pop("deprecated", False)
+        deprecated_alias = kwargs.pop("deprecated_alias", [])
 
         if deprecated:
             self._deprecated_command_map[name] = None
-            if 'help' in kwargs:
-                del kwargs['help']
+            if "help" in kwargs:
+                del kwargs["help"]
 
-        parser = super(_ExtendedSubParsersAction, self).add_parser(
-            name, **kwargs)
+        parser = super(_ExtendedSubParsersAction, self).add_parser(name, **kwargs)
 
         # Append each deprecated command alias name
         for command in deprecated_alias:
@@ -417,27 +443,34 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         else:
             # Warn the user about deprecated command
             if correct_name is None:
-                logger.warning(m18n.g('deprecated_command', prog=parser.prog,
-                                      command=parser_name))
+                logger.warning(
+                    m18n.g("deprecated_command", prog=parser.prog, command=parser_name)
+                )
             else:
-                logger.warning(m18n.g('deprecated_command_alias',
-                                      old=parser_name, new=correct_name,
-                                      prog=parser.prog))
+                logger.warning(
+                    m18n.g(
+                        "deprecated_command_alias",
+                        old=parser_name,
+                        new=correct_name,
+                        prog=parser.prog,
+                    )
+                )
                 values[0] = correct_name
 
         return super(_ExtendedSubParsersAction, self).__call__(
-            parser, namespace, values, option_string)
+            parser, namespace, values, option_string
+        )
 
 
 class ExtendedArgumentParser(argparse.ArgumentParser):
-
     def __init__(self, *args, **kwargs):
-        super(ExtendedArgumentParser, self).__init__(formatter_class=PositionalsFirstHelpFormatter,
-                                                     *args, **kwargs)
+        super(ExtendedArgumentParser, self).__init__(
+            formatter_class=PositionalsFirstHelpFormatter, *args, **kwargs
+        )
 
         # Register additional actions
-        self.register('action', 'callback', _CallbackAction)
-        self.register('action', 'parsers', _ExtendedSubParsersAction)
+        self.register("action", "callback", _CallbackAction)
+        self.register("action", "parsers", _ExtendedSubParsersAction)
 
     def enqueue_callback(self, namespace, callback, values):
         queue = self._get_callbacks_queue(namespace)
@@ -465,30 +498,33 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 queue = list()
         return queue
 
-    def add_arguments(self, arguments, extraparser, format_arg_names=None, validate_extra=True):
+    def add_arguments(
+        self, arguments, extraparser, format_arg_names=None, validate_extra=True
+    ):
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
-            names = format_arg_names(str(argument_name),
-                                     argument_options.pop('full', None))
+            names = format_arg_names(
+                str(argument_name), argument_options.pop("full", None)
+            )
 
             if "type" in argument_options:
-                argument_options['type'] = eval(argument_options['type'])
+                argument_options["type"] = eval(argument_options["type"])
 
             if "extra" in argument_options:
-                extra = argument_options.pop('extra')
+                extra = argument_options.pop("extra")
                 argument_dest = self.add_argument(*names, **argument_options).dest
-                extraparser.add_argument(self.get_default("_tid"),
-                                         argument_dest, extra, validate_extra)
+                extraparser.add_argument(
+                    self.get_default("_tid"), argument_dest, extra, validate_extra
+                )
                 continue
 
             self.add_argument(*names, **argument_options)
 
     def _get_nargs_pattern(self, action):
         if action.nargs == argparse.PARSER and not action.required:
-            return '([-AO]*)'
+            return "([-AO]*)"
         else:
-            return super(ExtendedArgumentParser, self)._get_nargs_pattern(
-                action)
+            return super(ExtendedArgumentParser, self)._get_nargs_pattern(action)
 
     def _get_values(self, action, arg_strings):
         if action.nargs == argparse.PARSER and not action.required:
@@ -498,8 +534,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             else:
                 value = argparse.SUPPRESS
         else:
-            value = super(ExtendedArgumentParser, self)._get_values(
-                action, arg_strings)
+            value = super(ExtendedArgumentParser, self)._get_values(action, arg_strings)
         return value
 
     # Adapted from :
@@ -508,8 +543,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
         formatter = self._get_formatter()
 
         # usage
-        formatter.add_usage(self.usage, self._actions,
-                            self._mutually_exclusive_groups)
+        formatter.add_usage(self.usage, self._actions, self._mutually_exclusive_groups)
 
         # description
         formatter.add_text(self.description)
@@ -527,14 +561,30 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 subcategories_subparser = copy.copy(action_group._group_actions[0])
 
                 # Filter "action"-type and "subcategory"-type commands
-                actions_subparser.choices = OrderedDict([(k, v) for k, v in actions_subparser.choices.items() if v.type == "action"])
-                subcategories_subparser.choices = OrderedDict([(k, v) for k, v in subcategories_subparser.choices.items() if v.type == "subcategory"])
+                actions_subparser.choices = OrderedDict(
+                    [
+                        (k, v)
+                        for k, v in actions_subparser.choices.items()
+                        if v.type == "action"
+                    ]
+                )
+                subcategories_subparser.choices = OrderedDict(
+                    [
+                        (k, v)
+                        for k, v in subcategories_subparser.choices.items()
+                        if v.type == "subcategory"
+                    ]
+                )
 
                 actions_choices = actions_subparser.choices.keys()
                 subcategories_choices = subcategories_subparser.choices.keys()
 
-                actions_subparser._choices_actions = [c for c in choice_actions if c.dest in actions_choices]
-                subcategories_subparser._choices_actions = [c for c in choice_actions if c.dest in subcategories_choices]
+                actions_subparser._choices_actions = [
+                    c for c in choice_actions if c.dest in actions_choices
+                ]
+                subcategories_subparser._choices_actions = [
+                    c for c in choice_actions if c.dest in subcategories_choices
+                ]
 
                 # Display each section (actions and subcategories)
                 if actions_choices != []:
@@ -569,11 +619,10 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 # and fix is inspired from here :
 # https://stackoverflow.com/questions/26985650/argparse-do-not-catch-positional-arguments-with-nargs/26986546#26986546
 class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
-
     def _format_usage(self, usage, actions, groups, prefix):
         if prefix is None:
             # TWEAK : not using gettext here...
-            prefix = 'usage: '
+            prefix = "usage: "
 
         # if usage is specified, use that
         if usage is not None:
@@ -581,11 +630,11 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
 
         # if no optionals or positionals are available, usage is just prog
         elif usage is None and not actions:
-            usage = '%(prog)s' % dict(prog=self._prog)
+            usage = "%(prog)s" % dict(prog=self._prog)
 
         # if optionals and positionals are available, calculate usage
         elif usage is None:
-            prog = '%(prog)s' % dict(prog=self._prog)
+            prog = "%(prog)s" % dict(prog=self._prog)
 
             # split optionals from positionals
             optionals = []
@@ -600,20 +649,20 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
             format = self._format_actions_usage
             # TWEAK here : positionals first
             action_usage = format(positionals + optionals, groups)
-            usage = ' '.join([s for s in [prog, action_usage] if s])
+            usage = " ".join([s for s in [prog, action_usage] if s])
 
             # wrap the usage parts if it's too long
             text_width = self._width - self._current_indent
             if len(prefix) + len(usage) > text_width:
 
                 # break usage into wrappable parts
-                part_regexp = r'\(.*?\)+|\[.*?\]+|\S+'
+                part_regexp = r"\(.*?\)+|\[.*?\]+|\S+"
                 opt_usage = format(optionals, groups)
                 pos_usage = format(positionals, groups)
                 opt_parts = re.findall(part_regexp, opt_usage)
                 pos_parts = re.findall(part_regexp, pos_usage)
-                assert ' '.join(opt_parts) == opt_usage
-                assert ' '.join(pos_parts) == pos_usage
+                assert " ".join(opt_parts) == opt_usage
+                assert " ".join(pos_parts) == pos_usage
 
                 # helper for wrapping lines
                 def get_lines(parts, indent, prefix=None):
@@ -625,20 +674,20 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
                         line_len = len(indent) - 1
                     for part in parts:
                         if line_len + 1 + len(part) > text_width:
-                            lines.append(indent + ' '.join(line))
+                            lines.append(indent + " ".join(line))
                             line = []
                             line_len = len(indent) - 1
                         line.append(part)
                         line_len += len(part) + 1
                     if line:
-                        lines.append(indent + ' '.join(line))
+                        lines.append(indent + " ".join(line))
                     if prefix is not None:
-                        lines[0] = lines[0][len(indent):]
+                        lines[0] = lines[0][len(indent) :]
                     return lines
 
                 # if prog is short, follow it with optionals or positionals
                 if len(prefix) + len(prog) <= 0.75 * text_width:
-                    indent = ' ' * (len(prefix) + len(prog) + 1)
+                    indent = " " * (len(prefix) + len(prog) + 1)
                     # START TWEAK : pos_parts first, then opt_parts
                     if pos_parts:
                         lines = get_lines([prog] + pos_parts, indent, prefix)
@@ -651,7 +700,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
 
                 # if prog is long, put it on its own line
                 else:
-                    indent = ' ' * len(prefix)
+                    indent = " " * len(prefix)
                     parts = pos_parts + opt_parts
                     lines = get_lines(parts, indent)
                     if len(lines) > 1:
@@ -662,7 +711,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
                     lines = [prog] + lines
 
                 # join lines into usage
-                usage = '\n'.join(lines)
+                usage = "\n".join(lines)
 
         # prefix with 'usage:'
-        return '%s%s\n\n' % (prefix, usage)
+        return "%s%s\n\n" % (prefix, usage)

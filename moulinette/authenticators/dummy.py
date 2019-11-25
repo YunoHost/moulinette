@@ -4,7 +4,7 @@ import logging
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
 
-logger = logging.getLogger('moulinette.authenticator.dummy')
+logger = logging.getLogger("moulinette.authenticator.dummy")
 
 # Dummy authenticator implementation
 
@@ -14,7 +14,7 @@ class Authenticator(BaseAuthenticator):
     """Dummy authenticator used for tests
     """
 
-    vendor = 'dummy'
+    vendor = "dummy"
 
     def __init__(self, name, vendor, parameters, extra):
         logger.debug("initialize authenticator dummy")

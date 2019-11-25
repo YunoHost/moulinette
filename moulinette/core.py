@@ -11,7 +11,7 @@ import moulinette
 from moulinette.globals import init_moulinette_env
 
 
-logger = logging.getLogger('moulinette.core')
+logger = logging.getLogger("moulinette.core")
 
 
 def during_unittests_run():
@@ -19,6 +19,7 @@ def during_unittests_run():
 
 
 # Internationalization -------------------------------------------------
+
 
 class Translator(object):
 
@@ -33,15 +34,16 @@ class Translator(object):
 
     """
 
-    def __init__(self, locale_dir, default_locale='en'):
+    def __init__(self, locale_dir, default_locale="en"):
         self.locale_dir = locale_dir
         self.locale = default_locale
         self._translations = {}
 
         # Attempt to load default translations
         if not self._load_translations(default_locale):
-            logger.error("unable to load locale '%s' from '%s'",
-                         default_locale, locale_dir)
+            logger.error(
+                "unable to load locale '%s' from '%s'", default_locale, locale_dir
+            )
         self.default_locale = default_locale
 
     def get_locales(self):
@@ -49,7 +51,7 @@ class Translator(object):
         locales = []
 
         for f in os.listdir(self.locale_dir):
-            if f.endswith('.json'):
+            if f.endswith(".json"):
                 # TODO: Validate locale
                 locales.append(f[:-5])
         return locales
@@ -69,8 +71,11 @@ class Translator(object):
         """
         if locale not in self._translations:
             if not self._load_translations(locale):
-                logger.debug("unable to load locale '%s' from '%s'",
-                             self.default_locale, self.locale_dir)
+                logger.debug(
+                    "unable to load locale '%s' from '%s'",
+                    self.default_locale,
+                    self.locale_dir,
+                )
 
                 # Revert to default locale
                 self.locale = self.default_locale
@@ -93,11 +98,18 @@ class Translator(object):
         failed_to_format = False
         if key in self._translations.get(self.locale, {}):
             try:
-                return self._translations[self.locale][key].encode('utf-8').format(*args, **kwargs)
+                return (
+                    self._translations[self.locale][key]
+                    .encode("utf-8")
+                    .format(*args, **kwargs)
+                )
             except KeyError as e:
-                unformatted_string = self._translations[self.locale][key].encode('utf-8')
-                error_message = "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)" % (
-                    key, unformatted_string, args, kwargs, e.__class__.__name__, e
+                unformatted_string = self._translations[self.locale][key].encode(
+                    "utf-8"
+                )
+                error_message = (
+                    "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)"
+                    % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
                 )
 
                 if not during_unittests_run():
@@ -107,25 +119,37 @@ class Translator(object):
 
                 failed_to_format = True
 
-        if failed_to_format or (self.default_locale != self.locale and key in self._translations.get(self.default_locale, {})):
-            logger.info("untranslated key '%s' for locale '%s'",
-                        key, self.locale)
+        if failed_to_format or (
+            self.default_locale != self.locale
+            and key in self._translations.get(self.default_locale, {})
+        ):
+            logger.info("untranslated key '%s' for locale '%s'", key, self.locale)
 
             try:
-                return self._translations[self.default_locale][key].encode('utf-8').format(*args, **kwargs)
+                return (
+                    self._translations[self.default_locale][key]
+                    .encode("utf-8")
+                    .format(*args, **kwargs)
+                )
             except KeyError as e:
-                unformatted_string = self._translations[self.default_locale][key].encode('utf-8')
-                error_message = "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)" % (
-                    key, unformatted_string, args, kwargs, e.__class__.__name__, e
+                unformatted_string = self._translations[self.default_locale][
+                    key
+                ].encode("utf-8")
+                error_message = (
+                    "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)"
+                    % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
                 )
                 if not during_unittests_run():
                     logger.exception(error_message)
                 else:
                     raise Exception(error_message)
 
-                return self._translations[self.default_locale][key].encode('utf-8')
+                return self._translations[self.default_locale][key].encode("utf-8")
 
-        error_message = "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)" % (key, self.default_locale)
+        error_message = (
+            "unable to retrieve string to translate with key '%s' for default locale 'locales/%s.json' file (don't panic this is just a warning)"
+            % (key, self.default_locale)
+        )
 
         if not during_unittests_run():
             logger.exception(error_message)
@@ -152,8 +176,8 @@ class Translator(object):
             return True
 
         try:
-            with open('%s/%s.json' % (self.locale_dir, locale), 'r') as f:
-                j = json.load(f, 'utf-8')
+            with open("%s/%s.json" % (self.locale_dir, locale), "r") as f:
+                j = json.load(f, "utf-8")
         except IOError:
             return False
         else:
@@ -174,12 +198,12 @@ class Moulinette18n(object):
 
     """
 
-    def __init__(self, default_locale='en'):
+    def __init__(self, default_locale="en"):
         self.default_locale = default_locale
         self.locale = default_locale
 
         moulinette_env = init_moulinette_env()
-        self.locales_dir = moulinette_env['LOCALES_DIR']
+        self.locales_dir = moulinette_env["LOCALES_DIR"]
 
         # Init global translator
         self._global = Translator(self.locales_dir, default_locale)
@@ -201,8 +225,9 @@ class Moulinette18n(object):
         if namespace not in self._namespaces:
             # Create new Translator object
             lib_dir = init_moulinette_env()["LIB_DIR"]
-            translator = Translator('%s/%s/locales' % (lib_dir, namespace),
-                                    self.default_locale)
+            translator = Translator(
+                "%s/%s/locales" % (lib_dir, namespace), self.default_locale
+            )
             translator.set_locale(self.locale)
             self._namespaces[namespace] = translator
 
@@ -272,19 +297,19 @@ class MoulinetteSignals(object):
         if signal not in self.signals:
             logger.error("unknown signal '%s'", signal)
             return
-        setattr(self, '_%s' % signal, handler)
+        setattr(self, "_%s" % signal, handler)
 
     def clear_handler(self, signal):
         """Clear the handler of a signal"""
         if signal not in self.signals:
             logger.error("unknown signal '%s'", signal)
             return
-        setattr(self, '_%s' % signal, self._notimplemented)
+        setattr(self, "_%s" % signal, self._notimplemented)
 
     # Signals definitions
 
     """The list of available signals"""
-    signals = {'authenticate', 'prompt', 'display'}
+    signals = {"authenticate", "prompt", "display"}
 
     def authenticate(self, authenticator):
         """Process the authentication
@@ -305,7 +330,7 @@ class MoulinetteSignals(object):
             return authenticator
         return self._authenticate(authenticator)
 
-    def prompt(self, message, is_password=False, confirm=False, color='blue'):
+    def prompt(self, message, is_password=False, confirm=False, color="blue"):
         """Prompt for a value
 
         Prompt the interface for a parameter value which is a password
@@ -326,7 +351,7 @@ class MoulinetteSignals(object):
         """
         return self._prompt(message, is_password, confirm, color=color)
 
-    def display(self, message, style='info'):
+    def display(self, message, style="info"):
         """Display a message
 
         Display a message with a given style to the user.
@@ -352,6 +377,7 @@ class MoulinetteSignals(object):
 
 # Interfaces & Authenticators management -------------------------------
 
+
 def init_interface(name, kwargs={}, actionsmap={}):
     """Return a new interface instance
 
@@ -371,10 +397,10 @@ def init_interface(name, kwargs={}, actionsmap={}):
     from moulinette.actionsmap import ActionsMap
 
     try:
-        mod = import_module('moulinette.interfaces.%s' % name)
+        mod = import_module("moulinette.interfaces.%s" % name)
     except ImportError as e:
         logger.exception("unable to load interface '%s' : %s", name, e)
-        raise MoulinetteError('error_see_log')
+        raise MoulinetteError("error_see_log")
     else:
         try:
             # Retrieve interface classes
@@ -382,21 +408,22 @@ def init_interface(name, kwargs={}, actionsmap={}):
             interface = mod.Interface
         except AttributeError:
             logger.exception("unable to retrieve classes of interface '%s'", name)
-            raise MoulinetteError('error_see_log')
+            raise MoulinetteError("error_see_log")
 
     # Instantiate or retrieve ActionsMap
     if isinstance(actionsmap, dict):
-        amap = ActionsMap(actionsmap.pop('parser', parser), **actionsmap)
+        amap = ActionsMap(actionsmap.pop("parser", parser), **actionsmap)
     elif isinstance(actionsmap, ActionsMap):
         amap = actionsmap
     else:
         logger.error("invalid actionsmap value %r", actionsmap)
-        raise MoulinetteError('error_see_log')
+        raise MoulinetteError("error_see_log")
 
     return interface(amap, **kwargs)
 
 
 # Moulinette core classes ----------------------------------------------
+
 
 class MoulinetteError(Exception):
 
@@ -427,12 +454,12 @@ class MoulinetteLock(object):
 
     """
 
-    def __init__(self, namespace, timeout=None, interval=.5):
+    def __init__(self, namespace, timeout=None, interval=0.5):
         self.namespace = namespace
         self.timeout = timeout
         self.interval = interval
 
-        self._lockfile = '/var/run/moulinette_%s.lock' % namespace
+        self._lockfile = "/var/run/moulinette_%s.lock" % namespace
         self._stale_checked = False
         self._locked = False
 
@@ -453,7 +480,7 @@ class MoulinetteLock(object):
         # after 15*4 seconds, then 15*4*4 seconds...
         warning_treshold = 15
 
-        logger.debug('acquiring lock...')
+        logger.debug("acquiring lock...")
 
         while True:
 
@@ -470,20 +497,24 @@ class MoulinetteLock(object):
                 # Check locked process still exist and take lock if it doesnt
                 # FIXME : what do in the context of multiple locks :|
                 first_lock = lock_pids[0]
-                if not os.path.exists(os.path.join('/proc', str(first_lock), 'exe')):
-                    logger.debug('stale lock file found')
+                if not os.path.exists(os.path.join("/proc", str(first_lock), "exe")):
+                    logger.debug("stale lock file found")
                     self._lock()
                     break
 
             if self.timeout is not None and (time.time() - start_time) > self.timeout:
-                raise MoulinetteError('instance_already_running')
+                raise MoulinetteError("instance_already_running")
 
             # warn the user if it's been too much time since they are waiting
             if (time.time() - start_time) > warning_treshold:
                 if warning_treshold == 15:
-                    logger.warning(moulinette.m18n.g('warn_the_user_about_waiting_lock'))
+                    logger.warning(
+                        moulinette.m18n.g("warn_the_user_about_waiting_lock")
+                    )
                 else:
-                    logger.warning(moulinette.m18n.g('warn_the_user_about_waiting_lock_again'))
+                    logger.warning(
+                        moulinette.m18n.g("warn_the_user_about_waiting_lock_again")
+                    )
                 warning_treshold *= 4
 
             # Wait before checking again
@@ -492,8 +523,8 @@ class MoulinetteLock(object):
         # we have warned the user that we were waiting, for better UX also them
         # that we have stop waiting and that the command is processing now
         if warning_treshold != 15:
-            logger.warning(moulinette.m18n.g('warn_the_user_that_lock_is_acquired'))
-        logger.debug('lock has been acquired')
+            logger.warning(moulinette.m18n.g("warn_the_user_that_lock_is_acquired"))
+        logger.debug("lock has been acquired")
         self._locked = True
 
     def release(self):
@@ -506,16 +537,18 @@ class MoulinetteLock(object):
             if os.path.exists(self._lockfile):
                 os.unlink(self._lockfile)
             else:
-                logger.warning("Uhoh, somehow the lock %s did not exist ..." % self._lockfile)
-            logger.debug('lock has been released')
+                logger.warning(
+                    "Uhoh, somehow the lock %s did not exist ..." % self._lockfile
+                )
+            logger.debug("lock has been released")
             self._locked = False
 
     def _lock(self):
         try:
-            with open(self._lockfile, 'w') as f:
+            with open(self._lockfile, "w") as f:
                 f.write(str(os.getpid()))
         except IOError:
-            raise MoulinetteError('root_required')
+            raise MoulinetteError("root_required")
 
     def _lock_PIDs(self):
 
@@ -523,10 +556,10 @@ class MoulinetteLock(object):
             return []
 
         with open(self._lockfile) as f:
-            lock_pids = f.read().strip().split('\n')
+            lock_pids = f.read().strip().split("\n")
 
         # Make sure to convert those pids to integers
-        lock_pids = [int(pid) for pid in lock_pids if pid.strip() != '']
+        lock_pids = [int(pid) for pid in lock_pids if pid.strip() != ""]
 
         return lock_pids
 

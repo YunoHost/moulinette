@@ -15,27 +15,29 @@ import argcomplete
 from moulinette import msignals, m18n
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
-    BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
+    BaseActionsMapParser,
+    BaseInterface,
+    ExtendedArgumentParser,
 )
 from moulinette.utils import log
 
 
-logger = log.getLogger('moulinette.cli')
+logger = log.getLogger("moulinette.cli")
 
 
 # CLI helpers ----------------------------------------------------------
 
-CLI_COLOR_TEMPLATE = '\033[{:d}m\033[1m'
-END_CLI_COLOR = '\033[m'
+CLI_COLOR_TEMPLATE = "\033[{:d}m\033[1m"
+END_CLI_COLOR = "\033[m"
 
 colors_codes = {
-    'red': CLI_COLOR_TEMPLATE.format(31),
-    'green': CLI_COLOR_TEMPLATE.format(32),
-    'yellow': CLI_COLOR_TEMPLATE.format(33),
-    'blue': CLI_COLOR_TEMPLATE.format(34),
-    'purple': CLI_COLOR_TEMPLATE.format(35),
-    'cyan': CLI_COLOR_TEMPLATE.format(36),
-    'white': CLI_COLOR_TEMPLATE.format(37),
+    "red": CLI_COLOR_TEMPLATE.format(31),
+    "green": CLI_COLOR_TEMPLATE.format(32),
+    "yellow": CLI_COLOR_TEMPLATE.format(33),
+    "blue": CLI_COLOR_TEMPLATE.format(34),
+    "purple": CLI_COLOR_TEMPLATE.format(35),
+    "cyan": CLI_COLOR_TEMPLATE.format(36),
+    "white": CLI_COLOR_TEMPLATE.format(37),
 }
 
 
@@ -50,7 +52,7 @@ def colorize(astr, color):
 
     """
     if os.isatty(1):
-        return '{:s}{:s}{:s}'.format(colors_codes[color], astr, END_CLI_COLOR)
+        return "{:s}{:s}{:s}".format(colors_codes[color], astr, END_CLI_COLOR)
     else:
         return astr
 
@@ -91,7 +93,7 @@ def plain_print_dict(d, depth=0):
             plain_print_dict(v, depth + 1)
     else:
         if isinstance(d, unicode):
-            d = d.encode('utf-8')
+            d = d.encode("utf-8")
         print(d)
 
 
@@ -107,7 +109,7 @@ def pretty_date(_date):
     nowtz = nowtz.replace(tzinfo=pytz.utc)
     offsetHour = nowutc - nowtz
     offsetHour = int(round(offsetHour.total_seconds() / 3600))
-    localtz = 'Etc/GMT%+d' % offsetHour
+    localtz = "Etc/GMT%+d" % offsetHour
 
     # Transform naive date into UTC date
     if _date.tzinfo is None:
@@ -136,7 +138,7 @@ def pretty_print_dict(d, depth=0):
         keys = sorted(keys)
     for k in keys:
         v = d[k]
-        k = colorize(str(k), 'purple')
+        k = colorize(str(k), "purple")
         if isinstance(v, (tuple, set)):
             v = list(v)
         if isinstance(v, list) and len(v) == 1:
@@ -153,13 +155,13 @@ def pretty_print_dict(d, depth=0):
                     pretty_print_dict({key: value}, depth + 1)
                 else:
                     if isinstance(value, unicode):
-                        value = value.encode('utf-8')
+                        value = value.encode("utf-8")
                     elif isinstance(v, date):
                         v = pretty_date(v)
                     print("{:s}- {}".format("  " * (depth + 1), value))
         else:
             if isinstance(v, unicode):
-                v = v.encode('utf-8')
+                v = v.encode("utf-8")
             elif isinstance(v, date):
                 v = pretty_date(v)
             print("{:s}{}: {}".format("  " * depth, k, v))
@@ -169,11 +171,12 @@ def get_locale():
     """Return current user locale"""
     lang = locale.getdefaultlocale()[0]
     if not lang:
-        return ''
+        return ""
     return lang[:2]
 
 
 # CLI Classes Implementation -------------------------------------------
+
 
 class TTYHandler(logging.StreamHandler):
 
@@ -192,17 +195,18 @@ class TTYHandler(logging.StreamHandler):
     stderr. Otherwise, they are sent to stdout.
 
     """
+
     LEVELS_COLOR = {
-        log.NOTSET: 'white',
-        log.DEBUG: 'white',
-        log.INFO: 'cyan',
-        log.SUCCESS: 'green',
-        log.WARNING: 'yellow',
-        log.ERROR: 'red',
-        log.CRITICAL: 'red',
+        log.NOTSET: "white",
+        log.DEBUG: "white",
+        log.INFO: "cyan",
+        log.SUCCESS: "green",
+        log.WARNING: "yellow",
+        log.ERROR: "red",
+        log.CRITICAL: "red",
     }
 
-    def __init__(self, message_key='fmessage'):
+    def __init__(self, message_key="fmessage"):
         logging.StreamHandler.__init__(self)
         self.message_key = message_key
 
@@ -210,16 +214,15 @@ class TTYHandler(logging.StreamHandler):
         """Enhance message with level and colors if supported."""
         msg = record.getMessage()
         if self.supports_color():
-            level = ''
+            level = ""
             if self.level <= log.DEBUG:
                 # add level name before message
-                level = '%s ' % record.levelname
-            elif record.levelname in ['SUCCESS', 'WARNING', 'ERROR', 'INFO']:
+                level = "%s " % record.levelname
+            elif record.levelname in ["SUCCESS", "WARNING", "ERROR", "INFO"]:
                 # add translated level name before message
-                level = '%s ' % m18n.g(record.levelname.lower())
-            color = self.LEVELS_COLOR.get(record.levelno, 'white')
-            msg = '{0}{1}{2}{3}'.format(
-                colors_codes[color], level, END_CLI_COLOR, msg)
+                level = "%s " % m18n.g(record.levelname.lower())
+            color = self.LEVELS_COLOR.get(record.levelno, "white")
+            msg = "{0}{1}{2}{3}".format(colors_codes[color], level, END_CLI_COLOR, msg)
         if self.formatter:
             # use user-defined formatter
             record.__dict__[self.message_key] = msg
@@ -236,7 +239,7 @@ class TTYHandler(logging.StreamHandler):
 
     def supports_color(self):
         """Check whether current stream supports color."""
-        if hasattr(self.stream, 'isatty') and self.stream.isatty():
+        if hasattr(self.stream, "isatty") and self.stream.isatty():
             return True
         return False
 
@@ -256,12 +259,13 @@ class ActionsMapParser(BaseActionsMapParser):
 
     """
 
-    def __init__(self, parent=None, parser=None, subparser_kwargs=None,
-                 top_parser=None, **kwargs):
+    def __init__(
+        self, parent=None, parser=None, subparser_kwargs=None, top_parser=None, **kwargs
+    ):
         super(ActionsMapParser, self).__init__(parent)
 
         if subparser_kwargs is None:
-            subparser_kwargs = {'title': "categories", 'required': False}
+            subparser_kwargs = {"title": "categories", "required": False}
 
         self._parser = parser or ExtendedArgumentParser()
         self._subparsers = self._parser.add_subparsers(**subparser_kwargs)
@@ -277,13 +281,13 @@ class ActionsMapParser(BaseActionsMapParser):
 
     # Implement virtual properties
 
-    interface = 'cli'
+    interface = "cli"
 
     # Implement virtual methods
 
     @staticmethod
     def format_arg_names(name, full):
-        if name[0] == '-' and full:
+        if name[0] == "-" and full:
             return [name, full]
         return [name]
 
@@ -300,13 +304,10 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ActionsMapParser object for the category
 
         """
-        parser = self._subparsers.add_parser(name,
-                                             description=category_help,
-                                             help=category_help,
-                                             **kwargs)
-        return self.__class__(self, parser, {
-            'title': "subcommands", 'required': True
-        })
+        parser = self._subparsers.add_parser(
+            name, description=category_help, help=category_help, **kwargs
+        )
+        return self.__class__(self, parser, {"title": "subcommands", "required": True})
 
     def add_subcategory_parser(self, name, subcategory_help=None, **kwargs):
         """Add a parser for a subcategory
@@ -318,17 +319,24 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ActionsMapParser object for the category
 
         """
-        parser = self._subparsers.add_parser(name,
-                                             type_="subcategory",
-                                             description=subcategory_help,
-                                             help=subcategory_help,
-                                             **kwargs)
-        return self.__class__(self, parser, {
-            'title': "actions", 'required': True
-        })
+        parser = self._subparsers.add_parser(
+            name,
+            type_="subcategory",
+            description=subcategory_help,
+            help=subcategory_help,
+            **kwargs
+        )
+        return self.__class__(self, parser, {"title": "actions", "required": True})
 
-    def add_action_parser(self, name, tid, action_help=None, deprecated=False,
-                          deprecated_alias=[], **kwargs):
+    def add_action_parser(
+        self,
+        name,
+        tid,
+        action_help=None,
+        deprecated=False,
+        deprecated_alias=[],
+        **kwargs
+    ):
         """Add a parser for an action
 
         Keyword arguments:
@@ -340,18 +348,21 @@ class ActionsMapParser(BaseActionsMapParser):
             A new ExtendedArgumentParser object for the action
 
         """
-        return self._subparsers.add_parser(name,
-                                           type_="action",
-                                           help=action_help,
-                                           description=action_help,
-                                           deprecated=deprecated,
-                                           deprecated_alias=deprecated_alias)
+        return self._subparsers.add_parser(
+            name,
+            type_="action",
+            help=action_help,
+            description=action_help,
+            deprecated=deprecated,
+            deprecated_alias=deprecated_alias,
+        )
 
     def add_global_arguments(self, arguments):
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
-            names = self.format_arg_names(str(argument_name),
-                                          argument_options.pop('full', None))
+            names = self.format_arg_names(
+                str(argument_name), argument_options.pop("full", None)
+            )
 
             self.global_parser.add_argument(*names, **argument_options)
 
@@ -363,12 +374,12 @@ class ActionsMapParser(BaseActionsMapParser):
         except SystemExit:
             raise
         except:
-            logger.exception("unable to parse arguments '%s'", ' '.join(args))
-            raise MoulinetteError('error_see_log')
+            logger.exception("unable to parse arguments '%s'", " ".join(args))
+            raise MoulinetteError("error_see_log")
 
-        tid = getattr(ret, '_tid', None)
-        if self.get_conf(tid, 'authenticate'):
-            return self.get_conf(tid, 'authenticator')
+        tid = getattr(ret, "_tid", None)
+        if self.get_conf(tid, "authenticate"):
+            return self.get_conf(tid, "authenticator")
         else:
             return False
 
@@ -378,10 +389,10 @@ class ActionsMapParser(BaseActionsMapParser):
         except SystemExit:
             raise
         except:
-            logger.exception("unable to parse arguments '%s'", ' '.join(args))
-            raise MoulinetteError('error_see_log')
+            logger.exception("unable to parse arguments '%s'", " ".join(args))
+            raise MoulinetteError("error_see_log")
         else:
-            self.prepare_action_namespace(getattr(ret, '_tid', None), ret)
+            self.prepare_action_namespace(getattr(ret, "_tid", None), ret)
             self._parser.dequeue_callbacks(ret)
             return ret
 
@@ -403,10 +414,10 @@ class Interface(BaseInterface):
         m18n.set_locale(get_locale())
 
         # Connect signals to handlers
-        msignals.set_handler('display', self._do_display)
+        msignals.set_handler("display", self._do_display)
         if os.isatty(1):
-            msignals.set_handler('authenticate', self._do_authenticate)
-            msignals.set_handler('prompt', self._do_prompt)
+            msignals.set_handler("authenticate", self._do_authenticate)
+            msignals.set_handler("prompt", self._do_prompt)
 
         self.actionsmap = actionsmap
 
@@ -426,30 +437,30 @@ class Interface(BaseInterface):
             - timeout -- Number of seconds before this command will timeout because it can't acquire the lock (meaning that another command is currently running), by default there is no timeout and the command will wait until it can get the lock
 
         """
-        if output_as and output_as not in ['json', 'plain', 'none']:
-            raise MoulinetteError('invalid_usage')
+        if output_as and output_as not in ["json", "plain", "none"]:
+            raise MoulinetteError("invalid_usage")
 
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
 
         # Set handler for authentication
         if password:
-            msignals.set_handler('authenticate',
-                                 lambda a: a(password=password))
+            msignals.set_handler("authenticate", lambda a: a(password=password))
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
         except (KeyboardInterrupt, EOFError):
-            raise MoulinetteError('operation_interrupted')
+            raise MoulinetteError("operation_interrupted")
 
-        if ret is None or output_as == 'none':
+        if ret is None or output_as == "none":
             return
 
         # Format and print result
         if output_as:
-            if output_as == 'json':
+            if output_as == "json":
                 import json
                 from moulinette.utils.serialize import JSONExtendedEncoder
+
                 print(json.dumps(ret, cls=JSONExtendedEncoder))
             else:
                 plain_print_dict(ret)
@@ -468,11 +479,10 @@ class Interface(BaseInterface):
         """
         # TODO: Allow token authentication?
         help = authenticator.extra.get("help")
-        msg = m18n.n(help) if help else m18n.g('password')
-        return authenticator(password=self._do_prompt(msg, True, False,
-                                                      color='yellow'))
+        msg = m18n.n(help) if help else m18n.g("password")
+        return authenticator(password=self._do_prompt(msg, True, False, color="yellow"))
 
-    def _do_prompt(self, message, is_password, confirm, color='blue'):
+    def _do_prompt(self, message, is_password, confirm, color="blue"):
         """Prompt for a value
 
         Handle the core.MoulinetteSignals.prompt signal.
@@ -482,16 +492,15 @@ class Interface(BaseInterface):
 
         """
         if is_password:
-            prompt = lambda m: getpass.getpass(colorize(m18n.g('colon', m),
-                                                        color))
+            prompt = lambda m: getpass.getpass(colorize(m18n.g("colon", m), color))
         else:
-            prompt = lambda m: raw_input(colorize(m18n.g('colon', m), color))
+            prompt = lambda m: raw_input(colorize(m18n.g("colon", m), color))
         value = prompt(message)
 
         if confirm:
             m = message[0].lower() + message[1:]
-            if prompt(m18n.g('confirm', prompt=m)) != value:
-                raise MoulinetteError('values_mismatch')
+            if prompt(m18n.g("confirm", prompt=m)) != value:
+                raise MoulinetteError("values_mismatch")
 
         return value
 
@@ -502,12 +511,12 @@ class Interface(BaseInterface):
 
         """
         if isinstance(message, unicode):
-            message = message.encode('utf-8')
-        if style == 'success':
-            print('{} {}'.format(colorize(m18n.g('success'), 'green'), message))
-        elif style == 'warning':
-            print('{} {}'.format(colorize(m18n.g('warning'), 'yellow'), message))
-        elif style == 'error':
-            print('{} {}'.format(colorize(m18n.g('error'), 'red'), message))
+            message = message.encode("utf-8")
+        if style == "success":
+            print("{} {}".format(colorize(m18n.g("success"), "green"), message))
+        elif style == "warning":
+            print("{} {}".format(colorize(m18n.g("warning"), "yellow"), message))
+        elif style == "error":
+            print("{} {}".format(colorize(m18n.g("error"), "red"), message))
         else:
             print(message)

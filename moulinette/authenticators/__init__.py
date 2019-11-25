@@ -8,10 +8,11 @@ import hmac
 from moulinette.cache import open_cachefile, get_cachedir
 from moulinette.core import MoulinetteError
 
-logger = logging.getLogger('moulinette.authenticator')
+logger = logging.getLogger("moulinette.authenticator")
 
 
 # Base Class -----------------------------------------------------------
+
 
 class BaseAuthenticator(object):
 
@@ -59,8 +60,9 @@ class BaseAuthenticator(object):
             - password -- A clear text password
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     # Authentication methods
 
@@ -95,9 +97,13 @@ class BaseAuthenticator(object):
             except MoulinetteError:
                 raise
             except Exception as e:
-                logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
-                                 self.name, self.vendor, e)
-                raise MoulinetteError('unable_authenticate')
+                logger.exception(
+                    "authentication (name: '%s', vendor: '%s') fails because '%s'",
+                    self.name,
+                    self.vendor,
+                    e,
+                )
+                raise MoulinetteError("unable_authenticate")
 
             self.is_authenticated = True
 
@@ -108,6 +114,7 @@ class BaseAuthenticator(object):
                     self._store_session(s_id, s_token)
                 except Exception as e:
                     import traceback
+
                     traceback.print_exc()
                     logger.exception("unable to store session because %s", e)
                 else:
@@ -124,9 +131,13 @@ class BaseAuthenticator(object):
             except MoulinetteError as e:
                 raise
             except Exception as e:
-                logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
-                                 self.name, self.vendor, e)
-                raise MoulinetteError('unable_authenticate')
+                logger.exception(
+                    "authentication (name: '%s', vendor: '%s') fails because '%s'",
+                    self.name,
+                    self.vendor,
+                    e,
+                )
+                raise MoulinetteError("unable_authenticate")
             else:
                 self.is_authenticated = True
 
@@ -134,16 +145,17 @@ class BaseAuthenticator(object):
         # No credentials given, can't authenticate
         #
         else:
-            raise MoulinetteError('unable_authenticate')
+            raise MoulinetteError("unable_authenticate")
 
         return self
 
     # Private methods
 
-    def _open_sessionfile(self, session_id, mode='r'):
+    def _open_sessionfile(self, session_id, mode="r"):
         """Open a session file for this instance in given mode"""
-        return open_cachefile('%s.asc' % session_id, mode,
-                              subdir='session/%s' % self.name)
+        return open_cachefile(
+            "%s.asc" % session_id, mode, subdir="session/%s" % self.name
+        )
 
     def _store_session(self, session_id, session_token):
         """Store a session to be able to use it later to reauthenticate"""
@@ -151,7 +163,7 @@ class BaseAuthenticator(object):
         # We store a hash of the session_id and the session_token (the token is assumed to be secret)
         to_hash = "{id}:{token}".format(id=session_id, token=session_token)
         hash_ = hashlib.sha256(to_hash).hexdigest()
-        with self._open_sessionfile(session_id, 'w') as f:
+        with self._open_sessionfile(session_id, "w") as f:
             f.write(hash_)
 
     def _authenticate_session(self, session_id, session_token):
@@ -160,11 +172,11 @@ class BaseAuthenticator(object):
             # FIXME : shouldn't we also add a check that this session file
             # is not too old ? e.g. not older than 24 hours ? idk...
 
-            with self._open_sessionfile(session_id, 'r') as f:
+            with self._open_sessionfile(session_id, "r") as f:
                 stored_hash = f.read()
         except IOError as e:
             logger.debug("unable to retrieve session", exc_info=1)
-            raise MoulinetteError('unable_retrieve_session', exception=e)
+            raise MoulinetteError("unable_retrieve_session", exception=e)
         else:
             #
             # session_id (or just id) : This is unique id for the current session from the user. Not too important
@@ -186,7 +198,7 @@ class BaseAuthenticator(object):
             hash_ = hashlib.sha256(to_hash).hexdigest()
 
             if not hmac.compare_digest(hash_, stored_hash):
-                raise MoulinetteError('invalid_token')
+                raise MoulinetteError("invalid_token")
             else:
                 return
 
@@ -198,9 +210,9 @@ class BaseAuthenticator(object):
         Keyword arguments:
             - session_id -- The session id to clean
         """
-        sessiondir = get_cachedir('session')
+        sessiondir = get_cachedir("session")
 
         try:
-            os.remove(os.path.join(sessiondir, self.name, '%s.asc' % session_id))
+            os.remove(os.path.join(sessiondir, self.name, "%s.asc" % session_id))
         except OSError:
             pass
