@@ -7,6 +7,7 @@ import yaml
 import cPickle as pickle
 from time import time
 from collections import OrderedDict
+from importlib import import_module
 
 from moulinette import m18n, msignals
 from moulinette.cache import open_cachefile
@@ -442,25 +443,35 @@ class ActionsMap(object):
         """Return the instance of the interface's actions map parser"""
         return self._parser
 
-    def get_authenticator(self, profile='default'):
-        """Get an authenticator instance
+    def get_authenticator_for_profile(self, auth_profile):
 
-        Retrieve the authenticator for the given profile and return a
-        new instance.
-
-        Keyword arguments:
-            - profile -- An authenticator profile name
-
-        Returns:
-            A new _BaseAuthenticator derived instance
-
-        """
+        # Fetch the configuration for the authenticator module as defined in the actionmap
         try:
-            auth = self.parser.get_global_conf('authenticator', profile)[1]
+            auth_conf = self.parser.global_conf['authenticator'][auth_profile]
         except KeyError:
-            raise ValueError("Unknown authenticator profile '%s'" % profile)
+            raise ValueError("Unknown authenticator profile '%s'" % auth_profile)
+
+        # Load and initialize the authenticator module
+        try:
+            mod = import_module('moulinette.authenticators.%s' % auth_conf["vendor"])
+        except ImportError:
+            logger.exception("unable to load authenticator vendor '%s'", auth_conf["vendor"])
+            raise MoulinetteError('error_see_log')
         else:
-            return auth()
+            return mod.Authenticator(**auth_conf)
+
+    def check_authentication_if_required(self, args, **kwargs):
+
+        auth_profile = self.parser.auth_required(args, **kwargs)
+
+        if not auth_profile:
+            return
+
+        authenticator = self.get_authenticator_for_profile(auth_profile)
+        auth = msignals.authenticate(authenticator)
+
+        if not auth.is_authenticated:
+            raise MoulinetteError('authentication_required_long')
 
     def process(self, args, timeout=None, **kwargs):
         """
@@ -473,6 +484,10 @@ class ActionsMap(object):
             - **kwargs -- Additional interface arguments
 
         """
+
+        # Perform authentication if needed
+        self.check_authentication_if_required(args, **kwargs)
+
         # Parse arguments
         arguments = vars(self.parser.parse_args(args, **kwargs))
 

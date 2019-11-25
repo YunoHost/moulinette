@@ -25,7 +25,7 @@ def get_cachedir(subdir='', make_dir=True):
     return path
 
 
-def open_cachefile(filename, mode='r', **kwargs):
+def open_cachefile(filename, mode='r', subdir=''):
     """Open a cache file and return a stream
 
     Attempt to open in 'mode' the cache file 'filename' from the
@@ -39,9 +39,6 @@ def open_cachefile(filename, mode='r', **kwargs):
         - **kwargs -- Optional arguments for get_cachedir
 
     """
-    # Set make_dir if not given
-    kwargs['make_dir'] = kwargs.get('make_dir',
-                                    True if mode[0] == 'w' else False)
-    cache_dir = get_cachedir(**kwargs)
+    cache_dir = get_cachedir(subdir, make_dir=True if mode[0] == 'w' else False)
     file_path = os.path.join(cache_dir, filename)
     return open(file_path, mode)

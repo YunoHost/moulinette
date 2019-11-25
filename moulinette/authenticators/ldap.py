@@ -33,23 +33,20 @@ class Authenticator(BaseAuthenticator):
 
     """
 
-    def __init__(self, name, uri, base_dn, user_rdn=None):
+    def __init__(self, name, vendor, parameters, extra):
+        self.uri = parameters["uri"]
+        self.basedn = parameters["base_dn"]
+        self.userdn = parameters["user_rdn"]
+        self.extra = extra
         logger.debug("initialize authenticator '%s' with: uri='%s', "
-                     "base_dn='%s', user_rdn='%s'", name, uri, base_dn, user_rdn)
+                     "base_dn='%s', user_rdn='%s'", name, self.uri, self.basedn, self.userdn)
         super(Authenticator, self).__init__(name)
 
-        self.uri = uri
-        self.basedn = base_dn
-        if user_rdn:
-            self.userdn = user_rdn
-            if 'cn=external,cn=auth' in user_rdn:
+        if self.userdn:
+            if 'cn=external,cn=auth' in self.userdn:
                 self.authenticate(None)
             else:
                 self.con = None
-        else:
-            # Initialize anonymous usage
-            self.userdn = ''
-            self.authenticate(None)
 
     def __del__(self):
         """Disconnect and free ressources"""
@@ -59,21 +56,6 @@ class Authenticator(BaseAuthenticator):
     # Implement virtual properties
 
     vendor = 'ldap'
-
-    @property
-    def is_authenticated(self):
-        if self.con is None:
-            return False
-        try:
-            # Retrieve identity
-            who = self.con.whoami_s()
-        except Exception as e:
-            logger.warning("Error during ldap authentication process: %s", e)
-            return False
-        else:
-            if who[3:] == self.userdn:
-                return True
-        return False
 
     # Implement virtual methods
 
@@ -92,9 +74,19 @@ class Authenticator(BaseAuthenticator):
         except ldap.SERVER_DOWN:
             logger.exception('unable to reach the server to authenticate')
             raise MoulinetteError('ldap_server_down')
+
+        # Check that we are indeed logged in with the right identity
+        try:
+            who = con.whoami_s()
+        except Exception as e:
+            logger.warning("Error during ldap authentication process: %s", e)
+            raise
         else:
-            self.con = con
-            self._ensure_password_uses_strong_hash(password)
+            if who[3:] != self.userdn:
+                raise MoulinetteError("Not logged in with the expected userdn ?!")
+            else:
+                self.con = con
+                self._ensure_password_uses_strong_hash(password)
 
     def _ensure_password_uses_strong_hash(self, password):
         # XXX this has been copy pasted from YunoHost, should we put that into moulinette?

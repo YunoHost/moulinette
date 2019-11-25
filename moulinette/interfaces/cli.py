@@ -355,6 +355,23 @@ class ActionsMapParser(BaseActionsMapParser):
 
             self.global_parser.add_argument(*names, **argument_options)
 
+    def auth_required(self, args, **kwargs):
+        # FIXME? idk .. this try/except is duplicated from parse_args below
+        # Just to be able to obtain the tid
+        try:
+            ret = self._parser.parse_args(args)
+        except SystemExit:
+            raise
+        except:
+            logger.exception("unable to parse arguments '%s'", ' '.join(args))
+            raise MoulinetteError('error_see_log')
+
+        tid = getattr(ret, '_tid', None)
+        if self.get_conf(tid, 'authenticate'):
+            return self.get_conf(tid, 'authenticator')
+        else:
+            return False
+
     def parse_args(self, args, **kwargs):
         try:
             ret = self._parser.parse_args(args)
@@ -418,7 +435,7 @@ class Interface(BaseInterface):
         # Set handler for authentication
         if password:
             msignals.set_handler('authenticate',
-                                 lambda a, h: a(password=password))
+                                 lambda a: a(password=password))
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
@@ -443,13 +460,14 @@ class Interface(BaseInterface):
 
     # Signals handlers
 
-    def _do_authenticate(self, authenticator, help):
+    def _do_authenticate(self, authenticator):
         """Process the authentication
 
         Handle the core.MoulinetteSignals.authenticate signal.
 
         """
         # TODO: Allow token authentication?
+        help = authenticator.extra.get("help")
         msg = m18n.n(help) if help else m18n.g('password')
         return authenticator(password=self._do_prompt(msg, True, False,
                                                       color='yellow'))

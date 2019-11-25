@@ -2,7 +2,7 @@
 
 import json
 import os
-
+import shutil
 import pytest
 
 
@@ -38,13 +38,13 @@ def patch_translate(moulinette):
 
 def patch_logging(moulinette):
     """Configure logging to use the custom logger."""
-    handlers = set(['tty'])
+    handlers = set(['tty', 'api'])
     root_handlers = set(handlers)
 
     level = 'INFO'
-    tty_level = 'SUCCESS'
+    tty_level = 'INFO'
 
-    logging = {
+    return {
         'version': 1,
         'disable_existing_loggers': True,
         'formatters': {
@@ -61,6 +61,10 @@ def patch_logging(moulinette):
             },
         },
         'handlers': {
+            'api': {
+                'level': level,
+                'class': 'moulinette.interfaces.api.APIQueueHandler',
+            },
             'tty': {
                 'level': tty_level,
                 'class': 'moulinette.interfaces.cli.TTYHandler',
@@ -85,21 +89,55 @@ def patch_logging(moulinette):
         },
     }
 
+
+@pytest.fixture(scope='session', autouse=True)
+def moulinette(tmp_path_factory):
+    import moulinette
+
+    # Can't call the namespace just 'test' because
+    # that would lead to some "import test" not importing the right stuff
+    namespace = "moulitest"
+    tmp_cache = str(tmp_path_factory.mktemp("cache"))
+    tmp_data = str(tmp_path_factory.mktemp("data"))
+    tmp_lib = str(tmp_path_factory.mktemp("lib"))
+    os.environ['MOULINETTE_CACHE_DIR'] = tmp_cache
+    os.environ['MOULINETTE_DATA_DIR'] = tmp_data
+    os.environ['MOULINETTE_LIB_DIR'] = tmp_lib
+    shutil.copytree("./test/actionsmap", "%s/actionsmap" % tmp_data)
+    shutil.copytree("./test/src", "%s/%s" % (tmp_lib, namespace))
+    shutil.copytree("./test/locales", "%s/%s/locales" % (tmp_lib, namespace))
+
+    patch_init(moulinette)
+    patch_translate(moulinette)
+    logging = patch_logging(moulinette)
+
     moulinette.init(
         logging_config=logging,
         _from_source=False
     )
 
-
-@pytest.fixture(scope='session', autouse=True)
-def moulinette():
-    import moulinette
-
-    patch_init(moulinette)
-    patch_translate(moulinette)
-    patch_logging(moulinette)
-
     return moulinette
+
+
+@pytest.fixture
+def moulinette_webapi(moulinette):
+
+    from webtest import TestApp
+    from webtest.app import CookiePolicy
+
+    # Dirty hack needed, otherwise cookies ain't reused between request .. not
+    # sure why :|
+    def return_true(self, cookie, request):
+        return True
+    CookiePolicy.return_ok_secure = return_true
+
+    moulinette_webapi = moulinette.core.init_interface(
+        'api',
+        kwargs={'routes': {}, 'use_websocket': False},
+        actionsmap={'namespaces': ["moulitest"], 'use_cache': True}
+    )
+
+    return TestApp(moulinette_webapi._app)
 
 
 @pytest.fixture

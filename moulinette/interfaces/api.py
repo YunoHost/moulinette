@@ -14,7 +14,7 @@ from bottle import run, request, response, Bottle, HTTPResponse
 from bottle import abort
 
 from moulinette import msignals, m18n, env
-from moulinette.core import MoulinetteError, clean_session
+from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
 )
@@ -251,10 +251,7 @@ class _ActionsMapPlugin(object):
         def _logout(callback):
             def wrapper():
                 kwargs = {}
-                try:
-                    kwargs['profile'] = request.POST.get('profile')
-                except KeyError:
-                    pass
+                kwargs['profile'] = request.POST.get('profile', "default")
                 return callback(**kwargs)
             return wrapper
 
@@ -335,18 +332,18 @@ class _ActionsMapPlugin(object):
         try:
             s_secret = self.secrets[s_id]
         except KeyError:
-            s_hashes = {}
+            s_tokens = {}
         else:
-            s_hashes = request.get_cookie('session.hashes',
+            s_tokens = request.get_cookie('session.tokens',
                                           secret=s_secret) or {}
-        s_hash = random_ascii()
+        s_new_token = random_ascii()
 
         try:
             # Attempt to authenticate
-            auth = self.actionsmap.get_authenticator(profile)
-            auth(password, token=(s_id, s_hash))
+            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator(password, token=(s_id, s_new_token))
         except MoulinetteError as e:
-            if len(s_hashes) > 0:
+            if len(s_tokens) > 0:
                 try:
                     self.logout(profile)
                 except:
@@ -354,15 +351,15 @@ class _ActionsMapPlugin(object):
             raise HTTPUnauthorizedResponse(e.strerror)
         else:
             # Update dicts with new values
-            s_hashes[profile] = s_hash
+            s_tokens[profile] = s_new_token
             self.secrets[s_id] = s_secret = random_ascii()
 
             response.set_cookie('session.id', s_id, secure=True)
-            response.set_cookie('session.hashes', s_hashes, secure=True,
+            response.set_cookie('session.tokens', s_tokens, secure=True,
                                 secret=s_secret)
             return m18n.g('logged_in')
 
-    def logout(self, profile=None):
+    def logout(self, profile):
         """Log out from an authenticator profile
 
         Attempt to unregister a given profile - or all by default - from
@@ -374,14 +371,21 @@ class _ActionsMapPlugin(object):
         """
         s_id = request.get_cookie('session.id')
         try:
-            del self.secrets[s_id]
+            # We check that there's a (signed) session.hash available
+            # for additional security ?
+            # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
+            s_secret = self.secrets[s_id]
+            request.get_cookie('session.tokens',
+                               secret=s_secret, default={})[profile]
         except KeyError:
             raise HTTPUnauthorizedResponse(m18n.g('not_logged_in'))
         else:
+            del self.secrets[s_id]
+            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator._clean_session(s_id)
             # TODO: Clean the session for profile only
             # Delete cookie and clean the session
-            response.set_cookie('session.hashes', '', max_age=-1)
-            clean_session(s_id)
+            response.set_cookie('session.tokens', '', max_age=-1)
         return m18n.g('logged_out')
 
     def messages(self):
@@ -461,7 +465,7 @@ class _ActionsMapPlugin(object):
 
     # Signals handlers
 
-    def _do_authenticate(self, authenticator, help):
+    def _do_authenticate(self, authenticator):
         """Process the authentication
 
         Handle the core.MoulinetteSignals.authenticate signal.
@@ -470,17 +474,13 @@ class _ActionsMapPlugin(object):
         s_id = request.get_cookie('session.id')
         try:
             s_secret = self.secrets[s_id]
-            s_hash = request.get_cookie('session.hashes',
+            s_token = request.get_cookie('session.tokens',
                                         secret=s_secret, default={})[authenticator.name]
         except KeyError:
-            if authenticator.name == 'default':
-                msg = m18n.g('authentication_required')
-            else:
-                msg = m18n.g('authentication_profile_required',
-                             profile=authenticator.name)
+            msg = m18n.g('authentication_required')
             raise HTTPUnauthorizedResponse(msg)
         else:
-            return authenticator(token=(s_id, s_hash))
+            return authenticator(token=(s_id, s_token))
 
     def _do_display(self, message, style):
         """Display a message
@@ -627,6 +627,24 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
+    def auth_required(self, args, route, **kwargs):
+        try:
+            # Retrieve the tid for the route
+            tid, _ = self._parsers[route]
+            if not self.get_conf(tid, 'authenticate'):
+                return False
+            else:
+                # TODO: In the future, we could make the authentication
+                # dependent of the route being hit ...
+                # e.g. in the context of friend2friend stuff that could
+                # auth with some custom auth system to access some
+                # data with something like :
+                # return self.get_conf(tid, 'authenticator')
+                return 'default'
+        except KeyError:
+            logger.error("no argument parser found for route '%s'", route)
+            raise MoulinetteError('error_see_log')
+
     def parse_args(self, args, route, **kwargs):
         """Parse arguments
 
@@ -635,27 +653,12 @@ class ActionsMapParser(BaseActionsMapParser):
 
         """
         try:
-            # Retrieve the tid and the parser for the route
-            tid, parser = self._parsers[route]
+            # Retrieve the parser for the route
+            _, parser = self._parsers[route]
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
             raise MoulinetteError('error_see_log')
         ret = argparse.Namespace()
-
-        # Perform authentication if needed
-        if self.get_conf(tid, 'authenticate'):
-            # TODO: Clean this hard fix and find a way to set an authenticator
-            # to use for the api only
-            # auth_conf, klass = self.get_conf(tid, 'authenticator')
-            auth_conf, klass = self.get_global_conf('authenticator', 'default')
-
-            # TODO: Catch errors
-            auth = msignals.authenticate(klass(), **auth_conf)
-            if not auth.is_authenticated:
-                raise MoulinetteError('authentication_required_long')
-            if self.get_conf(tid, 'argument_auth') and \
-               self.get_conf(tid, 'authenticate') == 'all':
-                ret.auth = auth
 
         # TODO: Catch errors?
         ret = parser.parse_args(args, ret)

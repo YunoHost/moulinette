@@ -9,7 +9,6 @@ from importlib import import_module
 
 import moulinette
 from moulinette.globals import init_moulinette_env
-from moulinette.cache import get_cachedir
 
 
 logger = logging.getLogger('moulinette.core')
@@ -181,7 +180,6 @@ class Moulinette18n(object):
 
         moulinette_env = init_moulinette_env()
         self.locales_dir = moulinette_env['LOCALES_DIR']
-        self.lib_dir = moulinette_env['LIB_DIR']
 
         # Init global translator
         self._global = Translator(self.locales_dir, default_locale)
@@ -202,7 +200,8 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            translator = Translator('%s/%s/locales' % (self.lib_dir, namespace),
+            lib_dir = init_moulinette_env()["LIB_DIR"]
+            translator = Translator('%s/%s/locales' % (lib_dir, namespace),
                                     self.default_locale)
             translator.set_locale(self.locale)
             self._namespaces[namespace] = translator
@@ -287,7 +286,7 @@ class MoulinetteSignals(object):
     """The list of available signals"""
     signals = {'authenticate', 'prompt', 'display'}
 
-    def authenticate(self, authenticator, help):
+    def authenticate(self, authenticator):
         """Process the authentication
 
         Attempt to authenticate to the given authenticator and return
@@ -297,7 +296,6 @@ class MoulinetteSignals(object):
 
         Keyword arguments:
             - authenticator -- The authenticator object to use
-            - help -- The translation key of the authenticator's help message
 
         Returns:
             The authenticator object
@@ -305,7 +303,7 @@ class MoulinetteSignals(object):
         """
         if authenticator.is_authenticated:
             return authenticator
-        return self._authenticate(authenticator, help)
+        return self._authenticate(authenticator)
 
     def prompt(self, message, is_password=False, confirm=False, color='blue'):
         """Prompt for a value
@@ -374,8 +372,8 @@ def init_interface(name, kwargs={}, actionsmap={}):
 
     try:
         mod = import_module('moulinette.interfaces.%s' % name)
-    except ImportError:
-        logger.exception("unable to load interface '%s'", name)
+    except ImportError as e:
+        logger.exception("unable to load interface '%s' : %s", name, e)
         raise MoulinetteError('error_see_log')
     else:
         try:
@@ -396,50 +394,6 @@ def init_interface(name, kwargs={}, actionsmap={}):
         raise MoulinetteError('error_see_log')
 
     return interface(amap, **kwargs)
-
-
-def init_authenticator(vendor_and_name, kwargs={}):
-    """Return a new authenticator instance
-
-    Retrieve the given authenticator vendor and return a new instance of
-    its Authenticator class for the given profile.
-
-    Keyword arguments:
-        - vendor -- The authenticator vendor name
-        - name -- The authenticator profile name
-        - kwargs -- A dict of arguments for the authenticator profile
-
-    """
-    (vendor, name) = vendor_and_name
-    try:
-        mod = import_module('moulinette.authenticators.%s' % vendor)
-    except ImportError:
-        logger.exception("unable to load authenticator vendor '%s'", vendor)
-        raise MoulinetteError('error_see_log')
-    else:
-        return mod.Authenticator(name, **kwargs)
-
-
-def clean_session(session_id, profiles=[]):
-    """Clean a session cache
-
-    Remove cache for the session 'session_id' and for profiles in
-    'profiles' or for all of them if the list is empty.
-
-    Keyword arguments:
-        - session_id -- The session id to clean
-        - profiles -- A list of profiles to clean
-
-    """
-    sessiondir = get_cachedir('session')
-    if not profiles:
-        profiles = os.listdir(sessiondir)
-
-    for p in profiles:
-        try:
-            os.unlink(os.path.join(sessiondir, p, '%s.asc' % session_id))
-        except OSError:
-            pass
 
 
 # Moulinette core classes ----------------------------------------------
