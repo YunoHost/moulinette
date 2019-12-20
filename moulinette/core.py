@@ -459,7 +459,11 @@ class MoulinetteLock(object):
         self.timeout = timeout
         self.interval = interval
 
-        self._lockfile = "/var/run/moulinette_%s.lock" % namespace
+        if during_unittests_run():
+            self._lockfile = "moulinette_%s.lock" % namespace
+        else:
+            self._lockfile = "/var/run/moulinette_%s.lock" % namespace
+
         self._stale_checked = False
         self._locked = False
 
