@@ -163,7 +163,7 @@ class BaseAuthenticator(object):
         """Store a session to be able to use it later to reauthenticate"""
 
         # We store a hash of the session_id and the session_token (the token is assumed to be secret)
-        to_hash = "{id}:{token}".format(id=session_id, token=session_token)
+        to_hash = "{id}:{token}".format(id=session_id, token=session_token).encode()
         hash_ = hashlib.sha256(to_hash).hexdigest()
         with self._open_sessionfile(session_id, "w") as f:
             f.write(hash_)
@@ -196,7 +196,7 @@ class BaseAuthenticator(object):
             # re-hash the {id}:{token} and compare it to the previously stored hash for this session_id ...
             # It it matches, then the user is authenticated. Otherwise, the token is invalid.
             #
-            to_hash = "{id}:{token}".format(id=session_id, token=session_token)
+            to_hash = "{id}:{token}".format(id=session_id, token=session_token).encode()
             hash_ = hashlib.sha256(to_hash).hexdigest()
 
             if not hmac.compare_digest(hash_, stored_hash):

@@ -100,13 +100,10 @@ class Translator(object):
             try:
                 return (
                     self._translations[self.locale][key]
-                    .encode("utf-8")
                     .format(*args, **kwargs)
                 )
             except KeyError as e:
-                unformatted_string = self._translations[self.locale][key].encode(
-                    "utf-8"
-                )
+                unformatted_string = self._translations[self.locale][key]
                 error_message = (
                     "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)"
                     % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
@@ -176,8 +173,8 @@ class Translator(object):
             return True
 
         try:
-            with open("%s/%s.json" % (self.locale_dir, locale), "r") as f:
-                j = json.load(f, "utf-8")
+            with open("%s/%s.json" % (self.locale_dir, locale), "r", encoding='utf-8') as f:
+                j = json.load(f)
         except IOError:
             return False
         else:

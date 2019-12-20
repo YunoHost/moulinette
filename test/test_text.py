@@ -19,4 +19,4 @@ def test_prependlines():
 
 
 def test_random_ascii():
-    assert isinstance(random_ascii(length=2), unicode)
+    assert isinstance(random_ascii(length=2), str)
