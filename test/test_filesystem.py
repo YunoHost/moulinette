@@ -33,9 +33,9 @@ def test_read_file_missing_file():
 def test_read_file_cannot_read_ioerror(test_file, mocker):
     error = "foobar"
 
-    with mocker.patch("__builtin__.open", side_effect=IOError(error)):
-        with pytest.raises(MoulinetteError) as exception:
-            read_file(str(test_file))
+    mocker.patch("builtins.open", side_effect=IOError(error))
+    with pytest.raises(MoulinetteError) as exception:
+        read_file(str(test_file))
 
     translation = m18n.g("cannot_open_file", file=str(test_file), error=error)
     expected_msg = translation.format(file=str(test_file), error=error)
@@ -51,9 +51,9 @@ def test_read_json(test_json):
 def test_read_json_cannot_read(test_json, mocker):
     error = "foobar"
 
-    with mocker.patch("json.loads", side_effect=ValueError(error)):
-        with pytest.raises(MoulinetteError) as exception:
-            read_json(str(test_json))
+    mocker.patch("json.loads", side_effect=ValueError(error))
+    with pytest.raises(MoulinetteError) as exception:
+        read_json(str(test_json))
 
     translation = m18n.g("corrupted_json", ressource=str(test_json), error=error)
     expected_msg = translation.format(ressource=str(test_json), error=error)
@@ -77,9 +77,9 @@ def test_write_to_new_file(tmp_path):
 def test_write_to_existing_file_bad_perms(test_file, mocker):
     error = "foobar"
 
-    with mocker.patch("__builtin__.open", side_effect=IOError(error)):
-        with pytest.raises(MoulinetteError) as exception:
-            write_to_file(str(test_file), "yolo\nswag")
+    mocker.patch("builtins.open", side_effect=IOError(error))
+    with pytest.raises(MoulinetteError) as exception:
+        write_to_file(str(test_file), "yolo\nswag")
 
     translation = m18n.g("cannot_write_file", file=str(test_file), error=error)
     expected_msg = translation.format(file=str(test_file), error=error)
@@ -142,9 +142,9 @@ def text_write_list_to_json(tmp_path):
 def test_write_to_json_bad_perms(test_json, mocker):
     error = "foobar"
 
-    with mocker.patch("__builtin__.open", side_effect=IOError(error)):
-        with pytest.raises(MoulinetteError) as exception:
-            write_to_json(str(test_json), {"a": 1})
+    mocker.patch("builtins.open", side_effect=IOError(error))
+    with pytest.raises(MoulinetteError) as exception:
+        write_to_json(str(test_json), {"a": 1})
 
     translation = m18n.g("cannot_write_file", file=str(test_json), error=error)
     expected_msg = translation.format(file=str(test_json), error=error)
@@ -165,9 +165,9 @@ def test_remove_file(test_file):
 def test_remove_file_bad_perms(test_file, mocker):
     error = "foobar"
 
-    with mocker.patch("os.remove", side_effect=OSError(error)):
-        with pytest.raises(MoulinetteError) as exception:
-            rm(str(test_file))
+    mocker.patch("os.remove", side_effect=OSError(error))
+    with pytest.raises(MoulinetteError) as exception:
+        rm(str(test_file))
 
     translation = m18n.g("error_removing", path=str(test_file), error=error)
     expected_msg = translation.format(path=str(test_file), error=error)

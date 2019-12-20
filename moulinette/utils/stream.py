@@ -1,7 +1,7 @@
 import os
 import time
 
-from multiprocessing.process import Process
+from multiprocessing.process import BaseProcess as Process
 from multiprocessing.queues import SimpleQueue
 
 

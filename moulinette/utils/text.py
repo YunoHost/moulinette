@@ -47,9 +47,9 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
     content by using the search function.
 
     """
-    with open(path, "r+") as f:
+    with open(path, "rb+") as f:
         data = mmap.mmap(f.fileno(), 0)
-        match = search(pattern, data, count, flags)
+        match = search(pattern, data.read().decode(), count, flags)
         data.close()
     return match
 

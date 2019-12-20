@@ -129,7 +129,7 @@ def moulinette_webapi(moulinette):
 def test_file(tmp_path):
     test_text = "foo\nbar\n"
     test_file = tmp_path / "test.txt"
-    test_file.write_bytes(test_text)
+    test_file.write_bytes(test_text.encode())
     return test_file
 
 
@@ -137,7 +137,7 @@ def test_file(tmp_path):
 def test_json(tmp_path):
     test_json = json.dumps({"foo": "bar"})
     test_file = tmp_path / "test.json"
-    test_file.write_bytes(test_json)
+    test_file.write_bytes(test_json.encode())
     return test_file
 
 
