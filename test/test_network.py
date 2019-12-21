@@ -33,9 +33,17 @@ def test_download_ssl_error(test_url):
             download_text(test_url)
 
 
+def test_download_connection_error(test_url):
+    with requests_mock.Mocker() as mock:
+        exception = requests.exceptions.ConnectionError
+        mock.register_uri("GET", test_url, exc=exception)
+        with pytest.raises(MoulinetteError):
+            download_text(test_url)
+
+
 def test_download_timeout(test_url):
     with requests_mock.Mocker() as mock:
-        exception = requests.exceptions.ConnectTimeout
+        exception = requests.exceptions.Timeout
         mock.register_uri("GET", test_url, exc=exception)
         with pytest.raises(MoulinetteError):
             download_text(test_url)

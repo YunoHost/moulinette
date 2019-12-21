@@ -37,7 +37,7 @@ def read_file(file_path):
             file_content = f.read()
     except IOError as e:
         raise MoulinetteError("cannot_open_file", file=file_path, error=str(e))
-    except Exception:
+    except Exception as e:
         raise MoulinetteError(
             "unknown_error_reading_file", file=file_path, error=str(e)
         )
@@ -100,9 +100,7 @@ def read_toml(file_path):
     try:
         loaded_toml = toml.loads(file_content, _dict=OrderedDict)
     except Exception as e:
-        raise MoulinetteError(
-            errno.EINVAL, m18n.g("corrupted_toml", ressource=file_path, error=str(e))
-        )
+        raise MoulinetteError("corrupted_toml", ressource=file_path, error=str(e))
 
     return loaded_toml
 
@@ -255,7 +253,7 @@ def write_to_yaml(file_path, data):
         raise MoulinetteError("error_writing_file", file=file_path, error=str(e))
 
 
-def mkdir(path, mode=0o777, parents=False, uid=None, gid=None, force=False):
+def mkdir(path, mode=0o0777, parents=False, uid=None, gid=None, force=False):
     """Create a directory with optional features
 
     Create a directory and optionaly set its permissions to mode and its
@@ -290,7 +288,9 @@ def mkdir(path, mode=0o777, parents=False, uid=None, gid=None, force=False):
 
     # Create directory and set permissions
     try:
+        oldmask = os.umask(000)
         os.mkdir(path, mode)
+        os.umask(oldmask)
     except OSError:
         # mimic Python3.2+ os.makedirs exist_ok behaviour
         if not force or not os.path.isdir(path):

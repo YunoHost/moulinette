@@ -1,5 +1,8 @@
 """Pytest fixtures for testing."""
 
+import ldif
+import toml
+import yaml
 import json
 import os
 import shutil
@@ -138,6 +141,36 @@ def test_json(tmp_path):
     test_json = json.dumps({"foo": "bar"})
     test_file = tmp_path / "test.json"
     test_file.write_bytes(test_json)
+    return test_file
+
+
+@pytest.fixture
+def test_yaml(tmp_path):
+    test_yaml = yaml.dump({"foo": "bar"})
+    test_file = tmp_path / "test.txt"
+    test_file.write_bytes(test_yaml)
+    return test_file
+
+
+@pytest.fixture
+def test_toml(tmp_path):
+    test_toml = toml.dumps({"foo": "bar"})
+    test_file = tmp_path / "test.txt"
+    test_file.write_bytes(str(test_toml))
+    return test_file
+
+
+@pytest.fixture
+def test_ldif(tmp_path):
+    test_file = tmp_path / "test.txt"
+    writer = ldif.LDIFWriter(open(str(test_file), 'wb'))
+
+    writer.unparse('mail=alice@example.com', {
+        'cn': ['Alice Alison'],
+        'mail': ['alice@example.com'],
+        'objectclass': ['top', 'person']
+    })
+
     return test_file
 
 
