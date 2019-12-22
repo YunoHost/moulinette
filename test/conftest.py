@@ -1,6 +1,5 @@
 """Pytest fixtures for testing."""
 
-import ldif
 import toml
 import yaml
 import json
@@ -163,7 +162,8 @@ def test_toml(tmp_path):
 @pytest.fixture
 def test_ldif(tmp_path):
     test_file = tmp_path / "test.txt"
-    writer = ldif.LDIFWriter(open(str(test_file), 'wb'))
+    from ldif import LDIFWriter
+    writer = LDIFWriter(open(str(test_file), 'wb'))
 
     writer.unparse('mail=alice@example.com', {
         'cn': ['Alice Alison'],

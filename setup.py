@@ -34,6 +34,7 @@ setup(name='Moulinette',
           'pytz',
           'pyyaml',
           'toml',
+          'python-ldap',
       ],
       tests_require=[
           'pytest',
