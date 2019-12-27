@@ -54,5 +54,6 @@
     "authentication_required": "Aŭtentigo bezonata",
     "authentication_profile_required": "Aŭtentigo al la profilo '{profile}' bezonata",
     "argument_required": "Argumento '{argument}' estas bezonata",
-    "logged_out": "Ensalutinta"
+    "logged_out": "Ensalutinta",
+    "invalid_token": "Nevalida tokeno - bonvolu autentiki"
 }
