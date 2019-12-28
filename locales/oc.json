@@ -55,5 +55,6 @@
     "corrupted_toml": "Fichièr TOML corromput en lectura de {ressource:s} estant (rason : {error:s})",
     "warn_the_user_about_waiting_lock": "Una autra comanda YunoHost es en execucion, sèm a esperar qu’acabe abans d’aviar aquesta d’aquí",
     "warn_the_user_about_waiting_lock_again": "Encara en espèra…",
-    "warn_the_user_that_lock_is_acquired": "l’autra comanda ven d’acabar, lançament d’aquesta comanda"
+    "warn_the_user_that_lock_is_acquired": "l’autra comanda ven d’acabar, lançament d’aquesta comanda",
+    "invalid_token": "Geton invalid - volgatz vos autentificar"
 }
