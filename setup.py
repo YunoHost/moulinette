@@ -35,6 +35,8 @@ setup(name='Moulinette',
           'pyyaml',
           'toml',
           'python-ldap',
+          'gevent-websocket',
+          'bottle',
       ],
       tests_require=[
           'pytest',
