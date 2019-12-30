@@ -22,7 +22,7 @@
     "ldap_operation_error": "LDAP操作时发生了错误",
     "ldap_server_down": "无法连接LDAP服务器",
     "logged_in": "登录成功",
-    "logged_out": "注销成功",
+    "logged_out": "登出",
     "not_logged_in": "您未登录",
     "operation_interrupted": "操作中断",
     "password": "密码",
