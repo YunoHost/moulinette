@@ -78,7 +78,7 @@ def test_call_async_output(test_file):
     call_async_output(["cat", str(test_file)], callback)
 
 
-def test_call_async_output_kwargs(test_file):
+def test_call_async_output_kwargs(test_file, mocker):
     def callback(a):
         assert a == "foo\n" or a == "bar\n"
 
@@ -98,8 +98,9 @@ def test_call_async_output_kwargs(test_file):
 
     callback = (callbackA, callbackB, callbackC)
 
-    os.mkdir("/tmp/teststdinfo/")
-    call_async_output(["cat", str(test_file)], callback, stdinfo="/tmp/teststdinfo/teststdinfo")
+    dirname = os.path.dirname(str(test_file))
+    os.mkdir(os.path.join(dirname, "teststdinfo"))
+    call_async_output(["cat", str(test_file)], callback, stdinfo=os.path.join(dirname, "teststdinfo", "teststdinfo"))
 
 
 def test_check_output(test_file):
