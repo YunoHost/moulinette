@@ -38,14 +38,23 @@ testauth:
                 authenticate: all
                 authenticator: default
 
-#        only-api:
-#            api: GET /test-auth/only-api
-#            configuration:
-#                authenticate: api
-#
+        only-api:
+            api: GET /test-auth/only-api
+            configuration:
+                authenticate:
+                    - api
+
+        only-cli:
+            api: GET /test-auth/only-cli
+            configuration:
+                authenticate:
+                    - cli
+
         other-profile:
             api: GET /test-auth/other-profile
             configuration:
+                authenticate:
+                    - all
                 authenticator: yoloswag
 
     subcategories:
@@ -65,7 +74,8 @@ testauth:
                 post:
                     api: POST /test-auth/subcat/post
                     configuration:
-                        authenticate: all
+                        authenticate:
+                            - all
                         authenticator: default
 
 
