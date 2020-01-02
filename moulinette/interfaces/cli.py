@@ -379,7 +379,16 @@ class ActionsMapParser(BaseActionsMapParser):
 
         tid = getattr(ret, "_tid", None)
         if self.get_conf(tid, "authenticate"):
-            return self.get_conf(tid, "authenticator")
+            authenticator = self.get_conf(tid, "authenticator")
+
+            # If several authenticator, use the default one
+            if isinstance(authenticator, dict):
+                if 'default' in authenticator:
+                    authenticator = 'default'
+                else:
+                    # TODO which one should we use?
+                    pass
+            return authenticator
         else:
             return False
 

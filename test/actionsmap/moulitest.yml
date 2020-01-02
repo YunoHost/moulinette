@@ -34,9 +34,6 @@ testauth:
 
         default:
             api: GET /test-auth/default
-            configuration:
-                authenticate: all
-                authenticator: default
 
         only-api:
             api: GET /test-auth/only-api
@@ -67,9 +64,6 @@ testauth:
 
                 default:
                     api: GET /test-auth/subcat/default
-                    configuration:
-                        authenticate: all
-                        authenticator: default
 
                 post:
                     api: POST /test-auth/subcat/post
