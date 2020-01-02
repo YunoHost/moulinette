@@ -24,3 +24,11 @@ def testauth_other_profile():
 
 def testauth_subcat_other_profile():
     return "some_data_from_subcat_other_profile"
+
+
+def testauth_only_api():
+    return "some_data_from_only_api"
+
+
+def testauth_only_cli():
+    return "some_data_from_only_cli"
