@@ -244,15 +244,15 @@ def test_actions_map_import_error(mocker):
     amap = ActionsMap(ActionsMapParser)
 
     from moulinette.core import MoulinetteLock
-    translation = m18n.g("error_see_log")
-    expected_msg = translation.format()
+    mocker.patch.object(MoulinetteLock, '_is_son_of', return_value=False)
 
     mocker.patch("__builtin__.__import__", side_effect=ImportError)
-    mocker.patch.object(MoulinetteLock, '_is_son_of', return_value=False)
     with pytest.raises(MoulinetteError) as exception:
         amap.process({}, timeout=30, route=('GET', '/test-auth/none'))
 
     mocker.stopall()
+    translation = m18n.g("error_see_log")
+    expected_msg = translation.format()
     assert expected_msg in str(exception)
 
 
