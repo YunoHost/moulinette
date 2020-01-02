@@ -79,6 +79,10 @@ def patch_logging(moulinette):
     }
 
 
+def patch_lock(moulinette):
+    moulinette.core.MoulinetteLock._lock = lambda *args: None
+
+
 @pytest.fixture(scope="session", autouse=True)
 def moulinette(tmp_path_factory):
     import moulinette
@@ -98,6 +102,7 @@ def moulinette(tmp_path_factory):
 
     patch_init(moulinette)
     patch_translate(moulinette)
+    patch_lock(moulinette)
     logging = patch_logging(moulinette)
 
     moulinette.init(logging_config=logging, _from_source=False)
