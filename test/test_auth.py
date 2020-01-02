@@ -1,6 +1,5 @@
 import os
 import pytest
-import json
 
 from moulinette import MoulinetteError
 from moulinette import m18n
@@ -78,7 +77,6 @@ class TestAuthAPI:
 
         assert "session.id" not in moulinette_webapi.cookies
         assert "session.tokens" not in moulinette_webapi.cookies
-
 
     def test_login_csrf_attempt(self, moulinette_webapi):
         # C.f.

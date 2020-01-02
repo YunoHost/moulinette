@@ -25,6 +25,7 @@ def test_run_shell_bad_cmd_with_callback():
         assert isinstance(b, str)
         assert isinstance(c, str)
         return True
+
     assert run_commands(["yolo swag", "yolo swag", "yolo swag"], callback=callback) == 3
 
     def callback(a, b, c):
@@ -32,6 +33,7 @@ def test_run_shell_bad_cmd_with_callback():
         assert isinstance(b, str)
         assert isinstance(c, str)
         return False
+
     assert run_commands(["yolo swag", "yolo swag"], callback=callback) == 1
 
     def callback(a, b, c):
@@ -39,6 +41,7 @@ def test_run_shell_bad_cmd_with_callback():
         assert isinstance(b, str)
         assert isinstance(c, tuple)
         return True
+
     run_commands(["yolo swag"], separate_stderr=True, callback=callback)
 
 
@@ -62,9 +65,9 @@ def test_run_shell_kwargs():
 
 
 def test_call_async_output(test_file):
-
     def callback(a):
         assert a == "foo\n" or a == "bar\n"
+
     call_async_output(["cat", str(test_file)], callback)
 
     with pytest.raises(ValueError):
@@ -72,8 +75,10 @@ def test_call_async_output(test_file):
 
     def callbackA(a):
         assert a == "foo\n" or a == "bar\n"
+
     def callbackB(a):
         pass
+
     callback = (callbackA, callbackB)
     call_async_output(["cat", str(test_file)], callback)
 
@@ -91,8 +96,10 @@ def test_call_async_output_kwargs(test_file, mocker):
 
     def callbackA(a):
         assert a == "foo\n" or a == "bar\n"
+
     def callbackB(a):
         pass
+
     def callbackC(a):
         pass
 

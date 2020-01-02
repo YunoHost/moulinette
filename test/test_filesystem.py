@@ -4,8 +4,6 @@ import pytest
 import pwd
 import grp
 
-from stat import *
-
 from moulinette import m18n
 from moulinette.core import MoulinetteError
 from moulinette.utils.filesystem import (
@@ -157,6 +155,7 @@ def test_read_ldif_cannot_exception(test_ldif, mocker):
     translation = m18n.g("unknown_error_reading_file", file=str(test_ldif), error=error)
     expected_msg = translation.format(file=str(test_ldif), error=error)
     assert expected_msg in str(exception)
+
 
 def test_write_to_existing_file(test_file):
     write_to_file(str(test_file), "yolo\nswag")

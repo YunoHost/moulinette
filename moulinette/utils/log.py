@@ -16,6 +16,16 @@ from logging import (
     CRITICAL,
 )
 
+__all__ = [
+    "NOTSET",  # noqa
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "CRITICAL",
+    "SUCCESS",
+]
+
 
 # Global configuration and functions -----------------------------------
 
@@ -35,7 +45,7 @@ DEFAULT_LOGGING = {
             "stream": "ext://sys.stdout",
         },
     },
-    "loggers": {"moulinette": {"level": "DEBUG", "handlers": ["console"],},},
+    "loggers": {"moulinette": {"level": "DEBUG", "handlers": ["console"]}},
 }
 
 

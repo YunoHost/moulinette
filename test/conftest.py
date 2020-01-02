@@ -55,7 +55,7 @@ def patch_logging(moulinette):
                 "format": "%(asctime)-15s %(levelname)-8s %(name)s %(funcName)s - %(fmessage)s"  # noqa
             },
         },
-        "filters": {"action": {"()": "moulinette.utils.log.ActionFilter",},},
+        "filters": {"action": {"()": "moulinette.utils.log.ActionFilter"}},
         "handlers": {
             "api": {
                 "level": level,
@@ -68,14 +68,14 @@ def patch_logging(moulinette):
             },
         },
         "loggers": {
-            "moulinette": {"level": level, "handlers": [], "propagate": True,},
+            "moulinette": {"level": level, "handlers": [], "propagate": True},
             "moulinette.interface": {
                 "level": level,
                 "handlers": handlers,
                 "propagate": False,
             },
         },
-        "root": {"level": level, "handlers": root_handlers,},
+        "root": {"level": level, "handlers": root_handlers},
     }
 
 
