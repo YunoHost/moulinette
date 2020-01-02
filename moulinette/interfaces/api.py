@@ -657,23 +657,18 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
-    def auth_required(self, args, route, **kwargs):
+    def auth_required(self, args, **kwargs):
         try:
             # Retrieve the tid for the route
-            tid, _ = self._parsers[route]
-            if not self.get_conf(tid, "authenticate"):
-                return False
-            else:
-                # TODO: In the future, we could make the authentication
-                # dependent of the route being hit ...
-                # e.g. in the context of friend2friend stuff that could
-                # auth with some custom auth system to access some
-                # data with something like :
-                # return self.get_conf(tid, 'authenticator')
-                return "default"
+            tid, _ = self._parsers[kwargs.get("route")]
         except KeyError:
-            logger.error("no argument parser found for route '%s'", route)
+            logger.error("no argument parser found for route '%s'", kwargs.get("route"))
             raise MoulinetteError("error_see_log")
+
+        if self.get_conf(tid, "authenticate"):
+            return self.get_conf(tid, "authenticator")
+        else:
+            return False
 
     def parse_args(self, args, route, **kwargs):
         """Parse arguments
