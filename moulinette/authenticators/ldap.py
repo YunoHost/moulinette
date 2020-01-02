@@ -47,7 +47,7 @@ class Authenticator(BaseAuthenticator):
             self.basedn,
             self.userdn,
         )
-        super(Authenticator, self).__init__(name)
+        super(Authenticator, self).__init__(name, vendor, parameters, extra)
 
         if self.userdn:
             if "cn=external,cn=auth" in self.userdn:
@@ -66,7 +66,7 @@ class Authenticator(BaseAuthenticator):
 
     # Implement virtual methods
 
-    def authenticate(self, password):
+    def authenticate(self, password=None):
         try:
             con = ldap.ldapobject.ReconnectLDAPObject(
                 self.uri, retry_max=10, retry_delay=0.5
