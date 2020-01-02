@@ -128,6 +128,24 @@ def moulinette_webapi(moulinette):
 
 
 @pytest.fixture
+def moulinette_cli(moulinette):
+    # Dirty hack needed, otherwise cookies ain't reused between request .. not
+    # sure why :|
+    import argparse
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--debug',
+                        action='store_true', default=False,
+                        help="Log and print debug messages",
+                        )
+    moulinette_cli = moulinette.core.init_interface(
+        "cli",
+        actionsmap={"namespaces": ["moulitest"], "use_cache": False, "parser_kwargs": {'top_parser': parser}},
+    )
+
+    return moulinette_cli
+
+
+@pytest.fixture
 def test_file(tmp_path):
     test_text = "foo\nbar\n"
     test_file = tmp_path / "test.txt"
