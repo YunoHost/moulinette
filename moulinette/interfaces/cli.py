@@ -446,6 +446,9 @@ class Interface(BaseInterface):
         # Set handler for authentication
         if password:
             msignals.set_handler("authenticate", lambda a: a(password=password))
+        else:
+            if os.isatty(1):
+                msignals.set_handler("authenticate", self._do_authenticate)
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
