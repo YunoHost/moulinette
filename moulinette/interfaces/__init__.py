@@ -245,8 +245,11 @@ class BaseActionsMapParser(object):
             elif ifaces is False:
                 conf["authenticate"] = False
             elif isinstance(ifaces, list):
-                # Store only if authentication is needed
-                conf["authenticate"] = True if self.interface in ifaces else False
+                if "all" in ifaces:
+                    conf["authenticate"] = "all"
+                else:
+                    # Store only if authentication is needed
+                    conf["authenticate"] = True if self.interface in ifaces else False
             else:
                 logger.error(
                     "expecting 'all', 'False' or a list for "

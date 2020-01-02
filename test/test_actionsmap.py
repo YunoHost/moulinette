@@ -221,7 +221,7 @@ def test_actions_map_api():
 
     amap = ActionsMap(ActionsMapParser, use_cache=False)
 
-    assert amap.parser.global_conf['authenticate'] == False
+    assert amap.parser.global_conf['authenticate'] == "all"
     assert 'default' in amap.parser.global_conf['authenticator']
     assert 'yoloswag' in amap.parser.global_conf['authenticator']
     assert ('GET', '/test-auth/default') in amap.parser.routes
@@ -231,7 +231,7 @@ def test_actions_map_api():
 
     amap = ActionsMap(ActionsMapParser, use_cache=True)
 
-    assert amap.parser.global_conf['authenticate'] == False
+    assert amap.parser.global_conf['authenticate'] == "all"
     assert 'default' in amap.parser.global_conf['authenticator']
     assert 'yoloswag' in amap.parser.global_conf['authenticator']
     assert ('GET', '/test-auth/default') in amap.parser.routes
@@ -266,7 +266,7 @@ def test_actions_map_cli():
                         )
     amap = ActionsMap(ActionsMapParser, use_cache=False, parser_kwargs={'top_parser': parser})
 
-    assert amap.parser.global_conf['authenticate'] == False
+    assert amap.parser.global_conf['authenticate'] == "all"
     assert 'default' in amap.parser.global_conf['authenticator']
     assert 'yoloswag' in amap.parser.global_conf['authenticator']
     assert 'testauth' in amap.parser._subparsers.choices
@@ -278,7 +278,7 @@ def test_actions_map_cli():
 
     amap = ActionsMap(ActionsMapParser, use_cache=True, parser_kwargs={'top_parser': parser})
 
-    assert amap.parser.global_conf['authenticate'] == False
+    assert amap.parser.global_conf['authenticate'] == "all"
     assert 'default' in amap.parser.global_conf['authenticator']
     assert 'yoloswag' in amap.parser.global_conf['authenticator']
     assert 'testauth' in amap.parser._subparsers.choices
