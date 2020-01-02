@@ -132,15 +132,22 @@ def moulinette_cli(moulinette, mocker):
     # Dirty hack needed, otherwise cookies ain't reused between request .. not
     # sure why :|
     import argparse
+
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--debug',
-                        action='store_true', default=False,
-                        help="Log and print debug messages",
-                        )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="Log and print debug messages",
+    )
     mocker.patch("os.isatty", return_value=True)
     moulinette_cli = moulinette.core.init_interface(
         "cli",
-        actionsmap={"namespaces": ["moulitest"], "use_cache": False, "parser_kwargs": {'top_parser': parser}},
+        actionsmap={
+            "namespaces": ["moulitest"],
+            "use_cache": False,
+            "parser_kwargs": {"top_parser": parser},
+        },
     )
     mocker.stopall()
 
@@ -183,13 +190,17 @@ def test_toml(tmp_path):
 def test_ldif(tmp_path):
     test_file = tmp_path / "test.txt"
     from ldif import LDIFWriter
-    writer = LDIFWriter(open(str(test_file), 'wb'))
 
-    writer.unparse('mail=alice@example.com', {
-        'cn': ['Alice Alison'],
-        'mail': ['alice@example.com'],
-        'objectclass': ['top', 'person']
-    })
+    writer = LDIFWriter(open(str(test_file), "wb"))
+
+    writer.unparse(
+        "mail=alice@example.com",
+        {
+            "cn": ["Alice Alison"],
+            "mail": ["alice@example.com"],
+            "objectclass": ["top", "person"],
+        },
+    )
 
     return test_file
 

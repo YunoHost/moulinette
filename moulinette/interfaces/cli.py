@@ -383,8 +383,8 @@ class ActionsMapParser(BaseActionsMapParser):
 
             # If several authenticator, use the default one
             if isinstance(authenticator, dict):
-                if 'default' in authenticator:
-                    authenticator = 'default'
+                if "default" in authenticator:
+                    authenticator = "default"
                 else:
                     # TODO which one should we use?
                     pass

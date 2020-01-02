@@ -107,7 +107,11 @@ def test_call_async_output_kwargs(test_file, mocker):
 
     dirname = os.path.dirname(str(test_file))
     os.mkdir(os.path.join(dirname, "teststdinfo"))
-    call_async_output(["cat", str(test_file)], callback, stdinfo=os.path.join(dirname, "teststdinfo", "teststdinfo"))
+    call_async_output(
+        ["cat", str(test_file)],
+        callback,
+        stdinfo=os.path.join(dirname, "teststdinfo", "teststdinfo"),
+    )
 
 
 def test_check_output(test_file):

@@ -73,7 +73,10 @@ class TestAuthAPI:
         )
 
     def test_login_bad_password(self, moulinette_webapi):
-        assert self.login(moulinette_webapi, password="Bad Password", status=401).text == "Invalid password"
+        assert (
+            self.login(moulinette_webapi, password="Bad Password", status=401).text
+            == "Invalid password"
+        )
 
         assert "session.id" not in moulinette_webapi.cookies
         assert "session.tokens" not in moulinette_webapi.cookies
@@ -83,7 +86,10 @@ class TestAuthAPI:
         # https://security.stackexchange.com/a/58308
         # https://stackoverflow.com/a/22533680
 
-        assert "CSRF protection" in self.login(moulinette_webapi, csrf=True, status=403).text
+        assert (
+            "CSRF protection"
+            in self.login(moulinette_webapi, csrf=True, status=403).text
+        )
         assert not any(c.name == "session.id" for c in moulinette_webapi.cookiejar)
         assert not any(c.name == "session.tokens" for c in moulinette_webapi.cookiejar)
 
@@ -128,7 +134,9 @@ class TestAuthAPI:
         assert "session.id" in moulinette_webapi.cookies
         assert "session.tokens" in moulinette_webapi.cookies
 
-        cache_session_default = os.environ["MOULINETTE_CACHE_DIR"] + "/session/yoloswag/"
+        cache_session_default = (
+            os.environ["MOULINETTE_CACHE_DIR"] + "/session/yoloswag/"
+        )
         assert moulinette_webapi.cookies["session.id"] + ".asc" in os.listdir(
             cache_session_default
         )
@@ -153,64 +161,70 @@ class TestAuthAPI:
 
 class TestAuthCLI:
     def test_login(self, moulinette_cli, capsys, mocker):
-        mocker.patch('getpass.getpass', return_value='default')
-        moulinette_cli.run(['testauth', 'default'], output_as="plain")
+        mocker.patch("getpass.getpass", return_value="default")
+        moulinette_cli.run(["testauth", "default"], output_as="plain")
         message = capsys.readouterr()
 
         assert "some_data_from_default" in message.out
 
-        moulinette_cli.run(['testauth', 'default'], output_as="plain", password="default")
+        moulinette_cli.run(
+            ["testauth", "default"], output_as="plain", password="default"
+        )
         message = capsys.readouterr()
 
         assert "some_data_from_default" in message.out
 
     def test_login_bad_password(self, moulinette_cli, capsys, mocker):
         with pytest.raises(MoulinetteError):
-            moulinette_cli.run(['testauth', 'default'], output_as="plain", password="Bad Password")
+            moulinette_cli.run(
+                ["testauth", "default"], output_as="plain", password="Bad Password"
+            )
 
-        mocker.patch('getpass.getpass', return_value="Bad Password")
+        mocker.patch("getpass.getpass", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
-            moulinette_cli.run(['testauth', 'default'], output_as="plain")
+            moulinette_cli.run(["testauth", "default"], output_as="plain")
 
     def test_login_wrong_profile(self, moulinette_cli, mocker):
-        mocker.patch('getpass.getpass', return_value='default')
+        mocker.patch("getpass.getpass", return_value="default")
         with pytest.raises(MoulinetteError) as exception:
-            moulinette_cli.run(['testauth', 'other-profile'], output_as="none")
+            moulinette_cli.run(["testauth", "other-profile"], output_as="none")
 
         translation = m18n.g("invalid_password")
         expected_msg = translation.format()
         assert expected_msg in str(exception)
 
         with pytest.raises(MoulinetteError) as exception:
-            moulinette_cli.run(['testauth', 'default'], output_as="none", password="yoloswag")
+            moulinette_cli.run(
+                ["testauth", "default"], output_as="none", password="yoloswag"
+            )
 
         expected_msg = translation.format()
         assert expected_msg in str(exception)
 
     def test_request_no_auth_needed(self, capsys, moulinette_cli):
-        moulinette_cli.run(['testauth', 'none'], output_as="plain")
+        moulinette_cli.run(["testauth", "none"], output_as="plain")
         message = capsys.readouterr()
 
         assert "some_data_from_none" in message.out
 
     def test_request_not_logged_only_api(self, capsys, moulinette_cli):
-        moulinette_cli.run(['testauth', 'only-api'], output_as="plain")
+        moulinette_cli.run(["testauth", "only-api"], output_as="plain")
         message = capsys.readouterr()
 
         assert "some_data_from_only_api" in message.out
 
     def test_request_only_cli(self, capsys, moulinette_cli, mocker):
-        mocker.patch('getpass.getpass', return_value='default')
-        moulinette_cli.run(['testauth', 'only-cli'], output_as="plain")
+        mocker.patch("getpass.getpass", return_value="default")
+        moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
 
         message = capsys.readouterr()
 
         assert "some_data_from_only_cli" in message.out
 
     def test_request_not_logged_only_cli(self, capsys, moulinette_cli, mocker):
-        mocker.patch('getpass.getpass')
+        mocker.patch("getpass.getpass")
         with pytest.raises(MoulinetteError) as exception:
-            moulinette_cli.run(['testauth', 'only-cli'], output_as="plain")
+            moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
 
         message = capsys.readouterr()
         assert "some_data_from_only_cli" not in message.out

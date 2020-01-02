@@ -262,7 +262,7 @@ class BaseActionsMapParser(object):
         if "authenticator" in configuration:
             auth = configuration["authenticator"]
         else:
-            auth = 'default'
+            auth = "default"
         if not is_global and isinstance(auth, str):
             # Store needed authenticator profile
             if auth not in self.global_conf["authenticator"]:
@@ -277,8 +277,7 @@ class BaseActionsMapParser(object):
         elif is_global and isinstance(auth, dict):
             if len(auth) == 0:
                 logger.warning(
-                    "no profile defined in global configuration "
-                    "for 'authenticator'"
+                    "no profile defined in global configuration " "for 'authenticator'"
                 )
             else:
                 auths = {}

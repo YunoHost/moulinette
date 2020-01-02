@@ -459,7 +459,9 @@ def test_chown_exception(test_file, mocker):
     with pytest.raises(MoulinetteError) as exception:
         chown(str(test_file), 1)
 
-    translation = m18n.g("error_changing_file_permissions", path=test_file, error=str(error))
+    translation = m18n.g(
+        "error_changing_file_permissions", path=test_file, error=str(error)
+    )
     expected_msg = translation.format(path=test_file, error=str(error))
     assert expected_msg in str(exception)
 
@@ -496,7 +498,9 @@ def test_chmod_exception(test_file, mocker):
     with pytest.raises(MoulinetteError) as exception:
         chmod(str(test_file), 0o000)
 
-    translation = m18n.g("error_changing_file_permissions", path=test_file, error=str(error))
+    translation = m18n.g(
+        "error_changing_file_permissions", path=test_file, error=str(error)
+    )
     expected_msg = translation.format(path=test_file, error=str(error))
     assert expected_msg in str(exception)
 

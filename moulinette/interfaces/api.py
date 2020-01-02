@@ -408,7 +408,9 @@ class _ActionsMapPlugin(object):
         # for additional security ?
         # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
         s_secret = self.secrets[s_id]
-        if profile not in request.get_cookie("session.tokens", secret=s_secret, default={}):
+        if profile not in request.get_cookie(
+            "session.tokens", secret=s_secret, default={}
+        ):
             raise HTTPUnauthorizedResponse(m18n.g("not_logged_in"))
         else:
             del self.secrets[s_id]
@@ -670,8 +672,8 @@ class ActionsMapParser(BaseActionsMapParser):
 
             # If several authenticator, use the default one
             if isinstance(authenticator, dict):
-                if 'default' in authenticator:
-                    authenticator = 'default'
+                if "default" in authenticator:
+                    authenticator = "default"
                 else:
                     # TODO which one should we use?
                     pass

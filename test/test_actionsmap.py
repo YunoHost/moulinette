@@ -69,8 +69,9 @@ def test_ask_parameter(iface, mocker):
     assert arg == "a"
 
     from moulinette.core import Moulinette18n, MoulinetteSignals
-    mocker.patch.object(Moulinette18n, 'n', return_value="awesome_test")
-    mocker.patch.object(MoulinetteSignals, 'prompt', return_value="awesome_test")
+
+    mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
+    mocker.patch.object(MoulinetteSignals, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)
     assert arg == "awesome_test"
 
@@ -81,8 +82,9 @@ def test_password_parameter(iface, mocker):
     assert arg == "a"
 
     from moulinette.core import Moulinette18n, MoulinetteSignals
-    mocker.patch.object(Moulinette18n, 'n', return_value="awesome_test")
-    mocker.patch.object(MoulinetteSignals, 'prompt', return_value="awesome_test")
+
+    mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
+    mocker.patch.object(MoulinetteSignals, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)
     assert arg == "awesome_test"
 
@@ -202,9 +204,13 @@ def test_extra_argument_parser_parse_args(iface, mocker):
     extra_argument_parse = ExtraArgumentParser(iface)
     extra_argument_parse.add_argument(GLOBAL_SECTION, "foo", {"ask": "lol"})
     extra_argument_parse.add_argument(GLOBAL_SECTION, "foo2", {"ask": "lol2"})
-    extra_argument_parse.add_argument(GLOBAL_SECTION, "bar", {"password": "lul", "ask": "lul"})
+    extra_argument_parse.add_argument(
+        GLOBAL_SECTION, "bar", {"password": "lul", "ask": "lul"}
+    )
 
-    args = extra_argument_parse.parse_args(GLOBAL_SECTION, {"foo": 1, "foo2": ["a", "b", {"foobar": True}], "bar": "rab"})
+    args = extra_argument_parse.parse_args(
+        GLOBAL_SECTION, {"foo": 1, "foo2": ["a", "b", {"foobar": True}], "bar": "rab"}
+    )
 
     assert "foo" in args
     assert args["foo"] == 1
@@ -221,21 +227,21 @@ def test_actions_map_api():
 
     amap = ActionsMap(ActionsMapParser, use_cache=False)
 
-    assert amap.parser.global_conf['authenticate'] == "all"
-    assert 'default' in amap.parser.global_conf['authenticator']
-    assert 'yoloswag' in amap.parser.global_conf['authenticator']
-    assert ('GET', '/test-auth/default') in amap.parser.routes
-    assert ('POST', '/test-auth/subcat/post') in amap.parser.routes
+    assert amap.parser.global_conf["authenticate"] == "all"
+    assert "default" in amap.parser.global_conf["authenticator"]
+    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert ("GET", "/test-auth/default") in amap.parser.routes
+    assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
 
     amap.generate_cache()
 
     amap = ActionsMap(ActionsMapParser, use_cache=True)
 
-    assert amap.parser.global_conf['authenticate'] == "all"
-    assert 'default' in amap.parser.global_conf['authenticator']
-    assert 'yoloswag' in amap.parser.global_conf['authenticator']
-    assert ('GET', '/test-auth/default') in amap.parser.routes
-    assert ('POST', '/test-auth/subcat/post') in amap.parser.routes
+    assert amap.parser.global_conf["authenticate"] == "all"
+    assert "default" in amap.parser.global_conf["authenticator"]
+    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert ("GET", "/test-auth/default") in amap.parser.routes
+    assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
 
 
 def test_actions_map_import_error(mocker):
@@ -244,11 +250,12 @@ def test_actions_map_import_error(mocker):
     amap = ActionsMap(ActionsMapParser)
 
     from moulinette.core import MoulinetteLock
-    mocker.patch.object(MoulinetteLock, '_is_son_of', return_value=False)
+
+    mocker.patch.object(MoulinetteLock, "_is_son_of", return_value=False)
 
     mocker.patch("__builtin__.__import__", side_effect=ImportError)
     with pytest.raises(MoulinetteError) as exception:
-        amap.process({}, timeout=30, route=('GET', '/test-auth/none'))
+        amap.process({}, timeout=30, route=("GET", "/test-auth/none"))
 
     mocker.stopall()
     translation = m18n.g("error_see_log")
@@ -259,29 +266,50 @@ def test_actions_map_import_error(mocker):
 def test_actions_map_cli():
     from moulinette.interfaces.cli import ActionsMapParser
     import argparse
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--debug',
-                        action='store_true', default=False,
-                        help="Log and print debug messages",
-                        )
-    amap = ActionsMap(ActionsMapParser, use_cache=False, parser_kwargs={'top_parser': parser})
 
-    assert amap.parser.global_conf['authenticate'] == "all"
-    assert 'default' in amap.parser.global_conf['authenticator']
-    assert 'yoloswag' in amap.parser.global_conf['authenticator']
-    assert 'testauth' in amap.parser._subparsers.choices
-    assert 'none' in amap.parser._subparsers.choices['testauth']._actions[1].choices
-    assert 'subcat' in amap.parser._subparsers.choices['testauth']._actions[1].choices
-    assert 'default' in amap.parser._subparsers.choices['testauth']._actions[1].choices['subcat']._actions[1].choices
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="Log and print debug messages",
+    )
+    amap = ActionsMap(
+        ActionsMapParser, use_cache=False, parser_kwargs={"top_parser": parser}
+    )
+
+    assert amap.parser.global_conf["authenticate"] == "all"
+    assert "default" in amap.parser.global_conf["authenticator"]
+    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert "testauth" in amap.parser._subparsers.choices
+    assert "none" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
+    assert "subcat" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
+    assert (
+        "default"
+        in amap.parser._subparsers.choices["testauth"]
+        ._actions[1]
+        .choices["subcat"]
+        ._actions[1]
+        .choices
+    )
 
     amap.generate_cache()
 
-    amap = ActionsMap(ActionsMapParser, use_cache=True, parser_kwargs={'top_parser': parser})
+    amap = ActionsMap(
+        ActionsMapParser, use_cache=True, parser_kwargs={"top_parser": parser}
+    )
 
-    assert amap.parser.global_conf['authenticate'] == "all"
-    assert 'default' in amap.parser.global_conf['authenticator']
-    assert 'yoloswag' in amap.parser.global_conf['authenticator']
-    assert 'testauth' in amap.parser._subparsers.choices
-    assert 'none' in amap.parser._subparsers.choices['testauth']._actions[1].choices
-    assert 'subcat' in amap.parser._subparsers.choices['testauth']._actions[1].choices
-    assert 'default' in amap.parser._subparsers.choices['testauth']._actions[1].choices['subcat']._actions[1].choices
+    assert amap.parser.global_conf["authenticate"] == "all"
+    assert "default" in amap.parser.global_conf["authenticator"]
+    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert "testauth" in amap.parser._subparsers.choices
+    assert "none" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
+    assert "subcat" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
+    assert (
+        "default"
+        in amap.parser._subparsers.choices["testauth"]
+        ._actions[1]
+        .choices["subcat"]
+        ._actions[1]
+        .choices
+    )
