@@ -128,7 +128,7 @@ def moulinette_webapi(moulinette):
 
 
 @pytest.fixture
-def moulinette_cli(moulinette):
+def moulinette_cli(moulinette, mocker):
     # Dirty hack needed, otherwise cookies ain't reused between request .. not
     # sure why :|
     import argparse
@@ -137,10 +137,12 @@ def moulinette_cli(moulinette):
                         action='store_true', default=False,
                         help="Log and print debug messages",
                         )
+    mocker.patch("os.isatty", return_value=True)
     moulinette_cli = moulinette.core.init_interface(
         "cli",
         actionsmap={"namespaces": ["moulitest"], "use_cache": False, "parser_kwargs": {'top_parser': parser}},
     )
+    mocker.stopall()
 
     return moulinette_cli
 
