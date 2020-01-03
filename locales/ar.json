@@ -13,7 +13,7 @@
     "file_not_exist": "الملف غير موجود : '{path}'",
     "folder_exists": "إنّ المجلد موجود من قبل : '{path}'",
     "folder_not_exist": "المجلد غير موجود",
-    "instance_already_running": "هناك نسخة خادوم تشتغل مِن قبل",
+    "instance_already_running": "هناك بالفعل عملية YunoHost جارية. الرجاء الانتظار حتى ينتهي الأمر قبل تشغيل آخر.",
     "invalid_argument": "المُعامِل غير صالح '{argument}': {error}",
     "invalid_password": "كلمة السر خاطئة",
     "invalid_usage": "إستعمال غير صالح، إستخدم --help لعرض المساعدة",
@@ -52,5 +52,7 @@
     "command_unknown": "الأمر '{command:s}' مجهول؟",
     "corrupted_yaml": "قراءة مُشوّهة لنسق yaml مِن {ressource:s} (السبب : {error:s})",
     "info": "معلومة:",
-    "warn_the_user_about_waiting_lock_again": "جارٍ الانتظار…"
+    "warn_the_user_about_waiting_lock_again": "جارٍ الانتظار…",
+    "warn_the_user_that_lock_is_acquired": "لقد انتهى تنفيذ ذاك الأمر ، جارٍ إطلاق الأمر",
+    "warn_the_user_about_waiting_lock": "هناك أمر لـ YunoHost قيد التشغيل حاليا. في انتظار انتهاء تنفيذه قبل تشغيل التالي"
 }

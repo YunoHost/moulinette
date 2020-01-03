@@ -1,5 +1,5 @@
 {
-    "argument_required": "{argument}是必须的",
+    "argument_required": "参数“{argument}”是必须的",
     "authentication_profile_required": "必须验证配置文件{profile}",
     "authentication_required": "需要验证",
     "authentication_required_long": "此操作需要验证",
@@ -22,7 +22,7 @@
     "ldap_operation_error": "LDAP操作时发生了错误",
     "ldap_server_down": "无法连接LDAP服务器",
     "logged_in": "登录成功",
-    "logged_out": "注销成功",
+    "logged_out": "登出",
     "not_logged_in": "您未登录",
     "operation_interrupted": "操作中断",
     "password": "密码",
