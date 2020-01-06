@@ -49,11 +49,10 @@ class Authenticator(BaseAuthenticator):
         )
         super(Authenticator, self).__init__(name, vendor, parameters, extra)
 
-        if self.userdn:
-            if "cn=external,cn=auth" in self.userdn:
-                self.authenticate(None)
-            else:
-                self.con = None
+        if self.userdn and "cn=external,cn=auth" in self.userdn:
+            self.authenticate(None)
+        else:
+            self.con = None
 
     def __del__(self):
         """Disconnect and free ressources"""
@@ -91,7 +90,12 @@ class Authenticator(BaseAuthenticator):
             logger.warning("Error during ldap authentication process: %s", e)
             raise
         else:
-            if who[3:] != self.userdn:
+            if (
+                "cn=external,cn=auth" in self.userdn
+                and who[3:] != "cn=admin,dc=yunohost,dc=org"
+            ):
+                raise MoulinetteError("Not logged in with the expected userdn ?!")
+            elif "cn=external,cn=auth" not in self.userdn and who[3:] != self.userdn:
                 raise MoulinetteError("Not logged in with the expected userdn ?!")
             else:
                 self.con = con
@@ -175,7 +179,7 @@ class Authenticator(BaseAuthenticator):
 
         """
         dn = rdn + "," + self.basedn
-        ldif = modlist.addModlist(attr_dict)
+        ldif = modlist.addModlist(self._encode_dict(attr_dict))
 
         try:
             self.con.add_s(dn, ldif)
@@ -230,7 +234,9 @@ class Authenticator(BaseAuthenticator):
         """
         dn = rdn + "," + self.basedn
         actual_entry = self.search(base=dn, attrs=None)
-        ldif = modlist.modifyModlist(actual_entry[0], attr_dict, ignore_oldexistent=1)
+        ldif = modlist.modifyModlist(
+            actual_entry[0], self._encode_dict(attr_dict), ignore_oldexistent=1
+        )
 
         try:
             if new_rdn:
@@ -293,3 +299,11 @@ class Authenticator(BaseAuthenticator):
             else:
                 return (attr, value)
         return None
+
+    def _encode_dict(self, _dict):
+        return {k: self._encode_list(v) for k, v in _dict.items()}
+
+    def _encode_list(self, _list):
+        if not isinstance(_list, list):
+            _list = [_list]
+        return [s.encode("utf-8") for s in _list]
