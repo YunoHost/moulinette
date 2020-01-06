@@ -80,7 +80,7 @@ def patch_logging(moulinette):
 
 
 def patch_lock(moulinette):
-    moulinette.core.MoulinetteLock._lock = lambda *args: None
+    moulinette.core.MoulinetteLock.base_lockfile = "moulinette_%s.lock"
 
 
 @pytest.fixture(scope="session", autouse=True)
