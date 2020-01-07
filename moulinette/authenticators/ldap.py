@@ -241,7 +241,8 @@ class Authenticator(BaseAuthenticator):
         try:
             if new_rdn:
                 self.con.rename_s(dn, new_rdn)
-                dn = new_rdn + "," + self.basedn
+                new_base = dn.split(",", 1)[1]
+                dn = new_rdn + "," + new_base
 
             self.con.modify_ext_s(dn, ldif)
         except Exception as e:
