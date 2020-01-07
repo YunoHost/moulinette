@@ -291,7 +291,7 @@ class Authenticator(BaseAuthenticator):
             value_dict -- Dictionnary of attributes/values to check
 
         Returns:
-            None | list with Fist conflict attribute name and value
+            None | tuple with Fist conflict attribute name and value
 
         """
         for attr, value in value_dict.items():
