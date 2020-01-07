@@ -155,7 +155,7 @@ class Authenticator(BaseAuthenticator):
                 attrs,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="search")
 
         result_list = []
         if not attrs or "dn" not in attrs:
@@ -191,7 +191,7 @@ class Authenticator(BaseAuthenticator):
                 attr_dict,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="add")
         else:
             return True
 
@@ -215,7 +215,7 @@ class Authenticator(BaseAuthenticator):
                 rdn,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="remove")
         else:
             return True
 
@@ -253,7 +253,7 @@ class Authenticator(BaseAuthenticator):
                 new_rdn,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="update")
         else:
             return True
 
