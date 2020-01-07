@@ -43,7 +43,7 @@ class Authenticator(BaseAuthenticator):
             "initialize authenticator '%s' with: uri='%s', "
             "base_dn='%s', user_rdn='%s'",
             name,
-            self.uri,
+            self._get_uri(),
             self.basedn,
             self.userdn,
         )
@@ -68,7 +68,7 @@ class Authenticator(BaseAuthenticator):
     def authenticate(self, password=None):
         try:
             con = ldap.ldapobject.ReconnectLDAPObject(
-                self.uri, retry_max=10, retry_delay=0.5
+                self._get_uri(), retry_max=10, retry_delay=0.5
             )
             if self.userdn:
                 if "cn=external,cn=auth" in self.userdn:
@@ -300,6 +300,9 @@ class Authenticator(BaseAuthenticator):
             else:
                 return (attr, value)
         return None
+
+    def _get_uri(self):
+        return self.uri
 
     def _encode_dict(self, _dict):
         return {k: self._encode_list(v) for k, v in _dict.items()}
