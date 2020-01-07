@@ -32,3 +32,7 @@ def testauth_only_api():
 
 def testauth_only_cli():
     return "some_data_from_only_cli"
+
+
+def testauth_ldap():
+    return "some_data_from_ldap"

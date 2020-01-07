@@ -13,6 +13,13 @@ _global:
             yoloswag:
                 vendor: dummy
                 help: Dummy Yoloswag Password
+            ldap:
+                vendor: ldap
+                help: admin_password
+                parameters:
+                    uri: ldap://localhost:8080
+                    base_dn: dc=yunohost,dc=org
+                    user_rdn: cn=admin,dc=yunohost,dc=org
     arguments:
         -v:
             full: --version
@@ -53,6 +60,13 @@ testauth:
                 authenticate:
                     - all
                 authenticator: yoloswag
+
+        ldap:
+            api: GET /test-auth/ldap
+            configuration:
+                authenticate:
+                    - all
+                authenticator: ldap
 
     subcategories:
         subcat:

@@ -158,6 +158,18 @@ class TestAuthAPI:
             == "Authentication required"
         )
 
+    def test_login_ldap(self, moulinette_webapi, ldap_server, mocker):
+        mocker.patch(
+            "moulinette.authenticators.ldap.Authenticator._get_uri",
+            return_value=ldap_server.uri,
+        )
+        self.login(moulinette_webapi, profile="ldap", password="yunohost")
+
+        assert (
+            moulinette_webapi.get("/test-auth/ldap", status=200).text
+            == '"some_data_from_ldap"'
+        )
+
 
 class TestAuthCLI:
     def test_login(self, moulinette_cli, capsys, mocker):

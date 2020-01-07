@@ -11,7 +11,7 @@ class TestLDAP:
         self.ldap_conf = {
             "vendor": "ldap",
             "name": "as-root",
-            "parameters": {"base_dn": "dc=yunohost,dc=org",},
+            "parameters": {"base_dn": "dc=yunohost,dc=org"},
             "extra": {},
         }
 
