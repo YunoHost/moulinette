@@ -75,6 +75,29 @@ testauth:
                     - all
                 authenticator: ldap
 
+        with_arg:
+            api: GET /test-auth/with_arg/<super_arg>
+            arguments:
+                super_arg:
+                    help: Super Arg
+
+        with_extra_str_only:
+            api: GET /test-auth/with_extra_str_only/<only_a_str>
+            arguments:
+                only_a_str:
+                    help: Only a String
+                    extra:
+                        pattern:
+                            - !!str ^[a-zA-Z]
+                            - "pattern_only_a_str"
+
+        with_type_int:
+            api: GET /test-auth/with_type_int/<only_an_int>
+            arguments:
+                only_an_int:
+                    help: Only an Int
+                    type: int
+
     subcategories:
         subcat:
             actions:

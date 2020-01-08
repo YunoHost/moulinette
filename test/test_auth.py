@@ -170,6 +170,43 @@ class TestAuthAPI:
             == '"some_data_from_ldap"'
         )
 
+    def test_request_with_arg(self, moulinette_webapi, capsys):
+        self.login(moulinette_webapi)
+
+        assert (
+            moulinette_webapi.get("/test-auth/with_arg/yoloswag", status=200).text
+            == '"yoloswag"'
+        )
+
+    def test_request_arg_with_extra(self, moulinette_webapi, caplog, mocker):
+        self.login(moulinette_webapi)
+
+        assert (
+            moulinette_webapi.get(
+                "/test-auth/with_extra_str_only/YoLoSwAg", status=200
+            ).text
+            == '"YoLoSwAg"'
+        )
+
+        error = "error_message"
+        mocker.patch("moulinette.Moulinette18n.n", return_value=error)
+
+        moulinette_webapi.get("/test-auth/with_extra_str_only/12345", status=400)
+
+        assert any("doesn't match pattern" in message for message in caplog.messages)
+
+    def test_request_arg_with_type(self, moulinette_webapi, caplog, mocker):
+        self.login(moulinette_webapi)
+
+        assert (
+            moulinette_webapi.get("/test-auth/with_type_int/12345", status=200).text
+            == "12345"
+        )
+
+        error = "error_message"
+        mocker.patch("moulinette.Moulinette18n.g", return_value=error)
+        moulinette_webapi.get("/test-auth/with_type_int/yoloswag", status=400)
+
 
 class TestAuthCLI:
     def test_login(self, moulinette_cli, capsys, mocker):
@@ -262,3 +299,45 @@ class TestAuthCLI:
         message = capsys.readouterr()
 
         assert "cannot get value from callback method" in message.err
+
+    def test_request_with_arg(self, moulinette_cli, capsys, mocker):
+        mocker.patch("getpass.getpass", return_value="default")
+        moulinette_cli.run(["testauth", "with_arg", "yoloswag"], output_as="plain")
+        message = capsys.readouterr()
+
+        assert "yoloswag" in message.out
+
+    def test_request_arg_with_extra(self, moulinette_cli, capsys, mocker):
+        mocker.patch("getpass.getpass", return_value="default")
+        moulinette_cli.run(
+            ["testauth", "with_extra_str_only", "YoLoSwAg"], output_as="plain"
+        )
+        message = capsys.readouterr()
+
+        assert "YoLoSwAg" in message.out
+
+        error = "error_message"
+        mocker.patch("moulinette.Moulinette18n.n", return_value=error)
+        with pytest.raises(MoulinetteError):
+            moulinette_cli.run(
+                ["testauth", "with_extra_str_only", "12345"], output_as="plain"
+            )
+
+        message = capsys.readouterr()
+        assert "doesn't match pattern" in message.err
+
+    def test_request_arg_with_type(self, moulinette_cli, capsys, mocker):
+        mocker.patch("getpass.getpass", return_value="default")
+        moulinette_cli.run(["testauth", "with_type_int", "12345"], output_as="plain")
+        message = capsys.readouterr()
+
+        assert "12345" in message.out
+
+        mocker.patch("sys.exit")
+        with pytest.raises(MoulinetteError):
+            moulinette_cli.run(
+                ["testauth", "with_type_int", "yoloswag"], output_as="plain"
+            )
+
+        message = capsys.readouterr()
+        assert "invalid int value" in message.err

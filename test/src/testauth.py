@@ -38,5 +38,17 @@ def testauth_ldap():
     return "some_data_from_ldap"
 
 
+def testauth_with_arg(super_arg):
+    return super_arg
+
+
+def testauth_with_extra_str_only(only_a_str):
+    return only_a_str
+
+
+def testauth_with_type_int(only_an_int):
+    return only_an_int
+
+
 def yoloswag_version(*args, **kwargs):
     return "666"
