@@ -36,3 +36,7 @@ def testauth_only_cli():
 
 def testauth_ldap():
     return "some_data_from_ldap"
+
+
+def yoloswag_version(*args, **kwargs):
+    return "666"

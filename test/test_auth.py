@@ -244,3 +244,21 @@ class TestAuthCLI:
         translation = m18n.g("invalid_password")
         expected_msg = translation.format()
         assert expected_msg in str(exception)
+
+    def test_request_with_callback(self, moulinette_cli, capsys, mocker):
+        mocker.patch("getpass.getpass", return_value="default")
+        moulinette_cli.run(["--version"], output_as="plain")
+        message = capsys.readouterr()
+
+        assert "666" in message.out
+
+        moulinette_cli.run(["-v"], output_as="plain")
+        message = capsys.readouterr()
+
+        assert "666" in message.out
+
+        with pytest.raises(MoulinetteError):
+            moulinette_cli.run(["--wersion"], output_as="plain")
+        message = capsys.readouterr()
+
+        assert "cannot get value from callback method" in message.err
