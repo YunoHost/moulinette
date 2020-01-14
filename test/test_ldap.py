@@ -351,6 +351,21 @@ class TestLDAP:
         expected_msg = translation.format(action="update")
         assert expected_msg in str(exception)
 
+    def test_empty_update(self, ldap_server):
+        self.ldap_conf["parameters"]["uri"] = ldap_server.uri
+        ldap_interface = self.create_ldap_interface(
+            "cn=admin,dc=yunohost,dc=org", "yunohost"
+        )
+
+        new_user_info = self.update_new_user(ldap_interface)
+        assert new_user_info["uid"] == ["new_user"]
+        assert new_user_info["uidNumber"] == ["555"]
+        assert new_user_info["gidNumber"] == ["555"]
+
+        uid = new_user_info["uid"][0]
+
+        assert ldap_interface.update("uid=%s,ou=users" % uid, new_user_info)
+
     def test_get_conflict(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
