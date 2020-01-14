@@ -287,7 +287,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
     @staticmethod
     def format_arg_names(name, full):
-        if name[0] == "-" and full:
+        if name.startswith("-") and full:
             return [name, full]
         return [name]
 
