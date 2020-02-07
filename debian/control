@@ -18,8 +18,6 @@ Depends: ${misc:Depends}, ${python:Depends},
     python-toml,
     python-psutil,
     python-tz
-Replaces: yunohost-cli
-Breaks: yunohost-cli
 Description: prototype interfaces with ease in Python
  Quickly and easily prototype interfaces for your application.
  Each action can be served through an HTTP API and from the
