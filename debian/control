@@ -18,8 +18,6 @@ Depends: ${misc:Depends}, ${python:Depends},
     python-toml,
     python-psutil,
     python-tz
-Replaces: yunohost-cli
-Breaks: yunohost-cli
 Description: prototype interfaces with ease in Python
  The moulinette is a Python package that allows one to quickly and
  easily prototype interfaces for your application. Each action can
