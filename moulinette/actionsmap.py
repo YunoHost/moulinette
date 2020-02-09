@@ -419,6 +419,7 @@ class ActionsMap(object):
         moulinette_env = init_moulinette_env()
         DATA_DIR = moulinette_env["DATA_DIR"]
         CACHE_DIR = moulinette_env["CACHE_DIR"]
+        self.run_dir = moulinette_env["RUN_DIR"]
 
         if len(namespaces) == 0:
             namespaces = self.get_namespaces()
@@ -545,7 +546,7 @@ class ActionsMap(object):
             full_action_name = "%s.%s.%s" % (namespace, category, action)
 
         # Lock the moulinette for the namespace
-        with MoulinetteLock(namespace, timeout):
+        with MoulinetteLock(namespace, timeout, lock_dir=self.run_dir):
             start = time()
             try:
                 mod = __import__(

@@ -11,4 +11,5 @@ def init_moulinette_env():
             "MOULINETTE_LOCALES_DIR", "/usr/share/moulinette/locale"
         ),
         "CACHE_DIR": environ.get("MOULINETTE_CACHE_DIR", "/var/cache/moulinette"),
+        "RUN_DIR": environ.get("MOULINETTE_RUN_DIR", "/var/run")
     }
