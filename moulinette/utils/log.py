@@ -3,12 +3,12 @@ import logging
 
 # import all constants because other modules try to import them from this
 # module because SUCCESS is defined in this module
-from logging import (
+from logging import (  # noqa: F401
     addLevelName,
     setLoggerClass,
     Logger,
     getLogger,
-    NOTSET,  # noqa
+    NOTSET,
     DEBUG,
     INFO,
     WARNING,
@@ -35,7 +35,7 @@ DEFAULT_LOGGING = {
             "stream": "ext://sys.stdout",
         },
     },
-    "loggers": {"moulinette": {"level": "DEBUG", "handlers": ["console"],},},
+    "loggers": {"moulinette": {"level": "DEBUG", "handlers": ["console"], }, },
 }
 
 
