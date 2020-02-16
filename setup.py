@@ -27,7 +27,7 @@ setup(name='Moulinette',
       license='AGPL',
       packages=find_packages(exclude=['test']),
       data_files=[(LOCALES_DIR, locale_files)],
-      python_requires='>=3.5',
+      python_requires='>=3.7',
       install_requires=[
           'argcomplete',
           'psutil',
