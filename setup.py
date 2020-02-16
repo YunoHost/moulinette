@@ -3,10 +3,9 @@
 import os
 import sys
 from setuptools import setup, find_packages
-from moulinette.globals import init_moulinette_env
 
 
-LOCALES_DIR = init_moulinette_env()['LOCALES_DIR']
+LOCALES_DIR = os.environ.get("MOULINETTE_LOCALES_DIR", "/usr/share/moulinette/locale")
 
 # Extend installation
 locale_files = []
