@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # TODO: Use Python3 to remove this fix!
-from __future__ import absolute_import
+
 import logging
 import random
 import string
