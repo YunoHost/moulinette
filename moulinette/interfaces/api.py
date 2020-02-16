@@ -600,7 +600,7 @@ class ActionsMapParser(BaseActionsMapParser):
     @property
     def routes(self):
         """Get current routes"""
-        return self._parsers.keys()
+        return list(self._parsers.keys())
 
     # Implement virtual properties
 

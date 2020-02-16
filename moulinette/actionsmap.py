@@ -282,7 +282,7 @@ class ExtraArgumentParser(object):
             if iface in klass.skipped_iface:
                 continue
             self.extra[klass.name] = klass
-        logger.debug("extra parameter classes loaded: %s", self.extra.keys())
+        logger.debug("extra parameter classes loaded: %s", list(self.extra.keys()))
 
     def validate(self, arg_name, parameters):
         """
