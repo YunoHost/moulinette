@@ -232,6 +232,10 @@ class Authenticator(BaseAuthenticator):
         actual_entry = self.search(base=dn, attrs=None)
         ldif = modlist.modifyModlist(actual_entry[0], attr_dict, ignore_oldexistent=1)
 
+        if ldif == []:
+            logger.warning("Nothing to update in LDAP")
+            return True
+
         try:
             if new_rdn:
                 self.con.rename_s(dn, new_rdn)
