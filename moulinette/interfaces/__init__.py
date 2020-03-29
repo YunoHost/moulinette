@@ -259,10 +259,7 @@ class BaseActionsMapParser(object):
                 raise MoulinetteError("error_see_log")
 
         # -- 'authenticator'
-        if "authenticator" in configuration:
-            auth = configuration["authenticator"]
-        else:
-            auth = "default"
+        auth = configuration.get("authenticator", "default")
         if not is_global and isinstance(auth, str):
             # Store needed authenticator profile
             if auth not in self.global_conf["authenticator"]:

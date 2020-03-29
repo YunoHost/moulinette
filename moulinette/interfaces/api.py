@@ -407,7 +407,10 @@ class _ActionsMapPlugin(object):
         # We check that there's a (signed) session.hash available
         # for additional security ?
         # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
-        s_secret = self.secrets[s_id]
+        try:
+            s_secret = self.secrets[s_id]
+        except KeyError:
+            s_secret = {}
         if profile not in request.get_cookie(
             "session.tokens", secret=s_secret, default={}
         ):
