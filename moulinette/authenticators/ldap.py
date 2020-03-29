@@ -39,6 +39,9 @@ class Authenticator(BaseAuthenticator):
         self.basedn = parameters["base_dn"]
         self.userdn = parameters["user_rdn"]
         self.extra = extra
+        self.sasldn = "cn=external,cn=auth"
+        self.adminuser = "admin"
+        self.admincn = "cn=%s,dc=yunohost,dc=org" % self.adminuser
         logger.debug(
             "initialize authenticator '%s' with: uri='%s', "
             "base_dn='%s', user_rdn='%s'",
@@ -49,7 +52,7 @@ class Authenticator(BaseAuthenticator):
         )
         super(Authenticator, self).__init__(name, vendor, parameters, extra)
 
-        if self.userdn and "cn=external,cn=auth" in self.userdn:
+        if self.userdn and self.sasldn in self.userdn:
             self.authenticate(None)
         else:
             self.con = None
@@ -71,7 +74,7 @@ class Authenticator(BaseAuthenticator):
                 self._get_uri(), retry_max=10, retry_delay=0.5
             )
             if self.userdn:
-                if "cn=external,cn=auth" in self.userdn:
+                if self.sasldn in self.userdn:
                     con.sasl_non_interactive_bind_s("EXTERNAL")
                 else:
                     con.simple_bind_s(self.userdn, password)
@@ -85,17 +88,17 @@ class Authenticator(BaseAuthenticator):
 
         # Check that we are indeed logged in with the right identity
         try:
-            who = con.whoami_s()
+            # whoami_s return dn:..., then delete these 3 characters
+            who = con.whoami_s()[3:]
         except Exception as e:
             logger.warning("Error during ldap authentication process: %s", e)
             raise
         else:
-            if (
-                "cn=external,cn=auth" in self.userdn
-                and who[3:] != "cn=admin,dc=yunohost,dc=org"
-            ):
+            # If we are trying to login with SASL, we must be logged in as admin
+            if self.sasldn in self.userdn and who != self.admincn:
                 raise MoulinetteError("Not logged in with the expected userdn ?!")
-            elif "cn=external,cn=auth" not in self.userdn and who[3:] != self.userdn:
+            # else if the userdn must be the same as the identity
+            elif self.sasldn not in self.userdn and who != self.userdn:
                 raise MoulinetteError("Not logged in with the expected userdn ?!")
             else:
                 self.con = con
@@ -111,9 +114,7 @@ class Authenticator(BaseAuthenticator):
             salt = "$6$" + salt + "$"
             return "{CRYPT}" + crypt.crypt(str(password), salt)
 
-        hashed_password = self.search(
-            "cn=admin,dc=yunohost,dc=org", attrs=["userPassword"]
-        )[0]
+        hashed_password = self.search(self.admincn, attrs=["userPassword"])[0]
 
         # post-install situation, password is not already set
         if "userPassword" not in hashed_password or not hashed_password["userPassword"]:
@@ -121,7 +122,10 @@ class Authenticator(BaseAuthenticator):
 
         # we aren't using sha-512 but something else that is weaker, proceed to upgrade
         if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
-            self.update("cn=admin", {"userPassword": _hash_user_password(password)})
+            self.update(
+                "cn=%s" % self.adminuser,
+                {"userPassword": _hash_user_password(password)},
+            )
 
     # Additional LDAP methods
     # TODO: Review these methods
