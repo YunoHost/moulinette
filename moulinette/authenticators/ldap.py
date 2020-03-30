@@ -124,7 +124,7 @@ class Authenticator(BaseAuthenticator):
         if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
             self.update(
                 "cn=%s" % self.adminuser,
-                {"userPassword": _hash_user_password(password)},
+                {"userPassword": [_hash_user_password(password)]},
             )
 
     # Additional LDAP methods
@@ -183,7 +183,7 @@ class Authenticator(BaseAuthenticator):
 
         """
         dn = rdn + "," + self.basedn
-        ldif = modlist.addModlist(self._encode_dict(attr_dict))
+        ldif = modlist.addModlist(attr_dict)
 
         try:
             self.con.add_s(dn, ldif)
@@ -238,9 +238,7 @@ class Authenticator(BaseAuthenticator):
         """
         dn = rdn + "," + self.basedn
         actual_entry = self.search(base=dn, attrs=None)
-        ldif = modlist.modifyModlist(
-            actual_entry[0], self._encode_dict(attr_dict), ignore_oldexistent=1
-        )
+        ldif = modlist.modifyModlist(actual_entry[0], attr_dict, ignore_oldexistent=1)
 
         try:
             if new_rdn:
@@ -307,11 +305,3 @@ class Authenticator(BaseAuthenticator):
 
     def _get_uri(self):
         return self.uri
-
-    def _encode_dict(self, _dict):
-        return {k: self._encode_list(v) for k, v in _dict.items()}
-
-    def _encode_list(self, _list):
-        if not isinstance(_list, list):
-            _list = [_list]
-        return [s.encode("utf-8") for s in _list]

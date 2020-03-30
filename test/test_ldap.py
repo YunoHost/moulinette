@@ -271,8 +271,8 @@ class TestLDAP:
         )
 
         uid = new_user_info["uid"][0]
-        new_user_info["uidNumber"] = "555"
-        new_user_info["gidNumber"] = "555"
+        new_user_info["uidNumber"] = ["555"]
+        new_user_info["gidNumber"] = ["555"]
         new_another_user_uid = "new_another_user"
         if new_rdn:
             new_rdn = "uid=%s" % new_another_user_uid

@@ -86,19 +86,19 @@ class LDAPServer:
             ldap_interface.add(rdn, attr_dict)
 
         admin_dict = {
-            "cn": "admin",
-            "uid": "admin",
-            "description": "LDAP Administrator",
-            "gidNumber": "1007",
-            "uidNumber": "1007",
-            "homeDirectory": "/home/admin",
-            "loginShell": "/bin/bash",
+            "cn": ["admin"],
+            "uid": ["admin"],
+            "description": ["LDAP Administrator"],
+            "gidNumber": ["1007"],
+            "uidNumber": ["1007"],
+            "homeDirectory": ["/home/admin"],
+            "loginShell": ["/bin/bash"],
             "objectClass": [
                 "organizationalRole",
                 "posixAccount",
                 "simpleSecurityObject",
             ],
-            "userPassword": "yunohost",
+            "userPassword": ["yunohost"],
         }
 
         ldap_interface.update("cn=admin", admin_dict)
