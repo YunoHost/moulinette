@@ -45,5 +45,6 @@ setup(name='Moulinette',
           'pytest-mock',
           'requests',
           'requests-mock',
+          'webtest'
       ],
       )
