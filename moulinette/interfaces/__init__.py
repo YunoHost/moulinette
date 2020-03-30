@@ -55,7 +55,7 @@ class BaseActionsMapParser(object):
     # Each parser classes must implement these methods.
 
     @staticmethod
-    def format_arg_names(self, name, full):
+    def format_arg_names(name, full):
         """Format argument name
 
         Format agument name depending on its 'full' parameter and return
@@ -70,9 +70,7 @@ class BaseActionsMapParser(object):
             A list of option strings
 
         """
-        raise NotImplementedError(
-            "derived class '%s' must override this method" % self.__class__.__name__
-        )
+        raise NotImplementedError("derived class must override this method")
 
     def has_global_parser(self):
         return False
@@ -156,7 +154,8 @@ class BaseActionsMapParser(object):
 
     # Arguments helpers
 
-    def prepare_action_namespace(self, tid, namespace=None):
+    @staticmethod
+    def prepare_action_namespace(tid, namespace=None):
         """Prepare the namespace for a given action"""
         # Validate tid and namespace
         if not isinstance(tid, tuple) and (

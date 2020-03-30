@@ -1,3 +1,17 @@
+moulinette (3.7.0.2) stable; urgency=low
+
+  Bumping version number for stable release
+
+ -- Kay0u <pierre@kayou.io>  Thu, 26 Mar 2020 22:03:23 +0000
+
+moulinette (3.7.0.1) testing; urgency=low
+
+  - [fix] Slapd may crash if we try to update the LDAP with no change (moulinette#231)
+
+  Thanks to all contributors (Josue) <3 !
+
+ -- Kay0u <pierre@kayou.io>  Sun, 15 Mar 2020 16:09:25 +0000
+
 moulinette (3.7.0) testing; urgency=low
 
   # ~ Major stuff
