@@ -94,11 +94,8 @@ class Authenticator(BaseAuthenticator):
             logger.warning("Error during ldap authentication process: %s", e)
             raise
         else:
-            # If we are trying to login with SASL, we must be logged in as admin
-            if self.sasldn in self.userdn and who != self.admincn:
-                raise MoulinetteError("Not logged in with the expected userdn ?!")
-            # else if the userdn must be the same as the identity
-            elif self.sasldn not in self.userdn and who != self.userdn:
+            # FIXME: During SASL bind whoami from the test server return the admindn while userdn is returned normally :
+            if not (who == self.admindn or who == self.userdn):
                 raise MoulinetteError("Not logged in with the expected userdn ?!")
             else:
                 self.con = con
