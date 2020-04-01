@@ -4,6 +4,7 @@ from moulinette.utils.text import search, searchf, prependlines, random_ascii
 def test_search():
     assert search("a", "a a a") == ["a", "a", "a"]
     assert search("a", "a a a", count=2) == ["a", "a"]
+    assert search("a", "a a a", count=-1) == "a"
     assert not search("a", "c c d")
 
 

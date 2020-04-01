@@ -454,12 +454,14 @@ class MoulinetteLock(object):
 
     """
 
+    base_lockfile = "/var/run/moulinette_%s.lock"
+
     def __init__(self, namespace, timeout=None, interval=0.5):
         self.namespace = namespace
         self.timeout = timeout
         self.interval = interval
 
-        self._lockfile = "/var/run/moulinette_%s.lock" % namespace
+        self._lockfile = self.base_lockfile % namespace
         self._stale_checked = False
         self._locked = False
 

@@ -244,8 +244,11 @@ class BaseActionsMapParser(object):
             elif ifaces is False:
                 conf["authenticate"] = False
             elif isinstance(ifaces, list):
-                # Store only if authentication is needed
-                conf["authenticate"] = True if self.interface in ifaces else False
+                if "all" in ifaces:
+                    conf["authenticate"] = "all"
+                else:
+                    # Store only if authentication is needed
+                    conf["authenticate"] = True if self.interface in ifaces else False
             else:
                 logger.error(
                     "expecting 'all', 'False' or a list for "
@@ -255,45 +258,40 @@ class BaseActionsMapParser(object):
                 raise MoulinetteError("error_see_log")
 
         # -- 'authenticator'
-        try:
-            auth = configuration["authenticator"]
-        except KeyError:
-            pass
-        else:
-            if not is_global and isinstance(auth, str):
-                try:
-                    # Store needed authenticator profile
-                    conf["authenticator"] = self.global_conf["authenticator"][auth]
-                except KeyError:
-                    logger.error(
-                        "requesting profile '%s' which is undefined in "
-                        "global configuration of 'authenticator'",
-                        auth,
-                    )
-                    raise MoulinetteError("error_see_log")
-            elif is_global and isinstance(auth, dict):
-                if len(auth) == 0:
-                    logger.warning(
-                        "no profile defined in global configuration "
-                        "for 'authenticator'"
-                    )
-                else:
-                    auths = {}
-                    for auth_name, auth_conf in auth.items():
-                        auths[auth_name] = {
-                            "name": auth_name,
-                            "vendor": auth_conf.get("vendor"),
-                            "parameters": auth_conf.get("parameters", {}),
-                            "extra": {"help": auth_conf.get("help", None)},
-                        }
-                    conf["authenticator"] = auths
-            else:
+        auth = configuration.get("authenticator", "default")
+        if not is_global and isinstance(auth, str):
+            # Store needed authenticator profile
+            if auth not in self.global_conf["authenticator"]:
                 logger.error(
-                    "expecting a dict of profile(s) or a profile name "
-                    "for configuration 'authenticator', got %r",
+                    "requesting profile '%s' which is undefined in "
+                    "global configuration of 'authenticator'",
                     auth,
                 )
                 raise MoulinetteError("error_see_log")
+            else:
+                conf["authenticator"] = auth
+        elif is_global and isinstance(auth, dict):
+            if len(auth) == 0:
+                logger.warning(
+                    "no profile defined in global configuration " "for 'authenticator'"
+                )
+            else:
+                auths = {}
+                for auth_name, auth_conf in auth.items():
+                    auths[auth_name] = {
+                        "name": auth_name,
+                        "vendor": auth_conf.get("vendor"),
+                        "parameters": auth_conf.get("parameters", {}),
+                        "extra": {"help": auth_conf.get("help", None)},
+                    }
+                conf["authenticator"] = auths
+        else:
+            logger.error(
+                "expecting a dict of profile(s) or a profile name "
+                "for configuration 'authenticator', got %r",
+                auth,
+            )
+            raise MoulinetteError("error_see_log")
 
         return conf
 

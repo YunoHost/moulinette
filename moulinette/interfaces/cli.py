@@ -379,7 +379,16 @@ class ActionsMapParser(BaseActionsMapParser):
 
         tid = getattr(ret, "_tid", None)
         if self.get_conf(tid, "authenticate"):
-            return self.get_conf(tid, "authenticator")
+            authenticator = self.get_conf(tid, "authenticator")
+
+            # If several authenticator, use the default one
+            if isinstance(authenticator, dict):
+                if "default" in authenticator:
+                    authenticator = "default"
+                else:
+                    # TODO which one should we use?
+                    pass
+            return authenticator
         else:
             return False
 
@@ -446,6 +455,9 @@ class Interface(BaseInterface):
         # Set handler for authentication
         if password:
             msignals.set_handler("authenticate", lambda a: a(password=password))
+        else:
+            if os.isatty(1):
+                msignals.set_handler("authenticate", self._do_authenticate)
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)

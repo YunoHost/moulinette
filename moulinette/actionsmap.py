@@ -191,7 +191,7 @@ class PatternParameter(_ExtraParameter):
             v = arg_value
 
         if v and not re.match(pattern, v or "", re.UNICODE):
-            logger.debug(
+            logger.warning(
                 "argument value '%s' for '%s' doesn't match pattern '%s'",
                 v,
                 arg_name,
@@ -233,14 +233,14 @@ class RequiredParameter(_ExtraParameter):
 
     def __call__(self, required, arg_name, arg_value):
         if required and (arg_value is None or arg_value == ""):
-            logger.debug("argument '%s' is required", arg_name)
+            logger.warning("argument '%s' is required", arg_name)
             raise MoulinetteError("argument_required", argument=arg_name)
         return arg_value
 
     @staticmethod
     def validate(value, arg_name):
         if not isinstance(value, bool):
-            raise TypeError("parameter value must be a list, got %r" % value)
+            raise TypeError("parameter value must be a boolean, got %r" % value)
         return value
 
 

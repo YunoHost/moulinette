@@ -22,12 +22,12 @@ def download_text(url, timeout=30, expected_status_code=200):
     # Download file
     try:
         r = requests.get(url, timeout=timeout)
-    # Invalid URL
-    except requests.exceptions.ConnectionError:
-        raise MoulinetteError("invalid_url", url=url)
     # SSL exceptions
     except requests.exceptions.SSLError:
         raise MoulinetteError("download_ssl_error", url=url)
+    # Invalid URL
+    except requests.exceptions.ConnectionError:
+        raise MoulinetteError("invalid_url", url=url)
     # Timeout exceptions
     except requests.exceptions.Timeout:
         raise MoulinetteError("download_timeout", url=url)

@@ -48,7 +48,10 @@ class AsynchronousFileReader(Process):
                     # the buffer
                     data += os.read(self._fd, 50)
                 except Exception as e:
-                    print("from moulinette.utils.stream: could not read file descriptor : %s" % str(e))
+                    print(
+                        "from moulinette.utils.stream: could not read file descriptor : %s"
+                        % str(e)
+                    )
                     continue
 
                 # If nobody's writing in there anymore, get out

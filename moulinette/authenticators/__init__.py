@@ -32,9 +32,11 @@ class BaseAuthenticator(object):
 
     """
 
-    def __init__(self, name):
+    def __init__(self, name, vendor, parameters, extra):
         self._name = name
+        self.vendor = vendor
         self.is_authenticated = False
+        self.extra = extra
 
     @property
     def name(self):

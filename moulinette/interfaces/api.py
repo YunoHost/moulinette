@@ -256,10 +256,8 @@ class _ActionsMapPlugin(object):
                     kwargs["password"] = request.POST["password"]
                 except KeyError:
                     raise HTTPBadRequestResponse("Missing password parameter")
-                try:
-                    kwargs["profile"] = request.POST["profile"]
-                except KeyError:
-                    pass
+
+                kwargs["profile"] = request.POST.get("profile", "default")
                 return callback(**kwargs)
 
             return wrapper
@@ -351,7 +349,7 @@ class _ActionsMapPlugin(object):
 
     # Routes callbacks
 
-    def login(self, password, profile="default"):
+    def login(self, password, profile):
         """Log in to an authenticator profile
 
         Attempt to authenticate to a given authenticator profile and
@@ -406,13 +404,16 @@ class _ActionsMapPlugin(object):
 
         """
         s_id = request.get_cookie("session.id")
+        # We check that there's a (signed) session.hash available
+        # for additional security ?
+        # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
         try:
-            # We check that there's a (signed) session.hash available
-            # for additional security ?
-            # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
             s_secret = self.secrets[s_id]
-            request.get_cookie("session.tokens", secret=s_secret, default={})[profile]
         except KeyError:
+            s_secret = {}
+        if profile not in request.get_cookie(
+            "session.tokens", secret=s_secret, default={}
+        ):
             raise HTTPUnauthorizedResponse(m18n.g("not_logged_in"))
         else:
             del self.secrets[s_id]
@@ -661,23 +662,27 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
-    def auth_required(self, args, route, **kwargs):
+    def auth_required(self, args, **kwargs):
         try:
             # Retrieve the tid for the route
-            tid, _ = self._parsers[route]
-            if not self.get_conf(tid, "authenticate"):
-                return False
-            else:
-                # TODO: In the future, we could make the authentication
-                # dependent of the route being hit ...
-                # e.g. in the context of friend2friend stuff that could
-                # auth with some custom auth system to access some
-                # data with something like :
-                # return self.get_conf(tid, 'authenticator')
-                return "default"
+            tid, _ = self._parsers[kwargs.get("route")]
         except KeyError:
-            logger.error("no argument parser found for route '%s'", route)
+            logger.error("no argument parser found for route '%s'", kwargs.get("route"))
             raise MoulinetteError("error_see_log")
+
+        if self.get_conf(tid, "authenticate"):
+            authenticator = self.get_conf(tid, "authenticator")
+
+            # If several authenticator, use the default one
+            if isinstance(authenticator, dict):
+                if "default" in authenticator:
+                    authenticator = "default"
+                else:
+                    # TODO which one should we use?
+                    pass
+            return authenticator
+        else:
+            return False
 
     def parse_args(self, args, route, **kwargs):
         """Parse arguments
