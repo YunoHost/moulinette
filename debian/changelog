@@ -1,3 +1,10 @@
+yunohost (3.8.0~alpha) testing; urgency=low
+
+  Placeholder for upcoming 3.8 to avoid funky stuff with version numbers in
+  builds etc.
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 16 Mar 2020 01:00:00  +0000
+
 moulinette (3.7.0.2) stable; urgency=low
 
   Bumping version number for stable release
