@@ -1,9 +1,13 @@
 """Pytest fixtures for testing."""
 
+import toml
+import yaml
 import json
 import os
 import shutil
 import pytest
+
+from src.ldap_server import LDAPServer
 
 
 def patch_init(moulinette):
@@ -53,7 +57,7 @@ def patch_logging(moulinette):
                 "format": "%(asctime)-15s %(levelname)-8s %(name)s %(funcName)s - %(fmessage)s"  # noqa
             },
         },
-        "filters": {"action": {"()": "moulinette.utils.log.ActionFilter",},},
+        "filters": {"action": {"()": "moulinette.utils.log.ActionFilter"}},
         "handlers": {
             "api": {
                 "level": level,
@@ -66,15 +70,19 @@ def patch_logging(moulinette):
             },
         },
         "loggers": {
-            "moulinette": {"level": level, "handlers": [], "propagate": True,},
+            "moulinette": {"level": level, "handlers": [], "propagate": True},
             "moulinette.interface": {
                 "level": level,
                 "handlers": handlers,
                 "propagate": False,
             },
         },
-        "root": {"level": level, "handlers": root_handlers,},
+        "root": {"level": level, "handlers": root_handlers},
     }
+
+
+def patch_lock(moulinette):
+    moulinette.core.MoulinetteLock.base_lockfile = "moulinette_%s.lock"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -96,6 +104,7 @@ def moulinette(tmp_path_factory):
 
     patch_init(moulinette)
     patch_translate(moulinette)
+    patch_lock(moulinette)
     logging = patch_logging(moulinette)
 
     moulinette.init(logging_config=logging, _from_source=False)
@@ -126,6 +135,33 @@ def moulinette_webapi(moulinette):
 
 
 @pytest.fixture
+def moulinette_cli(moulinette, mocker):
+    # Dirty hack needed, otherwise cookies ain't reused between request .. not
+    # sure why :|
+    import argparse
+
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="Log and print debug messages",
+    )
+    mocker.patch("os.isatty", return_value=True)
+    moulinette_cli = moulinette.core.init_interface(
+        "cli",
+        actionsmap={
+            "namespaces": ["moulitest"],
+            "use_cache": False,
+            "parser_kwargs": {"top_parser": parser},
+        },
+    )
+    mocker.stopall()
+
+    return moulinette_cli
+
+
+@pytest.fixture
 def test_file(tmp_path):
     test_text = "foo\nbar\n"
     test_file = tmp_path / "test.txt"
@@ -142,6 +178,41 @@ def test_json(tmp_path):
 
 
 @pytest.fixture
+def test_yaml(tmp_path):
+    test_yaml = yaml.dump({"foo": "bar"})
+    test_file = tmp_path / "test.txt"
+    test_file.write_bytes(test_yaml)
+    return test_file
+
+
+@pytest.fixture
+def test_toml(tmp_path):
+    test_toml = toml.dumps({"foo": "bar"})
+    test_file = tmp_path / "test.txt"
+    test_file.write_bytes(str(test_toml))
+    return test_file
+
+
+@pytest.fixture
+def test_ldif(tmp_path):
+    test_file = tmp_path / "test.txt"
+    from ldif import LDIFWriter
+
+    writer = LDIFWriter(open(str(test_file), "wb"))
+
+    writer.unparse(
+        "mail=alice@example.com",
+        {
+            "cn": ["Alice Alison"],
+            "mail": ["alice@example.com"],
+            "objectclass": ["top", "person"],
+        },
+    )
+
+    return test_file
+
+
+@pytest.fixture
 def user():
     return os.getlogin()
 
@@ -149,3 +220,11 @@ def user():
 @pytest.fixture
 def test_url():
     return "https://some.test.url/yolo.txt"
+
+
+@pytest.fixture
+def ldap_server():
+    server = LDAPServer()
+    server.start()
+    yield server
+    server.stop()

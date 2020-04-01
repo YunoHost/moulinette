@@ -39,21 +39,23 @@ class Authenticator(BaseAuthenticator):
         self.basedn = parameters["base_dn"]
         self.userdn = parameters["user_rdn"]
         self.extra = extra
+        self.sasldn = "cn=external,cn=auth"
+        self.adminuser = "admin"
+        self.admindn = "cn=%s,dc=yunohost,dc=org" % self.adminuser
         logger.debug(
             "initialize authenticator '%s' with: uri='%s', "
             "base_dn='%s', user_rdn='%s'",
             name,
-            self.uri,
+            self._get_uri(),
             self.basedn,
             self.userdn,
         )
-        super(Authenticator, self).__init__(name)
+        super(Authenticator, self).__init__(name, vendor, parameters, extra)
 
-        if self.userdn:
-            if "cn=external,cn=auth" in self.userdn:
-                self.authenticate(None)
-            else:
-                self.con = None
+        if self.userdn and self.sasldn in self.userdn:
+            self.authenticate(None)
+        else:
+            self.con = None
 
     def __del__(self):
         """Disconnect and free ressources"""
@@ -66,13 +68,13 @@ class Authenticator(BaseAuthenticator):
 
     # Implement virtual methods
 
-    def authenticate(self, password):
+    def authenticate(self, password=None):
         try:
             con = ldap.ldapobject.ReconnectLDAPObject(
-                self.uri, retry_max=10, retry_delay=0.5
+                self._get_uri(), retry_max=10, retry_delay=0.5
             )
             if self.userdn:
-                if "cn=external,cn=auth" in self.userdn:
+                if self.sasldn in self.userdn:
                     con.sasl_non_interactive_bind_s("EXTERNAL")
                 else:
                     con.simple_bind_s(self.userdn, password)
@@ -86,12 +88,14 @@ class Authenticator(BaseAuthenticator):
 
         # Check that we are indeed logged in with the right identity
         try:
-            who = con.whoami_s()
+            # whoami_s return dn:..., then delete these 3 characters
+            who = con.whoami_s()[3:]
         except Exception as e:
             logger.warning("Error during ldap authentication process: %s", e)
             raise
         else:
-            if who[3:] != self.userdn:
+            # FIXME: During SASL bind whoami from the test server return the admindn while userdn is returned normally :
+            if not (who == self.admindn or who == self.userdn):
                 raise MoulinetteError("Not logged in with the expected userdn ?!")
             else:
                 self.con = con
@@ -107,9 +111,7 @@ class Authenticator(BaseAuthenticator):
             salt = "$6$" + salt + "$"
             return "{CRYPT}" + crypt.crypt(str(password), salt)
 
-        hashed_password = self.search(
-            "cn=admin,dc=yunohost,dc=org", attrs=["userPassword"]
-        )[0]
+        hashed_password = self.search(self.admindn, attrs=["userPassword"])[0]
 
         # post-install situation, password is not already set
         if "userPassword" not in hashed_password or not hashed_password["userPassword"]:
@@ -117,7 +119,10 @@ class Authenticator(BaseAuthenticator):
 
         # we aren't using sha-512 but something else that is weaker, proceed to upgrade
         if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
-            self.update("cn=admin", {"userPassword": _hash_user_password(password),})
+            self.update(
+                "cn=%s" % self.adminuser,
+                {"userPassword": [_hash_user_password(password)]},
+            )
 
     # Additional LDAP methods
     # TODO: Review these methods
@@ -151,7 +156,7 @@ class Authenticator(BaseAuthenticator):
                 attrs,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="search")
 
         result_list = []
         if not attrs or "dn" not in attrs:
@@ -187,7 +192,7 @@ class Authenticator(BaseAuthenticator):
                 attr_dict,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="add")
         else:
             return True
 
@@ -211,7 +216,7 @@ class Authenticator(BaseAuthenticator):
                 rdn,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="remove")
         else:
             return True
 
@@ -232,10 +237,15 @@ class Authenticator(BaseAuthenticator):
         actual_entry = self.search(base=dn, attrs=None)
         ldif = modlist.modifyModlist(actual_entry[0], attr_dict, ignore_oldexistent=1)
 
+        if ldif == []:
+            logger.warning("Nothing to update in LDAP")
+            return True
+
         try:
             if new_rdn:
                 self.con.rename_s(dn, new_rdn)
-                dn = new_rdn + "," + self.basedn
+                new_base = dn.split(",", 1)[1]
+                dn = new_rdn + "," + new_base
 
             self.con.modify_ext_s(dn, ldif)
         except Exception as e:
@@ -247,7 +257,7 @@ class Authenticator(BaseAuthenticator):
                 new_rdn,
                 e,
             )
-            raise MoulinetteError("ldap_operation_error")
+            raise MoulinetteError("ldap_operation_error", action="update")
         else:
             return True
 
@@ -284,7 +294,7 @@ class Authenticator(BaseAuthenticator):
             value_dict -- Dictionnary of attributes/values to check
 
         Returns:
-            None | list with Fist conflict attribute name and value
+            None | tuple with Fist conflict attribute name and value
 
         """
         for attr, value in value_dict.items():
@@ -293,3 +303,6 @@ class Authenticator(BaseAuthenticator):
             else:
                 return (attr, value)
         return None
+
+    def _get_uri(self):
+        return self.uri

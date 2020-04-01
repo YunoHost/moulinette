@@ -16,7 +16,7 @@
     "file_not_exist": "Lo fichièr « {path} » existís pas",
     "folder_exists": "Lo repertòri existís ja : « {path} »",
     "folder_not_exist": "Lo repertòri existís pas",
-    "instance_already_running": "Una instància es ja en execucion",
+    "instance_already_running": "I a ja una operacion de YunoHost en cors. Mercés d’esperar que s’acabe abans de ne lançar una mai.",
     "invalid_argument": "Argument « {argument} » incorrècte : {error}",
     "invalid_password": "Senhal incorrècte",
     "ldap_server_down": "Impossible d’aténher lo servidor LDAP",
@@ -55,5 +55,6 @@
     "corrupted_toml": "Fichièr TOML corromput en lectura de {ressource:s} estant (rason : {error:s})",
     "warn_the_user_about_waiting_lock": "Una autra comanda YunoHost es en execucion, sèm a esperar qu’acabe abans d’aviar aquesta d’aquí",
     "warn_the_user_about_waiting_lock_again": "Encara en espèra…",
-    "warn_the_user_that_lock_is_acquired": "l’autra comanda ven d’acabar, lançament d’aquesta comanda"
+    "warn_the_user_that_lock_is_acquired": "l’autra comanda ven d’acabar, ara lançament d’aquesta comanda",
+    "invalid_token": "Geton invalid - volgatz vos autentificar"
 }

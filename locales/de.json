@@ -19,7 +19,7 @@
     "ldap_operation_error": "Ein Fehler trat während der LDAP Abfrage auf",
     "ldap_server_down": "LDAP-Server nicht erreichbar",
     "logged_in": "Angemeldet",
-    "logged_out": "Ausgeloggt",
+    "logged_out": "Abgemeldet",
     "not_logged_in": "Du bist nicht angemeldet",
     "operation_interrupted": "Vorgang unterbrochen",
     "password": "Passwort",

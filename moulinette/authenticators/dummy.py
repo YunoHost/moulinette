@@ -18,11 +18,12 @@ class Authenticator(BaseAuthenticator):
 
     def __init__(self, name, vendor, parameters, extra):
         logger.debug("initialize authenticator dummy")
-        super(Authenticator, self).__init__(name)
 
-    def authenticate(self, password):
+        super(Authenticator, self).__init__(name, vendor, parameters, extra)
 
-        if not password == "Yoloswag":
-            raise MoulinetteError("Invalid password!")
+    def authenticate(self, password=None):
+
+        if not password == self.name:
+            raise MoulinetteError("invalid_password")
 
         return self

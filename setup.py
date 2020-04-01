@@ -34,6 +34,9 @@ setup(name='Moulinette',
           'pytz',
           'pyyaml',
           'toml',
+          'python-ldap',
+          'gevent-websocket',
+          'bottle',
       ],
       tests_require=[
           'pytest',
@@ -42,5 +45,6 @@ setup(name='Moulinette',
           'pytest-mock',
           'requests',
           'requests-mock',
+          'webtest'
       ],
       )

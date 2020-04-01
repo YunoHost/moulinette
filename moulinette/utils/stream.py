@@ -43,9 +43,16 @@ class AsynchronousFileReader(Process):
         else:
             data = ""
             while True:
-                # Try to read (non-blockingly) a few bytes, append them to
-                # the buffer
-                data += os.read(self._fd, 50)
+                try:
+                    # Try to read (non-blockingly) a few bytes, append them to
+                    # the buffer
+                    data += os.read(self._fd, 50)
+                except Exception as e:
+                    print(
+                        "from moulinette.utils.stream: could not read file descriptor : %s"
+                        % str(e)
+                    )
+                    continue
 
                 # If nobody's writing in there anymore, get out
                 if not data and os.fstat(self._fd).st_nlink == 0:

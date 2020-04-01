@@ -1,5 +1,11 @@
 language: python
 
+addons:
+  apt:
+    packages:
+      - ldap-utils
+      - slapd
+
 matrix:
   include:
     - python: 3.5

@@ -33,6 +33,7 @@ __all__ = [
     "api",
     "cli",
     "m18n",
+    "msignals",
     "env",
     "init_interface",
     "MoulinetteError",

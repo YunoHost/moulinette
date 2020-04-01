@@ -1,0 +1,2 @@
+I have adapted the code from https://github.com/python-ldap/python-ldap/tree/master/Lib/slapdtest since the version of python-ldap we use does not provide the import slapdtest.
+This part will must be removed once we switch to python3
