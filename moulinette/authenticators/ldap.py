@@ -41,7 +41,7 @@ class Authenticator(BaseAuthenticator):
         self.extra = extra
         self.sasldn = "cn=external,cn=auth"
         self.adminuser = "admin"
-        self.admincn = "cn=%s,dc=yunohost,dc=org" % self.adminuser
+        self.admindn = "cn=%s,dc=yunohost,dc=org" % self.adminuser
         logger.debug(
             "initialize authenticator '%s' with: uri='%s', "
             "base_dn='%s', user_rdn='%s'",
@@ -111,7 +111,7 @@ class Authenticator(BaseAuthenticator):
             salt = "$6$" + salt + "$"
             return "{CRYPT}" + crypt.crypt(str(password), salt)
 
-        hashed_password = self.search(self.admincn, attrs=["userPassword"])[0]
+        hashed_password = self.search(self.admindn, attrs=["userPassword"])[0]
 
         # post-install situation, password is not already set
         if "userPassword" not in hashed_password or not hashed_password["userPassword"]:
