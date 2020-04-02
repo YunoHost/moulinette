@@ -1,7 +1,6 @@
 import logging
 from json.encoder import JSONEncoder
 import datetime
-import pytz
 
 logger = logging.getLogger('moulinette.utils.serialize')
 
@@ -22,6 +21,9 @@ class JSONExtendedEncoder(JSONEncoder):
     """
 
     def default(self, o):
+
+        import pytz  # Lazy loading, this takes like 3+ sec on a RPi2 ?!
+
         """Return a serializable object"""
         # Convert compatible containers into list
         if isinstance(o, set) or (
