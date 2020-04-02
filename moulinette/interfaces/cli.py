@@ -7,7 +7,6 @@ import locale
 import logging
 from argparse import SUPPRESS
 from collections import OrderedDict
-import pytz
 from datetime import date, datetime
 
 import argcomplete
@@ -103,6 +102,8 @@ def pretty_date(_date):
     Argument:
         - date -- The date or datetime to display
     """
+    import pytz  # Lazy loading, this takes like 3+ sec on a RPi2 ?!
+
     # Deduce system timezone
     nowutc = datetime.now(tz=pytz.utc)
     nowtz = datetime.now()
