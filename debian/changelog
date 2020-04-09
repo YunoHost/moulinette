@@ -1,15 +1,30 @@
-yunohost (3.8.0~alpha) testing; urgency=low
+moulinette (3.8.0) testing; urgency=low
 
-  Placeholder for upcoming 3.8 to avoid funky stuff with version numbers in
-  builds etc.
+  # Major stuff
 
- -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 16 Mar 2020 01:00:00  +0000
+  - Simplify auth mechanism (#216)
+  - Add more tests (#230)
+  - Use Black in Moulinette (#220, 6f5daa0, 54b8cab)
+
+  # Minor technical stuff
+
+  - [fix] Don't display comment if argument is already set (#226)
+  - Don't miserably crash if async running can't read incoming message (06d8c48)
+  - Report the actual error when ldap fails (628ffc9)
+
+  # i18n
+
+  - Improve translations for Swedish, Dutch, Italian, Russian, Polish, Portuguese, Catalan, Spanish, Occitan, Nepali, Esperanto, Basque, Chinese (Simplified), Arabic, German, Hungarian, Greek, Turkish, Bengali (Bangladesh)
+
+  Thanks to all contributors ! (Aleks, Bram, ButterflyOfFire, Filip B., Jeroen F., Josué T., Kay0u, Quentí, Yifei D., amirale qt, decentral1se, Elie G., frju365, Romain R., xaloc33)
+
+ -- Kay0u <pierre@kayou.io>  Thu, 09 Apr 2020 20:29:48 +0000
 
 moulinette (3.7.1) stable; urgency=low
 
   - [enh] Lazy loading pytz for performances
 
- -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 9 April 2020 14:55:00  +0000
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 9 Apr 2020 14:55:00  +0000
 
 moulinette (3.7.0.2) stable; urgency=low
 
