@@ -208,9 +208,10 @@ class TestLDAP:
         with pytest.raises(MoulinetteError) as exception:
             self.add_new_user(ldap_interface)
 
-        translation = m18n.g("ldap_operation_error", action="add")
-        expected_msg = translation.format(action="add")
-        assert expected_msg in str(exception)
+        expected_message = "error during LDAP add operation with: rdn="
+        expected_error = "modifications require authentication"
+        assert expected_error in str(exception)
+        assert expected_message in str(exception)
 
     def remove_new_user(self, ldap_interface):
         new_user_info = self.add_new_user(
@@ -229,9 +230,10 @@ class TestLDAP:
                 "uid=%s,ou=users,dc=yunohost,dc=org" % uid, attrs=None
             )
 
-        translation = m18n.g("ldap_operation_error", action="search")
-        expected_msg = translation.format(action="search")
-        assert expected_msg in str(exception)
+        expected_message = "error during LDAP search operation with: base="
+        expected_error = "No such object"
+        assert expected_error in str(exception)
+        assert expected_message in str(exception)
 
     def test_admin_remove(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
@@ -257,9 +259,10 @@ class TestLDAP:
         with pytest.raises(MoulinetteError) as exception:
             self.remove_new_user(ldap_interface)
 
-        translation = m18n.g("ldap_operation_error", action="remove")
-        expected_msg = translation.format(action="remove")
-        assert expected_msg in str(exception)
+        expected_message = "error during LDAP delete operation with: rdn="
+        expected_error = "modifications require authentication"
+        assert expected_error in str(exception)
+        assert expected_message in str(exception)
 
     def update_new_user(self, ldap_interface, new_rdn=False):
         new_user_info = self.add_new_user(
@@ -336,9 +339,10 @@ class TestLDAP:
         with pytest.raises(MoulinetteError) as exception:
             self.update_new_user(ldap_interface)
 
-        translation = m18n.g("ldap_operation_error", action="update")
-        expected_msg = translation.format(action="update")
-        assert expected_msg in str(exception)
+        expected_message = "error during LDAP update operation with: rdn="
+        expected_error = "modifications require authentication"
+        assert expected_error in str(exception)
+        assert expected_message in str(exception)
 
     def test_anonymous_update_new_rdn(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
@@ -347,9 +351,10 @@ class TestLDAP:
         with pytest.raises(MoulinetteError) as exception:
             self.update_new_user(ldap_interface, True)
 
-        translation = m18n.g("ldap_operation_error", action="update")
-        expected_msg = translation.format(action="update")
-        assert expected_msg in str(exception)
+        expected_message = "error during LDAP update operation with: rdn="
+        expected_error = "modifications require authentication"
+        assert expected_error in str(exception)
+        assert expected_message in str(exception)
 
     def test_empty_update(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri

@@ -16,7 +16,6 @@
     "invalid_password": "Passwort falsch",
     "invalid_usage": "Falscher Aufruf, verwende --help für den Hilfstext",
     "ldap_attribute_already_exists": "Attribute existieren bereits: '{attribute}={value}'",
-    "ldap_operation_error": "Ein Fehler trat während der LDAP Abfrage auf",
     "ldap_server_down": "LDAP-Server nicht erreichbar",
     "logged_in": "Angemeldet",
     "logged_out": "Abgemeldet",

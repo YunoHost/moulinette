@@ -31,7 +31,6 @@
     "warning": "Atencion :",
     "invalid_usage": "Usatge invalid, utilizatz --help per accedir a l’ajuda",
     "ldap_attribute_already_exists": "L’atribut  « {attribute} » existís ja amb la valor : {value}",
-    "ldap_operation_error": "Una error s’es producha pendent l’operacion LDAP",
     "operation_interrupted": "Operacion interrompuda",
     "server_already_running": "Un servidor es ja en execucion sus aqueste pòrt",
     "success": "Capitada !",

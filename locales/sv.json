@@ -49,7 +49,6 @@
     "unable_retrieve_session": "Det gick inte att hämta sessionen eftersom '{exception}'",
     "unable_authenticate": "Det går inte att verifiera",
     "ldap_server_down": "Det går inte att nå LDAP-servern",
-    "ldap_operation_error": "Ett fel inträffade under LDAP-drift",
     "invalid_usage": "Ogiltig användning, pass --help för att se hjälp",
     "invalid_token": "Ogiltigt token - verifiera",
     "instance_already_running": "Det finns redan en YunoHost-operation. Vänta tills den är klar innan du kör en annan.",

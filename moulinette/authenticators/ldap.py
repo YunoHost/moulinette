@@ -150,9 +150,8 @@ class Authenticator(BaseAuthenticator):
         except Exception as e:
             raise MoulinetteError(
                 "error during LDAP search operation with: base='%s', "
-                "filter='%s', attrs=%s and exception %s"
-                % (base, filter, attrs, e),
-                raw_msg=True
+                "filter='%s', attrs=%s and exception %s" % (base, filter, attrs, e),
+                raw_msg=True,
             )
 
         result_list = []
@@ -184,9 +183,8 @@ class Authenticator(BaseAuthenticator):
         except Exception as e:
             raise MoulinetteError(
                 "error during LDAP add operation with: rdn='%s', "
-                "attr_dict=%s and exception %s"
-                % (rdn, attr_dict, e),
-                raw_msg=True
+                "attr_dict=%s and exception %s" % (rdn, attr_dict, e),
+                raw_msg=True,
             )
         else:
             return True
@@ -209,7 +207,7 @@ class Authenticator(BaseAuthenticator):
             raise MoulinetteError(
                 "error during LDAP delete operation with: rdn='%s' and exception %s"
                 % (rdn, e),
-                raw_msg=True
+                raw_msg=True,
             )
         else:
             return True
@@ -247,7 +245,7 @@ class Authenticator(BaseAuthenticator):
                 "error during LDAP update operation with: rdn='%s', "
                 "attr_dict=%s, new_rdn=%s and exception: %s"
                 % (rdn, attr_dict, new_rdn, e),
-                raw_msg=True
+                raw_msg=True,
             )
         else:
             return True
