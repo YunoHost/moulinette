@@ -1,3 +1,9 @@
+moulinette (3.7.1) stable; urgency=low
+
+  - [enh] Lazy loading pytz for performances
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 9 April 2020 14:55:00  +0000
+
 moulinette (3.7.0.2) stable; urgency=low
 
   Bumping version number for stable release
