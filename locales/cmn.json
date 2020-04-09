@@ -19,7 +19,6 @@
     "invalid_password": "密码错误",
     "invalid_usage": "用法错误，输入 --help 查看帮助信息",
     "ldap_attribute_already_exists": "参数{attribute}已赋值{value}",
-    "ldap_operation_error": "LDAP操作时发生了错误",
     "ldap_server_down": "无法连接LDAP服务器",
     "logged_in": "登录成功",
     "logged_out": "登出",

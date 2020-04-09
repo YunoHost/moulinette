@@ -20,7 +20,6 @@
     "invalid_password": "Password non valida",
     "invalid_usage": "Utilizzo non valido, usa --help per vedere l'aiuto",
     "ldap_attribute_already_exists": "L'attributo '{attribute}' esiste già con valore '{value}'",
-    "ldap_operation_error": "Si è verificato un errore durante l'operazione LDAP",
     "ldap_server_down": "Impossibile raggiungere il server LDAP",
     "logged_in": "Connesso",
     "not_logged_in": "Non hai effettuato l'accesso",

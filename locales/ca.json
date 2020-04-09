@@ -18,7 +18,6 @@
     "invalid_password": "Contrasenya invàlida",
     "invalid_usage": "Utilització invàlida, utilitzeu --help per veure l'ajuda",
     "ldap_attribute_already_exists": "L'atribut '{attribute}' ja existeix amb el valor '{value}'",
-    "ldap_operation_error": "Hi ha hagut un error durant l'operació de LDAP",
     "ldap_server_down": "No s'ha pogut connectar amb el servidor LDAP",
     "logged_in": "Sessió iniciada",
     "logged_out": "Sessió tancada",

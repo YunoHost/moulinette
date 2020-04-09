@@ -16,7 +16,6 @@
     "invalid_password": "Ongeldig wachtwoord",
     "invalid_usage": "Ongeldig gebruik, doe --help om de hulptekst te lezen",
     "ldap_attribute_already_exists": "Attribuut '{attribute}' bestaat al met waarde '{value}'",
-    "ldap_operation_error": "Er is een fout opgetreden bij het uitvoeren van LDAP operatie",
     "ldap_server_down": "Kan LDAP server niet bereiken",
     "logged_in": "Ingelogd",
     "logged_out": "Uitgelogd",

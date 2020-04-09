@@ -34,7 +34,6 @@
     "not_logged_in": "Vi ne estas ensalutinta",
     "logged_in": "Ensalutinta",
     "ldap_server_down": "Ne eblas atingi la servilon LDAP",
-    "ldap_operation_error": "Eraro okazis dum LDAP-operacio",
     "ldap_attribute_already_exists": "Atributo '{attribute}' jam ekzistas kun valoro '{value}'",
     "invalid_usage": "Nevalida uzado, preterpase '--help' por vidi helpon",
     "invalid_password": "Nevalida pasvorto",
