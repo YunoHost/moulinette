@@ -5,6 +5,12 @@ yunohost (3.8.0~alpha) testing; urgency=low
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 16 Mar 2020 01:00:00  +0000
 
+moulinette (3.7.1) stable; urgency=low
+
+  - [enh] Lazy loading pytz for performances
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 9 April 2020 14:55:00  +0000
+
 moulinette (3.7.0.2) stable; urgency=low
 
   Bumping version number for stable release
