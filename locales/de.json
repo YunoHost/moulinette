@@ -38,7 +38,7 @@
     "unknown_user": "Benutzer '{user}' ist unbekannt",
     "info": "Info:",
     "invalid_token": "Ungültiger Token - bitte authentifizieren",
-    "corrupted_json": "Beschädigtes JSON gelesen von  {ressource:s} (reason: {error:s})",
+    "corrupted_json": "Beschädigtes JSON gelesen von {ressource:s} (reason: {error:s})",
     "unknown_error_reading_file": "Unbekannter Fehler beim Lesen der Datei {file:s} (reason: {error:s})",
     "cannot_write_file": "Kann Datei {file:s} nicht schreiben (reason: {error:s})",
     "cannot_open_file": "Kann Datei {file:s} nicht öffnen (reason: {error:s})"
