@@ -36,5 +36,6 @@
     "deprecated_command_alias": "'{prog} {old}' ist veraltet und wird bald entfernt werden, benutze '{prog} {new}' stattdessen",
     "unknown_group": "Gruppe '{group}' ist unbekannt",
     "unknown_user": "Benutzer '{user}' ist unbekannt",
-    "info": "Info:"
+    "info": "Info:",
+    "invalid_token": "Ungültiger Token - bitte authentifizieren"
 }
