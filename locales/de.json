@@ -52,5 +52,8 @@
     "download_timeout": "{url:s} brauchte zu lange zum Antworten, hab aufgegeben.",
     "download_ssl_error": "SSL Fehler beim Verbinden zu {url:s}",
     "invalid_url": "Ungültige URL {url:s} (existiert diese Seite?)",
-    "error_changing_file_permissions": "Fehler beim Ändern der Berechtigungen für {path:s}: {error:s}"
+    "error_changing_file_permissions": "Fehler beim Ändern der Berechtigungen für {path:s}: {error:s}",
+    "error_removing": "Fehler beim Entfernen {path:s}: {error:s}",
+    "error_writing_file": "Fehler beim Schreiben von Datei {file:s}: {error:s}",
+    "corrupted_toml": "Beschädigtes TOML gelesen von {ressource:s} (reason: {error:s})"
 }
