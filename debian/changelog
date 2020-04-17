@@ -1,8 +1,15 @@
+moulinette (3.7.1.1) stable; urgency=low
+
+  - [fix] Report actual errors when some LDAP operation fails to ease
+  debugging
+ 
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 17 Apr 2020 17:00:00  +0000
+
 moulinette (3.7.1) stable; urgency=low
 
   - [enh] Lazy loading pytz for performances
 
- -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 9 April 2020 14:55:00  +0000
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 9 Apr 2020 14:55:00  +0000
 
 moulinette (3.7.0.2) stable; urgency=low
 
