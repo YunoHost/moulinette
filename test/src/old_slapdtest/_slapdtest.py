@@ -21,7 +21,7 @@ import unittest
 os.environ["LDAPNOINIT"] = "1"
 
 import ldap
-from urllib import quote_plus
+from urllib.parse import quote_plus
 
 try:
     from shutil import which

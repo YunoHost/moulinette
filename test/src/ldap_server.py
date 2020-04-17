@@ -1,7 +1,7 @@
 try:
-    import slapdtest
+    from . import slapdtest
 except ImportError:
-    import old_slapdtest as slapdtest
+    from . import old_slapdtest as slapdtest
 import os
 from moulinette.authenticators import ldap as m_ldap
 

@@ -7,7 +7,7 @@ import os
 import shutil
 import pytest
 
-from src.ldap_server import LDAPServer
+from .src.ldap_server import LDAPServer
 
 
 def patch_init(moulinette):
