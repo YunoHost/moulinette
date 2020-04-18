@@ -121,16 +121,16 @@ def test_read_ldif(test_ldif):
     dn, entry = read_ldif(str(test_ldif))[0]
 
     assert dn == "mail=alice@example.com"
-    assert entry["mail"] == ["alice@example.com"]
-    assert entry["objectclass"] == ["top", "person"]
-    assert entry["cn"] == ["Alice Alison"]
+    assert entry["mail"] == [b"alice@example.com"]
+    assert entry["objectclass"] == [b"top", b"person"]
+    assert entry["cn"] == [b"Alice Alison"]
 
     dn, entry = read_ldif(str(test_ldif), ["objectclass"])[0]
 
     assert dn == "mail=alice@example.com"
-    assert entry["mail"] == ["alice@example.com"]
+    assert entry["mail"] == [b"alice@example.com"]
     assert "objectclass" not in entry
-    assert entry["cn"] == ["Alice Alison"]
+    assert entry["cn"] == [b"Alice Alison"]
 
 
 def test_read_ldif_cannot_ioerror(test_ldif, mocker):
@@ -465,10 +465,9 @@ def test_chown_exception(test_file, mocker):
         chown(str(test_file), 1)
 
     translation = m18n.g(
-        "error_changing_file_permissions", path=test_file, error=str(error)
+        "error_changing_file_permissions", path=str(test_file), error=str(error)
     )
-    expected_msg = translation.format(path=test_file, error=str(error))
-    assert expected_msg in str(exception)
+    assert translation in str(exception)
 
 
 def test_chmod(test_file):
@@ -504,10 +503,9 @@ def test_chmod_exception(test_file, mocker):
         chmod(str(test_file), 0o000)
 
     translation = m18n.g(
-        "error_changing_file_permissions", path=test_file, error=str(error)
+        "error_changing_file_permissions", path=str(test_file), error=str(error)
     )
-    expected_msg = translation.format(path=test_file, error=str(error))
-    assert expected_msg in str(exception)
+    assert translation in str(exception)
 
 
 def test_remove_file(test_file):

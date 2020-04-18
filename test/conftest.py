@@ -179,7 +179,7 @@ def test_json(tmp_path):
 
 @pytest.fixture
 def test_yaml(tmp_path):
-    test_yaml = yaml.dump({"foo": "bar"})
+    test_yaml = yaml.dump({"foo": "bar"}, encoding='utf-8')
     test_file = tmp_path / "test.txt"
     test_file.write_bytes(test_yaml)
     return test_file
@@ -189,7 +189,7 @@ def test_yaml(tmp_path):
 def test_toml(tmp_path):
     test_toml = toml.dumps({"foo": "bar"})
     test_file = tmp_path / "test.txt"
-    test_file.write_bytes(str(test_toml))
+    test_file.write_bytes(test_toml.encode('utf-8'))
     return test_file
 
 
@@ -198,14 +198,14 @@ def test_ldif(tmp_path):
     test_file = tmp_path / "test.txt"
     from ldif import LDIFWriter
 
-    writer = LDIFWriter(open(str(test_file), "wb"))
+    writer = LDIFWriter(open(str(test_file), "w"))
 
     writer.unparse(
         "mail=alice@example.com",
         {
-            "cn": ["Alice Alison"],
-            "mail": ["alice@example.com"],
-            "objectclass": ["top", "person"],
+            "cn": [b"Alice Alison"],
+            "mail": [b"alice@example.com"],
+            "objectclass": [b"top", b"person"],
         },
     )
 
