@@ -23,7 +23,7 @@ def test_run_shell_bad_cmd_with_callback():
     def callback(a, b, c):
         assert isinstance(a, int)
         assert isinstance(b, str)
-        assert isinstance(c, str)
+        assert isinstance(c, bytes)
         return True
 
     assert run_commands(["yolo swag", "yolo swag", "yolo swag"], callback=callback) == 3
@@ -31,7 +31,7 @@ def test_run_shell_bad_cmd_with_callback():
     def callback(a, b, c):
         assert isinstance(a, int)
         assert isinstance(b, str)
-        assert isinstance(c, str)
+        assert isinstance(c, bytes)
         return False
 
     assert run_commands(["yolo swag", "yolo swag"], callback=callback) == 1
@@ -66,7 +66,7 @@ def test_run_shell_kwargs():
 
 def test_call_async_output(test_file):
     def callback(a):
-        assert a == "foo\n" or a == "bar\n"
+        assert a == b"foo\n" or a == b"bar\n"
 
     call_async_output(["cat", str(test_file)], callback)
 
@@ -74,7 +74,7 @@ def test_call_async_output(test_file):
         call_async_output(["cat", str(test_file)], 1)
 
     def callbackA(a):
-        assert a == "foo\n" or a == "bar\n"
+        assert a == b"foo\n" or a == b"bar\n"
 
     def callbackB(a):
         pass
@@ -85,7 +85,7 @@ def test_call_async_output(test_file):
 
 def test_call_async_output_kwargs(test_file, mocker):
     def callback(a):
-        assert a == "foo\n" or a == "bar\n"
+        assert a == b"foo\n" or a == b"bar\n"
 
     with pytest.raises(ValueError):
         call_async_output(["cat", str(test_file)], callback, stdout=None)
@@ -95,7 +95,7 @@ def test_call_async_output_kwargs(test_file, mocker):
     call_async_output(["cat", str(test_file)], callback, stdinfo=None)
 
     def callbackA(a):
-        assert a == "foo\n" or a == "bar\n"
+        assert a == b"foo\n" or a == b"bar\n"
 
     def callbackB(a):
         pass
@@ -115,6 +115,6 @@ def test_call_async_output_kwargs(test_file, mocker):
 
 
 def test_check_output(test_file):
-    assert check_output(["cat", str(test_file)], shell=False) == "foo\nbar\n"
+    assert check_output(["cat", str(test_file)], shell=False) == b"foo\nbar\n"
 
-    assert check_output("cat %s" % str(test_file)) == "foo\nbar\n"
+    assert check_output("cat %s" % str(test_file)) == b"foo\nbar\n"
