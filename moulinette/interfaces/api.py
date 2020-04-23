@@ -327,11 +327,10 @@ class _ActionsMapPlugin(object):
             # Append other request params
             for k, v in request.params.dict.items():
                 v = _format(v)
-                try:
-                    curr_v = params[k]
-                except KeyError:
+                if k not in params.keys():
                     params[k] = v
                 else:
+                    curr_v = params[k]
                     # Append param value to the list
                     if not isinstance(curr_v, list):
                         curr_v = [curr_v]
