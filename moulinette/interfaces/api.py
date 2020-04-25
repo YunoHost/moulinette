@@ -369,7 +369,7 @@ class _ActionsMapPlugin(object):
             # Previous line throws a CookieError that creates a 500 error ...
             # So let's catch it and just use a fresh ID then...
             s_id = random_ascii()
-            
+
         try:
             s_secret = self.secrets[s_id]
         except KeyError:
