@@ -73,7 +73,7 @@ def init(logging_config=None, **kwargs):
 
 # Easy access to interfaces
 def api(
-    namespaces, host="localhost", port=80, routes={}, use_websocket=True, use_cache=True
+    namespaces, host="localhost", port=80, routes={}, use_cache=True
 ):
     """Web server (API) interface
 
@@ -85,7 +85,6 @@ def api(
         - port -- Server port to bind to
         - routes -- A dict of additional routes to add in the form of
             {(method, uri): callback}
-        - use_websocket -- Serve via WSGI to handle asynchronous responses
         - use_cache -- False if it should parse the actions map file
             instead of using the cached one
 
@@ -97,8 +96,7 @@ def api(
                                 namespaces=namespaces,
                                 use_cache=use_cache)
         interface = Interface(actionsmap=actionsmap,
-                              routes=routes,
-                              use_websocket=use_websocket)
+                              routes=routes)
         interface.run(host, port)
     except MoulinetteError as e:
         import logging

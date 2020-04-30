@@ -125,7 +125,7 @@ def moulinette_webapi(moulinette):
 
     CookiePolicy.return_ok_secure = return_true
 
-    moulinette_webapi = moulinette.core.init_interface(
+    moulinette_webapi = moulinette.init_interface(
         "api",
         kwargs={"routes": {}, "use_websocket": False},
         actionsmap={"namespaces": ["moulitest"], "use_cache": True},
@@ -148,7 +148,7 @@ def moulinette_cli(moulinette, mocker):
         help="Log and print debug messages",
     )
     mocker.patch("os.isatty", return_value=True)
-    moulinette_cli = moulinette.core.init_interface(
+    moulinette_cli = moulinette.init_interface(
         "cli",
         actionsmap={
             "namespaces": ["moulitest"],
