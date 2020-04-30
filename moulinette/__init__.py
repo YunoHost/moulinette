@@ -111,7 +111,6 @@ def cli(
     namespaces,
     args,
     output_as=None,
-    password=None,
     timeout=None,
     parser_kwargs={},
 ):
@@ -125,7 +124,6 @@ def cli(
         - args -- A list of argument strings
         - output_as -- Output result in another format, see
             moulinette.interfaces.cli.Interface for possible values
-        - password -- The password to use in case of authentication
         - parser_kwargs -- A dict of arguments to pass to the parser
             class at construction
 
@@ -137,7 +135,7 @@ def cli(
                                 namespaces=namespaces,
                                 parser_kwargs=parser_kwargs)
         interface = Interface(actionsmap=actionsmap)
-        interface.run(args, output_as=output_as, password=password, timeout=timeout)
+        interface.run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging
 
