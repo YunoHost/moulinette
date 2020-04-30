@@ -73,7 +73,7 @@ def init(logging_config=None, **kwargs):
 
 # Easy access to interfaces
 def api(
-    namespaces, host="localhost", port=80, routes={}, use_cache=True
+    namespaces, host="localhost", port=80, routes={}
 ):
     """Web server (API) interface
 
@@ -85,16 +85,13 @@ def api(
         - port -- Server port to bind to
         - routes -- A dict of additional routes to add in the form of
             {(method, uri): callback}
-        - use_cache -- False if it should parse the actions map file
-            instead of using the cached one
 
     """
     from moulinette.actionsmap import ActionsMap
     from moulinette.interfaces.api import Interface, ActionsMapParser
     try:
         actionsmap = ActionsMap(ActionsMapParser,
-                                namespaces=namespaces,
-                                use_cache=use_cache)
+                                namespaces=namespaces)
         interface = Interface(actionsmap=actionsmap,
                               routes=routes)
         interface.run(host, port)
@@ -113,7 +110,6 @@ def api(
 def cli(
     namespaces,
     args,
-    use_cache=True,
     output_as=None,
     password=None,
     timeout=None,
@@ -127,8 +123,6 @@ def cli(
     Keyword arguments:
         - namespaces -- The list of namespaces to use
         - args -- A list of argument strings
-        - use_cache -- False if it should parse the actions map file
-            instead of using the cached one
         - output_as -- Output result in another format, see
             moulinette.interfaces.cli.Interface for possible values
         - password -- The password to use in case of authentication
@@ -141,7 +135,6 @@ def cli(
     try:
         actionsmap = ActionsMap(ActionsMapParser,
                                 namespaces=namespaces,
-                                use_cache=use_cache,
                                 parser_kwargs=parser_kwargs)
         interface = Interface(actionsmap=actionsmap)
         interface.run(args, output_as=output_as, password=password, timeout=timeout)

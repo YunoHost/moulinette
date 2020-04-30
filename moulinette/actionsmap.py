@@ -405,18 +405,15 @@ class ActionsMap(object):
         - parser_class -- The BaseActionsMapParser derived class to use
             for parsing the actions map
         - namespaces -- The list of namespaces to use
-        - use_cache -- False if it should parse the actions map file
-            instead of using the cached one
         - parser_kwargs -- A dict of arguments to pass to the parser
             class at construction
 
     """
 
-    def __init__(self, parser_class, namespaces=[], use_cache=True, parser_kwargs={}):
+    def __init__(self, parser_class, namespaces=[], parser_kwargs={}):
         if not issubclass(parser_class, BaseActionsMapParser):
             raise ValueError("Invalid parser class '%s'" % parser_class.__name__)
         self.parser_class = parser_class
-        self.use_cache = use_cache
 
         moulinette_env = init_moulinette_env()
         DATA_DIR = moulinette_env["DATA_DIR"]
@@ -439,21 +436,19 @@ class ActionsMap(object):
                 actionsmap_yml_stat.st_mtime,
             )
 
-            if use_cache and os.path.exists(actionsmap_pkl):
+            if os.path.exists(actionsmap_pkl):
+                self.from_cache = True
                 try:
                     # Attempt to load cache
                     with open(actionsmap_pkl) as f:
                         actionsmaps[n] = pickle.load(f)
                 # TODO: Switch to python3 and catch proper exception
                 except (IOError, EOFError):
-                    self.use_cache = False
+                    self.from_cache = False
                     actionsmaps = self.generate_cache(namespaces)
-            elif use_cache:  # cached file doesn't exists
-                self.use_cache = False
+            else:  # cache file doesn't exists
+                self.from_cache = False
                 actionsmaps = self.generate_cache(namespaces)
-            elif n not in actionsmaps:
-                with open(actionsmap_yml) as f:
-                    actionsmaps[n] = ordered_yaml_load(f)
 
             # Load translations
             m18n.load_namespace(n)
@@ -668,11 +663,10 @@ class ActionsMap(object):
             An interface relevant's parser object
 
         """
-        # Get extra parameters
-        if self.use_cache:
-            validate_extra = False
-        else:
-            validate_extra = True
+
+        # If loading from cache, extra were already checked when cache was
+        # loaded ? Not sure about this ... old code is a bit mysterious...
+        validate_extra = not self.from_cache
 
         # Instantiate parser
         #
