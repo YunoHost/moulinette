@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from moulinette.core import (
-    init_interface,
     MoulinetteError,
     MoulinetteSignals,
     Moulinette18n,
@@ -73,8 +72,6 @@ def init(logging_config=None, **kwargs):
 
 
 # Easy access to interfaces
-
-
 def api(
     namespaces, host="localhost", port=80, routes={}, use_websocket=True, use_cache=True
 ):
@@ -93,13 +90,16 @@ def api(
             instead of using the cached one
 
     """
+    from moulinette.actionsmap import ActionsMap
+    from moulinette.interfaces.api import Interface, ActionsMapParser
     try:
-        moulinette = init_interface(
-            "api",
-            kwargs={"routes": routes, "use_websocket": use_websocket},
-            actionsmap={"namespaces": namespaces, "use_cache": use_cache},
-        )
-        moulinette.run(host, port)
+        actionsmap = ActionsMap(ActionsMapParser,
+                                namespaces=namespaces,
+                                use_cache=use_cache)
+        interface = Interface(actionsmap=actionsmap,
+                              routes=routes,
+                              use_websocket=use_websocket)
+        interface.run(host, port)
     except MoulinetteError as e:
         import logging
 
@@ -138,16 +138,15 @@ def cli(
             class at construction
 
     """
+    from moulinette.actionsmap import ActionsMap
+    from moulinette.interfaces.cli import Interface, ActionsMapParser
     try:
-        moulinette = init_interface(
-            "cli",
-            actionsmap={
-                "namespaces": namespaces,
-                "use_cache": use_cache,
-                "parser_kwargs": parser_kwargs,
-            },
-        )
-        moulinette.run(args, output_as=output_as, password=password, timeout=timeout)
+        actionsmap = ActionsMap(ActionsMapParser,
+                                namespaces=namespaces,
+                                use_cache=use_cache,
+                                parser_kwargs=parser_kwargs)
+        interface = Interface(actionsmap=actionsmap)
+        interface.run(args, output_as=output_as, password=password, timeout=timeout)
     except MoulinetteError as e:
         import logging
 
