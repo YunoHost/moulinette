@@ -431,7 +431,10 @@ class Interface(BaseInterface):
             msignals.set_handler("authenticate", self._do_authenticate)
             msignals.set_handler("prompt", self._do_prompt)
 
-        self.actionsmap = ActionsMap(ActionsMapParser(top_parser=top_parser), load_only_category=load_only_category)
+        self.actionsmap = ActionsMap(
+            ActionsMapParser(top_parser=top_parser),
+            load_only_category=load_only_category,
+        )
 
     def run(self, args, output_as=None, timeout=None):
         """Run the moulinette

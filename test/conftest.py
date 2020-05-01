@@ -126,6 +126,7 @@ def moulinette_webapi(moulinette):
     CookiePolicy.return_ok_secure = return_true
 
     from moulinette.interfaces.api import Interface as Api
+
     return TestApp(Api(routes={})._app)
 
 
@@ -144,6 +145,7 @@ def moulinette_cli(moulinette, mocker):
     )
     mocker.patch("os.isatty", return_value=True)
     from moulinette.interfaces.cli import Interface as Cli
+
     cli = Cli(top_parser=parser)
     mocker.stopall()
 

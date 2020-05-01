@@ -85,14 +85,17 @@ def api(host="localhost", port=80, routes={}):
 
     """
     from moulinette.interfaces.api import Interface as Api
+
     try:
         Api(routes=routes).run(host, port)
     except MoulinetteError as e:
         import logging
+
         logging.getLogger().error(e.strerror)
         return 1
     except KeyboardInterrupt:
         import logging
+
         logging.getLogger().info(m18n.g("operation_interrupted"))
     return 0
 
@@ -111,11 +114,15 @@ def cli(args, top_parser, output_as=None, timeout=None):
 
     """
     from moulinette.interfaces.cli import Interface as Cli
+
     try:
         load_only_category = args[0] if args and not args[0].startswith("-") else None
-        Cli(top_parser=top_parser, load_only_category=load_only_category).run(args, output_as=output_as, timeout=timeout)
+        Cli(top_parser=top_parser, load_only_category=load_only_category).run(
+            args, output_as=output_as, timeout=timeout
+        )
     except MoulinetteError as e:
         import logging
+
         logging.getLogger().error(e.strerror)
         return 1
     return 0
