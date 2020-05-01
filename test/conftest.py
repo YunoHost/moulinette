@@ -125,13 +125,8 @@ def moulinette_webapi(moulinette):
 
     CookiePolicy.return_ok_secure = return_true
 
-    moulinette_webapi = moulinette.init_interface(
-        "api",
-        kwargs={"routes": {}, "use_websocket": False},
-        actionsmap={"namespaces": ["moulitest"], "use_cache": True},
-    )
-
-    return TestApp(moulinette_webapi._app)
+    from moulinette.interfaces.api import Interface as Api
+    return TestApp(Api(routes={})._app)
 
 
 @pytest.fixture
@@ -148,17 +143,11 @@ def moulinette_cli(moulinette, mocker):
         help="Log and print debug messages",
     )
     mocker.patch("os.isatty", return_value=True)
-    moulinette_cli = moulinette.init_interface(
-        "cli",
-        actionsmap={
-            "namespaces": ["moulitest"],
-            "use_cache": False,
-            "parser_kwargs": {"top_parser": parser},
-        },
-    )
+    from moulinette.interfaces.cli import Interface as Cli
+    cli = Cli(top_parser=parser)
     mocker.stopall()
 
-    return moulinette_cli
+    return cli
 
 
 @pytest.fixture

@@ -225,7 +225,7 @@ def test_extra_argument_parser_parse_args(iface, mocker):
 def test_actions_map_api():
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap(ActionsMapParser, use_cache=False)
+    amap = ActionsMap(ActionsMapParser())
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]
@@ -235,7 +235,7 @@ def test_actions_map_api():
 
     amap.generate_cache()
 
-    amap = ActionsMap(ActionsMapParser, use_cache=True)
+    amap = ActionsMap(ActionsMapParser())
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]
@@ -274,9 +274,7 @@ def test_actions_map_cli():
         default=False,
         help="Log and print debug messages",
     )
-    amap = ActionsMap(
-        ActionsMapParser, use_cache=False, parser_kwargs={"top_parser": parser}
-    )
+    amap = ActionsMap(ActionsMapParser(top_parser=parser))
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]
@@ -295,9 +293,7 @@ def test_actions_map_cli():
 
     amap.generate_cache()
 
-    amap = ActionsMap(
-        ActionsMapParser, use_cache=True, parser_kwargs={"top_parser": parser}
-    )
+    amap = ActionsMap(ActionsMapParser(top_parser=parser))
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]
