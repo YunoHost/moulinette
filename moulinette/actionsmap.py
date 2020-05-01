@@ -283,7 +283,6 @@ class ExtraArgumentParser(object):
             if iface in klass.skipped_iface:
                 continue
             self.extra[klass.name] = klass
-        logger.debug("extra parameter classes loaded: %s", self.extra.keys())
 
     def validate(self, arg_name, parameters):
         """
@@ -650,6 +649,8 @@ class ActionsMap(object):
             An interface relevant's parser object
 
         """
+
+        logger.debug("building parser...")
 
         # If loading from cache, extra were already checked when cache was
         # loaded ? Not sure about this ... old code is a bit mysterious...
