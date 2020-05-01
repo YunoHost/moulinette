@@ -403,9 +403,13 @@ class ActionsMap(object):
     Keyword arguments:
         - top_parser -- A BaseActionsMapParser-derived instance to use for
                         parsing the actions map
+        - load_only_category -- A name of a category that should only be the
+                        one loaded because it's been already determined
+                        that's the only one relevant ... used for optimization
+                        purposes...
     """
 
-    def __init__(self, top_parser):
+    def __init__(self, top_parser, load_only_category=None):
 
         assert isinstance(top_parser, BaseActionsMapParser), "Invalid parser class '%s'" % top_parser.__class__.__name__
 
@@ -441,6 +445,13 @@ class ActionsMap(object):
             else:  # cache file doesn't exists
                 self.from_cache = False
                 actionsmaps[n] = self.generate_cache(n)
+
+            # If load_only_category is set, and *if* the target category
+            # is in the actionsmap, we'll load only that one.
+            # If we filter it even if it doesn't exist, we'll end up with a
+            # weird help message when we do a typo in the category name..
+            if load_only_category and load_only_category in actionsmaps[n]:
+                actionsmaps[n] = {k: v for k, v in actionsmaps[n].items() if k in [load_only_category, "_global"]}
 
             # Load translations
             m18n.load_namespace(n)
@@ -651,6 +662,7 @@ class ActionsMap(object):
         """
 
         logger.debug("building parser...")
+        start = time()
 
         # If loading from cache, extra were already checked when cache was
         # loaded ? Not sure about this ... old code is a bit mysterious...
@@ -756,4 +768,5 @@ class ActionsMap(object):
                                 tid, action_options["configuration"]
                             )
 
+        logger.debug("building parser took %.3fs", time() - start)
         return top_parser
