@@ -84,13 +84,9 @@ def api(host="localhost", port=80, routes={}):
             {(method, uri): callback}
 
     """
-    from moulinette.actionsmap import ActionsMap
-    from moulinette.interfaces.api import Interface, ActionsMapParser
+    from moulinette.interfaces.api import Interface as Api
     try:
-        actionsmap = ActionsMap(ActionsMapParser())
-        interface = Interface(actionsmap=actionsmap,
-                              routes=routes)
-        interface.run(host, port)
+        Api(routes=routes).run(host, port)
     except MoulinetteError as e:
         import logging
         logging.getLogger().error(e.strerror)
@@ -114,12 +110,9 @@ def cli(args, top_parser, output_as=None, timeout=None):
         - top_parser -- The top parser used to build the ActionsMapParser
 
     """
-    from moulinette.actionsmap import ActionsMap
-    from moulinette.interfaces.cli import Interface, ActionsMapParser
+    from moulinette.interfaces.cli import Interface as Cli
     try:
-        actionsmap = ActionsMap(ActionsMapParser(top_parser=top_parser))
-        interface = Interface(actionsmap=actionsmap)
-        interface.run(args, output_as=output_as, timeout=timeout)
+        Cli(top_parser=top_parser).run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging
         logging.getLogger().error(e.strerror)

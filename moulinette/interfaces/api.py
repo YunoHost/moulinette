@@ -14,6 +14,7 @@ from bottle import request, response, Bottle, HTTPResponse
 from bottle import abort
 
 from moulinette import msignals, m18n, env
+from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser,
@@ -729,7 +730,6 @@ class Interface(BaseInterface):
     actions map.
 
     Keyword arguments:
-        - actionsmap -- The ActionsMap instance to connect to
         - routes -- A dict of additional routes to add in the form of
             {(method, path): callback}
         - log_queues -- A LogQueues object or None to retrieve it from
@@ -737,7 +737,9 @@ class Interface(BaseInterface):
 
     """
 
-    def __init__(self, actionsmap, routes={}, log_queues=None):
+    def __init__(self, routes={}, log_queues=None):
+
+        actionsmap = ActionsMap(ActionsMapParser())
 
         # Attempt to retrieve log queues from an APIQueueHandler
         if log_queues is None:

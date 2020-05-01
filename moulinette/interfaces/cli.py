@@ -12,6 +12,7 @@ from datetime import date, datetime
 import argcomplete
 
 from moulinette import msignals, m18n
+from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser,
@@ -419,7 +420,8 @@ class Interface(BaseInterface):
 
     """
 
-    def __init__(self, actionsmap):
+    def __init__(self, top_parser=None):
+
         # Set user locale
         m18n.set_locale(get_locale())
 
@@ -429,7 +431,7 @@ class Interface(BaseInterface):
             msignals.set_handler("authenticate", self._do_authenticate)
             msignals.set_handler("prompt", self._do_prompt)
 
-        self.actionsmap = actionsmap
+        self.actionsmap = ActionsMap(ActionsMapParser(top_parser=top_parser))
 
     def run(self, args, output_as=None, timeout=None):
         """Run the moulinette
