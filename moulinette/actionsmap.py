@@ -4,6 +4,7 @@ import os
 import re
 import logging
 import yaml
+import glob
 import cPickle as pickle
 from time import time
 from collections import OrderedDict
@@ -398,16 +399,14 @@ class ActionsMap(object):
     Moreover, the action can have specific argument(s).
 
     This class allows to manipulate one or several actions maps
-    associated to a namespace. If no namespace is given, it will load
-    all available namespaces.
+    associated to a namespace.
 
     Keyword arguments:
         - top_parser -- A BaseActionsMapParser-derived instance to use for
                         parsing the actions map
-        - namespaces -- The list of namespaces to use
     """
 
-    def __init__(self, top_parser, namespaces=[]):
+    def __init__(self, top_parser):
 
         assert isinstance(top_parser, BaseActionsMapParser), "Invalid parser class '%s'" % top_parser.__class__.__name__
 
@@ -415,12 +414,10 @@ class ActionsMap(object):
         DATA_DIR = moulinette_env["DATA_DIR"]
         CACHE_DIR = moulinette_env["CACHE_DIR"]
 
-        if len(namespaces) == 0:
-            namespaces = self.get_namespaces()
         actionsmaps = OrderedDict()
 
         # Iterate over actions map namespaces
-        for n in namespaces:
+        for n in self.get_namespaces():
             logger.debug("loading actions map namespace '%s'", n)
 
             actionsmap_yml = "%s/actionsmap/%s.yml" % (DATA_DIR, n)
@@ -441,10 +438,10 @@ class ActionsMap(object):
                 # TODO: Switch to python3 and catch proper exception
                 except (IOError, EOFError):
                     self.from_cache = False
-                    actionsmaps = self.generate_cache(namespaces)
+                    actionsmaps[n] = self.generate_cache(n)
             else:  # cache file doesn't exists
                 self.from_cache = False
-                actionsmaps = self.generate_cache(namespaces)
+                actionsmaps[n] = self.generate_cache(n)
 
             # Load translations
             m18n.load_namespace(n)
@@ -587,56 +584,55 @@ class ActionsMap(object):
         moulinette_env = init_moulinette_env()
         DATA_DIR = moulinette_env["DATA_DIR"]
 
-        for f in os.listdir("%s/actionsmap" % DATA_DIR):
-            if f.endswith(".yml"):
-                namespaces.append(f[:-4])
+        # This var is ['*'] by default but could be set for example to
+        # ['yunohost', 'yml_*']
+        NAMESPACE_PATTERNS = moulinette_env["NAMESPACES"]
+
+        # Look for all files that match the given patterns in the actionsmap dir
+        for namespace_pattern in NAMESPACE_PATTERNS:
+            namespaces.extend(glob.glob("%s/actionsmap/%s.yml" % (DATA_DIR, namespace_pattern)))
+
+        # Keep only the filenames with extension
+        namespaces = [os.path.basename(n)[:-4] for n in namespaces]
+
         return namespaces
 
     @classmethod
-    def generate_cache(klass, namespaces=None):
+    def generate_cache(klass, namespace):
         """
         Generate cache for the actions map's file(s)
 
         Keyword arguments:
-            - namespaces -- A list of namespaces to generate cache for
+            - namespace -- The namespace to generate cache for
 
         Returns:
-            A dict of actions map for each namespaces
-
+            The action map for the namespace
         """
         moulinette_env = init_moulinette_env()
         CACHE_DIR = moulinette_env["CACHE_DIR"]
         DATA_DIR = moulinette_env["DATA_DIR"]
 
-        actionsmaps = {}
-        if not namespaces:
-            namespaces = klass.get_namespaces()
-
         # Iterate over actions map namespaces
-        for n in namespaces:
-            logger.debug("generating cache for actions map namespace '%s'", n)
+        logger.debug("generating cache for actions map namespace '%s'", namespace)
 
-            # Read actions map from yaml file
-            am_file = "%s/actionsmap/%s.yml" % (DATA_DIR, n)
-            with open(am_file, "r") as f:
-                actionsmaps[n] = ordered_yaml_load(f)
+        # Read actions map from yaml file
+        am_file = "%s/actionsmap/%s.yml" % (DATA_DIR, namespace)
+        with open(am_file, "r") as f:
+            actionsmap = ordered_yaml_load(f)
 
-            # at installation, cachedir might not exists
-            if os.path.exists("%s/actionsmap/" % CACHE_DIR):
-                # clean old cached files
-                for i in os.listdir("%s/actionsmap/" % CACHE_DIR):
-                    if i.endswith(".pkl"):
-                        os.remove("%s/actionsmap/%s" % (CACHE_DIR, i))
+        # at installation, cachedir might not exists
+        for old_cache in glob.glob("%s/actionsmap/%s-*.pkl" % (CACHE_DIR, namespace)):
+            os.remove(old_cache)
 
-            # Cache actions map into pickle file
-            am_file_stat = os.stat(am_file)
+        # Cache actions map into pickle file
+        am_file_stat = os.stat(am_file)
 
-            pkl = "%s-%d-%d.pkl" % (n, am_file_stat.st_size, am_file_stat.st_mtime)
+        pkl = "%s-%d-%d.pkl" % (namespace, am_file_stat.st_size, am_file_stat.st_mtime)
 
-            with open_cachefile(pkl, "w", subdir="actionsmap") as f:
-                pickle.dump(actionsmaps[n], f)
+        with open_cachefile(pkl, "w", subdir="actionsmap") as f:
+            pickle.dump(actionsmap, f)
 
-        return actionsmaps
+        return actionsmap
 
     # Private methods
 

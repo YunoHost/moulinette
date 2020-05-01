@@ -72,13 +72,12 @@ def init(logging_config=None, **kwargs):
 
 
 # Easy access to interfaces
-def api(namespaces, host="localhost", port=80, routes={}):
+def api(host="localhost", port=80, routes={}):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
 
     Keyword arguments:
-        - namespaces -- The list of namespaces to use
         - host -- Server address to bind to
         - port -- Server port to bind to
         - routes -- A dict of additional routes to add in the form of
@@ -88,31 +87,27 @@ def api(namespaces, host="localhost", port=80, routes={}):
     from moulinette.actionsmap import ActionsMap
     from moulinette.interfaces.api import Interface, ActionsMapParser
     try:
-        actionsmap = ActionsMap(ActionsMapParser(),
-                                namespaces=namespaces)
+        actionsmap = ActionsMap(ActionsMapParser())
         interface = Interface(actionsmap=actionsmap,
                               routes=routes)
         interface.run(host, port)
     except MoulinetteError as e:
         import logging
-
-        logging.getLogger(namespaces[0]).error(e.strerror)
-        return e.errno if hasattr(e, "errno") else 1
+        logging.getLogger().error(e.strerror)
+        return 1
     except KeyboardInterrupt:
         import logging
-
-        logging.getLogger(namespaces[0]).info(m18n.g("operation_interrupted"))
+        logging.getLogger().info(m18n.g("operation_interrupted"))
     return 0
 
 
-def cli(namespaces, args, top_parser, output_as=None, timeout=None):
+def cli(args, top_parser, output_as=None, timeout=None):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
     result in a readable format.
 
     Keyword arguments:
-        - namespaces -- The list of namespaces to use
         - args -- A list of argument strings
         - output_as -- Output result in another format, see
             moulinette.interfaces.cli.Interface for possible values
@@ -122,14 +117,12 @@ def cli(namespaces, args, top_parser, output_as=None, timeout=None):
     from moulinette.actionsmap import ActionsMap
     from moulinette.interfaces.cli import Interface, ActionsMapParser
     try:
-        actionsmap = ActionsMap(ActionsMapParser(top_parser=top_parser),
-                                namespaces=namespaces)
+        actionsmap = ActionsMap(ActionsMapParser(top_parser=top_parser))
         interface = Interface(actionsmap=actionsmap)
         interface.run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging
-
-        logging.getLogger(namespaces[0]).error(e.strerror)
+        logging.getLogger().error(e.strerror)
         return 1
     return 0
 
