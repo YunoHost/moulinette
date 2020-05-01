@@ -419,6 +419,7 @@ class ActionsMap(object):
 
         actionsmaps = OrderedDict()
 
+        self.from_cache = False
         # Iterate over actions map namespaces
         for n in self.get_namespaces():
             logger.debug("loading actions map namespace '%s'", n)
@@ -433,17 +434,16 @@ class ActionsMap(object):
             )
 
             if os.path.exists(actionsmap_pkl):
-                self.from_cache = True
                 try:
                     # Attempt to load cache
                     with open(actionsmap_pkl) as f:
                         actionsmaps[n] = pickle.load(f)
+
+                    self.from_cache = True
                 # TODO: Switch to python3 and catch proper exception
                 except (IOError, EOFError):
-                    self.from_cache = False
                     actionsmaps[n] = self.generate_cache(n)
             else:  # cache file doesn't exists
-                self.from_cache = False
                 actionsmaps[n] = self.generate_cache(n)
 
             # If load_only_category is set, and *if* the target category

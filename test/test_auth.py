@@ -216,18 +216,15 @@ class TestAuthCLI:
 
         assert "some_data_from_default" in message.out
 
-        moulinette_cli.run(
-            ["testauth", "default"], output_as="plain", password="default"
-        )
+        moulinette_cli.run(["testauth", "default"], output_as="plain")
         message = capsys.readouterr()
 
         assert "some_data_from_default" in message.out
 
     def test_login_bad_password(self, moulinette_cli, capsys, mocker):
+        mocker.patch("getpass.getpass", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
-            moulinette_cli.run(
-                ["testauth", "default"], output_as="plain", password="Bad Password"
-            )
+            moulinette_cli.run(["testauth", "default"], output_as="plain")
 
         mocker.patch("getpass.getpass", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
@@ -242,10 +239,9 @@ class TestAuthCLI:
         expected_msg = translation.format()
         assert expected_msg in str(exception)
 
+        mocker.patch("getpass.getpass", return_value="yoloswag")
         with pytest.raises(MoulinetteError) as exception:
-            moulinette_cli.run(
-                ["testauth", "default"], output_as="none", password="yoloswag"
-            )
+            moulinette_cli.run(["testauth", "default"], output_as="none")
 
         expected_msg = translation.format()
         assert expected_msg in str(exception)
