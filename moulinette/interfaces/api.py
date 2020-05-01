@@ -288,10 +288,7 @@ class _ActionsMapPlugin(object):
 
         # Append messages route
         app.route(
-            "/messages",
-            name="messages",
-            callback=self.messages,
-            skip=["actionsmap"],
+            "/messages", name="messages", callback=self.messages, skip=["actionsmap"],
         )
 
         # Append routes from the actions map
@@ -796,18 +793,14 @@ class Interface(BaseInterface):
 
         """
         logger.debug(
-            "starting the server instance in %s:%d",
-            host,
-            port,
+            "starting the server instance in %s:%d", host, port,
         )
 
         try:
             from gevent.pywsgi import WSGIServer
             from geventwebsocket.handler import WebSocketHandler
 
-            server = WSGIServer(
-                (host, port), self._app, handler_class=WebSocketHandler
-            )
+            server = WSGIServer((host, port), self._app, handler_class=WebSocketHandler)
             server.serve_forever()
         except IOError as e:
             logger.exception("unable to start the server instance on %s:%d", host, port)

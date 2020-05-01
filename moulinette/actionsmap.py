@@ -411,7 +411,9 @@ class ActionsMap(object):
 
     def __init__(self, top_parser, load_only_category=None):
 
-        assert isinstance(top_parser, BaseActionsMapParser), "Invalid parser class '%s'" % top_parser.__class__.__name__
+        assert isinstance(top_parser, BaseActionsMapParser), (
+            "Invalid parser class '%s'" % top_parser.__class__.__name__
+        )
 
         moulinette_env = init_moulinette_env()
         DATA_DIR = moulinette_env["DATA_DIR"]
@@ -451,7 +453,11 @@ class ActionsMap(object):
             # If we filter it even if it doesn't exist, we'll end up with a
             # weird help message when we do a typo in the category name..
             if load_only_category and load_only_category in actionsmaps[n]:
-                actionsmaps[n] = {k: v for k, v in actionsmaps[n].items() if k in [load_only_category, "_global"]}
+                actionsmaps[n] = {
+                    k: v
+                    for k, v in actionsmaps[n].items()
+                    if k in [load_only_category, "_global"]
+                }
 
             # Load translations
             m18n.load_namespace(n)
@@ -600,7 +606,9 @@ class ActionsMap(object):
 
         # Look for all files that match the given patterns in the actionsmap dir
         for namespace_pattern in NAMESPACE_PATTERNS:
-            namespaces.extend(glob.glob("%s/actionsmap/%s.yml" % (DATA_DIR, namespace_pattern)))
+            namespaces.extend(
+                glob.glob("%s/actionsmap/%s.yml" % (DATA_DIR, namespace_pattern))
+            )
 
         # Keep only the filenames with extension
         namespaces = [os.path.basename(n)[:-4] for n in namespaces]
