@@ -72,9 +72,7 @@ def init(logging_config=None, **kwargs):
 
 
 # Easy access to interfaces
-def api(
-    namespaces, host="localhost", port=80, routes={}
-):
+def api(namespaces, host="localhost", port=80, routes={}):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
@@ -107,13 +105,7 @@ def api(
     return 0
 
 
-def cli(
-    namespaces,
-    args,
-    output_as=None,
-    timeout=None,
-    parser_kwargs={},
-):
+def cli(namespaces, args, output_as=None, timeout=None, parser_kwargs={}):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
