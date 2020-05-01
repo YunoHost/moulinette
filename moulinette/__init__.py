@@ -88,7 +88,7 @@ def api(namespaces, host="localhost", port=80, routes={}):
     from moulinette.actionsmap import ActionsMap
     from moulinette.interfaces.api import Interface, ActionsMapParser
     try:
-        actionsmap = ActionsMap(ActionsMapParser,
+        actionsmap = ActionsMap(ActionsMapParser(),
                                 namespaces=namespaces)
         interface = Interface(actionsmap=actionsmap,
                               routes=routes)
@@ -105,7 +105,7 @@ def api(namespaces, host="localhost", port=80, routes={}):
     return 0
 
 
-def cli(namespaces, args, output_as=None, timeout=None, parser_kwargs={}):
+def cli(namespaces, args, top_parser, output_as=None, timeout=None):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -116,16 +116,14 @@ def cli(namespaces, args, output_as=None, timeout=None, parser_kwargs={}):
         - args -- A list of argument strings
         - output_as -- Output result in another format, see
             moulinette.interfaces.cli.Interface for possible values
-        - parser_kwargs -- A dict of arguments to pass to the parser
-            class at construction
+        - top_parser -- The top parser used to build the ActionsMapParser
 
     """
     from moulinette.actionsmap import ActionsMap
     from moulinette.interfaces.cli import Interface, ActionsMapParser
     try:
-        actionsmap = ActionsMap(ActionsMapParser,
-                                namespaces=namespaces,
-                                parser_kwargs=parser_kwargs)
+        actionsmap = ActionsMap(ActionsMapParser(top_parser=top_parser),
+                                namespaces=namespaces)
         interface = Interface(actionsmap=actionsmap)
         interface.run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:

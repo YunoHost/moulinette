@@ -402,18 +402,14 @@ class ActionsMap(object):
     all available namespaces.
 
     Keyword arguments:
-        - parser_class -- The BaseActionsMapParser derived class to use
-            for parsing the actions map
+        - top_parser -- A BaseActionsMapParser-derived instance to use for
+                        parsing the actions map
         - namespaces -- The list of namespaces to use
-        - parser_kwargs -- A dict of arguments to pass to the parser
-            class at construction
-
     """
 
-    def __init__(self, parser_class, namespaces=[], parser_kwargs={}):
-        if not issubclass(parser_class, BaseActionsMapParser):
-            raise ValueError("Invalid parser class '%s'" % parser_class.__name__)
-        self.parser_class = parser_class
+    def __init__(self, top_parser, namespaces=[]):
+
+        assert isinstance(top_parser, BaseActionsMapParser), "Invalid parser class '%s'" % top_parser.__class__.__name__
 
         moulinette_env = init_moulinette_env()
         DATA_DIR = moulinette_env["DATA_DIR"]
@@ -454,13 +450,8 @@ class ActionsMap(object):
             m18n.load_namespace(n)
 
         # Generate parsers
-        self.extraparser = ExtraArgumentParser(parser_class.interface)
-        self._parser = self._construct_parser(actionsmaps, **parser_kwargs)
-
-    @property
-    def parser(self):
-        """Return the instance of the interface's actions map parser"""
-        return self._parser
+        self.extraparser = ExtraArgumentParser(top_parser.interface)
+        self.parser = self._construct_parser(actionsmaps, top_parser)
 
     def get_authenticator_for_profile(self, auth_profile):
 
@@ -649,15 +640,15 @@ class ActionsMap(object):
 
     # Private methods
 
-    def _construct_parser(self, actionsmaps, **kwargs):
+    def _construct_parser(self, actionsmaps, top_parser):
         """
         Construct the parser with the actions map
 
         Keyword arguments:
             - actionsmaps -- A dict of multi-level dictionnary of
                 categories/actions/arguments list for each namespaces
-            - **kwargs -- Additionnal arguments to pass at the parser
-                class instantiation
+            - top_parser -- A BaseActionsMapParser-derived instance to use for
+                parsing the actions map
 
         Returns:
             An interface relevant's parser object
@@ -667,13 +658,6 @@ class ActionsMap(object):
         # If loading from cache, extra were already checked when cache was
         # loaded ? Not sure about this ... old code is a bit mysterious...
         validate_extra = not self.from_cache
-
-        # Instantiate parser
-        #
-        # this either returns:
-        # * moulinette.interfaces.cli.ActionsMapParser
-        # * moulinette.interfaces.api.ActionsMapParser
-        top_parser = self.parser_class(**kwargs)
 
         # namespace, actionsmap is a tuple where:
         #
