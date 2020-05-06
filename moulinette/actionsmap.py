@@ -563,6 +563,8 @@ class ActionsMap(object):
                 )
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
+                import traceback
+                traceback.print_exc()
                 logger.exception("unable to load function %s.%s", namespace, func_name)
                 raise MoulinetteError("error_see_log")
             else:
