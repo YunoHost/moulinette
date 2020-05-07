@@ -5,7 +5,7 @@ import logging
 import hashlib
 import hmac
 
-from moulinette.cache import open_cachefile, get_cachedir
+from moulinette.cache import open_cachefile, get_cachedir, cachefile_exists
 from moulinette.core import MoulinetteError
 
 logger = logging.getLogger("moulinette.authenticator")
@@ -159,6 +159,10 @@ class BaseAuthenticator(object):
             "%s.asc" % session_id, mode, subdir="session/%s" % self.name
         )
 
+    def _session_exists(self, session_id):
+        """Check a session exists"""
+        return cachefile_exists("%s.asc" % session_id, subdir="session/%s" % self.name)
+
     def _store_session(self, session_id, session_token):
         """Store a session to be able to use it later to reauthenticate"""
 
@@ -170,6 +174,8 @@ class BaseAuthenticator(object):
 
     def _authenticate_session(self, session_id, session_token):
         """Checks session and token against the stored session token"""
+        if not self._session_exists(session_id):
+            raise MoulinetteError("session_expired")
         try:
             # FIXME : shouldn't we also add a check that this session file
             # is not too old ? e.g. not older than 24 hours ? idk...
