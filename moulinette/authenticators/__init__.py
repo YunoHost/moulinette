@@ -174,7 +174,7 @@ class BaseAuthenticator(object):
 
     def _authenticate_session(self, session_id, session_token):
         """Checks session and token against the stored session token"""
-        if not self._session_exists(self, session_id):
+        if not self._session_exists(session_id):
             raise MoulinetteError("session_expired")
         try:
             # FIXME : shouldn't we also add a check that this session file
