@@ -438,6 +438,10 @@ class MoulinetteError(Exception):
         self.strerror = msg
 
 
+class MoulinetteLdapIsDownError(MoulinetteError):
+    """Used when ldap is down"""
+
+
 class MoulinetteLock(object):
 
     """Locker for a moulinette instance

@@ -2,15 +2,18 @@
 
 # TODO: Use Python3 to remove this fix!
 from __future__ import absolute_import
+import os
 import logging
 import random
 import string
 import crypt
 import ldap
 import ldap.sasl
+import time
 import ldap.modlist as modlist
 
-from moulinette.core import MoulinetteError
+from moulinette import m18n
+from moulinette.core import MoulinetteError, MoulinetteLdapIsDownError
 from moulinette.authenticators import BaseAuthenticator
 
 logger = logging.getLogger("moulinette.authenticator.ldap")
@@ -69,7 +72,7 @@ class Authenticator(BaseAuthenticator):
     # Implement virtual methods
 
     def authenticate(self, password=None):
-        try:
+        def _reconnect():
             con = ldap.ldapobject.ReconnectLDAPObject(
                 self._get_uri(), retry_max=10, retry_delay=0.5
             )
@@ -80,11 +83,23 @@ class Authenticator(BaseAuthenticator):
                     con.simple_bind_s(self.userdn, password)
             else:
                 con.simple_bind_s()
+
+            return con
+
+        try:
+            con = _reconnect()
         except ldap.INVALID_CREDENTIALS:
             raise MoulinetteError("invalid_password")
         except ldap.SERVER_DOWN:
-            logger.exception("unable to reach the server to authenticate")
-            raise MoulinetteError("ldap_server_down")
+            # ldap is down, attempt to restart it before really failing
+            logger.warning(m18n.g("ldap_server_is_down_restart_it"))
+            os.system("systemctl restart slapd")
+            time.sleep(10)  # waits 10 secondes so we are sure that slapd has restarted
+
+            try:
+                con = _reconnect()
+            except ldap.SERVER_DOWN:
+                raise MoulinetteLdapIsDownError("ldap_server_down")
 
         # Check that we are indeed logged in with the right identity
         try:
