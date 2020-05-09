@@ -1,3 +1,13 @@
+moulinette (3.8.1) testing; urgency=low
+
+  - [fix] Misc technical ux/debugging fixes (#242, #243, #244, 840f27d2)
+  - [fix] try to autorestart ldap when the server is down (#247)
+  - [i18n] Translations updated for Dutch, Esperanto, French, German, Nepali, Polish
+
+  Thanks to all contributors <3 ! (amirale qt, Bram, É. Gaspar, Kay0u, M. Döring, Zeik0s)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 09 May 2020 21:09:35 +0200
+
 moulinette (3.8.0) testing; urgency=low
 
   # Major stuff
