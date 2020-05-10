@@ -55,5 +55,7 @@
     "warn_the_user_about_waiting_lock": "Une autre commande YunoHost est actuellement en cours, nous attendons qu'elle se termine avant de démarrer celle là",
     "warn_the_user_about_waiting_lock_again": "Toujours en attente...",
     "warn_the_user_that_lock_is_acquired": "l’autre commande vient de se terminer, lancement de cette commande",
-    "invalid_token": "Jeton non valide - veuillez vous authentifier"
+    "invalid_token": "Jeton non valide - veuillez vous authentifier",
+    "ldap_server_is_down_restart_it": "Le service LDAP est éteint, nous tentons de le redémarrer...",
+    "session_expired": "La session a expiré. Merci de vous ré-authentifier."
 }
