@@ -362,6 +362,7 @@ class _CallbackAction(argparse.Action):
             func = getattr(mod, func_name)
         except (AttributeError, ImportError):
             import traceback
+
             traceback.print_exc()
             raise ValueError("unable to import method {0}".format(self.callback_method))
         self._callback = func
