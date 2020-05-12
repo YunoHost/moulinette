@@ -66,11 +66,14 @@ class TestLDAP:
 
         assert ldap_interface.con
 
-    def test_authenticate_server_down(self, ldap_server):
+    def test_authenticate_server_down(self, ldap_server, mocker):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         self.ldap_conf["parameters"]["user_rdn"] = "cn=admin,dc=yunohost,dc=org"
         ldap_server.stop()
         ldap_interface = m_ldap.Authenticator(**self.ldap_conf)
+
+        # Now if slapd is down, moulinette tries to restart it
+        mocker.patch("os.system")
         with pytest.raises(MoulinetteError) as exception:
             ldap_interface.authenticate(password="yunohost")
 
