@@ -169,8 +169,13 @@ def pretty_print_dict(d, depth=0):
 
 
 def get_locale():
-    """Return current user locale"""
-    lang = locale.getdefaultlocale()[0]
+    """Return current user eocale"""
+    try:
+        lang = locale.getdefaultlocale()[0]
+    except Exception:
+        # In some edge case the locale lib fails ...
+        # c.f. https://forum.yunohost.org/t/error-when-trying-to-enter-user-information-in-admin-panel/11390/11
+        lang = os.getenv('LANG')
     if not lang:
         return ""
     return lang[:2]
