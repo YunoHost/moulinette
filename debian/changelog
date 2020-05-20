@@ -1,3 +1,9 @@
+moulinette (3.8.1.1) stable; urgency=low
+
+  Bumping version number for stable release
+
+ -- Kay0u <pierre@kayou.io>  Wed, 20 May 2020 18:56:36 +0000
+
 moulinette (3.8.1) testing; urgency=low
 
   - [fix] Misc technical ux/debugging fixes (#242, #243, #244, 840f27d2)
@@ -29,6 +35,13 @@ moulinette (3.8.0) testing; urgency=low
   Thanks to all contributors ! (Aleks, Bram, ButterflyOfFire, Filip B., Jeroen F., Josué T., Kay0u, Quentí, Yifei D., amirale qt, decentral1se, Elie G., frju365, Romain R., xaloc33)
 
  -- Kay0u <pierre@kayou.io>  Thu, 09 Apr 2020 20:29:48 +0000
+
+moulinette (3.7.1.1) stable; urgency=low
+
+  - [fix] Report actual errors when some LDAP operation fails to ease
+  debugging
+ 
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 17 Apr 2020 17:00:00  +0000
 
 moulinette (3.7.1) stable; urgency=low
 
