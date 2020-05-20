@@ -1,3 +1,9 @@
+moulinette (3.8.1.1) stable; urgency=low
+
+  Bumping version number for stable release
+
+ -- Kay0u <pierre@kayou.io>  Wed, 20 May 2020 18:56:36 +0000
+
 moulinette (3.8.1) testing; urgency=low
 
   - [fix] Misc technical ux/debugging fixes (#242, #243, #244, 840f27d2)
