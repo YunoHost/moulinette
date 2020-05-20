@@ -1,11 +1,19 @@
 language: python
 
+addons:
+  apt:
+    packages:
+      - ldap-utils
+      - slapd
+
 matrix:
   include:
     - python: 2.7
       env: TOXENV=py27
     - python: 2.7
       env: TOXENV=lint
+    - python: 3.6
+      env: TOXENV=format-check
     - python: 2.7
       env: TOXENV=docs
 

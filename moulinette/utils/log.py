@@ -3,8 +3,28 @@ import logging
 
 # import all constants because other modules try to import them from this
 # module because SUCCESS is defined in this module
-from logging import (addLevelName, setLoggerClass, Logger, getLogger, NOTSET,  # noqa
-                     DEBUG, INFO, WARNING, ERROR, CRITICAL)
+from logging import (
+    addLevelName,
+    setLoggerClass,
+    Logger,
+    getLogger,
+    NOTSET,  # noqa
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR,
+    CRITICAL,
+)
+
+__all__ = [
+    "NOTSET",  # noqa
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "CRITICAL",
+    "SUCCESS",
+]
 
 
 # Global configuration and functions -----------------------------------
@@ -12,27 +32,20 @@ from logging import (addLevelName, setLoggerClass, Logger, getLogger, NOTSET,  #
 SUCCESS = 25
 
 DEFAULT_LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'simple': {
-            'format': '%(asctime)-15s %(levelname)-8s %(name)s - %(message)s'
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {"format": "%(asctime)-15s %(levelname)-8s %(name)s - %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "formatter": "simple",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
         },
     },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'formatter': 'simple',
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stdout',
-        },
-    },
-    'loggers': {
-        'moulinette': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        },
-    },
+    "loggers": {"moulinette": {"level": "DEBUG", "handlers": ["console"]}},
 }
 
 
@@ -46,7 +59,7 @@ def configure_logging(logging_config=None):
     from logging.config import dictConfig
 
     # add custom logging level and class
-    addLevelName(SUCCESS, 'SUCCESS')
+    addLevelName(SUCCESS, "SUCCESS")
     setLoggerClass(MoulinetteLogger)
 
     # load configuration from dict
@@ -65,7 +78,7 @@ def getHandlersByClass(classinfo, limit=0):
                 return o
             handlers.append(o)
     if limit != 0 and len(handlers) > limit:
-        return handlers[:limit - 1]
+        return handlers[: limit - 1]
     return handlers
 
 
@@ -79,6 +92,7 @@ class MoulinetteLogger(Logger):
     LogRecord extra and can be used with the ActionFilter.
 
     """
+
     action_id = None
 
     def success(self, msg, *args, **kwargs):
@@ -105,11 +119,11 @@ class MoulinetteLogger(Logger):
     def _log(self, *args, **kwargs):
         """Append action_id if available to the extra."""
         if self.action_id is not None:
-            extra = kwargs.get('extra', {})
-            if 'action_id' not in extra:
+            extra = kwargs.get("extra", {})
+            if "action_id" not in extra:
                 # FIXME: Get real action_id instead of logger/current one
-                extra['action_id'] = _get_action_id()
-                kwargs['extra'] = extra
+                extra["action_id"] = _get_action_id()
+                kwargs["extra"] = extra
         return Logger._log(self, *args, **kwargs)
 
 
@@ -120,7 +134,7 @@ action_id = 0
 
 
 def _get_action_id():
-    return '%d.%d' % (pid, action_id)
+    return "%d.%d" % (pid, action_id)
 
 
 def start_action_logging():
@@ -146,7 +160,7 @@ def getActionLogger(name=None, logger=None, action_id=None):
 
     """
     if not name and not logger:
-        raise ValueError('Either a name or a logger must be specified')
+        raise ValueError("Either a name or a logger must be specified")
 
     logger = logger or getLogger(name)
     logger.action_id = action_id if action_id else _get_action_id()
@@ -164,15 +178,15 @@ class ActionFilter(object):
 
     """
 
-    def __init__(self, message_key='fmessage', strict=False):
+    def __init__(self, message_key="fmessage", strict=False):
         self.message_key = message_key
         self.strict = strict
 
     def filter(self, record):
         msg = record.getMessage()
-        action_id = record.__dict__.get('action_id', None)
+        action_id = record.__dict__.get("action_id", None)
         if action_id is not None:
-            msg = '[{:s}] {:s}'.format(action_id, msg)
+            msg = "[{:s}] {:s}".format(action_id, msg)
         elif self.strict:
             return False
         record.__dict__[self.message_key] = msg

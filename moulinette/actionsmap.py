@@ -7,22 +7,22 @@ import yaml
 import cPickle as pickle
 from time import time
 from collections import OrderedDict
+from importlib import import_module
 
 from moulinette import m18n, msignals
 from moulinette.cache import open_cachefile
 from moulinette.globals import init_moulinette_env
-from moulinette.core import (MoulinetteError, MoulinetteLock)
-from moulinette.interfaces import (
-    BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
-)
+from moulinette.core import MoulinetteError, MoulinetteLock
+from moulinette.interfaces import BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
 
-logger = logging.getLogger('moulinette.actionsmap')
+logger = logging.getLogger("moulinette.actionsmap")
 
 
 # Extra parameters ----------------------------------------------------
 
 # Extra parameters definition
+
 
 class _ExtraParameter(object):
 
@@ -86,21 +86,26 @@ class _ExtraParameter(object):
 
 class CommentParameter(_ExtraParameter):
     name = "comment"
-    skipped_iface = ['api']
+    skipped_iface = ["api"]
 
     def __call__(self, message, arg_name, arg_value):
+        if arg_value:
+            return
         return msignals.display(m18n.n(message))
 
     @classmethod
     def validate(klass, value, arg_name):
         # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logger.warning("expecting a non-empty string for extra parameter '%s' of "
-                           "argument '%s'", klass.name, arg_name)
+            logger.warning(
+                "expecting a non-empty string for extra parameter '%s' of "
+                "argument '%s'",
+                klass.name,
+                arg_name,
+            )
             value = arg_name
         elif not isinstance(value, str):
-            raise TypeError("parameter value must be a string, got %r"
-                            % value)
+            raise TypeError("parameter value must be a string, got %r" % value)
         return value
 
 
@@ -113,8 +118,9 @@ class AskParameter(_ExtraParameter):
     when asking the argument value.
 
     """
-    name = 'ask'
-    skipped_iface = ['api']
+
+    name = "ask"
+    skipped_iface = ["api"]
 
     def __call__(self, message, arg_name, arg_value):
         if arg_value:
@@ -130,12 +136,15 @@ class AskParameter(_ExtraParameter):
     def validate(klass, value, arg_name):
         # Deprecated boolean or empty string
         if isinstance(value, bool) or (isinstance(value, str) and not value):
-            logger.warning("expecting a non-empty string for extra parameter '%s' of "
-                           "argument '%s'", klass.name, arg_name)
+            logger.warning(
+                "expecting a non-empty string for extra parameter '%s' of "
+                "argument '%s'",
+                klass.name,
+                arg_name,
+            )
             value = arg_name
         elif not isinstance(value, str):
-            raise TypeError("parameter value must be a string, got %r"
-                            % value)
+            raise TypeError("parameter value must be a string, got %r" % value)
         return value
 
 
@@ -148,7 +157,8 @@ class PasswordParameter(AskParameter):
     when asking the password.
 
     """
-    name = 'password'
+
+    name = "password"
 
     def __call__(self, message, arg_name, arg_value):
         if arg_value:
@@ -170,40 +180,45 @@ class PatternParameter(_ExtraParameter):
     the message to display if it doesn't match.
 
     """
-    name = 'pattern'
+
+    name = "pattern"
 
     def __call__(self, arguments, arg_name, arg_value):
         pattern, message = (arguments[0], arguments[1])
 
         # Use temporarly utf-8 encoded value
         try:
-            v = unicode(arg_value, 'utf-8')
+            v = unicode(arg_value, "utf-8")
         except:
             v = arg_value
 
-        if v and not re.match(pattern, v or '', re.UNICODE):
-            logger.debug("argument value '%s' for '%s' doesn't match pattern '%s'",
-                         v, arg_name, pattern)
+        if v and not re.match(pattern, v or "", re.UNICODE):
+            logger.warning(
+                "argument value '%s' for '%s' doesn't match pattern '%s'",
+                v,
+                arg_name,
+                pattern,
+            )
 
             # Attempt to retrieve message translation
             msg = m18n.n(message)
             if msg == message:
                 msg = m18n.g(message)
 
-            raise MoulinetteError('invalid_argument',
-                                  argument=arg_name, error=msg)
+            raise MoulinetteError("invalid_argument", argument=arg_name, error=msg)
         return arg_value
 
     @staticmethod
     def validate(value, arg_name):
         # Deprecated string type
         if isinstance(value, str):
-            logger.warning("expecting a list as extra parameter 'pattern' of "
-                           "argument '%s'", arg_name)
-            value = [value, 'pattern_not_match']
+            logger.warning(
+                "expecting a list as extra parameter 'pattern' of " "argument '%s'",
+                arg_name,
+            )
+            value = [value, "pattern_not_match"]
         elif not isinstance(value, list) or len(value) != 2:
-            raise TypeError("parameter value must be a list, got %r"
-                            % value)
+            raise TypeError("parameter value must be a list, got %r" % value)
         return value
 
 
@@ -215,21 +230,19 @@ class RequiredParameter(_ExtraParameter):
     The value of this parameter must be a boolean which is set to False by
     default.
     """
-    name = 'required'
+
+    name = "required"
 
     def __call__(self, required, arg_name, arg_value):
-        if required and (arg_value is None or arg_value == ''):
-            logger.debug("argument '%s' is required",
-                         arg_name)
-            raise MoulinetteError('argument_required',
-                                  argument=arg_name)
+        if required and (arg_value is None or arg_value == ""):
+            logger.warning("argument '%s' is required", arg_name)
+            raise MoulinetteError("argument_required", argument=arg_name)
         return arg_value
 
     @staticmethod
     def validate(value, arg_name):
         if not isinstance(value, bool):
-            raise TypeError("parameter value must be a list, got %r"
-                            % value)
+            raise TypeError("parameter value must be a boolean, got %r" % value)
         return value
 
 
@@ -238,8 +251,13 @@ The list of available extra parameters classes. It will keep to this list
 order on argument parsing.
 
 """
-extraparameters_list = [CommentParameter, AskParameter, PasswordParameter,
-                        RequiredParameter, PatternParameter]
+extraparameters_list = [
+    CommentParameter,
+    AskParameter,
+    PasswordParameter,
+    RequiredParameter,
+    PatternParameter,
+]
 
 # Extra parameters argument Parser
 
@@ -264,7 +282,7 @@ class ExtraArgumentParser(object):
             if iface in klass.skipped_iface:
                 continue
             self.extra[klass.name] = klass
-        logger.debug('extra parameter classes loaded: %s', self.extra.keys())
+        logger.debug("extra parameter classes loaded: %s", self.extra.keys())
 
     def validate(self, arg_name, parameters):
         """
@@ -286,9 +304,14 @@ class ExtraArgumentParser(object):
                     # Validate parameter value
                     parameters[p] = klass.validate(v, arg_name)
                 except Exception as e:
-                    logger.error("unable to validate extra parameter '%s' "
-                                 "for argument '%s': %s", p, arg_name, e)
-                    raise MoulinetteError('error_see_log')
+                    logger.error(
+                        "unable to validate extra parameter '%s' "
+                        "for argument '%s': %s",
+                        p,
+                        arg_name,
+                        e,
+                    )
+                    raise MoulinetteError("error_see_log")
 
         return parameters
 
@@ -353,12 +376,15 @@ class ExtraArgumentParser(object):
 
 # Main class ----------------------------------------------------------
 
+
 def ordered_yaml_load(stream):
     class OrderedLoader(yaml.Loader):
         pass
+
     OrderedLoader.add_constructor(
         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        lambda loader, node: OrderedDict(loader.construct_pairs(node)))
+        lambda loader, node: OrderedDict(loader.construct_pairs(node)),
+    )
     return yaml.load(stream, OrderedLoader)
 
 
@@ -386,16 +412,15 @@ class ActionsMap(object):
 
     """
 
-    def __init__(self, parser_class, namespaces=[], use_cache=True,
-                 parser_kwargs={}):
+    def __init__(self, parser_class, namespaces=[], use_cache=True, parser_kwargs={}):
         if not issubclass(parser_class, BaseActionsMapParser):
             raise ValueError("Invalid parser class '%s'" % parser_class.__name__)
         self.parser_class = parser_class
         self.use_cache = use_cache
 
         moulinette_env = init_moulinette_env()
-        DATA_DIR = moulinette_env['DATA_DIR']
-        CACHE_DIR = moulinette_env['CACHE_DIR']
+        DATA_DIR = moulinette_env["DATA_DIR"]
+        CACHE_DIR = moulinette_env["CACHE_DIR"]
 
         if len(namespaces) == 0:
             namespaces = self.get_namespaces()
@@ -405,13 +430,13 @@ class ActionsMap(object):
         for n in namespaces:
             logger.debug("loading actions map namespace '%s'", n)
 
-            actionsmap_yml = '%s/actionsmap/%s.yml' % (DATA_DIR, n)
+            actionsmap_yml = "%s/actionsmap/%s.yml" % (DATA_DIR, n)
             actionsmap_yml_stat = os.stat(actionsmap_yml)
-            actionsmap_pkl = '%s/actionsmap/%s-%d-%d.pkl' % (
+            actionsmap_pkl = "%s/actionsmap/%s-%d-%d.pkl" % (
                 CACHE_DIR,
                 n,
                 actionsmap_yml_stat.st_size,
-                actionsmap_yml_stat.st_mtime
+                actionsmap_yml_stat.st_mtime,
             )
 
             if use_cache and os.path.exists(actionsmap_pkl):
@@ -442,25 +467,37 @@ class ActionsMap(object):
         """Return the instance of the interface's actions map parser"""
         return self._parser
 
-    def get_authenticator(self, profile='default'):
-        """Get an authenticator instance
+    def get_authenticator_for_profile(self, auth_profile):
 
-        Retrieve the authenticator for the given profile and return a
-        new instance.
-
-        Keyword arguments:
-            - profile -- An authenticator profile name
-
-        Returns:
-            A new _BaseAuthenticator derived instance
-
-        """
+        # Fetch the configuration for the authenticator module as defined in the actionmap
         try:
-            auth = self.parser.get_global_conf('authenticator', profile)[1]
+            auth_conf = self.parser.global_conf["authenticator"][auth_profile]
         except KeyError:
-            raise ValueError("Unknown authenticator profile '%s'" % profile)
+            raise ValueError("Unknown authenticator profile '%s'" % auth_profile)
+
+        # Load and initialize the authenticator module
+        try:
+            mod = import_module("moulinette.authenticators.%s" % auth_conf["vendor"])
+        except ImportError:
+            logger.exception(
+                "unable to load authenticator vendor '%s'", auth_conf["vendor"]
+            )
+            raise MoulinetteError("error_see_log")
         else:
-            return auth()
+            return mod.Authenticator(**auth_conf)
+
+    def check_authentication_if_required(self, args, **kwargs):
+
+        auth_profile = self.parser.auth_required(args, **kwargs)
+
+        if not auth_profile:
+            return
+
+        authenticator = self.get_authenticator_for_profile(auth_profile)
+        auth = msignals.authenticate(authenticator)
+
+        if not auth.is_authenticated:
+            raise MoulinetteError("authentication_required_long")
 
     def process(self, args, timeout=None, **kwargs):
         """
@@ -473,11 +510,15 @@ class ActionsMap(object):
             - **kwargs -- Additional interface arguments
 
         """
+
+        # Perform authentication if needed
+        self.check_authentication_if_required(args, **kwargs)
+
         # Parse arguments
         arguments = vars(self.parser.parse_args(args, **kwargs))
 
         # Retrieve tid and parse arguments with extra parameters
-        tid = arguments.pop('_tid')
+        tid = arguments.pop("_tid")
         arguments = self.extraparser.parse_args(tid, arguments)
 
         # Return immediately if a value is defined
@@ -487,38 +528,57 @@ class ActionsMap(object):
         # Retrieve action information
         if len(tid) == 4:
             namespace, category, subcategory, action = tid
-            func_name = '%s_%s_%s' % (category, subcategory.replace('-', '_'), action.replace('-', '_'))
-            full_action_name = "%s.%s.%s.%s" % (namespace, category, subcategory, action)
+            func_name = "%s_%s_%s" % (
+                category,
+                subcategory.replace("-", "_"),
+                action.replace("-", "_"),
+            )
+            full_action_name = "%s.%s.%s.%s" % (
+                namespace,
+                category,
+                subcategory,
+                action,
+            )
         else:
             assert len(tid) == 3
             namespace, category, action = tid
             subcategory = None
-            func_name = '%s_%s' % (category, action.replace('-', '_'))
+            func_name = "%s_%s" % (category, action.replace("-", "_"))
             full_action_name = "%s.%s.%s" % (namespace, category, action)
 
         # Lock the moulinette for the namespace
         with MoulinetteLock(namespace, timeout):
             start = time()
             try:
-                mod = __import__('%s.%s' % (namespace, category),
-                                 globals=globals(), level=0,
-                                 fromlist=[func_name])
-                logger.debug('loading python module %s took %.3fs',
-                             '%s.%s' % (namespace, category), time() - start)
+                mod = __import__(
+                    "%s.%s" % (namespace, category),
+                    globals=globals(),
+                    level=0,
+                    fromlist=[func_name],
+                )
+                logger.debug(
+                    "loading python module %s took %.3fs",
+                    "%s.%s" % (namespace, category),
+                    time() - start,
+                )
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
-                logger.exception("unable to load function %s.%s",
-                                 namespace, func_name)
-                raise MoulinetteError('error_see_log')
+                import traceback
+                traceback.print_exc()
+                logger.exception("unable to load function %s.%s", namespace, func_name)
+                raise MoulinetteError("error_see_log")
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):
                     # Log arguments in debug mode only for safety reasons
-                    logger.info('processing action [%s]: %s with args=%s',
-                                log_id, full_action_name, arguments)
+                    logger.info(
+                        "processing action [%s]: %s with args=%s",
+                        log_id,
+                        full_action_name,
+                        arguments,
+                    )
                 else:
-                    logger.info('processing action [%s]: %s',
-                                log_id, full_action_name)
+                    logger.info("processing action [%s]: %s", log_id, full_action_name)
 
                 # Load translation and process the action
                 m18n.load_namespace(namespace)
@@ -527,8 +587,7 @@ class ActionsMap(object):
                     return func(**arguments)
                 finally:
                     stop = time()
-                    logger.debug('action [%s] executed in %.3fs',
-                                 log_id, stop - start)
+                    logger.debug("action [%s] executed in %.3fs", log_id, stop - start)
 
     @staticmethod
     def get_namespaces():
@@ -542,10 +601,10 @@ class ActionsMap(object):
         namespaces = []
 
         moulinette_env = init_moulinette_env()
-        DATA_DIR = moulinette_env['DATA_DIR']
+        DATA_DIR = moulinette_env["DATA_DIR"]
 
-        for f in os.listdir('%s/actionsmap' % DATA_DIR):
-            if f.endswith('.yml'):
+        for f in os.listdir("%s/actionsmap" % DATA_DIR):
+            if f.endswith(".yml"):
                 namespaces.append(f[:-4])
         return namespaces
 
@@ -562,8 +621,8 @@ class ActionsMap(object):
 
         """
         moulinette_env = init_moulinette_env()
-        CACHE_DIR = moulinette_env['CACHE_DIR']
-        DATA_DIR = moulinette_env['DATA_DIR']
+        CACHE_DIR = moulinette_env["CACHE_DIR"]
+        DATA_DIR = moulinette_env["DATA_DIR"]
 
         actionsmaps = {}
         if not namespaces:
@@ -574,23 +633,23 @@ class ActionsMap(object):
             logger.debug("generating cache for actions map namespace '%s'", n)
 
             # Read actions map from yaml file
-            am_file = '%s/actionsmap/%s.yml' % (DATA_DIR, n)
-            with open(am_file, 'r') as f:
+            am_file = "%s/actionsmap/%s.yml" % (DATA_DIR, n)
+            with open(am_file, "r") as f:
                 actionsmaps[n] = ordered_yaml_load(f)
 
             # at installation, cachedir might not exists
-            if os.path.exists('%s/actionsmap/' % CACHE_DIR):
+            if os.path.exists("%s/actionsmap/" % CACHE_DIR):
                 # clean old cached files
-                for i in os.listdir('%s/actionsmap/' % CACHE_DIR):
+                for i in os.listdir("%s/actionsmap/" % CACHE_DIR):
                     if i.endswith(".pkl"):
-                        os.remove('%s/actionsmap/%s' % (CACHE_DIR, i))
+                        os.remove("%s/actionsmap/%s" % (CACHE_DIR, i))
 
             # Cache actions map into pickle file
             am_file_stat = os.stat(am_file)
 
-            pkl = '%s-%d-%d.pkl' % (n, am_file_stat.st_size, am_file_stat.st_mtime)
+            pkl = "%s-%d-%d.pkl" % (n, am_file_stat.st_size, am_file_stat.st_mtime)
 
-            with open_cachefile(pkl, 'w', subdir='actionsmap') as f:
+            with open_cachefile(pkl, "w", subdir="actionsmap") as f:
                 pickle.dump(actionsmaps[n], f)
 
         return actionsmaps
@@ -631,86 +690,97 @@ class ActionsMap(object):
         # * actionsmap is the actual actionsmap that we care about
         for namespace, actionsmap in actionsmaps.items():
             # Retrieve global parameters
-            _global = actionsmap.pop('_global', {})
+            _global = actionsmap.pop("_global", {})
 
             # Set the global configuration to use for the parser.
-            top_parser.set_global_conf(_global['configuration'])
+            top_parser.set_global_conf(_global["configuration"])
 
             if top_parser.has_global_parser():
-                top_parser.add_global_arguments(_global['arguments'])
+                top_parser.add_global_arguments(_global["arguments"])
 
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
             for category_name, category_values in actionsmap.items():
 
                 if "actions" in category_values:
-                    actions = category_values.pop('actions')
+                    actions = category_values.pop("actions")
                 else:
                     actions = {}
 
                 if "subcategories" in category_values:
-                    subcategories = category_values.pop('subcategories')
+                    subcategories = category_values.pop("subcategories")
                 else:
                     subcategories = {}
 
                 # Get category parser
-                category_parser = top_parser.add_category_parser(category_name,
-                                                                 **category_values)
+                category_parser = top_parser.add_category_parser(
+                    category_name, **category_values
+                )
 
                 # action_name is like "list" of "domain list"
                 # action_options are the values
                 for action_name, action_options in actions.items():
-                    arguments = action_options.pop('arguments', {})
+                    arguments = action_options.pop("arguments", {})
                     tid = (namespace, category_name, action_name)
 
                     # Get action parser
-                    action_parser = category_parser.add_action_parser(action_name,
-                                                                      tid,
-                                                                      **action_options)
+                    action_parser = category_parser.add_action_parser(
+                        action_name, tid, **action_options
+                    )
 
                     if action_parser is None:  # No parser for the action
                         continue
 
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
-                    action_parser.add_arguments(arguments,
-                                                extraparser=self.extraparser,
-                                                format_arg_names=top_parser.format_arg_names,
-                                                validate_extra=validate_extra)
+                    action_parser.add_arguments(
+                        arguments,
+                        extraparser=self.extraparser,
+                        format_arg_names=top_parser.format_arg_names,
+                        validate_extra=validate_extra,
+                    )
 
-                    if 'configuration' in action_options:
-                        category_parser.set_conf(tid, action_options['configuration'])
+                    if "configuration" in action_options:
+                        category_parser.set_conf(tid, action_options["configuration"])
 
                 # subcategory_name is like "cert" in "domain cert status"
                 # subcategory_values is the values of this subcategory (like actions)
                 for subcategory_name, subcategory_values in subcategories.items():
 
-                    actions = subcategory_values.pop('actions')
+                    actions = subcategory_values.pop("actions")
 
                     # Get subcategory parser
-                    subcategory_parser = category_parser.add_subcategory_parser(subcategory_name, **subcategory_values)
+                    subcategory_parser = category_parser.add_subcategory_parser(
+                        subcategory_name, **subcategory_values
+                    )
 
                     # action_name is like "status" of "domain cert status"
                     # action_options are the values
                     for action_name, action_options in actions.items():
-                        arguments = action_options.pop('arguments', {})
+                        arguments = action_options.pop("arguments", {})
                         tid = (namespace, category_name, subcategory_name, action_name)
 
                         try:
                             # Get action parser
-                            action_parser = subcategory_parser.add_action_parser(action_name, tid, **action_options)
+                            action_parser = subcategory_parser.add_action_parser(
+                                action_name, tid, **action_options
+                            )
                         except AttributeError:
                             # No parser for the action
                             continue
 
                         # Store action identifier and add arguments
                         action_parser.set_defaults(_tid=tid)
-                        action_parser.add_arguments(arguments,
-                                                    extraparser=self.extraparser,
-                                                    format_arg_names=top_parser.format_arg_names,
-                                                    validate_extra=validate_extra)
+                        action_parser.add_arguments(
+                            arguments,
+                            extraparser=self.extraparser,
+                            format_arg_names=top_parser.format_arg_names,
+                            validate_extra=validate_extra,
+                        )
 
-                        if 'configuration' in action_options:
-                            category_parser.set_conf(tid, action_options['configuration'])
+                        if "configuration" in action_options:
+                            category_parser.set_conf(
+                                tid, action_options["configuration"]
+                            )
 
         return top_parser

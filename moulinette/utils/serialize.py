@@ -2,10 +2,11 @@ import logging
 from json.encoder import JSONEncoder
 import datetime
 
-logger = logging.getLogger('moulinette.utils.serialize')
+logger = logging.getLogger("moulinette.utils.serialize")
 
 
 # JSON utilities -------------------------------------------------------
+
 
 class JSONExtendedEncoder(JSONEncoder):
 
@@ -26,8 +27,7 @@ class JSONExtendedEncoder(JSONEncoder):
 
         """Return a serializable object"""
         # Convert compatible containers into list
-        if isinstance(o, set) or (
-                hasattr(o, '__iter__') and hasattr(o, 'next')):
+        if isinstance(o, set) or (hasattr(o, "__iter__") and hasattr(o, "next")):
             return list(o)
 
         # Display the date in its iso format ISO-8601 Internet Profile (RFC 3339)
@@ -37,6 +37,9 @@ class JSONExtendedEncoder(JSONEncoder):
             return o.isoformat()
 
         # Return the repr for object that json can't encode
-        logger.warning('cannot properly encode in JSON the object %s, '
-                       'returned repr is: %r', type(o), o)
+        logger.warning(
+            "cannot properly encode in JSON the object %s, " "returned repr is: %r",
+            type(o),
+            o,
+        )
         return repr(o)

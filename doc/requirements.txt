@@ -1,5 +1,4 @@
 sphinx
-gnupg
 mock
 pyyaml
 toml

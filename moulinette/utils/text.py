@@ -6,6 +6,7 @@ import binascii
 
 # Pattern searching ----------------------------------------------------
 
+
 def search(pattern, text, count=0, flags=0):
     """Search for pattern in a text
 
@@ -46,7 +47,7 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
     content by using the search function.
 
     """
-    with open(path, 'r+') as f:
+    with open(path, "r+") as f:
         data = mmap.mmap(f.fileno(), 0)
         match = search(pattern, data, count, flags)
         data.close()
@@ -54,6 +55,7 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
 
 
 # Text formatting ------------------------------------------------------
+
 
 def prependlines(text, prepend):
     """Prepend a string to each line of a text"""
@@ -63,6 +65,7 @@ def prependlines(text, prepend):
 
 # Randomize ------------------------------------------------------------
 
+
 def random_ascii(length=20):
     """Return a random ascii string"""
-    return binascii.hexlify(os.urandom(length)).decode('ascii')
+    return binascii.hexlify(os.urandom(length)).decode("ascii")

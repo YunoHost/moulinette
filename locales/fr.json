@@ -18,7 +18,6 @@
     "invalid_password": "Mot de passe incorrect",
     "invalid_usage": "Utilisation erronée, utilisez --help pour accéder à l’aide",
     "ldap_attribute_already_exists": "L’attribut '{attribute}' existe déjà avec la valeur suivante : '{value}'",
-    "ldap_operation_error": "Une erreur est survenue lors de l’opération LDAP",
     "ldap_server_down": "Impossible d’atteindre le serveur LDAP",
     "logged_in": "Connecté",
     "logged_out": "Déconnecté",
@@ -55,5 +54,6 @@
     "corrupted_toml": "Fichier TOML corrompu en lecture depuis {ressource:s} (cause : {error:s})",
     "warn_the_user_about_waiting_lock": "Une autre commande YunoHost est actuellement en cours, nous attendons qu'elle se termine avant de démarrer celle là",
     "warn_the_user_about_waiting_lock_again": "Toujours en attente...",
-    "warn_the_user_that_lock_is_acquired": "l'autre commande vient de se terminer, lancement de cette commande"
+    "warn_the_user_that_lock_is_acquired": "l’autre commande vient de se terminer, lancement de cette commande",
+    "invalid_token": "Jeton non valide - veuillez vous authentifier"
 }

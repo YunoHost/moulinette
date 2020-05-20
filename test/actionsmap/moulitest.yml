@@ -1,0 +1,123 @@
+
+#############################
+#     Global parameters     #
+#############################
+_global:
+    configuration:
+        authenticate:
+            - all
+        authenticator:
+            default:
+                vendor: dummy
+                help: Dummy Password
+            yoloswag:
+                vendor: dummy
+                help: Dummy Yoloswag Password
+            ldap:
+                vendor: ldap
+                help: admin_password
+                parameters:
+                    uri: ldap://localhost:8080
+                    base_dn: dc=yunohost,dc=org
+                    user_rdn: cn=admin,dc=yunohost,dc=org
+    arguments:
+        -v:
+            full: --version
+            help: Display Yoloswag versions
+            action: callback
+            callback:
+                method: test.src.testauth.yoloswag_version
+                return: true
+        -w:
+            full: --wersion
+            help: Not existing function
+            action: callback
+            callback:
+                method: test.src.testauth.not_existing_function
+                return: true
+
+#############################
+#       Test Actions        #
+#############################
+testauth:
+    actions:
+        none:
+            api: GET /test-auth/none
+            configuration:
+                authenticate: false
+
+        default:
+            api: GET /test-auth/default
+
+        only-api:
+            api: GET /test-auth/only-api
+            configuration:
+                authenticate:
+                    - api
+
+        only-cli:
+            api: GET /test-auth/only-cli
+            configuration:
+                authenticate:
+                    - cli
+
+        other-profile:
+            api: GET /test-auth/other-profile
+            configuration:
+                authenticate:
+                    - all
+                authenticator: yoloswag
+
+        ldap:
+            api: GET /test-auth/ldap
+            configuration:
+                authenticate:
+                    - all
+                authenticator: ldap
+
+        with_arg:
+            api: GET /test-auth/with_arg/<super_arg>
+            arguments:
+                super_arg:
+                    help: Super Arg
+
+        with_extra_str_only:
+            api: GET /test-auth/with_extra_str_only/<only_a_str>
+            arguments:
+                only_a_str:
+                    help: Only a String
+                    extra:
+                        pattern:
+                            - !!str ^[a-zA-Z]
+                            - "pattern_only_a_str"
+
+        with_type_int:
+            api: GET /test-auth/with_type_int/<only_an_int>
+            arguments:
+                only_an_int:
+                    help: Only an Int
+                    type: int
+
+    subcategories:
+        subcat:
+            actions:
+                none:
+                    api: GET /test-auth/subcat/none
+                    configuration:
+                        authenticate: false
+
+                default:
+                    api: GET /test-auth/subcat/default
+
+                post:
+                    api: POST /test-auth/subcat/post
+                    configuration:
+                        authenticate:
+                            - all
+                        authenticator: default
+
+
+                other-profile:
+                    api: GET /test-auth/subcat/other-profile
+                    configuration:
+                        authenticator: yoloswag

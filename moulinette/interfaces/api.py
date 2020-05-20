@@ -14,22 +14,24 @@ from bottle import run, request, response, Bottle, HTTPResponse
 from bottle import abort
 
 from moulinette import msignals, m18n, env
-from moulinette.core import MoulinetteError, clean_session
+from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
-    BaseActionsMapParser, BaseInterface, ExtendedArgumentParser,
+    BaseActionsMapParser,
+    BaseInterface,
+    ExtendedArgumentParser,
 )
 from moulinette.utils import log
 from moulinette.utils.serialize import JSONExtendedEncoder
 from moulinette.utils.text import random_ascii
 
-logger = log.getLogger('moulinette.interface.api')
+logger = log.getLogger("moulinette.interface.api")
 
 
 # API helpers ----------------------------------------------------------
 
-CSRF_TYPES = set(["text/plain",
-                  "application/x-www-form-urlencoded",
-                  "multipart/form-data"])
+CSRF_TYPES = set(
+    ["text/plain", "application/x-www-form-urlencoded", "multipart/form-data"]
+)
 
 
 def is_csrf():
@@ -39,7 +41,7 @@ def is_csrf():
         return False
     if request.content_type is None:
         return True
-    content_type = request.content_type.lower().split(';')[0]
+    content_type = request.content_type.lower().split(";")[0]
     if content_type not in CSRF_TYPES:
         return False
 
@@ -53,12 +55,14 @@ def filter_csrf(callback):
             abort(403, "CSRF protection")
         else:
             return callback(*args, **kwargs)
+
     return wrapper
 
 
 class LogQueues(dict):
 
     """Map of session id to queue."""
+
     pass
 
 
@@ -74,7 +78,7 @@ class APIQueueHandler(logging.Handler):
         self.queues = LogQueues()
 
     def emit(self, record):
-        sid = request.get_cookie('session.id')
+        sid = request.get_cookie("session.id")
         try:
             queue = self.queues[sid]
         except KeyError:
@@ -99,13 +103,13 @@ class _HTTPArgumentParser(object):
 
     def __init__(self):
         # Initialize the ArgumentParser object
-        self._parser = ExtendedArgumentParser(usage='',
-                                              prefix_chars='@',
-                                              add_help=False)
+        self._parser = ExtendedArgumentParser(
+            usage="", prefix_chars="@", add_help=False
+        )
         self._parser.error = self._error
 
-        self._positional = []   # list(arg_name)
-        self._optional = {}     # dict({arg_name: option_strings})
+        self._positional = []  # list(arg_name)
+        self._optional = {}  # dict({arg_name: option_strings})
 
     def set_defaults(self, **kwargs):
         return self._parser.set_defaults(**kwargs)
@@ -113,20 +117,24 @@ class _HTTPArgumentParser(object):
     def get_default(self, dest):
         return self._parser.get_default(dest)
 
-    def add_arguments(self, arguments, extraparser, format_arg_names=None, validate_extra=True):
+    def add_arguments(
+        self, arguments, extraparser, format_arg_names=None, validate_extra=True
+    ):
         for argument_name, argument_options in arguments.items():
             # will adapt arguments name for cli or api context
-            names = format_arg_names(str(argument_name),
-                                     argument_options.pop('full', None))
+            names = format_arg_names(
+                str(argument_name), argument_options.pop("full", None)
+            )
 
             if "type" in argument_options:
-                argument_options['type'] = eval(argument_options['type'])
+                argument_options["type"] = eval(argument_options["type"])
 
             if "extra" in argument_options:
-                extra = argument_options.pop('extra')
+                extra = argument_options.pop("extra")
                 argument_dest = self.add_argument(*names, **argument_options).dest
-                extraparser.add_argument(self.get_default("_tid"),
-                                         argument_dest, extra, validate_extra)
+                extraparser.add_argument(
+                    self.get_default("_tid"), argument_dest, extra, validate_extra
+                )
                 continue
 
             self.add_argument(*names, **argument_options)
@@ -166,12 +174,19 @@ class _HTTPArgumentParser(object):
                     if isinstance(v, str):
                         arg_strings.append(v)
                     else:
-                        logger.warning("unsupported argument value type %r "
-                                       "in %s for option string %s", v, value,
-                                       option_string)
+                        logger.warning(
+                            "unsupported argument value type %r "
+                            "in %s for option string %s",
+                            v,
+                            value,
+                            option_string,
+                        )
             else:
-                logger.warning("unsupported argument type %r for option "
-                               "string %s", value, option_string)
+                logger.warning(
+                    "unsupported argument type %r for option " "string %s",
+                    value,
+                    option_string,
+                )
 
             return arg_strings
 
@@ -208,14 +223,15 @@ class _ActionsMapPlugin(object):
             to serve messages coming from the 'display' signal
 
     """
-    name = 'actionsmap'
+
+    name = "actionsmap"
     api = 2
 
     def __init__(self, actionsmap, use_websocket, log_queues={}):
         # Connect signals to handlers
-        msignals.set_handler('authenticate', self._do_authenticate)
+        msignals.set_handler("authenticate", self._do_authenticate)
         if use_websocket:
-            msignals.set_handler('display', self._do_display)
+            msignals.set_handler("display", self._do_display)
 
         self.actionsmap = actionsmap
         self.use_websocket = use_websocket
@@ -237,37 +253,50 @@ class _ActionsMapPlugin(object):
             def wrapper():
                 kwargs = {}
                 try:
-                    kwargs['password'] = request.POST['password']
+                    kwargs["password"] = request.POST["password"]
                 except KeyError:
                     raise HTTPBadRequestResponse("Missing password parameter")
-                try:
-                    kwargs['profile'] = request.POST['profile']
-                except KeyError:
-                    pass
+
+                kwargs["profile"] = request.POST.get("profile", "default")
                 return callback(**kwargs)
+
             return wrapper
 
         # Logout wrapper
         def _logout(callback):
             def wrapper():
                 kwargs = {}
-                try:
-                    kwargs['profile'] = request.POST.get('profile')
-                except KeyError:
-                    pass
+                kwargs["profile"] = request.POST.get("profile", "default")
                 return callback(**kwargs)
+
             return wrapper
 
         # Append authentication routes
-        app.route('/login', name='login', method='POST',
-                  callback=self.login, skip=['actionsmap'], apply=_login)
-        app.route('/logout', name='logout', method='GET',
-                  callback=self.logout, skip=['actionsmap'], apply=_logout)
+        app.route(
+            "/login",
+            name="login",
+            method="POST",
+            callback=self.login,
+            skip=["actionsmap"],
+            apply=_login,
+        )
+        app.route(
+            "/logout",
+            name="logout",
+            method="GET",
+            callback=self.logout,
+            skip=["actionsmap"],
+            apply=_logout,
+        )
 
         # Append messages route
         if self.use_websocket:
-            app.route('/messages', name='messages',
-                      callback=self.messages, skip=['actionsmap'])
+            app.route(
+                "/messages",
+                name="messages",
+                callback=self.messages,
+                skip=["actionsmap"],
+            )
 
         # Append routes from the actions map
         for (m, p) in self.actionsmap.parser.routes:
@@ -284,6 +313,7 @@ class _ActionsMapPlugin(object):
             context -- An instance of Route
 
         """
+
         def _format(value):
             if isinstance(value, list) and len(value) == 1:
                 return value[0]
@@ -297,11 +327,10 @@ class _ActionsMapPlugin(object):
             # Append other request params
             for k, v in request.params.dict.items():
                 v = _format(v)
-                try:
-                    curr_v = params[k]
-                except KeyError:
+                if k not in params.keys():
                     params[k] = v
                 else:
+                    curr_v = params[k]
                     # Append param value to the list
                     if not isinstance(curr_v, list):
                         curr_v = [curr_v]
@@ -314,11 +343,12 @@ class _ActionsMapPlugin(object):
 
             # Process the action
             return callback((request.method, context.rule), params)
+
         return wrapper
 
     # Routes callbacks
 
-    def login(self, password, profile='default'):
+    def login(self, password, profile):
         """Log in to an authenticator profile
 
         Attempt to authenticate to a given authenticator profile and
@@ -331,22 +361,32 @@ class _ActionsMapPlugin(object):
 
         """
         # Retrieve session values
-        s_id = request.get_cookie('session.id') or random_ascii()
+        try:
+            s_id = request.get_cookie("session.id") or random_ascii()
+        except:
+            # Super rare case where there are super weird cookie / cache issue
+            # Previous line throws a CookieError that creates a 500 error ...
+            # So let's catch it and just use a fresh ID then...
+            s_id = random_ascii()
+
         try:
             s_secret = self.secrets[s_id]
         except KeyError:
-            s_hashes = {}
+            s_tokens = {}
         else:
-            s_hashes = request.get_cookie('session.hashes',
-                                          secret=s_secret) or {}
-        s_hash = random_ascii()
+            try:
+                s_tokens = request.get_cookie("session.tokens", secret=s_secret) or {}
+            except:
+                # Same as for session.id a few lines before
+                s_tokens = {}
+        s_new_token = random_ascii()
 
         try:
             # Attempt to authenticate
-            auth = self.actionsmap.get_authenticator(profile)
-            auth(password, token=(s_id, s_hash))
+            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator(password, token=(s_id, s_new_token))
         except MoulinetteError as e:
-            if len(s_hashes) > 0:
+            if len(s_tokens) > 0:
                 try:
                     self.logout(profile)
                 except:
@@ -354,15 +394,16 @@ class _ActionsMapPlugin(object):
             raise HTTPUnauthorizedResponse(e.strerror)
         else:
             # Update dicts with new values
-            s_hashes[profile] = s_hash
+            s_tokens[profile] = s_new_token
             self.secrets[s_id] = s_secret = random_ascii()
 
-            response.set_cookie('session.id', s_id, secure=True)
-            response.set_cookie('session.hashes', s_hashes, secure=True,
-                                secret=s_secret)
-            return m18n.g('logged_in')
+            response.set_cookie("session.id", s_id, secure=True)
+            response.set_cookie(
+                "session.tokens", s_tokens, secure=True, secret=s_secret
+            )
+            return m18n.g("logged_in")
 
-    def logout(self, profile=None):
+    def logout(self, profile):
         """Log out from an authenticator profile
 
         Attempt to unregister a given profile - or all by default - from
@@ -372,17 +413,26 @@ class _ActionsMapPlugin(object):
             - profile -- The authenticator profile name to log out
 
         """
-        s_id = request.get_cookie('session.id')
+        s_id = request.get_cookie("session.id")
+        # We check that there's a (signed) session.hash available
+        # for additional security ?
+        # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
         try:
-            del self.secrets[s_id]
+            s_secret = self.secrets[s_id]
         except KeyError:
-            raise HTTPUnauthorizedResponse(m18n.g('not_logged_in'))
+            s_secret = {}
+        if profile not in request.get_cookie(
+            "session.tokens", secret=s_secret, default={}
+        ):
+            raise HTTPUnauthorizedResponse(m18n.g("not_logged_in"))
         else:
+            del self.secrets[s_id]
+            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator._clean_session(s_id)
             # TODO: Clean the session for profile only
             # Delete cookie and clean the session
-            response.set_cookie('session.hashes', '', max_age=-1)
-            clean_session(s_id)
-        return m18n.g('logged_out')
+            response.set_cookie("session.tokens", "", max_age=-1)
+        return m18n.g("logged_out")
 
     def messages(self):
         """Listen to the messages WebSocket stream
@@ -392,7 +442,7 @@ class _ActionsMapPlugin(object):
         dict { style: message }.
 
         """
-        s_id = request.get_cookie('session.id')
+        s_id = request.get_cookie("session.id")
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -400,9 +450,9 @@ class _ActionsMapPlugin(object):
             queue = Queue()
             self.log_queues[s_id] = queue
 
-        wsock = request.environ.get('wsgi.websocket')
+        wsock = request.environ.get("wsgi.websocket")
         if not wsock:
-            raise HTTPErrorResponse(m18n.g('websocket_request_expected'))
+            raise HTTPErrorResponse(m18n.g("websocket_request_expected"))
 
         while True:
             item = queue.get()
@@ -443,17 +493,16 @@ class _ActionsMapPlugin(object):
             if isinstance(e, HTTPResponse):
                 raise e
             import traceback
+
             tb = traceback.format_exc()
-            logs = {"route": _route,
-                    "arguments": arguments,
-                    "traceback": tb}
+            logs = {"route": _route, "arguments": arguments, "traceback": tb}
             return HTTPErrorResponse(json_encode(logs))
         else:
             return format_for_response(ret)
         finally:
             # Close opened WebSocket by putting StopIteration in the queue
             try:
-                queue = self.log_queues[request.get_cookie('session.id')]
+                queue = self.log_queues[request.get_cookie("session.id")]
             except KeyError:
                 pass
             else:
@@ -461,26 +510,23 @@ class _ActionsMapPlugin(object):
 
     # Signals handlers
 
-    def _do_authenticate(self, authenticator, help):
+    def _do_authenticate(self, authenticator):
         """Process the authentication
 
         Handle the core.MoulinetteSignals.authenticate signal.
 
         """
-        s_id = request.get_cookie('session.id')
+        s_id = request.get_cookie("session.id")
         try:
             s_secret = self.secrets[s_id]
-            s_hash = request.get_cookie('session.hashes',
-                                        secret=s_secret, default={})[authenticator.name]
+            s_token = request.get_cookie("session.tokens", secret=s_secret, default={})[
+                authenticator.name
+            ]
         except KeyError:
-            if authenticator.name == 'default':
-                msg = m18n.g('authentication_required')
-            else:
-                msg = m18n.g('authentication_profile_required',
-                             profile=authenticator.name)
+            msg = m18n.g("authentication_required")
             raise HTTPUnauthorizedResponse(msg)
         else:
-            return authenticator(token=(s_id, s_hash))
+            return authenticator(token=(s_id, s_token))
 
     def _do_display(self, message, style):
         """Display a message
@@ -488,7 +534,7 @@ class _ActionsMapPlugin(object):
         Handle the core.MoulinetteSignals.display signal.
 
         """
-        s_id = request.get_cookie('session.id')
+        s_id = request.get_cookie("session.id")
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -504,49 +550,47 @@ class _ActionsMapPlugin(object):
 
 # HTTP Responses -------------------------------------------------------
 
-class HTTPOKResponse(HTTPResponse):
 
-    def __init__(self, output=''):
+class HTTPOKResponse(HTTPResponse):
+    def __init__(self, output=""):
         super(HTTPOKResponse, self).__init__(output, 200)
 
 
 class HTTPBadRequestResponse(HTTPResponse):
-
-    def __init__(self, output=''):
+    def __init__(self, output=""):
         super(HTTPBadRequestResponse, self).__init__(output, 400)
 
 
 class HTTPUnauthorizedResponse(HTTPResponse):
-
-    def __init__(self, output=''):
+    def __init__(self, output=""):
         super(HTTPUnauthorizedResponse, self).__init__(output, 401)
 
 
 class HTTPErrorResponse(HTTPResponse):
-
-    def __init__(self, output=''):
+    def __init__(self, output=""):
         super(HTTPErrorResponse, self).__init__(output, 500)
 
 
 def format_for_response(content):
     """Format the resulted content of a request for the HTTP response."""
-    if request.method == 'POST':
+    if request.method == "POST":
         response.status = 201  # Created
-    elif request.method == 'GET':
+    elif request.method == "GET":
         response.status = 200  # Ok
     else:
         # Return empty string if no content
         if content is None or len(content) == 0:
             response.status = 204  # No Content
-            return ''
+            return ""
         response.status = 200
 
     # Return JSON-style response
-    response.content_type = 'application/json'
+    response.content_type = "application/json"
     return json_encode(content, cls=JSONExtendedEncoder)
 
 
 # API Classes Implementation -------------------------------------------
+
 
 class ActionsMapParser(BaseActionsMapParser):
 
@@ -561,7 +605,7 @@ class ActionsMapParser(BaseActionsMapParser):
         super(ActionsMapParser, self).__init__(parent)
 
         self._parsers = {}  # dict({(method, path): _HTTPArgumentParser})
-        self._route_re = re.compile(r'(GET|POST|PUT|DELETE) (/\S+)')
+        self._route_re = re.compile(r"(GET|POST|PUT|DELETE) (/\S+)")
 
     @property
     def routes(self):
@@ -570,19 +614,19 @@ class ActionsMapParser(BaseActionsMapParser):
 
     # Implement virtual properties
 
-    interface = 'api'
+    interface = "api"
 
     # Implement virtual methods
 
     @staticmethod
     def format_arg_names(name, full):
-        if name[0] != '-':
+        if name[0] != "-":
             return [name]
         if full:
-            return [full.replace('--', '@', 1)]
-        if name.startswith('--'):
-            return [name.replace('--', '@', 1)]
-        return [name.replace('-', '@', 1)]
+            return [full.replace("--", "@", 1)]
+        if name.startswith("--"):
+            return [name.replace("--", "@", 1)]
+        return [name.replace("-", "@", 1)]
 
     def add_category_parser(self, name, **kwargs):
         return self
@@ -611,8 +655,9 @@ class ActionsMapParser(BaseActionsMapParser):
                     try:
                         keys.append(self._extract_route(r))
                     except ValueError as e:
-                        logger.warning("cannot add api route '%s' for "
-                                       "action %s: %s", r, tid, e)
+                        logger.warning(
+                            "cannot add api route '%s' for " "action %s: %s", r, tid, e
+                        )
                         continue
                 if len(keys) == 0:
                     raise ValueError("no valid api route found")
@@ -627,6 +672,28 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
+    def auth_required(self, args, **kwargs):
+        try:
+            # Retrieve the tid for the route
+            tid, _ = self._parsers[kwargs.get("route")]
+        except KeyError:
+            logger.error("no argument parser found for route '%s'", kwargs.get("route"))
+            raise MoulinetteError("error_see_log")
+
+        if self.get_conf(tid, "authenticate"):
+            authenticator = self.get_conf(tid, "authenticator")
+
+            # If several authenticator, use the default one
+            if isinstance(authenticator, dict):
+                if "default" in authenticator:
+                    authenticator = "default"
+                else:
+                    # TODO which one should we use?
+                    pass
+            return authenticator
+        else:
+            return False
+
     def parse_args(self, args, route, **kwargs):
         """Parse arguments
 
@@ -635,27 +702,12 @@ class ActionsMapParser(BaseActionsMapParser):
 
         """
         try:
-            # Retrieve the tid and the parser for the route
-            tid, parser = self._parsers[route]
+            # Retrieve the parser for the route
+            _, parser = self._parsers[route]
         except KeyError:
             logger.error("no argument parser found for route '%s'", route)
-            raise MoulinetteError('error_see_log')
+            raise MoulinetteError("error_see_log")
         ret = argparse.Namespace()
-
-        # Perform authentication if needed
-        if self.get_conf(tid, 'authenticate'):
-            # TODO: Clean this hard fix and find a way to set an authenticator
-            # to use for the api only
-            # auth_conf, klass = self.get_conf(tid, 'authenticator')
-            auth_conf, klass = self.get_global_conf('authenticator', 'default')
-
-            # TODO: Catch errors
-            auth = msignals.authenticate(klass(), **auth_conf)
-            if not auth.is_authenticated:
-                raise MoulinetteError('authentication_required_long')
-            if self.get_conf(tid, 'argument_auth') and \
-               self.get_conf(tid, 'authenticate') == 'all':
-                ret.auth = auth
 
         # TODO: Catch errors?
         ret = parser.parse_args(args, ret)
@@ -702,8 +754,7 @@ class Interface(BaseInterface):
 
     """
 
-    def __init__(self, actionsmap, routes={}, use_websocket=True,
-                 log_queues=None):
+    def __init__(self, actionsmap, routes={}, use_websocket=True, log_queues=None):
         self.use_websocket = use_websocket
 
         # Attempt to retrieve log queues from an APIQueueHandler
@@ -718,14 +769,15 @@ class Interface(BaseInterface):
         # Wrapper which sets proper header
         def apiheader(callback):
             def wrapper(*args, **kwargs):
-                response.set_header('Access-Control-Allow-Origin', '*')
+                response.set_header("Access-Control-Allow-Origin", "*")
                 return callback(*args, **kwargs)
+
             return wrapper
 
         # Attempt to retrieve and set locale
         def api18n(callback):
             try:
-                locale = request.params.pop('locale')
+                locale = request.params.pop("locale")
             except KeyError:
                 locale = m18n.default_locale
             m18n.set_locale(locale)
@@ -738,17 +790,17 @@ class Interface(BaseInterface):
         app.install(_ActionsMapPlugin(actionsmap, use_websocket, log_queues))
 
         # Append default routes
-#        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
-#                  callback=self.doc, skip=['actionsmap'])
+        #        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
+        #                  callback=self.doc, skip=['actionsmap'])
 
         # Append additional routes
         # TODO: Add optional authentication to those routes?
         for (m, p), c in routes.items():
-            app.route(p, method=m, callback=c, skip=['actionsmap'])
+            app.route(p, method=m, callback=c, skip=["actionsmap"])
 
         self._app = app
 
-    def run(self, host='localhost', port=80):
+    def run(self, host="localhost", port=80):
         """Run the moulinette
 
         Start a server instance on the given port to serve moulinette
@@ -759,25 +811,29 @@ class Interface(BaseInterface):
             - port -- Server port to bind to
 
         """
-        logger.debug("starting the server instance in %s:%d with websocket=%s",
-                     host, port, self.use_websocket)
+        logger.debug(
+            "starting the server instance in %s:%d with websocket=%s",
+            host,
+            port,
+            self.use_websocket,
+        )
 
         try:
             if self.use_websocket:
                 from gevent.pywsgi import WSGIServer
                 from geventwebsocket.handler import WebSocketHandler
 
-                server = WSGIServer((host, port), self._app,
-                                    handler_class=WebSocketHandler)
+                server = WSGIServer(
+                    (host, port), self._app, handler_class=WebSocketHandler
+                )
                 server.serve_forever()
             else:
                 run(self._app, host=host, port=port)
         except IOError as e:
-            logger.exception("unable to start the server instance on %s:%d",
-                             host, port)
+            logger.exception("unable to start the server instance on %s:%d", host, port)
             if e.args[0] == errno.EADDRINUSE:
-                raise MoulinetteError('server_already_running')
-            raise MoulinetteError('error_see_log')
+                raise MoulinetteError("server_already_running")
+            raise MoulinetteError("error_see_log")
 
     # Routes handlers
 
@@ -789,14 +845,14 @@ class Interface(BaseInterface):
             category -- Name of the category
 
         """
-        DATA_DIR = env()['DATA_DIR']
+        DATA_DIR = env()["DATA_DIR"]
 
         if category is None:
-            with open('%s/../doc/resources.json' % DATA_DIR) as f:
+            with open("%s/../doc/resources.json" % DATA_DIR) as f:
                 return f.read()
 
         try:
-            with open('%s/../doc/%s.json' % (DATA_DIR, category)) as f:
+            with open("%s/../doc/%s.json" % (DATA_DIR, category)) as f:
                 return f.read()
         except IOError:
             return None

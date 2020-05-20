@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import gnupg
+import os
 import logging
+import hashlib
+import hmac
 
-from moulinette.cache import open_cachefile
+from moulinette.cache import open_cachefile, get_cachedir, cachefile_exists
 from moulinette.core import MoulinetteError
 
-logger = logging.getLogger('moulinette.authenticator')
+logger = logging.getLogger("moulinette.authenticator")
 
 
 # Base Class -----------------------------------------------------------
+
 
 class BaseAuthenticator(object):
 
@@ -29,8 +32,11 @@ class BaseAuthenticator(object):
 
     """
 
-    def __init__(self, name):
+    def __init__(self, name, vendor, parameters, extra):
         self._name = name
+        self.vendor = vendor
+        self.is_authenticated = False
+        self.extra = extra
 
     @property
     def name(self):
@@ -42,12 +48,6 @@ class BaseAuthenticator(object):
 
     """The vendor name of the authenticator"""
     vendor = None
-
-    @property
-    def is_authenticated(self):
-        """Either the instance is authenticated or not"""
-        raise NotImplementedError("derived class '%s' must override this property" %
-                                  self.__class__.__name__)
 
     # Virtual methods
     # Each authenticator classes must implement these methods.
@@ -62,8 +62,9 @@ class BaseAuthenticator(object):
             - password -- A clear text password
 
         """
-        raise NotImplementedError("derived class '%s' must override this method" %
-                                  self.__class__.__name__)
+        raise NotImplementedError(
+            "derived class '%s' must override this method" % self.__class__.__name__
+        )
 
     # Authentication methods
 
@@ -75,7 +76,7 @@ class BaseAuthenticator(object):
         instance is returned and the session is registered for the token
         if 'token' and 'password' are given.
         The token is composed by the session identifier and a session
-        hash - to use for encryption - as a 2-tuple.
+        hash (the "true token") - to use for encryption - as a 2-tuple.
 
         Keyword arguments:
             - password -- A clear text password
@@ -87,81 +88,139 @@ class BaseAuthenticator(object):
         """
         if self.is_authenticated:
             return self
-        store_session = True if password and token else False
 
-        if token:
+        #
+        # Authenticate using the password
+        #
+        if password:
             try:
-                # Extract id and hash from token
-                s_id, s_hash = token
-            except TypeError as e:
-                logger.error("unable to extract token parts from '%s' because '%s'", token, e)
-                if password is None:
-                    raise MoulinetteError('error_see_log')
-
-                logger.info("session will not be stored")
-                store_session = False
-            else:
-                if password is None:
-                    # Retrieve session
-                    password = self._retrieve_session(s_id, s_hash)
-
-        try:
-            # Attempt to authenticate
-            self.authenticate(password)
-        except MoulinetteError:
-            raise
-        except Exception as e:
-            logger.exception("authentication (name: '%s', vendor: '%s') fails because '%s'",
-                             self.name, self.vendor, e)
-            raise MoulinetteError('unable_authenticate')
-
-        # Store session
-        if store_session:
-            try:
-                self._store_session(s_id, s_hash, password)
+                # Attempt to authenticate
+                self.authenticate(password)
+            except MoulinetteError:
+                raise
             except Exception as e:
-                import traceback
-                traceback.print_exc()
-                logger.exception("unable to store session because %s", e)
+                logger.exception(
+                    "authentication (name: '%s', vendor: '%s') fails because '%s'",
+                    self.name,
+                    self.vendor,
+                    e,
+                )
+                raise MoulinetteError("unable_authenticate")
+
+            self.is_authenticated = True
+
+            # Store session for later using the provided (new) token if any
+            if token:
+                try:
+                    s_id, s_token = token
+                    self._store_session(s_id, s_token)
+                except Exception as e:
+                    import traceback
+
+                    traceback.print_exc()
+                    logger.exception("unable to store session because %s", e)
+                else:
+                    logger.debug("session has been stored")
+
+        #
+        # Authenticate using the token provided
+        #
+        elif token:
+            try:
+                s_id, s_token = token
+                # Attempt to authenticate
+                self._authenticate_session(s_id, s_token)
+            except MoulinetteError as e:
+                raise
+            except Exception as e:
+                logger.exception(
+                    "authentication (name: '%s', vendor: '%s') fails because '%s'",
+                    self.name,
+                    self.vendor,
+                    e,
+                )
+                raise MoulinetteError("unable_authenticate")
             else:
-                logger.debug("session has been stored")
+                self.is_authenticated = True
+
+        #
+        # No credentials given, can't authenticate
+        #
+        else:
+            raise MoulinetteError("unable_authenticate")
 
         return self
 
     # Private methods
 
-    def _open_sessionfile(self, session_id, mode='r'):
+    def _open_sessionfile(self, session_id, mode="r"):
         """Open a session file for this instance in given mode"""
-        return open_cachefile('%s.asc' % session_id, mode,
-                              subdir='session/%s' % self.name)
+        return open_cachefile(
+            "%s.asc" % session_id, mode, subdir="session/%s" % self.name
+        )
 
-    def _store_session(self, session_id, session_hash, password):
-        """Store a session and its associated password"""
-        gpg = gnupg.GPG()
-        gpg.encoding = 'utf-8'
+    def _session_exists(self, session_id):
+        """Check a session exists"""
+        return cachefile_exists("%s.asc" % session_id, subdir="session/%s" % self.name)
 
-        # Encrypt the password using the session hash
-        s = str(gpg.encrypt(password, None, symmetric=True, passphrase=session_hash))
-        assert len(s), "For some reason GPG can't perform encryption, maybe check /root/.gnupg/gpg.conf or re-run with gpg = gnupg.GPG(verbose=True) ?"
+    def _store_session(self, session_id, session_token):
+        """Store a session to be able to use it later to reauthenticate"""
 
-        with self._open_sessionfile(session_id, 'w') as f:
-            f.write(s)
+        # We store a hash of the session_id and the session_token (the token is assumed to be secret)
+        to_hash = "{id}:{token}".format(id=session_id, token=session_token)
+        hash_ = hashlib.sha256(to_hash).hexdigest()
+        with self._open_sessionfile(session_id, "w") as f:
+            f.write(hash_)
 
-    def _retrieve_session(self, session_id, session_hash):
-        """Retrieve a session and return its associated password"""
+    def _authenticate_session(self, session_id, session_token):
+        """Checks session and token against the stored session token"""
+        if not self._session_exists(session_id):
+            raise MoulinetteError("session_expired")
         try:
-            with self._open_sessionfile(session_id, 'r') as f:
-                enc_pwd = f.read()
+            # FIXME : shouldn't we also add a check that this session file
+            # is not too old ? e.g. not older than 24 hours ? idk...
+
+            with self._open_sessionfile(session_id, "r") as f:
+                stored_hash = f.read()
         except IOError as e:
             logger.debug("unable to retrieve session", exc_info=1)
-            raise MoulinetteError('unable_retrieve_session', exception=e)
+            raise MoulinetteError("unable_retrieve_session", exception=e)
         else:
-            gpg = gnupg.GPG()
-            gpg.encoding = 'utf-8'
+            #
+            # session_id (or just id) : This is unique id for the current session from the user. Not too important
+            # if this info gets stolen somehow. It is stored in the client's side (browser) using regular cookies.
+            #
+            # session_token (or just token) : This is a secret info, like some sort of ephemeral password,
+            # used to authenticate the session without the user having to retype the password all the time...
+            #    - It is generated on our side during the initial auth of the user (which happens with the actual admin password)
+            #    - It is stored on the client's side (browser) using (signed) cookies.
+            #    - We also store it on our side in the form of a hash of {id}:{token} (c.f. _store_session).
+            #      We could simply store the raw token, but hashing it is an additonal low-cost security layer
+            #      in case this info gets exposed for some reason (e.g. bad file perms for reasons...)
+            #
+            # When the user comes back, we fetch the session_id and session_token from its cookies. Then we
+            # re-hash the {id}:{token} and compare it to the previously stored hash for this session_id ...
+            # It it matches, then the user is authenticated. Otherwise, the token is invalid.
+            #
+            to_hash = "{id}:{token}".format(id=session_id, token=session_token)
+            hash_ = hashlib.sha256(to_hash).hexdigest()
 
-            decrypted = gpg.decrypt(enc_pwd, passphrase=session_hash)
-            if decrypted.ok is not True:
-                error_message = "unable to decrypt password for the session: %s" % decrypted.status
-                logger.error(error_message)
-                raise MoulinetteError('unable_retrieve_session', exception=error_message)
-            return decrypted.data
+            if not hmac.compare_digest(hash_, stored_hash):
+                raise MoulinetteError("invalid_token")
+            else:
+                return
+
+    def _clean_session(self, session_id):
+        """Clean a session cache
+
+        Remove cache for the session 'session_id' and for this authenticator profile
+
+        Keyword arguments:
+            - session_id -- The session id to clean
+        """
+        sessiondir = get_cachedir("session")
+
+        try:
+            os.remove(os.path.join(sessiondir, self.name, "%s.asc" % session_id))
+        except OSError:
+            pass

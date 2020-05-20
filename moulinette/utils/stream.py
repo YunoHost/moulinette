@@ -7,6 +7,7 @@ from multiprocessing.queues import SimpleQueue
 
 # Read from a stream ---------------------------------------------------
 
+
 class AsynchronousFileReader(Process):
 
     """
@@ -20,8 +21,8 @@ class AsynchronousFileReader(Process):
     """
 
     def __init__(self, fd, queue):
-        assert hasattr(queue, 'put')
-        assert hasattr(queue, 'empty')
+        assert hasattr(queue, "put")
+        assert hasattr(queue, "empty")
         assert isinstance(fd, int) or callable(fd.readline)
         Process.__init__(self)
         self._fd = fd
@@ -34,7 +35,7 @@ class AsynchronousFileReader(Process):
         # Typically that's for stdout/stderr pipes
         # We can read the stuff easily with 'readline'
         if not isinstance(self._fd, int):
-            for line in iter(self._fd.readline, ''):
+            for line in iter(self._fd.readline, ""):
                 self._queue.put(line)
 
         # Else, it got opened with os.open() and we have to read it
@@ -42,9 +43,16 @@ class AsynchronousFileReader(Process):
         else:
             data = ""
             while True:
-                # Try to read (non-blockingly) a few bytes, append them to
-                # the buffer
-                data += os.read(self._fd, 50)
+                try:
+                    # Try to read (non-blockingly) a few bytes, append them to
+                    # the buffer
+                    data += os.read(self._fd, 50)
+                except Exception as e:
+                    print(
+                        "from moulinette.utils.stream: could not read file descriptor : %s"
+                        % str(e)
+                    )
+                    continue
 
                 # If nobody's writing in there anymore, get out
                 if not data and os.fstat(self._fd).st_nlink == 0:
@@ -52,10 +60,10 @@ class AsynchronousFileReader(Process):
 
                 # If we have data, extract a line (ending with \n) and feed
                 # it to the consumer
-                if data and '\n' in data:
-                    lines = data.split('\n')
+                if data and "\n" in data:
+                    lines = data.split("\n")
                     self._queue.put(lines[0])
-                    data = '\n'.join(lines[1:])
+                    data = "\n".join(lines[1:])
                 else:
                     time.sleep(0.05)
 
@@ -75,7 +83,6 @@ class AsynchronousFileReader(Process):
 
 
 class Consummer(object):
-
     def __init__(self, queue, callback):
         self.queue = queue
         self.callback = callback
