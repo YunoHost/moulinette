@@ -1,3 +1,12 @@
+moulinette (3.8.1.2) stable; urgency=low
+
+  - [fix] locale parsing in some edge case
+  - [i18n] Translations updated for Chinese (Simplified), Catalan, French, Nepali, Occitan
+
+  Thanks to all contributors ! (Aleks, amirale qt, clecle226, Quent√, xaloc33
+
+ -- Kay0u <pierre@kayou.io>  Fri, 22 May 2020 07:58:19 +0000
+
 moulinette (3.8.1.1) stable; urgency=low
 
   Bumping version number for stable release
