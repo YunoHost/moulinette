@@ -51,9 +51,11 @@
     "download_bad_status_code": "{url:s} ha restituito il codice di stato {code:s}",
     "command_unknown": "Comando '{command:s}' sconosciuto ?",
     "info": "Info:",
-    "warn_the_user_that_lock_is_acquired": "l'altro comando è appena completato, ora avvia questo comando",
+    "warn_the_user_that_lock_is_acquired": "l'altro comando è appena completato, ora avvio questo comando",
     "warn_the_user_about_waiting_lock_again": "Sto ancora aspettando ...",
     "warn_the_user_about_waiting_lock": "Un altro comando YunoHost è in esecuzione in questo momento, stiamo aspettando che finisca prima di eseguire questo",
     "corrupted_toml": "Toml corrotto da {ressource:s} (motivo: {errore:s})",
-    "invalid_token": "Token non valido: autenticare"
+    "invalid_token": "Token non valido: autenticare",
+    "session_expired": "La sessione è terminata. Sei pregato di autenticarti nuovamente.",
+    "ldap_server_is_down_restart_it": "Il servizio LDAP è terminato, riprovo ad avviarlo..."
 }
