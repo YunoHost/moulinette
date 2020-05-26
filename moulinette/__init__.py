@@ -9,8 +9,7 @@ from moulinette.core import (
 from moulinette.globals import init_moulinette_env
 
 __title__ = "moulinette"
-__version__ = "0.1"
-__author__ = ["Kload", "jlebleu", "titoko", "beudbeud", "npze"]
+__author__ = ["Yunohost Contributors"]
 __license__ = "AGPL 3.0"
 __credits__ = """
     Copyright (C) 2014 YUNOHOST.ORG
