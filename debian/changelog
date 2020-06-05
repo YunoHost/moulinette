@@ -1,3 +1,11 @@
+moulinette (4.0.1~alpha) testing; urgency=low
+
+  - [fix] Get rid of legacy code which breaks postinstall on buster for some reason (ac83b10f)
+  - [fix] Remove legacy Breaks and Replaces (e49a47c7)
+  - [fix] Let's hash the password like we do in core during tests (0c78374e)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Jun 2020 17:32:35 +0200
+
 moulinette (3.8.1.2) stable; urgency=low
 
   - [fix] locale parsing in some edge case
