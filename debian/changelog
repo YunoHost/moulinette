@@ -1,9 +1,18 @@
+moulinette (3.8.1.3) stable; urgency=low
+
+  - Update authorship/maintainer information (7818f07)
+  - [i18n] Translations updated for Arabic, Catalan, French, Italian
+
+  Thanks to all contributors <3 ! (ButterflyOfFire, É. Gaspar, L. Noferini, ppr, xaloc33)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 27 Jul 2020 17:15:36 +0200
+
 moulinette (3.8.1.2) stable; urgency=low
 
   - [fix] locale parsing in some edge case
   - [i18n] Translations updated for Chinese (Simplified), Catalan, French, Nepali, Occitan
 
-  Thanks to all contributors ! (Aleks, amirale qt, clecle226, Quent�, xaloc33
+  Thanks to all contributors ! (Aleks, amirale qt, clecle226, Quentí, xaloc33)
 
  -- Kay0u <pierre@kayou.io>  Fri, 22 May 2020 07:58:19 +0000
 
@@ -49,7 +58,7 @@ moulinette (3.7.1.1) stable; urgency=low
 
   - [fix] Report actual errors when some LDAP operation fails to ease
   debugging
- 
+
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 17 Apr 2020 17:00:00  +0000
 
 moulinette (3.7.1) stable; urgency=low
@@ -68,7 +77,7 @@ moulinette (3.7.0.1) testing; urgency=low
 
   - [fix] Slapd may crash if we try to update the LDAP with no change (moulinette#231)
 
-  Thanks to all contributors (Josue) <3 !
+  Thanks to all contributors (Josué) <3 !
 
  -- Kay0u <pierre@kayou.io>  Sun, 15 Mar 2020 16:09:25 +0000
 
@@ -140,7 +149,7 @@ moulinette (3.5.1) testing; urgency=low
   * [fix] Fix case where stdinfo is not provided in call_async_output (0a300e5)
   * [i18n] Improve translation for Greek, Hungarian, Polish, Swedish, French, Catalan, Occitan
 
-  Thanks to all contributors (Aleks, ariasuni, Quenti, ppr, Xaloc) <3 !
+  Thanks to all contributors (Aleks, ariasuni, Quentí, ppr, Xaloc) <3 !
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 03 Apr 2019 02:25:00 +0000
 
@@ -148,7 +157,7 @@ moulinette (3.5.0) testing; urgency=low
 
   * [i18n] Improve Russian and Chinese (Mandarin) translations
 
-  Contributors : n3uz, Алексей 
+  Contributors : n3uz, Алексей
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 13 Mar 2019 17:20:00 +0000
 
@@ -261,7 +270,7 @@ moulinette (2.7.13) testing; urgency=low
   * [i18n] Improve translations for Portugueuse, Occitan
   * [enh] Add read_yaml util (#161)
 
-  Contributors : Bram, by0ne, Quent-in
+  Contributors : Bram, by0ne, Quentí
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 28 May 2018 02:55:00 +0000
 
@@ -279,7 +288,7 @@ moulinette (2.7.11) testing; urgency=low
   * [fix] Avoid cases where get_cookie returns None
   * [mod] Improve exception logging in ldap stuff
 
-  Thanks to all contributors (pitchum, Bram, ButteflyOfFire, J. Keerl, Matthieu, Jibec, David B, Quenti, bjarkan) <3 !
+  Thanks to all contributors (pitchum, Bram, ButteflyOfFire, J. Keerl, Matthieu, Jibec, David B, Quentí, bjarkan) <3 !
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 01 May 2018 23:33:59 +0000
 
@@ -351,7 +360,7 @@ moulinette (2.7.0) testing; urgency=low
   * [enh] Show description of command in --help (#148)
   * [i18n] Update French translation (#149)
 
-Thanks to all contributors (Bram, Aleks, R. Cabaret) ! <3
+  Thanks to all contributors (Bram, Aleks, R. Cabaret) ! <3
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 07 Aug 2017 13:04:21 -0400
 
@@ -367,9 +376,9 @@ moulinette (2.6.0) testing; urgency=low
 
   * [fix] Use ordered dict for the actionmap cache (#136)
   * [fix] Show positional arguments first in --help / usage (#138)
-  * Update translations for Portuguese, German, Dutch 
+  * Update translations for Portuguese, German, Dutch
 
-Thanks to all contributors and translators ! (Trollken, frju, Fabien Gruber, Jeroen Keerl, Aleks)
+  Thanks to all contributors and translators ! (Trollken, frju, Fabien Gruber, Jeroen Keerl, Aleks)
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 24 Apr 2017 12:44:23 -0400
 
