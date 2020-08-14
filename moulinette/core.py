@@ -5,8 +5,6 @@ import time
 import json
 import logging
 
-from importlib import import_module
-
 import moulinette
 from moulinette.globals import init_moulinette_env
 
@@ -373,53 +371,6 @@ class MoulinetteSignals(object):
     @staticmethod
     def _notimplemented(*args, **kwargs):
         raise NotImplementedError("this signal is not handled")
-
-
-# Interfaces & Authenticators management -------------------------------
-
-
-def init_interface(name, kwargs={}, actionsmap={}):
-    """Return a new interface instance
-
-    Retrieve the given interface module and return a new instance of its
-    Interface class. It is initialized with arguments 'kwargs' and
-    connected to 'actionsmap' if it's an ActionsMap object, otherwise
-    a new ActionsMap instance will be initialized with arguments
-    'actionsmap'.
-
-    Keyword arguments:
-        - name -- The interface name
-        - kwargs -- A dict of arguments to pass to Interface
-        - actionsmap -- Either an ActionsMap instance or a dict of
-            arguments to pass to ActionsMap
-
-    """
-    from moulinette.actionsmap import ActionsMap
-
-    try:
-        mod = import_module("moulinette.interfaces.%s" % name)
-    except ImportError as e:
-        logger.exception("unable to load interface '%s' : %s", name, e)
-        raise MoulinetteError("error_see_log")
-    else:
-        try:
-            # Retrieve interface classes
-            parser = mod.ActionsMapParser
-            interface = mod.Interface
-        except AttributeError:
-            logger.exception("unable to retrieve classes of interface '%s'", name)
-            raise MoulinetteError("error_see_log")
-
-    # Instantiate or retrieve ActionsMap
-    if isinstance(actionsmap, dict):
-        amap = ActionsMap(actionsmap.pop("parser", parser), **actionsmap)
-    elif isinstance(actionsmap, ActionsMap):
-        amap = actionsmap
-    else:
-        logger.error("invalid actionsmap value %r", actionsmap)
-        raise MoulinetteError("error_see_log")
-
-    return interface(amap, **kwargs)
 
 
 # Moulinette core classes ----------------------------------------------

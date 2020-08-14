@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from moulinette.core import (
-    init_interface,
     MoulinetteError,
     MoulinetteSignals,
     Moulinette18n,
@@ -72,85 +71,58 @@ def init(logging_config=None, **kwargs):
 
 
 # Easy access to interfaces
-
-
-def api(
-    namespaces, host="localhost", port=80, routes={}, use_websocket=True, use_cache=True
-):
+def api(host="localhost", port=80, routes={}):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
 
     Keyword arguments:
-        - namespaces -- The list of namespaces to use
         - host -- Server address to bind to
         - port -- Server port to bind to
         - routes -- A dict of additional routes to add in the form of
             {(method, uri): callback}
-        - use_websocket -- Serve via WSGI to handle asynchronous responses
-        - use_cache -- False if it should parse the actions map file
-            instead of using the cached one
 
     """
+    from moulinette.interfaces.api import Interface as Api
+
     try:
-        moulinette = init_interface(
-            "api",
-            kwargs={"routes": routes, "use_websocket": use_websocket},
-            actionsmap={"namespaces": namespaces, "use_cache": use_cache},
-        )
-        moulinette.run(host, port)
+        Api(routes=routes).run(host, port)
     except MoulinetteError as e:
         import logging
 
-        logging.getLogger(namespaces[0]).error(e.strerror)
-        return e.errno if hasattr(e, "errno") else 1
+        logging.getLogger().error(e.strerror)
+        return 1
     except KeyboardInterrupt:
         import logging
 
-        logging.getLogger(namespaces[0]).info(m18n.g("operation_interrupted"))
+        logging.getLogger().info(m18n.g("operation_interrupted"))
     return 0
 
 
-def cli(
-    namespaces,
-    args,
-    use_cache=True,
-    output_as=None,
-    password=None,
-    timeout=None,
-    parser_kwargs={},
-):
+def cli(args, top_parser, output_as=None, timeout=None):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
     result in a readable format.
 
     Keyword arguments:
-        - namespaces -- The list of namespaces to use
         - args -- A list of argument strings
-        - use_cache -- False if it should parse the actions map file
-            instead of using the cached one
         - output_as -- Output result in another format, see
             moulinette.interfaces.cli.Interface for possible values
-        - password -- The password to use in case of authentication
-        - parser_kwargs -- A dict of arguments to pass to the parser
-            class at construction
+        - top_parser -- The top parser used to build the ActionsMapParser
 
     """
+    from moulinette.interfaces.cli import Interface as Cli
+
     try:
-        moulinette = init_interface(
-            "cli",
-            actionsmap={
-                "namespaces": namespaces,
-                "use_cache": use_cache,
-                "parser_kwargs": parser_kwargs,
-            },
+        load_only_category = args[0] if args and not args[0].startswith("-") else None
+        Cli(top_parser=top_parser, load_only_category=load_only_category).run(
+            args, output_as=output_as, timeout=timeout
         )
-        moulinette.run(args, output_as=output_as, password=password, timeout=timeout)
     except MoulinetteError as e:
         import logging
 
-        logging.getLogger(namespaces[0]).error(e.strerror)
+        logging.getLogger().error(e.strerror)
         return 1
     return 0
 

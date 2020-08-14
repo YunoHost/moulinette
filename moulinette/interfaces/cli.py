@@ -12,6 +12,7 @@ from datetime import date, datetime
 import argcomplete
 
 from moulinette import msignals, m18n
+from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser,
@@ -424,7 +425,8 @@ class Interface(BaseInterface):
 
     """
 
-    def __init__(self, actionsmap):
+    def __init__(self, top_parser=None, load_only_category=None):
+
         # Set user locale
         m18n.set_locale(get_locale())
 
@@ -434,9 +436,12 @@ class Interface(BaseInterface):
             msignals.set_handler("authenticate", self._do_authenticate)
             msignals.set_handler("prompt", self._do_prompt)
 
-        self.actionsmap = actionsmap
+        self.actionsmap = ActionsMap(
+            ActionsMapParser(top_parser=top_parser),
+            load_only_category=load_only_category,
+        )
 
-    def run(self, args, output_as=None, password=None, timeout=None):
+    def run(self, args, output_as=None, timeout=None):
         """Run the moulinette
 
         Process the action corresponding to the given arguments 'args'
@@ -448,7 +453,6 @@ class Interface(BaseInterface):
                 - json: return a JSON encoded string
                 - plain: return a script-readable output
                 - none: do not output the result
-            - password -- The password to use in case of authentication
             - timeout -- Number of seconds before this command will timeout because it can't acquire the lock (meaning that another command is currently running), by default there is no timeout and the command will wait until it can get the lock
 
         """
@@ -459,11 +463,7 @@ class Interface(BaseInterface):
         argcomplete.autocomplete(self.actionsmap.parser._parser)
 
         # Set handler for authentication
-        if password:
-            msignals.set_handler("authenticate", lambda a: a(password=password))
-        else:
-            if os.isatty(1):
-                msignals.set_handler("authenticate", self._do_authenticate)
+        msignals.set_handler("authenticate", self._do_authenticate)
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
@@ -495,7 +495,11 @@ class Interface(BaseInterface):
         Handle the core.MoulinetteSignals.authenticate signal.
 
         """
-        # TODO: Allow token authentication?
+        # Hmpf we have no-use case in yunohost anymore where we need to auth
+        # because everything is run as root ...
+        # I guess we could imagine some yunohost-independant use-case where
+        # moulinette is used to create a CLI for non-root user that needs to
+        # auth somehow but hmpf -.-
         help = authenticator.extra.get("help")
         msg = m18n.n(help) if help else m18n.g("password")
         return authenticator(password=self._do_prompt(msg, True, False, color="yellow"))

@@ -11,4 +11,7 @@ def init_moulinette_env():
             "MOULINETTE_LOCALES_DIR", "/usr/share/moulinette/locale"
         ),
         "CACHE_DIR": environ.get("MOULINETTE_CACHE_DIR", "/var/cache/moulinette"),
+        "NAMESPACES": environ.get(
+            "MOULINETTE_NAMESPACES", "*"
+        ).split(),  # By default we'll load every namespace we find
     }

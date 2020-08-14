@@ -10,10 +10,11 @@ from gevent import sleep
 from gevent.queue import Queue
 from geventwebsocket import WebSocketError
 
-from bottle import run, request, response, Bottle, HTTPResponse
+from bottle import request, response, Bottle, HTTPResponse
 from bottle import abort
 
 from moulinette import msignals, m18n, env
+from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError
 from moulinette.interfaces import (
     BaseActionsMapParser,
@@ -219,22 +220,18 @@ class _ActionsMapPlugin(object):
 
     Keyword arguments:
         - actionsmap -- An ActionsMap instance
-        - use_websocket -- If true, install a WebSocket on /messages in order
-            to serve messages coming from the 'display' signal
 
     """
 
     name = "actionsmap"
     api = 2
 
-    def __init__(self, actionsmap, use_websocket, log_queues={}):
+    def __init__(self, actionsmap, log_queues={}):
         # Connect signals to handlers
         msignals.set_handler("authenticate", self._do_authenticate)
-        if use_websocket:
-            msignals.set_handler("display", self._do_display)
+        msignals.set_handler("display", self._do_display)
 
         self.actionsmap = actionsmap
-        self.use_websocket = use_websocket
         self.log_queues = log_queues
         # TODO: Save and load secrets?
         self.secrets = {}
@@ -290,13 +287,9 @@ class _ActionsMapPlugin(object):
         )
 
         # Append messages route
-        if self.use_websocket:
-            app.route(
-                "/messages",
-                name="messages",
-                callback=self.messages,
-                skip=["actionsmap"],
-            )
+        app.route(
+            "/messages", name="messages", callback=self.messages, skip=["actionsmap"],
+        )
 
         # Append routes from the actions map
         for (m, p) in self.actionsmap.parser.routes:
@@ -745,17 +738,16 @@ class Interface(BaseInterface):
     actions map.
 
     Keyword arguments:
-        - actionsmap -- The ActionsMap instance to connect to
         - routes -- A dict of additional routes to add in the form of
             {(method, path): callback}
-        - use_websocket -- Serve via WSGI to handle asynchronous responses
         - log_queues -- A LogQueues object or None to retrieve it from
             registered logging handlers
 
     """
 
-    def __init__(self, actionsmap, routes={}, use_websocket=True, log_queues=None):
-        self.use_websocket = use_websocket
+    def __init__(self, routes={}, log_queues=None):
+
+        actionsmap = ActionsMap(ActionsMapParser())
 
         # Attempt to retrieve log queues from an APIQueueHandler
         if log_queues is None:
@@ -787,7 +779,7 @@ class Interface(BaseInterface):
         app.install(filter_csrf)
         app.install(apiheader)
         app.install(api18n)
-        app.install(_ActionsMapPlugin(actionsmap, use_websocket, log_queues))
+        app.install(_ActionsMapPlugin(actionsmap, log_queues))
 
         # Append default routes
         #        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
@@ -812,23 +804,15 @@ class Interface(BaseInterface):
 
         """
         logger.debug(
-            "starting the server instance in %s:%d with websocket=%s",
-            host,
-            port,
-            self.use_websocket,
+            "starting the server instance in %s:%d", host, port,
         )
 
         try:
-            if self.use_websocket:
-                from gevent.pywsgi import WSGIServer
-                from geventwebsocket.handler import WebSocketHandler
+            from gevent.pywsgi import WSGIServer
+            from geventwebsocket.handler import WebSocketHandler
 
-                server = WSGIServer(
-                    (host, port), self._app, handler_class=WebSocketHandler
-                )
-                server.serve_forever()
-            else:
-                run(self._app, host=host, port=port)
+            server = WSGIServer((host, port), self._app, handler_class=WebSocketHandler)
+            server.serve_forever()
         except IOError as e:
             logger.exception("unable to start the server instance on %s:%d", host, port)
             if e.args[0] == errno.EADDRINUSE:
