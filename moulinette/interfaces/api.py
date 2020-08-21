@@ -783,6 +783,7 @@ class Interface(BaseInterface):
                     locale = m18n.default_locale
                 m18n.set_locale(locale)
                 return callback(*args, **kwargs)
+
             return wrapper
 
         # Install plugins
