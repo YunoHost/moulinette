@@ -18,6 +18,7 @@ Depends: ${misc:Depends}, ${python:Depends},
     python-toml,
     python-psutil,
     python-tz
+Breaks: yunohost (<< 4.1)
 Description: prototype interfaces with ease in Python
  Quickly and easily prototype interfaces for your application.
  Each action can be served through an HTTP API and from the
