@@ -1,3 +1,7 @@
+moulinette (4.1) unstable; urgency=low
+
+  - Tmp bump version number for CI / tests
+
 moulinette (4.0.3) stable; urgency=low
 
   - Bump version number for stable release
