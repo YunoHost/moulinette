@@ -768,12 +768,15 @@ class Interface(BaseInterface):
 
         # Attempt to retrieve and set locale
         def api18n(callback):
-            try:
-                locale = request.params.pop("locale")
-            except KeyError:
-                locale = m18n.default_locale
-            m18n.set_locale(locale)
-            return callback
+            def wrapper(*args, **kwargs):
+                try:
+                    locale = request.params.pop("locale")
+                except KeyError:
+                    locale = m18n.default_locale
+                m18n.set_locale(locale)
+                return callback(*args, **kwargs)
+
+            return wrapper
 
         # Install plugins
         app.install(filter_csrf)
