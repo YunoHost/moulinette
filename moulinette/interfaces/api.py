@@ -577,6 +577,9 @@ def format_for_response(content):
             return ""
         response.status = 200
 
+    if isinstance(content, HTTPResponse):
+        return content
+
     # Return JSON-style response
     response.content_type = "application/json"
     return json_encode(content, cls=JSONExtendedEncoder)
