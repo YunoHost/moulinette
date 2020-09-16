@@ -39,12 +39,12 @@
     "cannot_open_file": "不能打开文件{file:s}（原因：{error:s}）",
     "cannot_write_file": "写入文件{file:s}失败（原因：{error:s}）",
     "unknown_error_reading_file": "尝试读取文件{files}时发生未知错误（原因：{errors}）",
-    "corrupted_json": "json数据{ressource:s}读取失败（原因：{error:s}）",
-    "corrupted_yaml": "读取yaml文件{ressource:s}失败（原因：{error:s}）",
+    "corrupted_json": "从{ressource:s}读取的JSON损坏（原因：{error:s}）",
+    "corrupted_yaml": "从{ressource:s}读取的YMAL损坏（原因：{error:s}）",
     "error_writing_file": "写入文件{file:s}失败：{error:s}",
     "error_removing": "删除路径{path:s}失败：{error:s}",
     "error_changing_file_permissions": "目录{path:s}权限修改失败：{error:s}",
-    "invalid_url": "url：{url:s}无效（site是否存在？）",
+    "invalid_url": "URL：{url:s}无效（site是否存在？）",
     "download_ssl_error": "连接{url:s}时发生SSL错误",
     "download_timeout": "{url:s}响应超时，放弃。",
     "download_unknown_error": "下载{url:s}失败：{error:s}",
@@ -53,6 +53,8 @@
     "warn_the_user_that_lock_is_acquired": "另一个命令刚刚完成，现在启动此命令",
     "warn_the_user_about_waiting_lock_again": "还在等...",
     "warn_the_user_about_waiting_lock": "目前正在运行另一个YunoHost命令，我们在运行此命令之前等待它完成",
-    "corrupted_toml": "从{ressource：s}读取的toml损坏（原因：{error：s}）",
-    "invalid_token": "令牌无效-请进行身份验证"
+    "corrupted_toml": "从{ressource：s}读取的TOML损坏（原因：{error：s}）",
+    "invalid_token": "令牌无效-请进行身份验证",
+    "ldap_server_is_down_restart_it": "LDAP服务已下线，正在尝试重启服务……",
+    "session_expired": "会话已过期。请重新进行身份验证。"
 }
