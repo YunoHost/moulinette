@@ -1,6 +1,15 @@
-moulinette (4.1) unstable; urgency=low
+moulinette (4.1.0) testing; urgency=low
 
-  - Tmp bump version number for CI / tests
+  - [enh] Simplify interface initialization (Moulinette#245)
+  - [enh] Be able to return a raw HTTP response (Moulinette#255)
+  - [fix] Incorrect locale in some situations (Moulinette/d9fa6c7)
+  - [fix] Prevent installing moulinette 4.1 without Yunohost 4.1 (Moulinette/9609fe1)
+  - [fix] Error messages are not displayed in some situations (Moulinette/2501ecd)
+  - Update translations for French, Spanish, Italian, Portuguese, Czech (Moulinette#256)
+
+  Thanks to all contributors <3 ! (ppr, KaeruCT, Omnia89, roukydesbois, miloskroulik, Aleks, Kay0u, miloskroulik)
+
+ -- Kay0u <pierre@kayou.io>  Thu, 03 Dec 2020 16:32:44 +0100
 
 moulinette (4.0.3) stable; urgency=low
 
