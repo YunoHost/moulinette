@@ -380,7 +380,7 @@ class ActionsMapParser(BaseActionsMapParser):
             ret = self._parser.parse_args(args)
         except SystemExit:
             raise
-        except Exception as e:
+        except:
             logger.exception("unable to parse arguments '%s'", " ".join(args))
             raise MoulinetteError("error_see_log")
 
