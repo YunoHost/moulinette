@@ -42,6 +42,7 @@ class Authenticator(BaseAuthenticator):
         self.sasldn = "cn=external,cn=auth"
         self.adminuser = "admin"
         self.admindn = "cn=%s,dc=yunohost,dc=org" % self.adminuser
+        self.admindn = "cn=%s,dc=yunohost,dc=org" % self.adminuser
         logger.debug(
             "initialize authenticator '%s' with: uri='%s', "
             "base_dn='%s', user_rdn='%s'",
@@ -165,6 +166,12 @@ class Authenticator(BaseAuthenticator):
         """
         dn = rdn + "," + self.basedn
         ldif = modlist.addModlist(attr_dict)
+        for i, (k, v) in enumerate(ldif):
+            if isinstance(v, list):
+                v = [a.encode("utf-8") for a in v]
+            elif isinstance(v, str):
+                v = [v.encode("utf-8")]
+            ldif[i] = (k, v)
 
         try:
             self.con.add_s(dn, ldif)
@@ -226,6 +233,13 @@ class Authenticator(BaseAuthenticator):
                 self.con.rename_s(dn, new_rdn)
                 new_base = dn.split(",", 1)[1]
                 dn = new_rdn + "," + new_base
+
+            for i, (a, k, vs) in enumerate(ldif):
+                if isinstance(vs, list):
+                    vs = [v.encode("utf-8") for v in vs]
+                elif isinstance(vs, str):
+                    vs = [vs.encode("utf-8")]
+                ldif[i] = (a, k, vs)
 
             self.con.modify_ext_s(dn, ldif)
         except Exception as e:

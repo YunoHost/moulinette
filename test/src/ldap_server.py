@@ -5,13 +5,31 @@ except ImportError:
 import os
 from moulinette.authenticators import ldap as m_ldap
 
+import sys
+if sys.version_info[0] == 3:
+    pass
+else:
+    # python 2
+    import codecs
+    import warnings
+    def open(file, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None, closefd=True, opener=None):
+        if newline is not None:
+            warnings.warn('newline is not supported in py2')
+        if not closefd:
+            warnings.warn('closefd is not supported in py2')
+        if opener is not None:
+            warnings.warn('opener is not supported in py2')
+        return codecs.open(filename=file, mode=mode, encoding=encoding,
+                    errors=errors, buffering=buffering)
+
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 
 class LDAPServer:
     def __init__(self):
         self.server_default = slapdtest.SlapdObject()
-        with open(os.path.join(HERE, "..", "ldap_files", "slapd.conf.template")) as f:
+        with open(os.path.join(HERE, "..", "ldap_files", "slapd.conf.template"), encoding="utf-8") as f:
             SLAPD_CONF_TEMPLATE = f.read()
         self.server_default.slapd_conf_template = SLAPD_CONF_TEMPLATE
         self.server_default.suffix = "dc=yunohost,dc=org"
@@ -33,8 +51,8 @@ class LDAPServer:
         self.server = self.server_default
         self.server.start()
         self.uri = self.server.ldapi_uri
-        with open(os.path.join(HERE, "..", "ldap_files", "tests.ldif")) as fp:
-            ldif = fp.read().decode("utf-8")
+        with open(os.path.join(HERE, "..", "ldap_files", "tests.ldif"), encoding="utf-8") as fp:
+            ldif = fp.read()
         self.server.ldapadd(ldif)
         self.tools_ldapinit()
 
@@ -54,7 +72,7 @@ class LDAPServer:
         """
         import yaml
 
-        with open(os.path.join(HERE, "..", "ldap_files", "ldap_scheme.yml")) as f:
+        with open(os.path.join(HERE, "..", "ldap_files", "ldap_scheme.yml"), "rb") as f:
             ldap_map = yaml.load(f)
 
         def _get_ldap_interface():

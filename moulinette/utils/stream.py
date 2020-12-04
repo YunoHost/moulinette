@@ -1,8 +1,15 @@
 import os
 import time
 
-from multiprocessing.process import BaseProcess as Process
-from multiprocessing.queues import SimpleQueue
+import sys
+if sys.version_info[0] == 3:
+    from multiprocessing.process import BaseProcess as Process
+    from multiprocessing import SimpleQueue
+else:
+    # python 2
+    from multiprocessing.process import Process
+    from multiprocessing.queues import SimpleQueue
+
 
 
 # Read from a stream ---------------------------------------------------

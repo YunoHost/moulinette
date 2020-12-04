@@ -9,6 +9,13 @@ from collections import deque, OrderedDict
 from moulinette import msettings, m18n
 from moulinette.core import MoulinetteError
 
+import sys
+if sys.version_info[0] == 3:
+    pass
+else:
+    # python 2
+    range = xrange
+
 logger = logging.getLogger("moulinette.interface")
 
 GLOBAL_SECTION = "_global"
