@@ -18,7 +18,6 @@
     "invalid_password": "كلمة السر خاطئة",
     "invalid_usage": "إستعمال غير صالح، إستخدم --help لعرض المساعدة",
     "ldap_attribute_already_exists": "الخاصية '{attribute}' موجودة مسبقا و تحمل القيمة '{value}'",
-    "ldap_operation_error": "طرأ هناك خطأ أثناء عملية في LDAP",
     "ldap_server_down": "لا يمكن الإتصال بخادم LDAP",
     "logged_in": "مُتّصل",
     "logged_out": "تم تسجيل خروجك",
@@ -53,6 +52,9 @@
     "corrupted_yaml": "قراءة مُشوّهة لنسق yaml مِن {ressource:s} (السبب : {error:s})",
     "info": "معلومة:",
     "warn_the_user_about_waiting_lock_again": "جارٍ الانتظار…",
-    "warn_the_user_that_lock_is_acquired": "لقد انتهى تنفيذ ذاك الأمر ، جارٍ إطلاق الأمر",
-    "warn_the_user_about_waiting_lock": "هناك أمر لـ YunoHost قيد التشغيل حاليا. في انتظار انتهاء تنفيذه قبل تشغيل التالي"
+    "warn_the_user_that_lock_is_acquired": "لقد انتهى تنفيذ ذاك الأمر للتوّ ، جارٍ تنفيذ هذا الأمر",
+    "warn_the_user_about_waiting_lock": "هناك أمر لـ YunoHost قيد التشغيل حاليا. في انتظار انتهاء تنفيذه قبل تشغيل التالي",
+    "ldap_server_is_down_restart_it": "إنّ خدمة LDAP غير مشغّلة ، نحن بصدد محاولة إعادة تشغيلها…",
+    "session_expired": "لقد انتهت مدة صلاحية الجلسة. رجاءً أعد الإستيثاق.",
+    "invalid_token": "إنّ الرمز المميز غير صالح - يرجى الإستيثاق"
 }

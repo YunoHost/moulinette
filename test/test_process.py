@@ -115,6 +115,6 @@ def test_call_async_output_kwargs(test_file, mocker):
 
 
 def test_check_output(test_file):
-    assert check_output(["cat", str(test_file)], shell=False) == "foo\nbar\n"
+    assert check_output(["cat", str(test_file)], shell=False) == "foo\nbar"
 
-    assert check_output("cat %s" % str(test_file)) == "foo\nbar\n"
+    assert check_output("cat %s" % str(test_file)) == "foo\nbar"

@@ -342,11 +342,6 @@ class _CallbackAction(argparse.Action):
         self.callback_method = callback.get("method")
         self.callback_kwargs = callback.get("kwargs", {})
         self.callback_return = callback.get("return", False)
-        logger.debug(
-            "registering new callback action '{0}' to {1}".format(
-                self.callback_method, option_strings
-            )
-        )
 
     @property
     def callback(self):
@@ -361,6 +356,9 @@ class _CallbackAction(argparse.Action):
             mod = __import__(mod_name, globals=globals(), level=0, fromlist=[func_name])
             func = getattr(mod, func_name)
         except (AttributeError, ImportError):
+            import traceback
+
+            traceback.print_exc()
             raise ValueError("unable to import method {0}".format(self.callback_method))
         self._callback = func
 

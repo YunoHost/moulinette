@@ -4,7 +4,28 @@ import os
 import re
 import logging
 import yaml
-import pickle as pickle
+import glob
+
+import sys
+if sys.version_info[0] == 3:
+    # python 3
+    import pickle as pickle
+else:
+    # python 2
+    import cPickle as pickle
+    import codecs
+    import warnings
+    def open(file, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None, closefd=True, opener=None):
+        if newline is not None:
+            warnings.warn('newline is not supported in py2')
+        if not closefd:
+            warnings.warn('closefd is not supported in py2')
+        if opener is not None:
+            warnings.warn('opener is not supported in py2')
+        return codecs.open(filename=file, mode=mode, encoding=encoding,
+                    errors=errors, buffering=buffering)
+
 from time import time
 from collections import OrderedDict
 from importlib import import_module
@@ -282,7 +303,6 @@ class ExtraArgumentParser(object):
             if iface in klass.skipped_iface:
                 continue
             self.extra[klass.name] = klass
-        logger.debug("extra parameter classes loaded: %s", self.extra.keys())
 
     def validate(self, arg_name, parameters):
         """
@@ -294,7 +314,7 @@ class ExtraArgumentParser(object):
 
         """
         # Iterate over parameters to validate
-        for p, v in parameters.items():
+        for p in list(parameters):
             klass = self.extra.get(p, None)
             if not klass:
                 # Remove unknown parameters
@@ -302,7 +322,7 @@ class ExtraArgumentParser(object):
             else:
                 try:
                     # Validate parameter value
-                    parameters[p] = klass.validate(v, arg_name)
+                    parameters[p] = klass.validate(parameters[p], arg_name)
                 except Exception as e:
                     logger.error(
                         "unable to validate extra parameter '%s' "
@@ -398,36 +418,32 @@ class ActionsMap(object):
     Moreover, the action can have specific argument(s).
 
     This class allows to manipulate one or several actions maps
-    associated to a namespace. If no namespace is given, it will load
-    all available namespaces.
+    associated to a namespace.
 
     Keyword arguments:
-        - parser_class -- The BaseActionsMapParser derived class to use
-            for parsing the actions map
-        - namespaces -- The list of namespaces to use
-        - use_cache -- False if it should parse the actions map file
-            instead of using the cached one
-        - parser_kwargs -- A dict of arguments to pass to the parser
-            class at construction
-
+        - top_parser -- A BaseActionsMapParser-derived instance to use for
+                        parsing the actions map
+        - load_only_category -- A name of a category that should only be the
+                        one loaded because it's been already determined
+                        that's the only one relevant ... used for optimization
+                        purposes...
     """
 
-    def __init__(self, parser_class, namespaces=[], use_cache=True, parser_kwargs={}):
-        if not issubclass(parser_class, BaseActionsMapParser):
-            raise ValueError("Invalid parser class '%s'" % parser_class.__name__)
-        self.parser_class = parser_class
-        self.use_cache = use_cache
+    def __init__(self, top_parser, load_only_category=None):
+
+        assert isinstance(top_parser, BaseActionsMapParser), (
+            "Invalid parser class '%s'" % top_parser.__class__.__name__
+        )
 
         moulinette_env = init_moulinette_env()
         DATA_DIR = moulinette_env["DATA_DIR"]
         CACHE_DIR = moulinette_env["CACHE_DIR"]
 
-        if len(namespaces) == 0:
-            namespaces = self.get_namespaces()
         actionsmaps = OrderedDict()
 
+        self.from_cache = False
         # Iterate over actions map namespaces
-        for n in namespaces:
+        for n in self.get_namespaces():
             logger.debug("loading actions map namespace '%s'", n)
 
             actionsmap_yml = "%s/actionsmap/%s.yml" % (DATA_DIR, n)
@@ -439,33 +455,36 @@ class ActionsMap(object):
                 actionsmap_yml_stat.st_mtime,
             )
 
-            if use_cache and os.path.exists(actionsmap_pkl):
+            if os.path.exists(actionsmap_pkl):
                 try:
                     # Attempt to load cache
                     with open(actionsmap_pkl, "rb") as f:
                         actionsmaps[n] = pickle.load(f)
+
+                    self.from_cache = True
                 # TODO: Switch to python3 and catch proper exception
                 except (IOError, EOFError):
-                    self.use_cache = False
-                    actionsmaps = self.generate_cache(namespaces)
-            elif use_cache:  # cached file doesn't exists
-                self.use_cache = False
-                actionsmaps = self.generate_cache(namespaces)
-            elif n not in actionsmaps:
-                with open(actionsmap_yml) as f:
-                    actionsmaps[n] = ordered_yaml_load(f)
+                    actionsmaps[n] = self.generate_cache(n)
+            else:  # cache file doesn't exists
+                actionsmaps[n] = self.generate_cache(n)
+
+            # If load_only_category is set, and *if* the target category
+            # is in the actionsmap, we'll load only that one.
+            # If we filter it even if it doesn't exist, we'll end up with a
+            # weird help message when we do a typo in the category name..
+            if load_only_category and load_only_category in actionsmaps[n]:
+                actionsmaps[n] = {
+                    k: v
+                    for k, v in actionsmaps[n].items()
+                    if k in [load_only_category, "_global"]
+                }
 
             # Load translations
             m18n.load_namespace(n)
 
         # Generate parsers
-        self.extraparser = ExtraArgumentParser(parser_class.interface)
-        self._parser = self._construct_parser(actionsmaps, **parser_kwargs)
-
-    @property
-    def parser(self):
-        """Return the instance of the interface's actions map parser"""
-        return self._parser
+        self.extraparser = ExtraArgumentParser(top_parser.interface)
+        self.parser = self._construct_parser(actionsmaps, top_parser)
 
     def get_authenticator_for_profile(self, auth_profile):
 
@@ -563,6 +582,9 @@ class ActionsMap(object):
                 )
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError):
+                import traceback
+
+                traceback.print_exc()
                 logger.exception("unable to load function %s.%s", namespace, func_name)
                 raise MoulinetteError("error_see_log")
             else:
@@ -601,85 +623,81 @@ class ActionsMap(object):
         moulinette_env = init_moulinette_env()
         DATA_DIR = moulinette_env["DATA_DIR"]
 
-        for f in os.listdir("%s/actionsmap" % DATA_DIR):
-            if f.endswith(".yml"):
-                namespaces.append(f[:-4])
+        # This var is ['*'] by default but could be set for example to
+        # ['yunohost', 'yml_*']
+        NAMESPACE_PATTERNS = moulinette_env["NAMESPACES"]
+
+        # Look for all files that match the given patterns in the actionsmap dir
+        for namespace_pattern in NAMESPACE_PATTERNS:
+            namespaces.extend(
+                glob.glob("%s/actionsmap/%s.yml" % (DATA_DIR, namespace_pattern))
+            )
+
+        # Keep only the filenames with extension
+        namespaces = [os.path.basename(n)[:-4] for n in namespaces]
+
         return namespaces
 
     @classmethod
-    def generate_cache(klass, namespaces=None):
+    def generate_cache(klass, namespace):
         """
         Generate cache for the actions map's file(s)
 
         Keyword arguments:
-            - namespaces -- A list of namespaces to generate cache for
+            - namespace -- The namespace to generate cache for
 
         Returns:
-            A dict of actions map for each namespaces
-
+            The action map for the namespace
         """
         moulinette_env = init_moulinette_env()
         CACHE_DIR = moulinette_env["CACHE_DIR"]
         DATA_DIR = moulinette_env["DATA_DIR"]
 
-        actionsmaps = {}
-        if not namespaces:
-            namespaces = klass.get_namespaces()
-
         # Iterate over actions map namespaces
-        for n in namespaces:
-            logger.debug("generating cache for actions map namespace '%s'", n)
+        logger.debug("generating cache for actions map namespace '%s'", namespace)
 
-            # Read actions map from yaml file
-            am_file = "%s/actionsmap/%s.yml" % (DATA_DIR, n)
-            with open(am_file, "r") as f:
-                actionsmaps[n] = ordered_yaml_load(f)
+        # Read actions map from yaml file
+        am_file = "%s/actionsmap/%s.yml" % (DATA_DIR, namespace)
+        with open(am_file, "r") as f:
+            actionsmap = ordered_yaml_load(f)
 
-            # at installation, cachedir might not exists
-            if os.path.exists("%s/actionsmap/" % CACHE_DIR):
-                # clean old cached files
-                for i in os.listdir("%s/actionsmap/" % CACHE_DIR):
-                    if i.endswith(".pkl"):
-                        os.remove("%s/actionsmap/%s" % (CACHE_DIR, i))
+        # at installation, cachedir might not exists
+        for old_cache in glob.glob("%s/actionsmap/%s-*.pkl" % (CACHE_DIR, namespace)):
+            os.remove(old_cache)
 
-            # Cache actions map into pickle file
-            am_file_stat = os.stat(am_file)
+        # Cache actions map into pickle file
+        am_file_stat = os.stat(am_file)
 
-            pkl = "%s-%d-%d.pkl" % (n, am_file_stat.st_size, am_file_stat.st_mtime)
+        pkl = "%s-%d-%d.pkl" % (namespace, am_file_stat.st_size, am_file_stat.st_mtime)
 
-            with open_cachefile(pkl, "wb", subdir="actionsmap") as f:
-                pickle.dump(actionsmaps[n], f)
+        with open_cachefile(pkl, "wb", subdir="actionsmap") as f:
+            pickle.dump(actionsmap, f)
 
-        return actionsmaps
+        return actionsmap
 
     # Private methods
 
-    def _construct_parser(self, actionsmaps, **kwargs):
+    def _construct_parser(self, actionsmaps, top_parser):
         """
         Construct the parser with the actions map
 
         Keyword arguments:
             - actionsmaps -- A dict of multi-level dictionnary of
                 categories/actions/arguments list for each namespaces
-            - **kwargs -- Additionnal arguments to pass at the parser
-                class instantiation
+            - top_parser -- A BaseActionsMapParser-derived instance to use for
+                parsing the actions map
 
         Returns:
             An interface relevant's parser object
 
         """
-        # Get extra parameters
-        if self.use_cache:
-            validate_extra = False
-        else:
-            validate_extra = True
 
-        # Instantiate parser
-        #
-        # this either returns:
-        # * moulinette.interfaces.cli.ActionsMapParser
-        # * moulinette.interfaces.api.ActionsMapParser
-        top_parser = self.parser_class(**kwargs)
+        logger.debug("building parser...")
+        start = time()
+
+        # If loading from cache, extra were already checked when cache was
+        # loaded ? Not sure about this ... old code is a bit mysterious...
+        validate_extra = not self.from_cache
 
         # namespace, actionsmap is a tuple where:
         #
@@ -781,4 +799,5 @@ class ActionsMap(object):
                                 tid, action_options["configuration"]
                             )
 
+        logger.debug("building parser took %.3fs", time() - start)
         return top_parser

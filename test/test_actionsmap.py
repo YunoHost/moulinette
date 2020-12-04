@@ -158,10 +158,10 @@ def test_required_paremeter_missing_value(iface, caplog):
 
 def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
     monkeypatch.setenv("MOULINETTE_DATA_DIR", str(tmp_path))
-    actionsmap_dir = actionsmap_dir = tmp_path / "actionsmap"
+    actionsmap_dir = tmp_path / "actionsmap"
     actionsmap_dir.mkdir()
 
-    amap = ActionsMap(BaseActionsMapParser)
+    amap = ActionsMap(BaseActionsMapParser())
     with pytest.raises(ValueError) as exception:
         amap.get_authenticator_for_profile("unknown")
     assert "Unknown authenticator" in str(exception)
@@ -225,7 +225,7 @@ def test_extra_argument_parser_parse_args(iface, mocker):
 def test_actions_map_api():
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap(ActionsMapParser, use_cache=False)
+    amap = ActionsMap(ActionsMapParser())
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]
@@ -233,9 +233,9 @@ def test_actions_map_api():
     assert ("GET", "/test-auth/default") in amap.parser.routes
     assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
 
-    amap.generate_cache()
+    amap.generate_cache("moulitest")
 
-    amap = ActionsMap(ActionsMapParser, use_cache=True)
+    amap = ActionsMap(ActionsMapParser())
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]
@@ -247,17 +247,24 @@ def test_actions_map_api():
 def test_actions_map_import_error(mocker):
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap(ActionsMapParser)
+    amap = ActionsMap(ActionsMapParser())
 
     from moulinette.core import MoulinetteLock
 
     mocker.patch.object(MoulinetteLock, "_is_son_of", return_value=False)
 
-    mocker.patch("__builtin__.__import__", side_effect=ImportError)
+    orig_import = __import__
+
+    def import_mock(name, globals={}, locals={}, fromlist=[], level=-1):
+        if name == "moulitest.testauth":
+            mocker.stopall()
+            raise ImportError
+        return orig_import(name, globals, locals, fromlist, level)
+
+    mocker.patch("__builtin__.__import__", side_effect=import_mock)
     with pytest.raises(MoulinetteError) as exception:
         amap.process({}, timeout=30, route=("GET", "/test-auth/none"))
 
-    mocker.stopall()
     translation = m18n.g("error_see_log")
     expected_msg = translation.format()
     assert expected_msg in str(exception)
@@ -274,9 +281,7 @@ def test_actions_map_cli():
         default=False,
         help="Log and print debug messages",
     )
-    amap = ActionsMap(
-        ActionsMapParser, use_cache=False, parser_kwargs={"top_parser": parser}
-    )
+    amap = ActionsMap(ActionsMapParser(top_parser=parser))
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]
@@ -293,11 +298,9 @@ def test_actions_map_cli():
         .choices
     )
 
-    amap.generate_cache()
+    amap.generate_cache("moulitest")
 
-    amap = ActionsMap(
-        ActionsMapParser, use_cache=True, parser_kwargs={"top_parser": parser}
-    )
+    amap = ActionsMap(ActionsMapParser(top_parser=parser))
 
     assert amap.parser.global_conf["authenticate"] == "all"
     assert "default" in amap.parser.global_conf["authenticator"]

@@ -371,6 +371,11 @@ def test_mkdir(tmp_path):
 
 
 def test_mkdir_with_permission(tmp_path, mocker):
+
+    # This test only make sense when not being root
+    if os.getuid() == 0:
+        return
+
     new_path = tmp_path / "new_folder"
     permission = 0o700
     mkdir(str(new_path), mode=permission)

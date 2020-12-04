@@ -2,15 +2,15 @@
 
 # TODO: Use Python3 to remove this fix!
 from __future__ import absolute_import
+import os
 import logging
-import random
-import string
-import crypt
 import ldap
 import ldap.sasl
+import time
 import ldap.modlist as modlist
 
-from moulinette.core import MoulinetteError
+from moulinette import m18n
+from moulinette.core import MoulinetteError, MoulinetteLdapIsDownError
 from moulinette.authenticators import BaseAuthenticator
 
 logger = logging.getLogger("moulinette.authenticator.ldap")
@@ -69,7 +69,7 @@ class Authenticator(BaseAuthenticator):
     # Implement virtual methods
 
     def authenticate(self, password=None):
-        try:
+        def _reconnect():
             con = ldap.ldapobject.ReconnectLDAPObject(
                 self._get_uri(), retry_max=10, retry_delay=0.5
             )
@@ -80,11 +80,23 @@ class Authenticator(BaseAuthenticator):
                     con.simple_bind_s(self.userdn, password)
             else:
                 con.simple_bind_s()
+
+            return con
+
+        try:
+            con = _reconnect()
         except ldap.INVALID_CREDENTIALS:
             raise MoulinetteError("invalid_password")
         except ldap.SERVER_DOWN:
-            logger.exception("unable to reach the server to authenticate")
-            raise MoulinetteError("ldap_server_down")
+            # ldap is down, attempt to restart it before really failing
+            logger.warning(m18n.g("ldap_server_is_down_restart_it"))
+            os.system("systemctl restart slapd")
+            time.sleep(10)  # waits 10 secondes so we are sure that slapd has restarted
+
+            try:
+                con = _reconnect()
+            except ldap.SERVER_DOWN:
+                raise MoulinetteLdapIsDownError("ldap_server_down")
 
         # Check that we are indeed logged in with the right identity
         try:
@@ -99,30 +111,6 @@ class Authenticator(BaseAuthenticator):
                 raise MoulinetteError("Not logged in with the expected userdn ?!")
             else:
                 self.con = con
-                self._ensure_password_uses_strong_hash(password)
-
-    def _ensure_password_uses_strong_hash(self, password):
-        # XXX this has been copy pasted from YunoHost, should we put that into moulinette?
-        def _hash_user_password(password):
-            char_set = (
-                string.ascii_uppercase + string.ascii_lowercase + string.digits + "./"
-            )
-            salt = "".join([random.SystemRandom().choice(char_set) for x in range(16)])
-            salt = "$6$" + salt + "$"
-            return "{CRYPT}" + crypt.crypt(str(password), salt)
-
-        hashed_password = self.search(self.admindn, attrs=["userPassword"])[0]
-
-        # post-install situation, password is not already set
-        if "userPassword" not in hashed_password or not hashed_password["userPassword"]:
-            return
-
-        # we aren't using sha-512 but something else that is weaker, proceed to upgrade
-        if not hashed_password["userPassword"][0].startswith("{CRYPT}$6$"):
-            self.update(
-                "cn=%s" % self.adminuser,
-                {"userPassword": [_hash_user_password(password)]},
-            )
 
     # Additional LDAP methods
     # TODO: Review these methods
@@ -148,15 +136,11 @@ class Authenticator(BaseAuthenticator):
         try:
             result = self.con.search_s(base, ldap.SCOPE_SUBTREE, filter, attrs)
         except Exception as e:
-            logger.exception(
+            raise MoulinetteError(
                 "error during LDAP search operation with: base='%s', "
-                "filter='%s', attrs=%s and exception %s",
-                base,
-                filter,
-                attrs,
-                e,
+                "filter='%s', attrs=%s and exception %s" % (base, filter, attrs, e),
+                raw_msg=True,
             )
-            raise MoulinetteError("ldap_operation_error", action="search")
 
         result_list = []
         if not attrs or "dn" not in attrs:
@@ -185,14 +169,11 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.add_s(dn, ldif)
         except Exception as e:
-            logger.exception(
+            raise MoulinetteError(
                 "error during LDAP add operation with: rdn='%s', "
-                "attr_dict=%s and exception %s",
-                rdn,
-                attr_dict,
-                e,
+                "attr_dict=%s and exception %s" % (rdn, attr_dict, e),
+                raw_msg=True,
             )
-            raise MoulinetteError("ldap_operation_error", action="add")
         else:
             return True
 
@@ -211,12 +192,11 @@ class Authenticator(BaseAuthenticator):
         try:
             self.con.delete_s(dn)
         except Exception as e:
-            logger.exception(
-                "error during LDAP delete operation with: rdn='%s' and exception %s",
-                rdn,
-                e,
+            raise MoulinetteError(
+                "error during LDAP delete operation with: rdn='%s' and exception %s"
+                % (rdn, e),
+                raw_msg=True,
             )
-            raise MoulinetteError("ldap_operation_error", action="remove")
         else:
             return True
 
@@ -249,15 +229,12 @@ class Authenticator(BaseAuthenticator):
 
             self.con.modify_ext_s(dn, ldif)
         except Exception as e:
-            logger.exception(
+            raise MoulinetteError(
                 "error during LDAP update operation with: rdn='%s', "
-                "attr_dict=%s, new_rdn=%s and exception: %s",
-                rdn,
-                attr_dict,
-                new_rdn,
-                e,
+                "attr_dict=%s, new_rdn=%s and exception: %s"
+                % (rdn, attr_dict, new_rdn, e),
+                raw_msg=True,
             )
-            raise MoulinetteError("ldap_operation_error", action="update")
         else:
             return True
 

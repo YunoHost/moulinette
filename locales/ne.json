@@ -1,1 +1,11 @@
-{}
+{
+    "logged_out": "लग आउट",
+    "password": "पासवर्ड",
+    "deprecated_command_alias": "'{prog} {old}' अस्वीकृत गरिएको छ र भविष्यमा हटाइनेछ, यसको सट्टा '{prog} {new}' प्रयोग गर्नुहोस्।",
+    "deprecated_command": "'{prog} {command}' अस्वीकृत गरिएको छ र भविष्यमा हटाइनेछ",
+    "confirm": "कन्फर्म {prompt}",
+    "colon": "{}: ",
+    "authentication_required_long": "यस कार्य गर्नको लागि प्रमाणीकरण आवाश्यक हुन्छ",
+    "authentication_required": "प्रमाणीकरण आवाश्यक छ",
+    "argument_required": "तर्क '{argument}' आवश्यक छ"
+}

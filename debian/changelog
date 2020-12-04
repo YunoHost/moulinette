@@ -1,3 +1,105 @@
+moulinette (4.1.0) testing; urgency=low
+
+  - [enh] Simplify interface initialization (Moulinette#245)
+  - [enh] Be able to return a raw HTTP response (Moulinette#255)
+  - [fix] Incorrect locale in some situations (Moulinette/d9fa6c7)
+  - [fix] Prevent installing moulinette 4.1 without Yunohost 4.1 (Moulinette/9609fe1)
+  - [fix] Error messages are not displayed in some situations (Moulinette/2501ecd)
+  - Update translations for French, Spanish, Italian, Portuguese, Czech (Moulinette#256)
+
+  Thanks to all contributors <3 ! (ppr, KaeruCT, Omnia89, roukydesbois, miloskroulik, Aleks, Kay0u, miloskroulik)
+
+ -- Kay0u <pierre@kayou.io>  Thu, 03 Dec 2020 16:32:44 +0100
+
+moulinette (4.0.3) stable; urgency=low
+
+  - Bump version number for stable release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 29 Jul 2020 17:00:00 +0200
+
+moulinette (4.0.2~beta) testing; urgency=low
+
+  - Bump version number for beta release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 19 Jun 2020 15:33:29 +0200
+
+moulinette (4.0.1~alpha) testing; urgency=low
+
+  - [fix] Get rid of legacy code which breaks postinstall on buster for some reason (ac83b10f)
+  - [fix] Remove legacy Breaks and Replaces (e49a47c7)
+  - [fix] Let's hash the password like we do in core during tests (0c78374e)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Jun 2020 17:32:35 +0200
+
+moulinette (3.8.1.3) stable; urgency=low
+
+  - Update authorship/maintainer information (7818f07)
+  - [i18n] Translations updated for Arabic, Catalan, French, Italian
+
+  Thanks to all contributors <3 ! (ButterflyOfFire, É. Gaspar, L. Noferini, ppr, xaloc33)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 27 Jul 2020 17:15:36 +0200
+
+moulinette (3.8.1.2) stable; urgency=low
+
+  - [fix] locale parsing in some edge case
+  - [i18n] Translations updated for Chinese (Simplified), Catalan, French, Nepali, Occitan
+
+  Thanks to all contributors ! (Aleks, amirale qt, clecle226, Quentí, xaloc33)
+
+ -- Kay0u <pierre@kayou.io>  Fri, 22 May 2020 07:58:19 +0000
+
+moulinette (3.8.1.1) stable; urgency=low
+
+  Bumping version number for stable release
+
+ -- Kay0u <pierre@kayou.io>  Wed, 20 May 2020 18:56:36 +0000
+
+moulinette (3.8.1) testing; urgency=low
+
+  - [fix] Misc technical ux/debugging fixes (#242, #243, #244, 840f27d2)
+  - [fix] try to autorestart ldap when the server is down (#247)
+  - [i18n] Translations updated for Dutch, Esperanto, French, German, Nepali, Polish
+
+  Thanks to all contributors <3 ! (amirale qt, Bram, É. Gaspar, Kay0u, M. Döring, Zeik0s)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 09 May 2020 21:09:35 +0200
+
+moulinette (3.8.0) testing; urgency=low
+
+  # Major stuff
+
+  - Simplify auth mechanism (#216)
+  - Add more tests (#230)
+  - Use Black in Moulinette (#220, 6f5daa0, 54b8cab)
+
+  # Minor technical stuff
+
+  - [fix] Don't display comment if argument is already set (#226)
+  - Don't miserably crash if async running can't read incoming message (06d8c48)
+  - Report the actual error when ldap fails (628ffc9)
+
+  # i18n
+
+  - Improve translations for Swedish, Dutch, Italian, Russian, Polish, Portuguese, Catalan, Spanish, Occitan, Nepali, Esperanto, Basque, Chinese (Simplified), Arabic, German, Hungarian, Greek, Turkish, Bengali (Bangladesh)
+
+  Thanks to all contributors ! (Aleks, Bram, ButterflyOfFire, Filip B., Jeroen F., Josué T., Kay0u, Quentí, Yifei D., amirale qt, decentral1se, Elie G., frju365, Romain R., xaloc33)
+
+ -- Kay0u <pierre@kayou.io>  Thu, 09 Apr 2020 20:29:48 +0000
+
+moulinette (3.7.1.1) stable; urgency=low
+
+  - [fix] Report actual errors when some LDAP operation fails to ease
+  debugging
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 17 Apr 2020 17:00:00  +0000
+
+moulinette (3.7.1) stable; urgency=low
+
+  - [enh] Lazy loading pytz for performances
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 9 Apr 2020 14:55:00  +0000
+
 moulinette (3.7.0.2) stable; urgency=low
 
   Bumping version number for stable release
@@ -8,7 +110,7 @@ moulinette (3.7.0.1) testing; urgency=low
 
   - [fix] Slapd may crash if we try to update the LDAP with no change (moulinette#231)
 
-  Thanks to all contributors (Josue) <3 !
+  Thanks to all contributors (Josué) <3 !
 
  -- Kay0u <pierre@kayou.io>  Sun, 15 Mar 2020 16:09:25 +0000
 
@@ -16,21 +118,21 @@ moulinette (3.7.0) testing; urgency=low
 
   # ~ Major stuff
 
-  - [enh] Add group and permission mechanism ([Moulinette#189](https://github.com/YunoHost/moulinette/pull/189)
-  - [mod] Be able to customize prompt colors ([Moulinette/808f620](https://github.com/YunoHost/Moulinette/commit/808f620))
-  - [enh] Support app manifests in toml ([Moulinette#204](https://github.com/YunoHost/moulinette/pull/204), [Moulinette/55515cb](https://github.com/YunoHost/Moulinette/commit/55515cb))
-  - [enh] Quite a lot of messages improvements, string cleaning, language rework... ([Moulinette/599bec3](https://github.com/YunoHost/Moulinette/commit/599bec3), [Moulinette#208](https://github.com/YunoHost/moulinette/pull/208), [Moulinette#213](https://github.com/YunoHost/moulinette/pull/213), [Moulinette/b7d415d](https://github.com/YunoHost/Moulinette/commit/b7d415d), [Moulinette/a8966b8](https://github.com/YunoHost/Moulinette/commit/a8966b8), [Moulinette/fdf9a71](https://github.com/YunoHost/Moulinette/commit/fdf9a71), [Moulinette/d895ae3](https://github.com/YunoHost/Moulinette/commit/d895ae3), [Moulinette/bdf0a1c](https://github.com/YunoHost/Moulinette/commit/bdf0a1c))
+  - [enh] Add group and permission mechanism (#189)
+  - [mod] Be able to customize prompt colors (808f620)
+  - [enh] Support app manifests in toml (#204, 55515cb)
+  - [enh] Quite a lot of messages improvements, string cleaning, language rework... (599bec3, #208, #213, b7d415d, a8966b8, fdf9a71, d895ae3, bdf0a1c)
   - [i18n] Improved translations for Catalan, Occitan, French, Arabic, Spanish, German, Norwegian Bokmål
 
   # Smaller or pretty technical fix/enh
 
-  - [enh] Preparations for moulinette Python3 migration (Tox, Pytest and unit tests) ([Moulinette#203](https://github.com/YunoHost/moulinette/pull/203), [Moulinette#206](https://github.com/YunoHost/moulinette/pull/206), [Moulinette#207](https://github.com/YunoHost/moulinette/pull/207), [Moulinette#210](https://github.com/YunoHost/moulinette/pull/210), [Moulinette#211](https://github.com/YunoHost/moulinette/pull/211) [Moulinette#212](https://github.com/YunoHost/moulinette/pull/212), [Moulinette/2403ee1](https://github.com/YunoHost/Moulinette/commit/2403ee1),  [Moulinette/69b0d49](https://github.com/YunoHost/Moulinette/commit/69b0d49), [Moulinette/49c749c](https://github.com/YunoHost/Moulinette/commit/49c749c), [Moulinette/2c84ee1](https://github.com/YunoHost/Moulinette/commit/2c84ee1), [Moulinette/cef72f7](https://github.com/YunoHost/Moulinette/commit/cef72f7))
-  - [enh] Add a write_to_yaml utility similar to write_to_json ([Moulinette/2e2e627](https://github.com/YunoHost/Moulinette/commit/2e2e627))
-  - [enh] Warn the user about long locks ([Moulinette#205](https://github.com/YunoHost/moulinette/pull/205))
-  - [mod] Tweak stuff about setuptools and moulinette deps? ([Moulinette/b739f27](https://github.com/YunoHost/Moulinette/commit/b739f27), [Moulinette/da00fc9](https://github.com/YunoHost/Moulinette/commit/da00fc9), [Moulinette/d8cbbb0](https://github.com/YunoHost/Moulinette/commit/d8cbbb0))
-  - [fix] Misc micro bugfixes or improvements ([Moulinette/83d9e77](https://github.com/YunoHost/Moulinette/commit/83d9e77))
-  - [doc] Fix doc building + add doc build tests with Tox ([Moulinette/f1ac5b8](https://github.com/YunoHost/Moulinette/commit/f1ac5b8), [Moulinette/df7d478](https://github.com/YunoHost/Moulinette/commit/df7d478), [Moulinette/74c8f79](https://github.com/YunoHost/Moulinette/commit/74c8f79), [Moulinette/bcf92c7](https://github.com/YunoHost/Moulinette/commit/bcf92c7), [Moulinette/af2c80c](https://github.com/YunoHost/Moulinette/commit/af2c80c), [Moulinette/d52a574](https://github.com/YunoHost/Moulinette/commit/d52a574), [Moulinette/307f660](https://github.com/YunoHost/Moulinette/commit/307f660), [Moulinette/dced104](https://github.com/YunoHost/Moulinette/commit/dced104), [Moulinette/ed3823b](https://github.com/YunoHost/Moulinette/commit/ed3823b))
-  - [enh] READMEs improvements ([Moulinette/1541b74](https://github.com/YunoHost/Moulinette/commit/1541b74), [Moulinette/ad1eeef](https://github.com/YunoHost/Moulinette/commit/ad1eeef))
+  - [enh] Preparations for moulinette Python3 migration (Tox, Pytest and unit tests) (#203, #206, #207, #210, #211 #212, 2403ee1,  69b0d49, 49c749c, 2c84ee1, cef72f7)
+  - [enh] Add a write_to_yaml utility similar to write_to_json (2e2e627)
+  - [enh] Warn the user about long locks (#205)
+  - [mod] Tweak stuff about setuptools and moulinette deps? (b739f27, da00fc9, d8cbbb0)
+  - [fix] Misc micro bugfixes or improvements (83d9e77)
+  - [doc] Fix doc building + add doc build tests with Tox (f1ac5b8, df7d478, 74c8f79, bcf92c7, af2c80c, d52a574, 307f660, dced104, ed3823b)
+  - [enh] READMEs improvements (1541b74, ad1eeef)
 
   Thanks to all contributors <3 ! (accross all repo: Yunohost, Moulinette, SSOwat, Yunohost-admin) : advocatux, Aksel K., Aleks, Allan N., amirale qt, Armin P., Bram, ButterflyOfFire, Carles S. A., chema o. r., decentral1se, Emmanuel V., Etienne M., Filip B., Geoff M., htsr, Jibec, Josué, Julien J., Kayou, liberodark, ljf, lucaskev, Lukas D., madtibo, Martin D., Mélanie C., nr 458 h, pitfd, ppr, Quentí, sidddy, troll, tufek yamero, xaloc33, yalh76
 
@@ -80,7 +182,7 @@ moulinette (3.5.1) testing; urgency=low
   * [fix] Fix case where stdinfo is not provided in call_async_output (0a300e5)
   * [i18n] Improve translation for Greek, Hungarian, Polish, Swedish, French, Catalan, Occitan
 
-  Thanks to all contributors (Aleks, ariasuni, Quenti, ppr, Xaloc) <3 !
+  Thanks to all contributors (Aleks, ariasuni, Quentí, ppr, Xaloc) <3 !
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 03 Apr 2019 02:25:00 +0000
 
@@ -88,7 +190,7 @@ moulinette (3.5.0) testing; urgency=low
 
   * [i18n] Improve Russian and Chinese (Mandarin) translations
 
-  Contributors : n3uz, Алексей 
+  Contributors : n3uz, Алексей
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 13 Mar 2019 17:20:00 +0000
 
@@ -201,7 +303,7 @@ moulinette (2.7.13) testing; urgency=low
   * [i18n] Improve translations for Portugueuse, Occitan
   * [enh] Add read_yaml util (#161)
 
-  Contributors : Bram, by0ne, Quent-in
+  Contributors : Bram, by0ne, Quentí
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 28 May 2018 02:55:00 +0000
 
@@ -219,7 +321,7 @@ moulinette (2.7.11) testing; urgency=low
   * [fix] Avoid cases where get_cookie returns None
   * [mod] Improve exception logging in ldap stuff
 
-  Thanks to all contributors (pitchum, Bram, ButteflyOfFire, J. Keerl, Matthieu, Jibec, David B, Quenti, bjarkan) <3 !
+  Thanks to all contributors (pitchum, Bram, ButteflyOfFire, J. Keerl, Matthieu, Jibec, David B, Quentí, bjarkan) <3 !
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 01 May 2018 23:33:59 +0000
 
@@ -291,7 +393,7 @@ moulinette (2.7.0) testing; urgency=low
   * [enh] Show description of command in --help (#148)
   * [i18n] Update French translation (#149)
 
-Thanks to all contributors (Bram, Aleks, R. Cabaret) ! <3
+  Thanks to all contributors (Bram, Aleks, R. Cabaret) ! <3
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 07 Aug 2017 13:04:21 -0400
 
@@ -307,9 +409,9 @@ moulinette (2.6.0) testing; urgency=low
 
   * [fix] Use ordered dict for the actionmap cache (#136)
   * [fix] Show positional arguments first in --help / usage (#138)
-  * Update translations for Portuguese, German, Dutch 
+  * Update translations for Portuguese, German, Dutch
 
-Thanks to all contributors and translators ! (Trollken, frju, Fabien Gruber, Jeroen Keerl, Aleks)
+  Thanks to all contributors and translators ! (Trollken, frju, Fabien Gruber, Jeroen Keerl, Aleks)
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 24 Apr 2017 12:44:23 -0400
 

@@ -28,7 +28,7 @@ def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs):
     and use shell by default before calling subprocess.check_output.
 
     """
-    return subprocess.check_output(args, stderr=stderr, shell=shell, **kwargs)
+    return subprocess.check_output(args, stderr=stderr, shell=shell, **kwargs).strip()
 
 
 # Call with stream access ----------------------------------------------

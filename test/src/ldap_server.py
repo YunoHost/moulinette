@@ -98,7 +98,23 @@ class LDAPServer:
                 "posixAccount",
                 "simpleSecurityObject",
             ],
-            "userPassword": ["yunohost"],
+            "userPassword": [self._hash_user_password("yunohost")],
         }
 
         ldap_interface.update("cn=admin", admin_dict)
+
+    def _hash_user_password(self, password):
+        """
+        Copy pasta of what's in yunohost/user.py
+        """
+        import string
+        import random
+        import crypt
+
+        char_set = (
+            string.ascii_uppercase + string.ascii_lowercase + string.digits + "./"
+        )
+        salt = "".join([random.SystemRandom().choice(char_set) for x in range(16)])
+
+        salt = "$6$" + salt + "$"
+        return "{CRYPT}" + crypt.crypt(str(password), salt)
