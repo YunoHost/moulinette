@@ -11,8 +11,7 @@ logger = logging.getLogger("moulinette.authenticator.dummy")
 
 class Authenticator(BaseAuthenticator):
 
-    """Dummy authenticator used for tests
-    """
+    """Dummy authenticator used for tests"""
 
     vendor = "dummy"
 
