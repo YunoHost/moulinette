@@ -1,3 +1,12 @@
+moulinette (4.1.1) testing; urgency=low
+
+  - [enh] Add options to write_to_json ([#261](https://github.com/YunoHost/moulinette/pull/261))
+  - [fix] Fix tests ([#262](https://github.com/YunoHost/moulinette/pull/262))
+
+  Thanks to all contributors <3 ! (Kay0u)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 19 Dec 2020 01:52:06 +0100
+
 moulinette (4.1.0.1) testing; urgency=low
 
   - Tmp bump version number for CI / tests
