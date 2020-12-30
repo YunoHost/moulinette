@@ -121,6 +121,7 @@ def cli(args, top_parser, output_as=None, timeout=None):
         )
     except MoulinetteError as e:
         import logging
+
         logging.getLogger(logging.main_logger).error(e.strerror)
         return 1
     return 0

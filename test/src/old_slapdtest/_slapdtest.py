@@ -127,14 +127,12 @@ else:
 
 
 def identity(test_item):
-    """Identity decorator
-    """
+    """Identity decorator"""
     return test_item
 
 
 def skip_unless_ci(reason, feature=None):
-    """Skip test unless test case is executed on CI like Travis CI
-    """
+    """Skip test unless test case is executed on CI like Travis CI"""
     if not os.environ.get("CI", False):
         return unittest.skip(reason)
     elif feature in CI_DISABLED:
@@ -201,7 +199,8 @@ def combined_logger(
             fmt=" ".join((log_name, sys_log_format))
         )
         my_syslog_handler = logging.handlers.SysLogHandler(
-            address="/dev/log", facility=SysLogHandler.LOG_DAEMON,
+            address="/dev/log",
+            facility=SysLogHandler.LOG_DAEMON,
         )
         my_syslog_handler.setFormatter(my_syslog_formatter)
         new_logger.addHandler(my_syslog_handler)
@@ -373,7 +372,8 @@ class SlapdObject(object):
         """
         include_directives = "\n".join(
             'include "{schema_prefix}/{schema_file}"'.format(
-                schema_prefix=self._schema_prefix, schema_file=schema_file,
+                schema_prefix=self._schema_prefix,
+                schema_file=schema_file,
             )
             for schema_file in self.openldap_schema_files
         )
@@ -563,7 +563,13 @@ class SlapdObject(object):
         if ldap_uri is None:
             ldap_uri = self.default_ldap_uri
         args = (
-            [ldapcommand, "-H", ldap_uri,] + self._cli_auth_args() + (extra_args or [])
+            [
+                ldapcommand,
+                "-H",
+                ldap_uri,
+            ]
+            + self._cli_auth_args()
+            + (extra_args or [])
         )
         self._log.debug("Run command: %r", " ".join(args))
         proc = subprocess.Popen(
