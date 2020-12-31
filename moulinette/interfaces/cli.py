@@ -156,15 +156,11 @@ def pretty_print_dict(d, depth=0):
                 elif isinstance(value, dict):
                     pretty_print_dict({key: value}, depth + 1)
                 else:
-                    if isinstance(value, str):
-                        value = value.encode("utf-8")
-                    elif isinstance(v, date):
+                    if isinstance(v, date):
                         v = pretty_date(v)
                     print("{:s}- {}".format("  " * (depth + 1), value))
         else:
-            if isinstance(v, str):
-                v = v.encode("utf-8")
-            elif isinstance(v, date):
+            if isinstance(v, date):
                 v = pretty_date(v)
             print("{:s}{}: {}".format("  " * depth, k, v))
 
@@ -532,8 +528,6 @@ class Interface(BaseInterface):
         Handle the core.MoulinetteSignals.display signal.
 
         """
-        if isinstance(message, str):
-            message = message.encode("utf-8")
         if style == "success":
             print("{} {}".format(colorize(m18n.g("success"), "green"), message))
         elif style == "warning":

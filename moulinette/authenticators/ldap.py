@@ -15,7 +15,6 @@ from moulinette.authenticators import BaseAuthenticator
 
 logger = logging.getLogger("moulinette.authenticator.ldap")
 
-
 # LDAP Class Implementation --------------------------------------------
 
 
@@ -60,7 +59,7 @@ class Authenticator(BaseAuthenticator):
 
     def __del__(self):
         """Disconnect and free ressources"""
-        if self.con:
+        if hasattr(self, "con") and self.con:
             self.con.unbind_s()
 
     # Implement virtual properties
@@ -150,6 +149,19 @@ class Authenticator(BaseAuthenticator):
             for dn, entry in result:
                 entry["dn"] = [dn]
                 result_list.append(entry)
+
+        def decode(value):
+            if isinstance(value, bytes):
+                value = value.decode('utf-8')
+            return value
+
+        # result_list is for example :
+        # [{'virtualdomain': [b'test.com']}, {'virtualdomain': [b'yolo.test']},
+        for stuff in result_list:
+            if isinstance(stuff, dict):
+                for key, values in stuff.items():
+                    stuff[key] = [decode(v) for v in values]
+
         return result_list
 
     def add(self, rdn, attr_dict):
