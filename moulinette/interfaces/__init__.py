@@ -371,7 +371,7 @@ class _CallbackAction(argparse.Action):
         try:
             # Execute callback and get returned value
             value = self.callback(namespace, values, **self.callback_kwargs)
-        except:
+        except Exception:
             logger.exception(
                 "cannot get value from callback method "
                 "'{0}'".format(self.callback_method)
