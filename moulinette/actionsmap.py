@@ -190,7 +190,7 @@ class PatternParameter(_ExtraParameter):
         # Use temporarly utf-8 encoded value
         try:
             v = unicode(arg_value, "utf-8")
-        except:
+        except Exception:
             v = arg_value
 
         if v and not re.match(pattern, v or "", re.UNICODE):
