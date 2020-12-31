@@ -27,7 +27,7 @@ def patch_translate(moulinette):
 
     def new_translate(self, key, *args, **kwargs):
         if key not in self._translations[self.default_locale].keys():
-            message = "Unable to retrieve key %s for default locale!" % key
+            message = "Unable to retrieve key '%s' for default locale!" % key
             raise KeyError(message)
 
         return old_translate(self, key, *args, **kwargs)

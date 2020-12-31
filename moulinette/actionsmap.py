@@ -304,14 +304,12 @@ class ExtraArgumentParser(object):
                     # Validate parameter value
                     parameters[p] = klass.validate(v, arg_name)
                 except Exception as e:
-                    logger.error(
-                        "unable to validate extra parameter '%s' "
-                        "for argument '%s': %s",
-                        p,
-                        arg_name,
-                        e,
+                    error_message = (
+                        "unable to validate extra parameter '%s' for argument '%s': %s"
+                        % (p, arg_name, e)
                     )
-                    raise MoulinetteError("error_see_log")
+                    logger.error(error_message)
+                    raise MoulinetteError(error_message, raw_msg=True)
 
         return parameters
 
@@ -478,10 +476,12 @@ class ActionsMap(object):
         try:
             mod = import_module("moulinette.authenticators.%s" % auth_conf["vendor"])
         except ImportError:
-            logger.exception(
-                "unable to load authenticator vendor '%s'", auth_conf["vendor"]
+            error_message = (
+                "unable to load authenticator vendor module 'moulinette.authenticators.%s'"
+                % auth_conf["vendor"]
             )
-            raise MoulinetteError("error_see_log")
+            logger.exception(error_message)
+            raise MoulinetteError(error_message, raw_msg=True)
         else:
             return mod.Authenticator(**auth_conf)
 
@@ -561,12 +561,17 @@ class ActionsMap(object):
                     time() - start,
                 )
                 func = getattr(mod, func_name)
-            except (AttributeError, ImportError):
+            except (AttributeError, ImportError) as e:
                 import traceback
 
                 traceback.print_exc()
-                logger.exception("unable to load function %s.%s", namespace, func_name)
-                raise MoulinetteError("error_see_log")
+                error_message = "unable to load function %s.%s because: %s" % (
+                    namespace,
+                    func_name,
+                    e,
+                )
+                logger.exception(error_message)
+                raise MoulinetteError(error_message, raw_msg=True)
             else:
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):

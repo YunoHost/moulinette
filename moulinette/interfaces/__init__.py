@@ -250,24 +250,24 @@ class BaseActionsMapParser(object):
                     # Store only if authentication is needed
                     conf["authenticate"] = True if self.interface in ifaces else False
             else:
-                logger.error(
+                error_message = (
                     "expecting 'all', 'False' or a list for "
-                    "configuration 'authenticate', got %r",
-                    ifaces,
+                    "configuration 'authenticate', got %r" % ifaces,
                 )
-                raise MoulinetteError("error_see_log")
+                logger.error(error_message)
+                raise MoulinetteError(error_message, raw_msg=True)
 
         # -- 'authenticator'
         auth = configuration.get("authenticator", "default")
         if not is_global and isinstance(auth, str):
             # Store needed authenticator profile
             if auth not in self.global_conf["authenticator"]:
-                logger.error(
+                error_message = (
                     "requesting profile '%s' which is undefined in "
-                    "global configuration of 'authenticator'",
-                    auth,
+                    "global configuration of 'authenticator'" % auth,
                 )
-                raise MoulinetteError("error_see_log")
+                logger.error(error_message)
+                raise MoulinetteError(error_message, raw_msg=True)
             else:
                 conf["authenticator"] = auth
         elif is_global and isinstance(auth, dict):
@@ -286,12 +286,13 @@ class BaseActionsMapParser(object):
                     }
                 conf["authenticator"] = auths
         else:
-            logger.error(
+            error_message = (
                 "expecting a dict of profile(s) or a profile name "
                 "for configuration 'authenticator', got %r",
                 auth,
             )
-            raise MoulinetteError("error_see_log")
+            logger.error(error_message)
+            raise MoulinetteError(error_message, raw_msg=True)
 
         return conf
 
@@ -371,12 +372,13 @@ class _CallbackAction(argparse.Action):
         try:
             # Execute callback and get returned value
             value = self.callback(namespace, values, **self.callback_kwargs)
-        except Exception:
-            logger.exception(
+        except Exception as e:
+            error_message = (
                 "cannot get value from callback method "
-                "'{0}'".format(self.callback_method)
+                "'{0}': {1}".format(self.callback_method, e)
             )
-            raise MoulinetteError("error_see_log")
+            logger.exception(error_message)
+            raise MoulinetteError(error_message, raw_msg=True)
         else:
             if value:
                 if self.callback_return:
