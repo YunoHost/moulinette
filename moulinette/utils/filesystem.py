@@ -193,7 +193,7 @@ def append_to_file(file_path, data):
     write_to_file(file_path, data, file_mode="a")
 
 
-def write_to_json(file_path, data):
+def write_to_json(file_path, data, sort_keys=False, indent=None):
     """
     Write a dictionnary or a list to a json file
 
@@ -222,7 +222,7 @@ def write_to_json(file_path, data):
     # Write dict to file
     try:
         with open(file_path, "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, sort_keys=sort_keys, indent=indent)
     except IOError as e:
         raise MoulinetteError("cannot_write_file", file=file_path, error=str(e))
     except Exception as e:
