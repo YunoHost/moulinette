@@ -39,7 +39,11 @@ class Translator(object):
         # Attempt to load default translations
         if not self._load_translations(default_locale):
             logger.error(
-                "unable to load locale '%s' from '%s'", default_locale, locale_dir
+                "unable to load locale '%s' from '%s'. Does the file '%s/%s.json' exists?",
+                default_locale,
+                locale_dir,
+                locale_dir,
+                default_locale,
             )
         self.default_locale = default_locale
 
