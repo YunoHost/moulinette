@@ -8,7 +8,7 @@ import hmac
 from moulinette.cache import open_cachefile, get_cachedir, cachefile_exists
 from moulinette.core import MoulinetteError
 
-logger = logging.getLogger("moulinette.authenticator")
+logger = logging.getLogger("moulinette.core")
 
 
 # Base Class -----------------------------------------------------------

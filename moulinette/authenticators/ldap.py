@@ -13,7 +13,7 @@ from moulinette import m18n
 from moulinette.core import MoulinetteError, MoulinetteLdapIsDownError
 from moulinette.authenticators import BaseAuthenticator
 
-logger = logging.getLogger("moulinette.authenticator.ldap")
+logger = logging.getLogger("moulinette.core")
 
 # LDAP Class Implementation --------------------------------------------
 

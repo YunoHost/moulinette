@@ -9,7 +9,7 @@ from collections import deque, OrderedDict
 from moulinette import msettings, m18n
 from moulinette.core import MoulinetteError
 
-logger = logging.getLogger("moulinette.interface")
+logger = logging.getLogger("moulinette.core")
 
 GLOBAL_SECTION = "_global"
 TO_RETURN_PROP = "_to_return"

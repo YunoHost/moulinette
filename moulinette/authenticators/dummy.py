@@ -4,7 +4,7 @@ import logging
 from moulinette.core import MoulinetteError
 from moulinette.authenticators import BaseAuthenticator
 
-logger = logging.getLogger("moulinette.authenticator.dummy")
+logger = logging.getLogger("moulinette.core")
 
 # Dummy authenticator implementation
 

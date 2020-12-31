@@ -53,7 +53,7 @@ def monkey_get_action_name(argument):
 
 argparse._get_action_name = monkey_get_action_name
 
-logger = log.getLogger("moulinette.cli")
+logger = log.getLogger("moulinette.core")
 
 
 # CLI helpers ----------------------------------------------------------

@@ -18,7 +18,7 @@ from moulinette.core import MoulinetteError, MoulinetteLock
 from moulinette.interfaces import BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
 
-logger = logging.getLogger("moulinette.actionsmap")
+logger = logging.getLogger("moulinette.core")
 
 
 # Extra parameters ----------------------------------------------------

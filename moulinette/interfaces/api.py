@@ -460,7 +460,7 @@ class _ActionsMapPlugin(object):
                     # Delete the current queue and break
                     del self.log_queues[s_id]
                     break
-                logger.exception("invalid item in the messages queue: %r", item)
+                logger.error("invalid item in the messages queue: %r", item)
             else:
                 try:
                     # Send the message
