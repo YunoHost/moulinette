@@ -675,9 +675,13 @@ class ActionsMapParser(BaseActionsMapParser):
         try:
             # Retrieve the tid for the route
             tid, _ = self._parsers[kwargs.get("route")]
-        except KeyError:
-            logger.error("no argument parser found for route '%s'", kwargs.get("route"))
-            raise MoulinetteError("error_see_log")
+        except KeyError as e:
+            error_message = "no argument parser found for route '%s': %s" % (
+                kwargs.get("route"),
+                e,
+            )
+            logger.error(error_message)
+            raise MoulinetteError(error_message, raw_msg=True)
 
         if self.get_conf(tid, "authenticate"):
             authenticator = self.get_conf(tid, "authenticator")
@@ -703,9 +707,10 @@ class ActionsMapParser(BaseActionsMapParser):
         try:
             # Retrieve the parser for the route
             _, parser = self._parsers[route]
-        except KeyError:
-            logger.error("no argument parser found for route '%s'", route)
-            raise MoulinetteError("error_see_log")
+        except KeyError as e:
+            error_message = "no argument parser found for route '%s': %s" % (route, e)
+            logger.error(error_message)
+            raise MoulinetteError(error_message, raw_msg=True)
         ret = argparse.Namespace()
 
         # TODO: Catch errors?
@@ -825,10 +830,15 @@ class Interface(BaseInterface):
             server = WSGIServer((host, port), self._app, handler_class=WebSocketHandler)
             server.serve_forever()
         except IOError as e:
-            logger.exception("unable to start the server instance on %s:%d", host, port)
+            error_message = "unable to start the server instance on %s:%d: %s" % (
+                host,
+                port,
+                e,
+            )
+            logger.exception(error_message)
             if e.args[0] == errno.EADDRINUSE:
                 raise MoulinetteError("server_already_running")
-            raise MoulinetteError("error_see_log")
+            raise MoulinetteError(error_message)
 
     # Routes handlers
 

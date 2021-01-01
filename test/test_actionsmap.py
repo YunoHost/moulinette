@@ -188,7 +188,7 @@ def test_extra_argument_parser_add_argument_bad_arg(iface):
     with pytest.raises(MoulinetteError) as exception:
         extra_argument_parse.add_argument(GLOBAL_SECTION, "foo", {"ask": 1})
 
-    translation = m18n.g("error_see_log")
+    translation = m18n.g("error")
     expected_msg = translation.format()
     assert expected_msg in str(exception)
 
@@ -265,7 +265,7 @@ def test_actions_map_import_error(mocker):
     with pytest.raises(MoulinetteError) as exception:
         amap.process({}, timeout=30, route=("GET", "/test-auth/none"))
 
-    translation = m18n.g("error_see_log")
+    translation = m18n.g("error")
     expected_msg = translation.format()
     assert expected_msg in str(exception)
 
