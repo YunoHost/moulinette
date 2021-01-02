@@ -1,4 +1,6 @@
 #!/usr/bin/make -f
 
+export PYBUILD_NAME=moulinette
+
 %:
-	dh $@ --with python3 --buildsystem=python_distutils
+	dh $@ --with python3 --buildsystem=pybuild
