@@ -307,7 +307,7 @@ class MoulinetteSignals(object):
     # Signals definitions
 
     """The list of available signals"""
-    signals = {"authenticate", "prompt", "display"}
+    signals = {"authenticate", "prompt", "display", "file_display"}
 
     def authenticate(self, authenticator):
         """Process the authentication
@@ -365,6 +365,19 @@ class MoulinetteSignals(object):
         """
         try:
             self._display(message, style)
+        except NotImplementedError:
+            pass
+
+    def file_display(self, file_path):
+        """Display a message
+
+        Display the content of a file at file_path.
+
+        Keyword arguments:
+            - file_path -- The path to the file
+        """
+        try:
+            self._file_display(file_path)
         except NotImplementedError:
             pass
 

@@ -5,6 +5,7 @@ import sys
 import getpass
 import locale
 import logging
+import subprocess
 from argparse import SUPPRESS
 from collections import OrderedDict
 from datetime import date, datetime
@@ -443,6 +444,7 @@ class Interface(BaseInterface):
         if os.isatty(1):
             msignals.set_handler("authenticate", self._do_authenticate)
             msignals.set_handler("prompt", self._do_prompt)
+            msignals.set_handler("file_display", self._do_file_display)
 
         self.actionsmap = ActionsMap(
             ActionsMapParser(top_parser=top_parser),
@@ -550,3 +552,26 @@ class Interface(BaseInterface):
             print("{} {}".format(colorize(m18n.g("error"), "red"), message))
         else:
             print(message)
+
+    def _do_file_display(self, file_path):
+        """Display the content of a file
+
+        Handle the core.MoulinetteSignals.file_display signal.
+
+        """
+        # in python 3 we'll be able to uses shutil.get_terminal_size
+        rows, _ = subprocess.check_output("stty size", shell=True).strip().split(" ")
+        file_length = (
+            subprocess.check_output("wc -l %s" % file_path, shell=True)
+            .strip()
+            .split(" ")[0]
+        )
+
+        rows = int(rows)
+        file_length = int(file_length)
+
+        # 80% of file_length, we assume that above is too uncounfortable
+        if (file_length * 0.8) > rows:
+            os.system("less %s" % file_path)
+        else:
+            print(open(file_path).read())
