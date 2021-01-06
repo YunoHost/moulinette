@@ -1,3 +1,14 @@
+moulinette (4.1.2) testing; urgency=low
+
+  - [mod] Misc code cleanup ([#259](https://github.com/YunoHost/moulinette/pull/259), 82bc0e82, 8566eaaa, 2caf1234)
+  - [mod] Improve error messages ([#264](https://github.com/YunoHost/moulinette/pull/264))
+  - [fix] Minor issue about 'comment' in actionmaps ([#266](https://github.com/YunoHost/moulinette/pull/266))
+  - [i18n] Improve translation for French
+
+  Thanks to all contributors <3 ! (Kay0u, Bram, ppr)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 07 Jan 2021 00:23:44 +0100
+
 moulinette (4.1.1) testing; urgency=low
 
   - [enh] Add options to write_to_json ([#261](https://github.com/YunoHost/moulinette/pull/261))
