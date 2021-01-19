@@ -11,10 +11,6 @@ matrix:
     - env: TOXENV=py37-pytest
     - env: TOXENV=py37-lint
   include:
-    - python: 2.7
-      env: TOXENV=py27-pytest
-    - python: 2.7
-      env: TOXENV=py27-lint
     - python: 3.7
       env: TOXENV=py37-pytest
     - python: 3.7
