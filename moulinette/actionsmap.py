@@ -5,7 +5,27 @@ import re
 import logging
 import yaml
 import glob
-import cPickle as pickle
+
+import sys
+if sys.version_info[0] == 3:
+    # python 3
+    import pickle as pickle
+else:
+    # python 2
+    import cPickle as pickle
+    import codecs
+    import warnings
+    def open(file, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None, closefd=True, opener=None):
+        if newline is not None:
+            warnings.warn('newline is not supported in py2')
+        if not closefd:
+            warnings.warn('closefd is not supported in py2')
+        if opener is not None:
+            warnings.warn('opener is not supported in py2')
+        return codecs.open(filename=file, mode=mode, encoding=encoding,
+                    errors=errors, buffering=buffering)
+
 from time import time
 from collections import OrderedDict
 from importlib import import_module
@@ -189,7 +209,7 @@ class PatternParameter(_ExtraParameter):
 
         # Use temporarly utf-8 encoded value
         try:
-            v = unicode(arg_value, "utf-8")
+            v = str(arg_value, "utf-8")
         except Exception:
             v = arg_value
 
@@ -294,7 +314,7 @@ class ExtraArgumentParser(object):
 
         """
         # Iterate over parameters to validate
-        for p, v in parameters.items():
+        for p in list(parameters):
             klass = self.extra.get(p, None)
             if not klass:
                 # Remove unknown parameters
@@ -302,7 +322,7 @@ class ExtraArgumentParser(object):
             else:
                 try:
                     # Validate parameter value
-                    parameters[p] = klass.validate(v, arg_name)
+                    parameters[p] = klass.validate(parameters[p], arg_name)
                 except Exception as e:
                     error_message = (
                         "unable to validate extra parameter '%s' for argument '%s': %s"
@@ -436,7 +456,7 @@ class ActionsMap(object):
             if os.path.exists(actionsmap_pkl):
                 try:
                     # Attempt to load cache
-                    with open(actionsmap_pkl) as f:
+                    with open(actionsmap_pkl, "rb") as f:
                         actionsmaps[n] = pickle.load(f)
 
                     self.from_cache = True
@@ -655,7 +675,7 @@ class ActionsMap(object):
 
         pkl = "%s-%d-%d.pkl" % (namespace, am_file_stat.st_size, am_file_stat.st_mtime)
 
-        with open_cachefile(pkl, "w", subdir="actionsmap") as f:
+        with open_cachefile(pkl, "wb", subdir="actionsmap") as f:
             pickle.dump(actionsmap, f)
 
         return actionsmap

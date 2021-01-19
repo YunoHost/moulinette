@@ -92,7 +92,7 @@ def plain_print_dict(d, depth=0):
             print("{}{}".format("#" * (depth + 1), k))
             plain_print_dict(v, depth + 1)
     else:
-        if isinstance(d, unicode):
+        if isinstance(d, str):
             d = d.encode("utf-8")
         print(d)
 
@@ -156,15 +156,11 @@ def pretty_print_dict(d, depth=0):
                 elif isinstance(value, dict):
                     pretty_print_dict({key: value}, depth + 1)
                 else:
-                    if isinstance(value, unicode):
-                        value = value.encode("utf-8")
-                    elif isinstance(v, date):
+                    if isinstance(v, date):
                         v = pretty_date(v)
                     print("{:s}- {}".format("  " * (depth + 1), value))
         else:
-            if isinstance(v, unicode):
-                v = v.encode("utf-8")
-            elif isinstance(v, date):
+            if isinstance(v, date):
                 v = pretty_date(v)
             print("{:s}{}: {}".format("  " * depth, k, v))
 
@@ -524,7 +520,7 @@ class Interface(BaseInterface):
         if is_password:
             prompt = lambda m: getpass.getpass(colorize(m18n.g("colon", m), color))
         else:
-            prompt = lambda m: raw_input(colorize(m18n.g("colon", m), color))
+            prompt = lambda m: input(colorize(m18n.g("colon", m), color))
         value = prompt(message)
 
         if confirm:
@@ -540,8 +536,6 @@ class Interface(BaseInterface):
         Handle the core.MoulinetteSignals.display signal.
 
         """
-        if isinstance(message, unicode):
-            message = message.encode("utf-8")
         if style == "success":
             print("{} {}".format(colorize(m18n.g("success"), "green"), message))
         elif style == "warning":

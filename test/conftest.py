@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import pytest
+import sys
 
 from .src.ldap_server import LDAPServer
 
@@ -156,7 +157,7 @@ def moulinette_cli(moulinette, mocker):
 def test_file(tmp_path):
     test_text = "foo\nbar\n"
     test_file = tmp_path / "test.txt"
-    test_file.write_bytes(test_text)
+    test_file.write_bytes(test_text.encode())
     return test_file
 
 
@@ -164,7 +165,7 @@ def test_file(tmp_path):
 def test_json(tmp_path):
     test_json = json.dumps({"foo": "bar"})
     test_file = tmp_path / "test.json"
-    test_file.write_bytes(test_json)
+    test_file.write_bytes(test_json.encode())
     return test_file
 
 
@@ -172,7 +173,7 @@ def test_json(tmp_path):
 def test_yaml(tmp_path):
     test_yaml = yaml.dump({"foo": "bar"})
     test_file = tmp_path / "test.txt"
-    test_file.write_bytes(test_yaml)
+    test_file.write_bytes(test_yaml.encode())
     return test_file
 
 
@@ -180,7 +181,7 @@ def test_yaml(tmp_path):
 def test_toml(tmp_path):
     test_toml = toml.dumps({"foo": "bar"})
     test_file = tmp_path / "test.txt"
-    test_file.write_bytes(str(test_toml))
+    test_file.write_bytes(test_toml.encode())
     return test_file
 
 
@@ -189,14 +190,14 @@ def test_ldif(tmp_path):
     test_file = tmp_path / "test.txt"
     from ldif import LDIFWriter
 
-    writer = LDIFWriter(open(str(test_file), "wb"))
+    writer = LDIFWriter(open(str(test_file), "w"))
 
     writer.unparse(
         "mail=alice@example.com",
         {
-            "cn": ["Alice Alison"],
-            "mail": ["alice@example.com"],
-            "objectclass": ["top", "person"],
+            "cn": ["Alice Alison".encode("utf-8")],
+            "mail": ["alice@example.com".encode("utf-8")],
+            "objectclass": ["top".encode("utf-8"), "person".encode("utf-8")],
         },
     )
 
@@ -219,3 +220,11 @@ def ldap_server():
     server.start()
     yield server
     server.stop()
+
+
+@pytest.fixture
+def builtin_str():
+    if sys.version_info[0] == 3:
+        return "builtins"
+    else:
+        return "__builtin__"

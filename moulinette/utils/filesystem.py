@@ -22,11 +22,9 @@ def read_file(file_path):
     Keyword argument:
         file_path -- Path to the text file
     """
-    assert isinstance(
-        file_path, basestring
-    ), "Error: file_path '%s' should be a string but is of type '%s' instead" % (
-        file_path,
-        type(file_path),
+    assert isinstance(file_path, str), (
+        "Error: file_path '%s' should be a string but is of type '%s' instead"
+        % (file_path, type(file_path))
     )
 
     # Check file exists
@@ -153,11 +151,9 @@ def write_to_file(file_path, data, file_mode="w"):
         file_mode -- Mode used when writing the file. Option meant to be used
         by append_to_file to avoid duplicating the code of this function.
     """
-    assert isinstance(data, basestring) or isinstance(
-        data, list
-    ), "Error: data '%s' should be either a string or a list but is of type '%s'" % (
-        data,
-        type(data),
+    assert isinstance(data, str) or isinstance(data, list), (
+        "Error: data '%s' should be either a string or a list but is of type '%s'"
+        % (data, type(data))
     )
     assert not os.path.isdir(file_path), (
         "Error: file_path '%s' point to a dir, it should be a file" % file_path
@@ -170,13 +166,11 @@ def write_to_file(file_path, data, file_mode="w"):
     )
 
     # If data is a list, check elements are strings and build a single string
-    if not isinstance(data, basestring):
+    if not isinstance(data, str):
         for element in data:
-            assert isinstance(
-                element, basestring
-            ), "Error: element '%s' should be a string but is of type '%s' instead" % (
-                element,
-                type(element),
+            assert isinstance(element, str), (
+                "Error: element '%s' should be a string but is of type '%s' instead"
+                % (element, type(element))
             )
         data = "\n".join(data)
 
@@ -211,11 +205,9 @@ def write_to_json(file_path, data, sort_keys=False, indent=None):
     """
 
     # Assumptions
-    assert isinstance(
-        file_path, basestring
-    ), "Error: file_path '%s' should be a string but is of type '%s' instead" % (
-        file_path,
-        type(file_path),
+    assert isinstance(file_path, str), (
+        "Error: file_path '%s' should be a string but is of type '%s' instead"
+        % (file_path, type(file_path))
     )
     assert isinstance(data, dict) or isinstance(
         data, list
@@ -252,7 +244,7 @@ def write_to_yaml(file_path, data):
         data -- The data to write (must be a dict or a list)
     """
     # Assumptions
-    assert isinstance(file_path, basestring)
+    assert isinstance(file_path, str)
     assert isinstance(data, dict) or isinstance(data, list)
     assert not os.path.isdir(file_path)
     assert os.path.isdir(os.path.dirname(file_path))
@@ -327,14 +319,14 @@ def chown(path, uid=None, gid=None, recursive=False):
         raise ValueError("either uid or gid argument is required")
 
     # Retrieve uid/gid
-    if isinstance(uid, basestring):
+    if isinstance(uid, str):
         try:
             uid = getpwnam(uid).pw_uid
         except KeyError:
             raise MoulinetteError("unknown_user", user=uid)
     elif uid is None:
         uid = -1
-    if isinstance(gid, basestring):
+    if isinstance(gid, str):
         try:
             gid = grp.getgrnam(gid).gr_gid
         except KeyError:

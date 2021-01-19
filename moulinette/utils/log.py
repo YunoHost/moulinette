@@ -101,7 +101,7 @@ class MoulinetteLogger(Logger):
         if self.isEnabledFor(SUCCESS):
             self._log(SUCCESS, msg, args, **kwargs)
 
-    def findCaller(self):
+    def findCaller(self, *args):
         """Override findCaller method to consider this source file."""
         f = logging.currentframe()
         if f is not None:
@@ -125,7 +125,7 @@ class MoulinetteLogger(Logger):
                 # FIXME: Get real action_id instead of logger/current one
                 extra["action_id"] = _get_action_id()
                 kwargs["extra"] = extra
-        return Logger._log(self, *args, **kwargs)
+        return super()._log(*args, **kwargs)
 
 
 # Action logging -------------------------------------------------------

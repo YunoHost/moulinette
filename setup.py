@@ -17,6 +17,31 @@ if "install" in sys.argv:
         if f.endswith('.json'):
             locale_files.append('locales/%s' % f)
 
+install_deps = [
+    'argcomplete',
+    'psutil',
+    'pytz',
+    'pyyaml',
+    'toml',
+    'python-ldap',
+    'gevent-websocket',
+    'bottle',
+]
+
+test_deps = [
+    'pytest',
+    'pytest-cov',
+    'pytest-env',
+    'pytest-mock',
+    'requests',
+    'requests-mock',
+    'webtest'
+]
+extras = {
+    'install': install_deps,
+    'tests': test_deps,
+}
+
 
 setup(name='Moulinette',
       version='2.0.0',
@@ -27,24 +52,8 @@ setup(name='Moulinette',
       license='AGPL',
       packages=find_packages(exclude=['test']),
       data_files=[(LOCALES_DIR, locale_files)],
-      python_requires='>=2.7.*',
-      install_requires=[
-          'argcomplete',
-          'psutil',
-          'pytz',
-          'pyyaml',
-          'toml',
-          'python-ldap',
-          'gevent-websocket',
-          'bottle',
-      ],
-      tests_require=[
-          'pytest',
-          'pytest-cov',
-          'pytest-env',
-          'pytest-mock',
-          'requests',
-          'requests-mock',
-          'webtest'
-      ],
+      python_requires='>=3.7.*,  <3.8',
+      install_requires=install_deps,
+      tests_require=test_deps,
+      extras_require=extras,
       )

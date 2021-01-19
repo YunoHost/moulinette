@@ -3,6 +3,23 @@ import re
 import mmap
 import binascii
 
+import sys
+if sys.version_info[0] == 3:
+    pass
+else:
+    # python 2
+    import codecs
+    import warnings
+    def open(file, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None, closefd=True, opener=None):
+        if newline is not None:
+            warnings.warn('newline is not supported in py2')
+        if not closefd:
+            warnings.warn('closefd is not supported in py2')
+        if opener is not None:
+            warnings.warn('opener is not supported in py2')
+        return codecs.open(filename=file, mode=mode, encoding=encoding,
+                    errors=errors, buffering=buffering)
 
 # Pattern searching ----------------------------------------------------
 
@@ -47,9 +64,12 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
     content by using the search function.
 
     """
-    with open(path, "r+") as f:
+    with open(path, "rb+") as f:
         data = mmap.mmap(f.fileno(), 0)
-        match = search(pattern, data, count, flags)
+        if sys.version_info[0] == 3:
+            match = search(pattern, data.read().decode(), count, flags)
+        else:
+            match = search(pattern, data, count, flags)
         data.close()
     return match
 

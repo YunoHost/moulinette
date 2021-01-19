@@ -9,6 +9,13 @@ from collections import deque, OrderedDict
 from moulinette import msettings, m18n
 from moulinette.core import MoulinetteError
 
+import sys
+if sys.version_info[0] == 3:
+    pass
+else:
+    # python 2
+    range = xrange
+
 logger = logging.getLogger("moulinette.interface")
 
 GLOBAL_SECTION = "_global"
@@ -475,7 +482,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 
     def dequeue_callbacks(self, namespace):
         queue = self._get_callbacks_queue(namespace, False)
-        for _i in xrange(len(queue)):
+        for _i in range(len(queue)):
             c, v = queue.popleft()
             # FIXME: break dequeue if callback returns
             c.execute(namespace, v)

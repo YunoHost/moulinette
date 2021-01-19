@@ -10,7 +10,7 @@ try:
 except ImportError:
     from shlex import quote  # Python3 >= 3.3
 
-from .stream import async_file_reading
+from .stream import LogPipe
 
 quote  # This line is here to avoid W0611 PEP8 error (see comments above)
 
@@ -28,7 +28,7 @@ def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs):
     and use shell by default before calling subprocess.check_output.
 
     """
-    return subprocess.check_output(args, stderr=stderr, shell=shell, **kwargs).strip()
+    return subprocess.check_output(args, stderr=stderr, shell=shell, **kwargs).decode('utf-8').strip()
 
 
 # Call with stream access ----------------------------------------------
@@ -59,71 +59,20 @@ def call_async_output(args, callback, **kwargs):
         if a in kwargs:
             raise ValueError("%s argument not allowed, " "it will be overridden." % a)
 
-    if "stdinfo" in kwargs and kwargs["stdinfo"] is not None:
-        assert len(callback) == 3
-        stdinfo = kwargs.pop("stdinfo")
-        os.mkfifo(stdinfo, 0o600)
-        # Open stdinfo for reading (in a nonblocking way, i.e. even
-        # if command does not write in the stdinfo pipe...)
-        stdinfo_f = os.open(stdinfo, os.O_RDONLY | os.O_NONBLOCK)
-    else:
-        if "stdinfo" in kwargs:
-            kwargs.pop("stdinfo")
-        stdinfo = None
-
-    # Validate callback argument
-    if isinstance(callback, tuple):
-        if len(callback) < 2:
-            raise ValueError("callback argument should be a 2-tuple")
-        kwargs["stdout"] = kwargs["stderr"] = subprocess.PIPE
-        separate_stderr = True
-    elif callable(callback):
-        kwargs["stdout"] = subprocess.PIPE
-        kwargs["stderr"] = subprocess.STDOUT
-        separate_stderr = False
-        callback = (callback,)
-    else:
-        raise ValueError("callback argument must be callable or a 2-tuple")
-
-    # Run the command
-    p = subprocess.Popen(args, **kwargs)
-
-    # Wrap and get command outputs
-    stdout_reader, stdout_consum = async_file_reading(p.stdout, callback[0])
-    if separate_stderr:
-        stderr_reader, stderr_consum = async_file_reading(p.stderr, callback[1])
-        if stdinfo:
-            stdinfo_reader, stdinfo_consum = async_file_reading(stdinfo_f, callback[2])
-
-        while not stdout_reader.eof() and not stderr_reader.eof():
-            while not stdout_consum.empty() or not stderr_consum.empty():
-                # alternate between the 2 consumers to avoid desynchronisation
-                # this way is not 100% perfect but should do it
-                stdout_consum.process_next_line()
-                stderr_consum.process_next_line()
-                if stdinfo:
-                    stdinfo_consum.process_next_line()
-            time.sleep(0.1)
-        stderr_reader.join()
-        # clear the queues
-        stdout_consum.process_current_queue()
-        stderr_consum.process_current_queue()
-        if stdinfo:
-            stdinfo_consum.process_current_queue()
-    else:
-        while not stdout_reader.eof():
-            stdout_consum.process_current_queue()
-            time.sleep(0.1)
-    stdout_reader.join()
-    # clear the queue
-    stdout_consum.process_current_queue()
-
+    kwargs["stdout"] = LogPipe(callback[0])
+    kwargs["stderr"] = LogPipe(callback[1])
+    stdinfo = LogPipe(callback[2]) if len(callback) >= 3 else None
     if stdinfo:
-        # Remove the stdinfo pipe
-        os.remove(stdinfo)
-        os.rmdir(os.path.dirname(stdinfo))
-        stdinfo_reader.join()
-        stdinfo_consum.process_current_queue()
+        kwargs["pass_fds"] = [stdinfo.fdWrite]
+        if "env" not in kwargs:
+            kwargs["env"] = os.environ
+        kwargs["env"]['YNH_STDINFO'] = str(stdinfo.fdWrite)
+
+    with subprocess.Popen(args, **kwargs) as p:
+        kwargs["stdout"].close()
+        kwargs["stderr"].close()
+        if stdinfo:
+            stdinfo.close()
 
     # on slow hardware, in very edgy situations it is possible that the process
     # isn't finished just after having closed stdout and stderr, so we wait a
