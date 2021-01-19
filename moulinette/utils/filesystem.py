@@ -158,9 +158,11 @@ def write_to_file(file_path, data, file_mode="w"):
     assert not os.path.isdir(file_path), (
         "Error: file_path '%s' point to a dir, it should be a file" % file_path
     )
-    assert os.path.isdir(os.path.dirname(file_path)), (
-        "Error: the path ('%s') base dir ('%s') is not a dir"
-        % (file_path, os.path.dirname(file_path))
+    assert os.path.isdir(
+        os.path.dirname(file_path)
+    ), "Error: the path ('%s') base dir ('%s') is not a dir" % (
+        file_path,
+        os.path.dirname(file_path),
     )
 
     # If data is a list, check elements are strings and build a single string
@@ -207,16 +209,20 @@ def write_to_json(file_path, data, sort_keys=False, indent=None):
         "Error: file_path '%s' should be a string but is of type '%s' instead"
         % (file_path, type(file_path))
     )
-    assert isinstance(data, dict) or isinstance(data, list), (
-        "Error: data '%s' should be a dict or a list but is of type '%s' instead"
-        % (data, type(data))
+    assert isinstance(data, dict) or isinstance(
+        data, list
+    ), "Error: data '%s' should be a dict or a list but is of type '%s' instead" % (
+        data,
+        type(data),
     )
     assert not os.path.isdir(file_path), (
         "Error: file_path '%s' point to a dir, it should be a file" % file_path
     )
-    assert os.path.isdir(os.path.dirname(file_path)), (
-        "Error: the path ('%s') base dir ('%s') is not a dir"
-        % (file_path, os.path.dirname(file_path))
+    assert os.path.isdir(
+        os.path.dirname(file_path)
+    ), "Error: the path ('%s') base dir ('%s') is not a dir" % (
+        file_path,
+        os.path.dirname(file_path),
     )
 
     # Write dict to file

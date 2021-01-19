@@ -376,9 +376,13 @@ class ActionsMapParser(BaseActionsMapParser):
             ret = self._parser.parse_args(args)
         except SystemExit:
             raise
-        except:
-            logger.exception("unable to parse arguments '%s'", " ".join(args))
-            raise MoulinetteError("error_see_log")
+        except Exception as e:
+            error_message = "unable to parse arguments '%s' because: %s" % (
+                " ".join(args),
+                e,
+            )
+            logger.exception(error_message)
+            raise MoulinetteError(error_message, raw_msg=True)
 
         tid = getattr(ret, "_tid", None)
         if self.get_conf(tid, "authenticate"):
@@ -400,9 +404,13 @@ class ActionsMapParser(BaseActionsMapParser):
             ret = self._parser.parse_args(args)
         except SystemExit:
             raise
-        except:
-            logger.exception("unable to parse arguments '%s'", " ".join(args))
-            raise MoulinetteError("error_see_log")
+        except Exception as e:
+            error_message = "unable to parse arguments '%s' because: %s" % (
+                " ".join(args),
+                e,
+            )
+            logger.exception(error_message)
+            raise MoulinetteError(error_message, raw_msg=True)
         else:
             self.prepare_action_namespace(getattr(ret, "_tid", None), ret)
             self._parser.dequeue_callbacks(ret)

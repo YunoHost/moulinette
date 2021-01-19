@@ -237,7 +237,7 @@ class Authenticator(BaseAuthenticator):
         ldif = modlist.modifyModlist(actual_entry[0], attr_dict, ignore_oldexistent=1)
 
         if ldif == []:
-            logger.warning("Nothing to update in LDAP")
+            logger.debug("Nothing to update in LDAP")
             return True
 
         try:
