@@ -39,10 +39,10 @@ def test_read_file_missing_file():
     assert expected_msg in str(exception)
 
 
-def test_read_file_cannot_read_ioerror(test_file, mocker, builtin_str):
+def test_read_file_cannot_read_ioerror(test_file, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=IOError(error))
+    mocker.patch("builtins.open", side_effect=IOError(error))
     with pytest.raises(MoulinetteError) as exception:
         read_file(str(test_file))
 
@@ -51,10 +51,10 @@ def test_read_file_cannot_read_ioerror(test_file, mocker, builtin_str):
     assert expected_msg in str(exception)
 
 
-def test_read_file_cannot_read_exception(test_file, mocker, builtin_str):
+def test_read_file_cannot_read_exception(test_file, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=Exception(error))
+    mocker.patch("builtins.open", side_effect=Exception(error))
     with pytest.raises(MoulinetteError) as exception:
         read_file(str(test_file))
 
@@ -133,10 +133,10 @@ def test_read_ldif(test_ldif):
     assert entry["cn"] == ["Alice Alison".encode("utf-8")]
 
 
-def test_read_ldif_cannot_ioerror(test_ldif, mocker, builtin_str):
+def test_read_ldif_cannot_ioerror(test_ldif, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=IOError(error))
+    mocker.patch("builtins.open", side_effect=IOError(error))
     with pytest.raises(MoulinetteError) as exception:
         read_ldif(str(test_ldif))
 
@@ -145,10 +145,10 @@ def test_read_ldif_cannot_ioerror(test_ldif, mocker, builtin_str):
     assert expected_msg in str(exception)
 
 
-def test_read_ldif_cannot_exception(test_ldif, mocker, builtin_str):
+def test_read_ldif_cannot_exception(test_ldif, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=Exception(error))
+    mocker.patch("builtins.open", side_effect=Exception(error))
     with pytest.raises(MoulinetteError) as exception:
         read_ldif(str(test_ldif))
 
@@ -171,10 +171,10 @@ def test_write_to_new_file(tmp_path):
     assert read_file(str(new_file)) == "yolo\nswag"
 
 
-def test_write_to_existing_file_bad_perms(test_file, mocker, builtin_str):
+def test_write_to_existing_file_bad_perms(test_file, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=IOError(error))
+    mocker.patch("builtins.open", side_effect=IOError(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_file(str(test_file), "yolo\nswag")
 
@@ -183,10 +183,10 @@ def test_write_to_existing_file_bad_perms(test_file, mocker, builtin_str):
     assert expected_msg in str(exception)
 
 
-def test_write_to_file_exception(test_file, mocker, builtin_str):
+def test_write_to_file_exception(test_file, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=Exception(error))
+    mocker.patch("builtins.open", side_effect=Exception(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_file(str(test_file), "yolo\nswag")
 
@@ -238,12 +238,12 @@ def test_write_dict_to_json(tmp_path):
     assert _json["bar"] == ["a", "b", "c"]
 
 
-def test_write_json_to_existing_file_bad_perms(test_file, mocker, builtin_str):
+def test_write_json_to_existing_file_bad_perms(test_file, mocker):
     error = "foobar"
 
     dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}
 
-    mocker.patch(builtin_str + ".open", side_effect=IOError(error))
+    mocker.patch("builtins.open", side_effect=IOError(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_json(str(test_file), dummy_dict)
 
@@ -252,12 +252,12 @@ def test_write_json_to_existing_file_bad_perms(test_file, mocker, builtin_str):
     assert expected_msg in str(exception)
 
 
-def test_write_json_to_file_exception(test_file, mocker, builtin_str):
+def test_write_json_to_file_exception(test_file, mocker):
     error = "foobar"
 
     dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}
 
-    mocker.patch(builtin_str + ".open", side_effect=Exception(error))
+    mocker.patch("builtins.open", side_effect=Exception(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_json(str(test_file), dummy_dict)
 
@@ -276,10 +276,10 @@ def text_write_list_to_json(tmp_path):
     assert _json == ["foo", "bar", "baz"]
 
 
-def test_write_to_json_bad_perms(test_json, mocker, builtin_str):
+def test_write_to_json_bad_perms(test_json, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=IOError(error))
+    mocker.patch("builtins.open", side_effect=IOError(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_json(str(test_json), {"a": 1})
 
@@ -307,12 +307,12 @@ def test_write_dict_to_yaml(tmp_path):
     assert _yaml["bar"] == ["a", "b", "c"]
 
 
-def test_write_yaml_to_existing_file_bad_perms(test_file, mocker, builtin_str):
+def test_write_yaml_to_existing_file_bad_perms(test_file, mocker):
     error = "foobar"
 
     dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}
 
-    mocker.patch(builtin_str + ".open", side_effect=IOError(error))
+    mocker.patch("builtins.open", side_effect=IOError(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_yaml(str(test_file), dummy_dict)
 
@@ -321,12 +321,12 @@ def test_write_yaml_to_existing_file_bad_perms(test_file, mocker, builtin_str):
     assert expected_msg in str(exception)
 
 
-def test_write_yaml_to_file_exception(test_file, mocker, builtin_str):
+def test_write_yaml_to_file_exception(test_file, mocker):
     error = "foobar"
 
     dummy_dict = {"foo": 42, "bar": ["a", "b", "c"]}
 
-    mocker.patch(builtin_str + ".open", side_effect=Exception(error))
+    mocker.patch("builtins.open", side_effect=Exception(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_yaml(str(test_file), dummy_dict)
 
@@ -345,10 +345,10 @@ def text_write_list_to_yaml(tmp_path):
     assert _yaml == ["foo", "bar", "baz"]
 
 
-def test_write_to_yaml_bad_perms(test_yaml, mocker, builtin_str):
+def test_write_to_yaml_bad_perms(test_yaml, mocker):
     error = "foobar"
 
-    mocker.patch(builtin_str + ".open", side_effect=IOError(error))
+    mocker.patch("builtins.open", side_effect=IOError(error))
     with pytest.raises(MoulinetteError) as exception:
         write_to_yaml(str(test_yaml), {"a": 1})
 

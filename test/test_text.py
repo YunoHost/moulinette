@@ -19,8 +19,4 @@ def test_prependlines():
 
 
 def test_random_ascii():
-    import sys
-    if sys.version_info[0] == 3:
-        assert isinstance(random_ascii(length=2), str)
-    else:
-        assert isinstance(random_ascii(length=2), unicode)
+    assert isinstance(random_ascii(length=2), str)

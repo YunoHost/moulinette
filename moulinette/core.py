@@ -8,24 +8,6 @@ import logging
 import moulinette
 from moulinette.globals import init_moulinette_env
 
-import sys
-if sys.version_info[0] == 3:
-    pass
-else:
-    # python 2
-    import codecs
-    import warnings
-    def open(file, mode='r', buffering=-1, encoding=None,
-             errors=None, newline=None, closefd=True, opener=None):
-        if newline is not None:
-            warnings.warn('newline is not supported in py2')
-        if not closefd:
-            warnings.warn('closefd is not supported in py2')
-        if opener is not None:
-            warnings.warn('opener is not supported in py2')
-        return codecs.open(filename=file, mode=mode, encoding=encoding,
-                    errors=errors, buffering=buffering)
-
 logger = logging.getLogger("moulinette.core")
 
 
@@ -189,9 +171,6 @@ class Translator(object):
         try:
             with open("%s/%s.json" % (self.locale_dir, locale), "r", encoding='utf-8') as f:
                 j = json.load(f)
-                import sys
-                if sys.version_info[0] == 2:
-                    j = {k.encode("utf-8"): v.encode("utf-8") for k, v in j.items()}
         except IOError:
             return False
         else:

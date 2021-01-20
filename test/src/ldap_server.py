@@ -5,24 +5,6 @@ except ImportError:
 import os
 from moulinette.authenticators import ldap as m_ldap
 
-import sys
-if sys.version_info[0] == 3:
-    pass
-else:
-    # python 2
-    import codecs
-    import warnings
-    def open(file, mode='r', buffering=-1, encoding=None,
-             errors=None, newline=None, closefd=True, opener=None):
-        if newline is not None:
-            warnings.warn('newline is not supported in py2')
-        if not closefd:
-            warnings.warn('closefd is not supported in py2')
-        if opener is not None:
-            warnings.warn('opener is not supported in py2')
-        return codecs.open(filename=file, mode=mode, encoding=encoding,
-                    errors=errors, buffering=buffering)
-
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 

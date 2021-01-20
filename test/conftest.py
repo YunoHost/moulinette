@@ -6,7 +6,6 @@ import json
 import os
 import shutil
 import pytest
-import sys
 
 from .src.ldap_server import LDAPServer
 
@@ -220,11 +219,3 @@ def ldap_server():
     server.start()
     yield server
     server.stop()
-
-
-@pytest.fixture
-def builtin_str():
-    if sys.version_info[0] == 3:
-        return "builtins"
-    else:
-        return "__builtin__"

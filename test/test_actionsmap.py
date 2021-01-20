@@ -244,7 +244,7 @@ def test_actions_map_api():
     assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
 
 
-def test_actions_map_import_error(mocker, builtin_str):
+def test_actions_map_import_error(mocker):
     from moulinette.interfaces.api import ActionsMapParser
 
     amap = ActionsMap(ActionsMapParser())
@@ -261,7 +261,7 @@ def test_actions_map_import_error(mocker, builtin_str):
             raise ImportError
         return orig_import(name, globals, locals, fromlist, level)
 
-    mocker.patch(builtin_str + ".__import__", side_effect=import_mock)
+    mocker.patch("builtins.__import__", side_effect=import_mock)
     with pytest.raises(MoulinetteError) as exception:
         amap.process({}, timeout=30, route=("GET", "/test-auth/none"))
 

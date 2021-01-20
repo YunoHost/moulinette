@@ -5,26 +5,7 @@ import re
 import logging
 import yaml
 import glob
-
-import sys
-if sys.version_info[0] == 3:
-    # python 3
-    import pickle as pickle
-else:
-    # python 2
-    import cPickle as pickle
-    import codecs
-    import warnings
-    def open(file, mode='r', buffering=-1, encoding=None,
-             errors=None, newline=None, closefd=True, opener=None):
-        if newline is not None:
-            warnings.warn('newline is not supported in py2')
-        if not closefd:
-            warnings.warn('closefd is not supported in py2')
-        if opener is not None:
-            warnings.warn('opener is not supported in py2')
-        return codecs.open(filename=file, mode=mode, encoding=encoding,
-                    errors=errors, buffering=buffering)
+import pickle as pickle
 
 from time import time
 from collections import OrderedDict
