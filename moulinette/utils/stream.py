@@ -19,19 +19,16 @@ class LogPipe(threading.Thread):
         self.start()
 
     def fileno(self):
-        """Return the write file descriptor of the pipe
-        """
+        """Return the write file descriptor of the pipe"""
         return self.fdWrite
 
     def run(self):
-        """Run the thread, logging everything.
-        """
+        """Run the thread, logging everything."""
         for line in iter(self.pipeReader.readline, ""):
             self.log_callback(line.strip("\n"))
 
         self.pipeReader.close()
 
     def close(self):
-        """Close the write end of the pipe.
-        """
+        """Close the write end of the pipe."""
         os.close(self.fdWrite)

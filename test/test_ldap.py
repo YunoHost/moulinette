@@ -58,9 +58,11 @@ class TestLDAP:
 
     def test_authenticate_sasl_non_interactive_bind(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
-        self.ldap_conf["parameters"]["user_rdn"] = (
-            "gidNumber=%s+uidNumber=%s,cn=peercred,cn=external,cn=auth"
-            % (os.getgid(), os.getuid(),)
+        self.ldap_conf["parameters"][
+            "user_rdn"
+        ] = "gidNumber=%s+uidNumber=%s,cn=peercred,cn=external,cn=auth" % (
+            os.getgid(),
+            os.getuid(),
         )
         ldap_interface = m_ldap.Authenticator(**self.ldap_conf)
 
