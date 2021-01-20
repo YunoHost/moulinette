@@ -288,10 +288,7 @@ class _ActionsMapPlugin(object):
 
         # Append messages route
         app.route(
-            "/messages",
-            name="messages",
-            callback=self.messages,
-            skip=["actionsmap"],
+            "/messages", name="messages", callback=self.messages, skip=["actionsmap"],
         )
 
         # Append routes from the actions map
@@ -818,9 +815,7 @@ class Interface(BaseInterface):
 
         """
         logger.debug(
-            "starting the server instance in %s:%d",
-            host,
-            port,
+            "starting the server instance in %s:%d", host, port,
         )
 
         try:

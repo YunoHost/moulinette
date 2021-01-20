@@ -28,7 +28,11 @@ def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs):
     and use shell by default before calling subprocess.check_output.
 
     """
-    return subprocess.check_output(args, stderr=stderr, shell=shell, **kwargs).decode('utf-8').strip()
+    return (
+        subprocess.check_output(args, stderr=stderr, shell=shell, **kwargs)
+        .decode("utf-8")
+        .strip()
+    )
 
 
 # Call with stream access ----------------------------------------------
@@ -66,7 +70,7 @@ def call_async_output(args, callback, **kwargs):
         kwargs["pass_fds"] = [stdinfo.fdWrite]
         if "env" not in kwargs:
             kwargs["env"] = os.environ
-        kwargs["env"]['YNH_STDINFO'] = str(stdinfo.fdWrite)
+        kwargs["env"]["YNH_STDINFO"] = str(stdinfo.fdWrite)
 
     with subprocess.Popen(args, **kwargs) as p:
         kwargs["stdout"].close()

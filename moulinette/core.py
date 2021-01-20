@@ -95,10 +95,7 @@ class Translator(object):
         failed_to_format = False
         if key in self._translations.get(self.locale, {}):
             try:
-                return (
-                    self._translations[self.locale][key]
-                    .format(*args, **kwargs)
-                )
+                return self._translations[self.locale][key].format(*args, **kwargs)
             except KeyError as e:
                 unformatted_string = self._translations[self.locale][key]
                 error_message = (
@@ -120,14 +117,11 @@ class Translator(object):
             logger.info("untranslated key '%s' for locale '%s'", key, self.locale)
 
             try:
-                return (
-                    self._translations[self.default_locale][key]
-                    .format(*args, **kwargs)
+                return self._translations[self.default_locale][key].format(
+                    *args, **kwargs
                 )
             except KeyError as e:
-                unformatted_string = self._translations[self.default_locale][
-                    key
-                ]
+                unformatted_string = self._translations[self.default_locale][key]
                 error_message = (
                     "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)"
                     % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
@@ -169,7 +163,7 @@ class Translator(object):
             return True
 
         try:
-            with open("%s/%s.json" % (self.locale_dir, locale), "r", encoding='utf-8') as f:
+            with open(f"{self.locale_dir}/{locale}.json", "r", encoding="utf-8") as f:
                 j = json.load(f)
         except IOError:
             return False

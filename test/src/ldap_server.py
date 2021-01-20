@@ -11,7 +11,10 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 class LDAPServer:
     def __init__(self):
         self.server_default = slapdtest.SlapdObject()
-        with open(os.path.join(HERE, "..", "ldap_files", "slapd.conf.template"), encoding="utf-8") as f:
+        with open(
+            os.path.join(HERE, "..", "ldap_files", "slapd.conf.template"),
+            encoding="utf-8",
+        ) as f:
             SLAPD_CONF_TEMPLATE = f.read()
         self.server_default.slapd_conf_template = SLAPD_CONF_TEMPLATE
         self.server_default.suffix = "dc=yunohost,dc=org"
@@ -33,7 +36,9 @@ class LDAPServer:
         self.server = self.server_default
         self.server.start()
         self.uri = self.server.ldapi_uri
-        with open(os.path.join(HERE, "..", "ldap_files", "tests.ldif"), encoding="utf-8") as fp:
+        with open(
+            os.path.join(HERE, "..", "ldap_files", "tests.ldif"), encoding="utf-8"
+        ) as fp:
             ldif = fp.read()
         self.server.ldapadd(ldif)
         self.tools_ldapinit()

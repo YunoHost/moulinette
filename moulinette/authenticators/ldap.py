@@ -152,7 +152,7 @@ class Authenticator(BaseAuthenticator):
 
         def decode(value):
             if isinstance(value, bytes):
-                value = value.decode('utf-8')
+                value = value.decode("utf-8")
             return value
 
         # result_list is for example :

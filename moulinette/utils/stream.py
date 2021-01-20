@@ -5,7 +5,6 @@ import threading
 
 
 class LogPipe(threading.Thread):
-
     def __init__(self, log_callback):
         """Setup the object with a logger and a loglevel
         and start the thread
@@ -27,8 +26,8 @@ class LogPipe(threading.Thread):
     def run(self):
         """Run the thread, logging everything.
         """
-        for line in iter(self.pipeReader.readline, ''):
-            self.log_callback(line.strip('\n'))
+        for line in iter(self.pipeReader.readline, ""):
+            self.log_callback(line.strip("\n"))
 
         self.pipeReader.close()
 
