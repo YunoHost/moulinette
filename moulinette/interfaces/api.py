@@ -484,7 +484,7 @@ class _ActionsMapPlugin(object):
         try:
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
-            raise HTTPBadRequestResponse(e.strerror)
+            raise HTTPBadRequestResponse(e)
         except Exception as e:
             if isinstance(e, HTTPResponse):
                 raise e
@@ -553,8 +553,16 @@ class HTTPOKResponse(HTTPResponse):
 
 
 class HTTPBadRequestResponse(HTTPResponse):
-    def __init__(self, output=""):
-        super(HTTPBadRequestResponse, self).__init__(output, 400)
+    def __init__(self, error=""):
+
+        if isinstance(error, MoulinetteError):
+            content = error.content()
+            if isinstance(content, dict):
+                super(HTTPBadRequestResponse, self).__init__(json_encode(content), 400, headers={'Content-type': 'application/json'})
+            else:
+                super(HTTPBadRequestResponse, self).__init__(content, 400)
+        else:
+            super(HTTPBadRequestResponse, self).__init__(error, 400)
 
 
 class HTTPUnauthorizedResponse(HTTPResponse):

@@ -377,6 +377,9 @@ class MoulinetteError(Exception):
         super(MoulinetteError, self).__init__(msg)
         self.strerror = msg
 
+    def content(self):
+        return self.strerror
+
 
 class MoulinetteLdapIsDownError(MoulinetteError):
     """Used when ldap is down"""
