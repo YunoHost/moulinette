@@ -1,3 +1,4 @@
 {
-    "password": "Heslo"
+    "password": "Heslo",
+    "logged_out": "Jste odhlášen/a"
 }
