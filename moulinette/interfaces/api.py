@@ -558,7 +558,11 @@ class HTTPBadRequestResponse(HTTPResponse):
         if isinstance(error, MoulinetteError):
             content = error.content()
             if isinstance(content, dict):
-                super(HTTPBadRequestResponse, self).__init__(json_encode(content), 400, headers={'Content-type': 'application/json'})
+                super(HTTPBadRequestResponse, self).__init__(
+                    json_encode(content),
+                    400,
+                    headers={"Content-type": "application/json"},
+                )
             else:
                 super(HTTPBadRequestResponse, self).__init__(content, 400)
         else:
