@@ -65,58 +65,61 @@ def test_run_shell_kwargs():
 
 
 def test_call_async_output(test_file):
-    def callback(a):
-        assert a == "foo\n" or a == "bar\n"
+    def stdout_callback(a):
+        assert a == "foo" or a == "bar"
 
-    call_async_output(["cat", str(test_file)], callback)
+    def stderr_callback(a):
+        assert False  # we shouldn't reach this line
 
-    with pytest.raises(ValueError):
+    callbacks = (lambda l: stdout_callback(l), lambda l: stderr_callback(l))
+
+    call_async_output(["cat", str(test_file)], callbacks)
+
+    with pytest.raises(TypeError):
         call_async_output(["cat", str(test_file)], 1)
 
     def callbackA(a):
-        assert a == "foo\n" or a == "bar\n"
+        assert a == "foo" or a == "bar"
 
     def callbackB(a):
-        pass
+        assert "cat: doesntexists" in a
 
     callback = (callbackA, callbackB)
     call_async_output(["cat", str(test_file)], callback)
+    call_async_output(["cat", "doesntexists"], callback)
 
 
 def test_call_async_output_kwargs(test_file, mocker):
-    def callback(a):
-        assert a == "foo\n" or a == "bar\n"
+    def stdinfo_callback(a):
+        assert False  # we shouldn't reach this line
+
+    def stdout_callback(a):
+        assert a == "foo" or a == "bar"
+
+    def stderr_callback(a):
+        assert False  # we shouldn't reach this line
+
+    callbacks = (
+        lambda l: stdout_callback(l),
+        lambda l: stderr_callback(l),
+        lambda l: stdinfo_callback(l),
+    )
 
     with pytest.raises(ValueError):
-        call_async_output(["cat", str(test_file)], callback, stdout=None)
+        call_async_output(["cat", str(test_file)], callbacks, stdout=None)
     with pytest.raises(ValueError):
-        call_async_output(["cat", str(test_file)], callback, stderr=None)
-
-    call_async_output(["cat", str(test_file)], callback, stdinfo=None)
-
-    def callbackA(a):
-        assert a == "foo\n" or a == "bar\n"
-
-    def callbackB(a):
-        pass
-
-    def callbackC(a):
-        pass
-
-    callback = (callbackA, callbackB, callbackC)
+        call_async_output(["cat", str(test_file)], callbacks, stderr=None)
+    with pytest.raises(ValueError):
+        call_async_output(["cat", str(test_file)], callbacks, stdinfo=None)
 
     dirname = os.path.dirname(str(test_file))
-    os.mkdir(os.path.join(dirname, "teststdinfo"))
+    os.mkdir(os.path.join(dirname, "testcwd"))
     call_async_output(
-        ["cat", str(test_file)],
-        callback,
-        stdinfo=os.path.join(dirname, "teststdinfo", "teststdinfo"),
+        ["cat", str(test_file)], callbacks, cwd=os.path.join(dirname, "testcwd")
     )
 
 
 def test_check_output(test_file):
-    assert check_output(["cat", str(test_file)], shell=False) == "foo\nbar".encode(
-        "utf-8"
-    )
+    assert check_output(["cat", str(test_file)], shell=False) == "foo\nbar"
 
-    assert check_output("cat %s" % str(test_file)) == "foo\nbar".encode("utf-8")
+    assert check_output("cat %s" % str(test_file)) == "foo\nbar"
