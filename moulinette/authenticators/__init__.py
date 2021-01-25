@@ -130,7 +130,7 @@ class BaseAuthenticator(object):
                 s_id, s_token = token
                 # Attempt to authenticate
                 self._authenticate_session(s_id, s_token)
-            except MoulinetteError as e:
+            except MoulinetteError:
                 raise
             except Exception as e:
                 logger.exception(
