@@ -57,7 +57,7 @@ class LDAPServer:
         import yaml
 
         with open(os.path.join(HERE, "..", "ldap_files", "ldap_scheme.yml"), "rb") as f:
-            ldap_map = yaml.load(f)
+            ldap_map = yaml.safe_load(f)
 
         def _get_ldap_interface():
             conf = {
