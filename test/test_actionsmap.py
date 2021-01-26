@@ -188,8 +188,11 @@ def test_extra_argument_parser_add_argument_bad_arg(iface):
     with pytest.raises(MoulinetteError) as exception:
         extra_argument_parse.add_argument(GLOBAL_SECTION, "foo", {"ask": 1})
 
-    translation = m18n.g("error")
-    expected_msg = translation.format()
+    expected_msg = "unable to validate extra parameter '%s' for argument '%s': %s" % (
+        "ask",
+        "foo",
+        "parameter value must be a string, got 1",
+    )
     assert expected_msg in str(exception)
 
     extra_argument_parse = ExtraArgumentParser(iface)
@@ -258,15 +261,18 @@ def test_actions_map_import_error(mocker):
     def import_mock(name, globals={}, locals={}, fromlist=[], level=-1):
         if name == "moulitest.testauth":
             mocker.stopall()
-            raise ImportError
+            raise ImportError("Yoloswag")
         return orig_import(name, globals, locals, fromlist, level)
 
     mocker.patch("builtins.__import__", side_effect=import_mock)
     with pytest.raises(MoulinetteError) as exception:
         amap.process({}, timeout=30, route=("GET", "/test-auth/none"))
 
-    translation = m18n.g("error")
-    expected_msg = translation.format()
+    expected_msg = "unable to load function % s.%s because: %s" % (
+        "moulitest",
+        "testauth_none",
+        "Yoloswag",
+    )
     assert expected_msg in str(exception)
 
 

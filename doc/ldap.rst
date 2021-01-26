@@ -434,7 +434,7 @@ Here is how it's used (I don't understand why a path is not provided):
 
 And here is its docstring:
 
-.. automethod:: moulinette.authenticators.ldap.Authenticator.update
+.. automethod:: moulinette.authenticators.ldap.Authenticator.validate_uniqueness
 
 Get conflict
 ============

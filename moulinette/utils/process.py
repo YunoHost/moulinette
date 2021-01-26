@@ -72,11 +72,18 @@ def call_async_output(args, callback, **kwargs):
             kwargs["env"] = os.environ
         kwargs["env"]["YNH_STDINFO"] = str(stdinfo.fdWrite)
 
-    with subprocess.Popen(args, **kwargs) as p:
+    try:
+        with subprocess.Popen(args, **kwargs) as p:
+            kwargs["stdout"].close()
+            kwargs["stderr"].close()
+            if stdinfo:
+                stdinfo.close()
+    except TypeError:
         kwargs["stdout"].close()
         kwargs["stderr"].close()
         if stdinfo:
             stdinfo.close()
+        raise
 
     # on slow hardware, in very edgy situations it is possible that the process
     # isn't finished just after having closed stdout and stderr, so we wait a

@@ -101,16 +101,16 @@ class TestLDAP:
 
         admin_info = ldap_interface.search("cn=admin,dc=yunohost,dc=org", attrs=None)[0]
         assert "cn" in admin_info
-        assert admin_info["cn"] == ["admin".encode("utf-8")]
+        assert admin_info["cn"] == ["admin"]
         assert "description" in admin_info
-        assert admin_info["description"] == ["LDAP Administrator".encode("utf-8")]
+        assert admin_info["description"] == ["LDAP Administrator"]
         assert "userPassword" in admin_info
         assert admin_info["userPassword"][0].startswith("{CRYPT}$6$")
 
         admin_info = ldap_interface.search(
             "cn=admin,dc=yunohost,dc=org", attrs=["userPassword"]
         )[0]
-        assert admin_info.keys() == ["userPassword".encode("utf-8")]
+        assert list(admin_info.keys()) == ["userPassword"]
         assert admin_info["userPassword"][0].startswith("{CRYPT}$6$")
 
     def test_sasl_read(self, ldap_server):
@@ -122,16 +122,16 @@ class TestLDAP:
 
         admin_info = ldap_interface.search("cn=admin,dc=yunohost,dc=org", attrs=None)[0]
         assert "cn" in admin_info
-        assert admin_info["cn"] == ["admin".encode("utf-8")]
+        assert admin_info["cn"] == ["admin"]
         assert "description" in admin_info
-        assert admin_info["description"] == ["LDAP Administrator".encode("utf-8")]
+        assert admin_info["description"] == ["LDAP Administrator"]
         assert "userPassword" in admin_info
         assert admin_info["userPassword"][0].startswith("{CRYPT}$6$")
 
         admin_info = ldap_interface.search(
             "cn=admin,dc=yunohost,dc=org", attrs=["userPassword"]
         )[0]
-        assert admin_info.keys() == ["userPassword".encode("utf-8")]
+        assert list(admin_info.keys()) == ["userPassword"]
         assert admin_info["userPassword"][0].startswith("{CRYPT}$6$")
 
     def test_anonymous_read(self, ldap_server):
@@ -140,9 +140,9 @@ class TestLDAP:
 
         admin_info = ldap_interface.search("cn=admin,dc=yunohost,dc=org", attrs=None)[0]
         assert "cn" in admin_info
-        assert admin_info["cn"] == ["admin".encode("utf-8")]
+        assert admin_info["cn"] == ["admin"]
         assert "description" in admin_info
-        assert admin_info["description"] == ["LDAP Administrator".encode("utf-8")]
+        assert admin_info["description"] == ["LDAP Administrator"]
         assert "userPassword" not in admin_info
 
         admin_info = ldap_interface.search(
@@ -180,11 +180,11 @@ class TestLDAP:
 
         new_user_info = self.add_new_user(ldap_interface)
         assert "cn" in new_user_info
-        assert new_user_info["cn"] == ["new_user".encode("utf-8")]
+        assert new_user_info["cn"] == ["new_user"]
         assert "sn" in new_user_info
-        assert new_user_info["sn"] == ["new_user".encode("utf-8")]
+        assert new_user_info["sn"] == ["new_user"]
         assert "uid" in new_user_info
-        assert new_user_info["uid"] == ["new_user".encode("utf-8")]
+        assert new_user_info["uid"] == ["new_user"]
         assert "objectClass" in new_user_info
         assert "inetOrgPerson" in new_user_info["objectClass"]
         assert "posixAccount" in new_user_info["objectClass"]
@@ -198,11 +198,11 @@ class TestLDAP:
 
         new_user_info = self.add_new_user(ldap_interface)
         assert "cn" in new_user_info
-        assert new_user_info["cn"] == ["new_user".encode("utf-8")]
+        assert new_user_info["cn"] == ["new_user"]
         assert "sn" in new_user_info
-        assert new_user_info["sn"] == ["new_user".encode("utf-8")]
+        assert new_user_info["sn"] == ["new_user"]
         assert "uid" in new_user_info
-        assert new_user_info["uid"] == ["new_user".encode("utf-8")]
+        assert new_user_info["uid"] == ["new_user"]
         assert "objectClass" in new_user_info
         assert "inetOrgPerson" in new_user_info["objectClass"]
         assert "posixAccount" in new_user_info["objectClass"]

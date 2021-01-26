@@ -329,8 +329,7 @@ class TestAuthCLI:
 
         assert "12345" in message.out
 
-        mocker.patch("sys.exit")
-        with pytest.raises(MoulinetteError):
+        with pytest.raises(SystemExit):
             moulinette_cli.run(
                 ["testauth", "with_type_int", "yoloswag"], output_as="plain"
             )
