@@ -109,7 +109,7 @@ def test_call_async_output_kwargs(test_file, mocker):
         call_async_output(["cat", str(test_file)], callbacks, stdout=None)
     with pytest.raises(ValueError):
         call_async_output(["cat", str(test_file)], callbacks, stderr=None)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         call_async_output(["cat", str(test_file)], callbacks, stdinfo=None)
 
     dirname = os.path.dirname(str(test_file))

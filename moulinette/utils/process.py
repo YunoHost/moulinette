@@ -59,7 +59,7 @@ def call_async_output(args, callback, **kwargs):
         Exit status of the command
 
     """
-    for a in ["stdout", "stderr", "stdinfo"]:
+    for a in ["stdout", "stderr"]:
         if a in kwargs:
             raise ValueError("%s argument not allowed, " "it will be overridden." % a)
 
