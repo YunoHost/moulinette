@@ -7,9 +7,6 @@ addons:
       - slapd
 
 matrix:
-  allow_failures:
-    - env: TOXENV=py37-pytest
-    - env: TOXENV=py37-lint
   include:
     - python: 3.7
       env: TOXENV=py37-pytest
@@ -17,7 +14,7 @@ matrix:
       env: TOXENV=py37-lint
     - python: 3.7
       env: TOXENV=format-check
-    - python: 3.5
+    - python: 3.7
       env: TOXENV=docs
 
 install:
