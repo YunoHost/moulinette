@@ -6,6 +6,20 @@ import getpass
 import locale
 import logging
 from argparse import SUPPRESS
+from collections import OrderedDict
+from datetime import date, datetime
+
+import argcomplete
+
+from moulinette import msignals, m18n
+from moulinette.actionsmap import ActionsMap
+from moulinette.core import MoulinetteError
+from moulinette.interfaces import (
+    BaseActionsMapParser,
+    BaseInterface,
+    ExtendedArgumentParser,
+)
+from moulinette.utils import log
 
 # Monkeypatch _get_action_name function because there is an annoying bug
 # Explained here: https://bugs.python.org/issue29298
@@ -38,22 +52,6 @@ def monkey_get_action_name(argument):
 
 
 argparse._get_action_name = monkey_get_action_name
-
-from collections import OrderedDict
-from datetime import date, datetime
-
-import argcomplete
-
-from moulinette import msignals, m18n
-from moulinette.actionsmap import ActionsMap
-from moulinette.core import MoulinetteError
-from moulinette.interfaces import (
-    BaseActionsMapParser,
-    BaseInterface,
-    ExtendedArgumentParser,
-)
-from moulinette.utils import log
-
 
 logger = log.getLogger("moulinette.cli")
 
