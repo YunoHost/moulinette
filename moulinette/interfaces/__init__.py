@@ -584,12 +584,12 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
                 ]
 
                 # Display each section (actions and subcategories)
-                if actions_choices != []:
+                if actions_choices:
                     formatter.start_section("actions")
                     formatter.add_arguments([actions_subparser])
                     formatter.end_section()
 
-                if subcategories_choices != []:
+                if subcategories_choices:
                     formatter.start_section("subcategories")
                     formatter.add_arguments([subcategories_subparser])
                     formatter.end_section()
