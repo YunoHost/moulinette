@@ -92,8 +92,6 @@ def plain_print_dict(d, depth=0):
             print("{}{}".format("#" * (depth + 1), k))
             plain_print_dict(v, depth + 1)
     else:
-        if isinstance(d, str):
-            d = d.encode("utf-8")
         print(d)
 
 
