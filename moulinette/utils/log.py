@@ -65,7 +65,6 @@ def configure_logging(logging_config=None):
     # load configuration from dict
     dictConfig(DEFAULT_LOGGING)
     if logging_config:
-        logging.main_logger = logging_config.get("main_logger")
         dictConfig(logging_config)
 
 
