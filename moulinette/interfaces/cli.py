@@ -21,6 +21,37 @@ from moulinette.interfaces import (
 )
 from moulinette.utils import log
 
+# Monkeypatch _get_action_name function because there is an annoying bug
+# Explained here: https://bugs.python.org/issue29298
+# Fixed by: https://github.com/python/cpython/pull/3680
+# To reproduce the bug, just launch a command line without action
+# For example:
+#       yunohost firewall
+# It should display:
+#       usage: yunohost firewall {list,reload,allow,disallow,upnp,stop} ... [-h]
+#       yunohost firewall: error: the following arguments are required: {list,reload,allow,disallow,upnp,stop}
+# But it display instead:
+#       Error: unable to parse arguments 'firewall' because: sequence item 0: expected str instance, NoneType found
+
+import argparse
+
+
+def monkey_get_action_name(argument):
+    if argument is None:
+        return None
+    elif argument.option_strings:
+        return "/".join(argument.option_strings)
+    elif argument.metavar not in (None, SUPPRESS):
+        return argument.metavar
+    elif argument.dest not in (None, SUPPRESS):
+        return argument.dest
+    elif argument.choices:
+        return "{" + ",".join(argument.choices) + "}"
+    else:
+        return None
+
+
+argparse._get_action_name = monkey_get_action_name
 
 logger = log.getLogger("moulinette.cli")
 

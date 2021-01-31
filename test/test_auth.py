@@ -207,6 +207,10 @@ class TestAuthAPI:
         mocker.patch("moulinette.Moulinette18n.g", return_value=error)
         moulinette_webapi.get("/test-auth/with_type_int/yoloswag", status=400)
 
+    def test_request_arg_without_action(self, moulinette_webapi, caplog, mocker):
+        self.login(moulinette_webapi)
+        moulinette_webapi.get("/test-auth", status=404)
+
 
 class TestAuthCLI:
     def test_login(self, moulinette_cli, capsys, mocker):
@@ -336,3 +340,11 @@ class TestAuthCLI:
 
         message = capsys.readouterr()
         assert "invalid int value" in message.err
+
+    def test_request_arg_without_action(self, moulinette_cli, capsys, mocker):
+        with pytest.raises(SystemExit):
+            moulinette_cli.run(["testauth"], output_as="plain")
+
+        message = capsys.readouterr()
+
+        assert "error: the following arguments are required:" in message.err
