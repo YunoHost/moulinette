@@ -2,7 +2,7 @@ import logging
 from json.encoder import JSONEncoder
 import datetime
 
-logger = logging.getLogger("moulinette.core")
+logger = logging.getLogger("moulinette.utils.serialize")
 
 
 # JSON utilities -------------------------------------------------------
