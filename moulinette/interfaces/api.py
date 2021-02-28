@@ -208,7 +208,7 @@ class _HTTPArgumentParser(object):
 
     def _error(self, message):
         # TODO: Raise a proper exception
-        raise MoulinetteError(message)
+        raise MoulinetteError(message, raw_msg=True)
 
 
 class _ActionsMapPlugin(object):

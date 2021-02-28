@@ -90,12 +90,12 @@ def api(host="localhost", port=80, routes={}):
     except MoulinetteError as e:
         import logging
 
-        logging.getLogger(logging.main_logger).error(e.strerror)
+        logging.getLogger("moulinette").error(e.strerror)
         return 1
     except KeyboardInterrupt:
         import logging
 
-        logging.getLogger(logging.main_logger).info(m18n.g("operation_interrupted"))
+        logging.getLogger("moulinette").info(m18n.g("operation_interrupted"))
     return 0
 
 
@@ -122,7 +122,7 @@ def cli(args, top_parser, output_as=None, timeout=None):
     except MoulinetteError as e:
         import logging
 
-        logging.getLogger(logging.main_logger).error(e.strerror)
+        logging.getLogger("moulinette").error(e.strerror)
         return 1
     return 0
 

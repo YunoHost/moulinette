@@ -39,7 +39,11 @@ class Translator(object):
         # Attempt to load default translations
         if not self._load_translations(default_locale):
             logger.error(
-                "unable to load locale '%s' from '%s'", default_locale, locale_dir
+                "unable to load locale '%s' from '%s'. Does the file '%s/%s.json' exists?",
+                default_locale,
+                locale_dir,
+                locale_dir,
+                default_locale,
             )
         self.default_locale = default_locale
 
@@ -82,6 +86,9 @@ class Translator(object):
         self.locale = locale
         return True
 
+    def key_exists(self, key):
+        return key in self._translations[self.default_locale]
+
     def translate(self, key, *args, **kwargs):
         """Retrieve proper translation for a key
 
@@ -96,7 +103,7 @@ class Translator(object):
         if key in self._translations.get(self.locale, {}):
             try:
                 return self._translations[self.locale][key].format(*args, **kwargs)
-            except KeyError as e:
+            except Exception as e:
                 unformatted_string = self._translations[self.locale][key]
                 error_message = (
                     "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)"
@@ -104,7 +111,7 @@ class Translator(object):
                 )
 
                 if not during_unittests_run():
-                    logger.exception(error_message)
+                    logger.warning(error_message)
                 else:
                     raise Exception(error_message)
 
@@ -114,20 +121,19 @@ class Translator(object):
             self.default_locale != self.locale
             and key in self._translations.get(self.default_locale, {})
         ):
-            logger.info("untranslated key '%s' for locale '%s'", key, self.locale)
 
             try:
                 return self._translations[self.default_locale][key].format(
                     *args, **kwargs
                 )
-            except KeyError as e:
+            except Exception as e:
                 unformatted_string = self._translations[self.default_locale][key]
                 error_message = (
                     "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)"
                     % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
                 )
                 if not during_unittests_run():
-                    logger.exception(error_message)
+                    logger.warning(error_message)
                 else:
                     raise Exception(error_message)
 
@@ -139,7 +145,7 @@ class Translator(object):
         )
 
         if not during_unittests_run():
-            logger.exception(error_message)
+            logger.warning(error_message)
         else:
             raise Exception(error_message)
 
@@ -253,6 +259,15 @@ class Moulinette18n(object):
 
         """
         return self._namespaces[self._current_namespace].translate(key, *args, **kwargs)
+
+    def key_exists(self, key):
+        """Check if a key exists in the translation files
+
+        Keyword arguments:
+            - key -- The key to translate
+
+        """
+        return self._namespaces[self._current_namespace].key_exists(key)
 
 
 class MoulinetteSignals(object):

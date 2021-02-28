@@ -577,14 +577,14 @@ class ActionsMap(object):
                 log_id = start_action_logging()
                 if logger.isEnabledFor(logging.DEBUG):
                     # Log arguments in debug mode only for safety reasons
-                    logger.info(
+                    logger.debug(
                         "processing action [%s]: %s with args=%s",
                         log_id,
                         full_action_name,
                         arguments,
                     )
                 else:
-                    logger.info("processing action [%s]: %s", log_id, full_action_name)
+                    logger.debug("processing action [%s]: %s", log_id, full_action_name)
 
                 # Load translation and process the action
                 m18n.load_namespace(namespace)
