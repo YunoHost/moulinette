@@ -1,11 +1,9 @@
 import os
 import threading
 
-# Adapted from https://codereview.stackexchange.com/a/17959
-
-
 class LogPipe(threading.Thread):
-    def __init__(self, log_callback):
+    # Adapted from https://codereview.stackexchange.com/a/17959
+    def __init__(self, log_callback, queue):
         """Setup the object with a logger and a loglevel
         and start the thread
         """
@@ -16,6 +14,8 @@ class LogPipe(threading.Thread):
         self.fdRead, self.fdWrite = os.pipe()
         self.pipeReader = os.fdopen(self.fdRead)
 
+        self.queue = queue
+
         self.start()
 
     def fileno(self):
@@ -25,10 +25,12 @@ class LogPipe(threading.Thread):
     def run(self):
         """Run the thread, logging everything."""
         for line in iter(self.pipeReader.readline, ""):
-            self.log_callback(line.strip("\n"))
+            self.queue.put((self.log_callback, line.strip("\n")))
 
         self.pipeReader.close()
 
     def close(self):
         """Close the write end of the pipe."""
         os.close(self.fdWrite)
+
+
