@@ -121,7 +121,6 @@ class Translator(object):
             self.default_locale != self.locale
             and key in self._translations.get(self.default_locale, {})
         ):
-            logger.info("untranslated key '%s' for locale '%s'", key, self.locale)
 
             try:
                 return self._translations[self.default_locale][key].format(
