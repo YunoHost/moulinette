@@ -103,7 +103,7 @@ class Translator(object):
         if key in self._translations.get(self.locale, {}):
             try:
                 return self._translations[self.locale][key].format(*args, **kwargs)
-            except KeyError as e:
+            except Exception as e:
                 unformatted_string = self._translations[self.locale][key]
                 error_message = (
                     "Failed to format translated string '%s': '%s' with arguments '%s' and '%s, raising error: %s(%s) (don't panic this is just a warning)"
@@ -111,7 +111,7 @@ class Translator(object):
                 )
 
                 if not during_unittests_run():
-                    logger.exception(error_message)
+                    logger.warning(error_message)
                 else:
                     raise Exception(error_message)
 
@@ -127,14 +127,14 @@ class Translator(object):
                 return self._translations[self.default_locale][key].format(
                     *args, **kwargs
                 )
-            except KeyError as e:
+            except Exception as e:
                 unformatted_string = self._translations[self.default_locale][key]
                 error_message = (
                     "Failed to format translatable string '%s': '%s' with arguments '%s' and '%s', raising  error: %s(%s) (don't panic this is just a warning)"
                     % (key, unformatted_string, args, kwargs, e.__class__.__name__, e)
                 )
                 if not during_unittests_run():
-                    logger.exception(error_message)
+                    logger.warning(error_message)
                 else:
                     raise Exception(error_message)
 
@@ -146,7 +146,7 @@ class Translator(object):
         )
 
         if not during_unittests_run():
-            logger.exception(error_message)
+            logger.warning(error_message)
         else:
             raise Exception(error_message)
 
