@@ -86,6 +86,9 @@ class Translator(object):
         self.locale = locale
         return True
 
+    def key_exists(self, key):
+        return key in self._translations[self.default_locale]
+
     def translate(self, key, *args, **kwargs):
         """Retrieve proper translation for a key
 
@@ -257,6 +260,15 @@ class Moulinette18n(object):
 
         """
         return self._namespaces[self._current_namespace].translate(key, *args, **kwargs)
+
+    def key_exists(self, key):
+        """Check if a key exists in the translation files
+
+        Keyword arguments:
+            - key -- The key to translate
+
+        """
+        return self._namespaces[self._current_namespace].key_exists(key)
 
 
 class MoulinetteSignals(object):
