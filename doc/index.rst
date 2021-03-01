@@ -22,7 +22,6 @@ a reference.
    utils/filesystem
    utils/network
    utils/process
-   utils/stream
    utils/text
 
 Indices and tables
