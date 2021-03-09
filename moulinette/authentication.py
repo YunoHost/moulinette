@@ -27,27 +27,7 @@ class BaseAuthenticator(object):
     must be given on instantiation - with the corresponding vendor
     configuration of the authenticator.
 
-    Keyword arguments:
-        - name -- The authenticator profile name
-
     """
-
-    def __init__(self, name, vendor, parameters, extra):
-        self._name = name
-        self.vendor = vendor
-        self.is_authenticated = False
-        self.extra = extra
-
-    @property
-    def name(self):
-        """Return the name of the authenticator instance"""
-        return self._name
-
-    # Virtual properties
-    # Each authenticator classes must implement these properties.
-
-    """The vendor name of the authenticator"""
-    vendor = None
 
     # Virtual methods
     # Each authenticator classes must implement these methods.
@@ -82,12 +62,12 @@ class BaseAuthenticator(object):
             - password -- A clear text password
             - token -- The session token in the form of (id, hash)
 
-        Returns:
-            The authenticated instance
-
         """
-        if self.is_authenticated:
-            return self
+
+        if hasattr(self, "is_authenticated"):
+            return self.is_authenticated
+
+        is_authenticated = False
 
         #
         # Authenticate using the password
@@ -99,15 +79,10 @@ class BaseAuthenticator(object):
             except MoulinetteError:
                 raise
             except Exception as e:
-                logger.exception(
-                    "authentication (name: '%s', vendor: '%s') fails because '%s'",
-                    self.name,
-                    self.vendor,
-                    e,
-                )
+                logger.exception("authentication {self.name} failed because '{e}'")
                 raise MoulinetteError("unable_authenticate")
-
-            self.is_authenticated = True
+            else:
+                is_authenticated = True
 
             # Store session for later using the provided (new) token if any
             if token:
@@ -133,15 +108,10 @@ class BaseAuthenticator(object):
             except MoulinetteError:
                 raise
             except Exception as e:
-                logger.exception(
-                    "authentication (name: '%s', vendor: '%s') fails because '%s'",
-                    self.name,
-                    self.vendor,
-                    e,
-                )
+                logger.exception("authentication {self.name} failed because '{e}'")
                 raise MoulinetteError("unable_authenticate")
             else:
-                self.is_authenticated = True
+                is_authenticated = True
 
         #
         # No credentials given, can't authenticate
@@ -149,7 +119,8 @@ class BaseAuthenticator(object):
         else:
             raise MoulinetteError("unable_authenticate")
 
-        return self
+        self.is_authenticated = is_authenticated
+        return is_authenticated
 
     # Private methods
 

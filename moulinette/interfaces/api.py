@@ -254,7 +254,7 @@ class _ActionsMapPlugin(object):
                 except KeyError:
                     raise HTTPBadRequestResponse("Missing password parameter")
 
-                kwargs["profile"] = request.POST.get("profile", "default")
+                kwargs["profile"] = request.POST.get("profile", self.actionsmap.default_authentication)
                 return callback(**kwargs)
 
             return wrapper
@@ -263,7 +263,7 @@ class _ActionsMapPlugin(object):
         def _logout(callback):
             def wrapper():
                 kwargs = {}
-                kwargs["profile"] = request.POST.get("profile", "default")
+                kwargs["profile"] = request.POST.get("profile", self.actionsmap.default_authentication)
                 return callback(**kwargs)
 
             return wrapper
@@ -379,7 +379,7 @@ class _ActionsMapPlugin(object):
 
         try:
             # Attempt to authenticate
-            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator = self.actionsmap.get_authenticator(profile)
             authenticator(password, token=(s_id, s_new_token))
         except MoulinetteError as e:
             if len(s_tokens) > 0:
@@ -423,7 +423,7 @@ class _ActionsMapPlugin(object):
             raise HTTPUnauthorizedResponse(m18n.g("not_logged_in"))
         else:
             del self.secrets[s_id]
-            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
+            authenticator = self.actionsmap.get_authenticator(profile)
             authenticator._clean_session(s_id)
             # TODO: Clean the session for profile only
             # Delete cookie and clean the session
@@ -481,6 +481,7 @@ class _ActionsMapPlugin(object):
             - arguments -- A dict of arguments for the route
 
         """
+
         try:
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
@@ -683,31 +684,17 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
-    def auth_required(self, args, **kwargs):
+    def auth_method(self, args, route, **kwargs):
+
         try:
             # Retrieve the tid for the route
-            tid, _ = self._parsers[kwargs.get("route")]
+            _, parser = self._parsers[route]
         except KeyError as e:
-            error_message = "no argument parser found for route '%s': %s" % (
-                kwargs.get("route"),
-                e,
-            )
+            error_message = "no argument parser found for route '%s': %s" % (route, e)
             logger.error(error_message)
             raise MoulinetteError(error_message, raw_msg=True)
 
-        if self.get_conf(tid, "authenticate"):
-            authenticator = self.get_conf(tid, "authenticator")
-
-            # If several authenticator, use the default one
-            if isinstance(authenticator, dict):
-                if "default" in authenticator:
-                    authenticator = "default"
-                else:
-                    # TODO which one should we use?
-                    pass
-            return authenticator
-        else:
-            return False
+        return parser.authentication
 
     def parse_args(self, args, route, **kwargs):
         """Parse arguments

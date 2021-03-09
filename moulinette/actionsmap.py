@@ -465,38 +465,32 @@ class ActionsMap(object):
         self.extraparser = ExtraArgumentParser(top_parser.interface)
         self.parser = self._construct_parser(actionsmaps, top_parser)
 
-    def get_authenticator_for_profile(self, auth_profile):
+    def get_authenticator(self, auth_method):
 
-        # Fetch the configuration for the authenticator module as defined in the actionmap
-        try:
-            auth_conf = self.parser.global_conf["authenticator"][auth_profile]
-        except KeyError:
-            raise ValueError("Unknown authenticator profile '%s'" % auth_profile)
+        if auth_method == "default":
+            auth_method = self.default_authentication
 
         # Load and initialize the authenticator module
+        auth_module = "%s.authenticators.%s" % (self.main_namespace, auth_method)
+        logger.debug(f"Loading auth module {auth_module}")
         try:
-            mod = import_module("moulinette.authenticators.%s" % auth_conf["vendor"])
-        except ImportError:
-            error_message = (
-                "unable to load authenticator vendor module 'moulinette.authenticators.%s'"
-                % auth_conf["vendor"]
-            )
-            logger.exception(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
+            mod = import_module(auth_module)
+        except ImportError as e:
+            import traceback
+            traceback.print_exc()
+            raise MoulinetteError(f"unable to load authenticator {auth_module} : {e}", raw_msg=True)
         else:
-            return mod.Authenticator(**auth_conf)
+            return mod.Authenticator()
 
     def check_authentication_if_required(self, args, **kwargs):
 
-        auth_profile = self.parser.auth_required(args, **kwargs)
+        auth_method = self.parser.auth_method(args, **kwargs)
 
-        if not auth_profile:
+        if auth_method is None:
             return
 
-        authenticator = self.get_authenticator_for_profile(auth_profile)
-        auth = msignals.authenticate(authenticator)
-
-        if not auth.is_authenticated:
+        authenticator = self.get_authenticator(auth_method)
+        if not msignals.authenticate(authenticator):
             raise MoulinetteError("authentication_required_long")
 
     def process(self, args, timeout=None, **kwargs):
@@ -681,6 +675,8 @@ class ActionsMap(object):
         logger.debug("building parser...")
         start = time()
 
+        interface_type = top_parser.interface
+
         # If loading from cache, extra were already checked when cache was
         # loaded ? Not sure about this ... old code is a bit mysterious...
         validate_extra = not self.from_cache
@@ -694,25 +690,26 @@ class ActionsMap(object):
             # Retrieve global parameters
             _global = actionsmap.pop("_global", {})
 
-            # Set the global configuration to use for the parser.
-            top_parser.set_global_conf(_global["configuration"])
+            if _global:
+                if getattr(self, "main_namespace", None) is not None:
+                    raise MoulinetteError("It's not possible to have several namespaces with a _global section")
+                else:
+                    self.main_namespace = namespace
+                    self.default_authentication = _global["authentication"][interface_type]
 
             if top_parser.has_global_parser():
                 top_parser.add_global_arguments(_global["arguments"])
 
+        if not hasattr(self, "main_namespace"):
+            raise MoulinetteError("Did not found the main namespace")
+
+        for namespace, actionsmap in actionsmaps.items():
             # category_name is stuff like "user", "domain", "hooks"...
             # category_values is the values of this category (like actions)
             for category_name, category_values in actionsmap.items():
 
-                if "actions" in category_values:
-                    actions = category_values.pop("actions")
-                else:
-                    actions = {}
-
-                if "subcategories" in category_values:
-                    subcategories = category_values.pop("subcategories")
-                else:
-                    subcategories = {}
+                actions = category_values.pop("actions", {})
+                subcategories = category_values.pop("subcategories", {})
 
                 # Get category parser
                 category_parser = top_parser.add_category_parser(
@@ -723,6 +720,7 @@ class ActionsMap(object):
                 # action_options are the values
                 for action_name, action_options in actions.items():
                     arguments = action_options.pop("arguments", {})
+                    authentication = action_options.pop("authentication", {})
                     tid = (namespace, category_name, action_name)
 
                     # Get action parser
@@ -742,8 +740,9 @@ class ActionsMap(object):
                         validate_extra=validate_extra,
                     )
 
-                    if "configuration" in action_options:
-                        category_parser.set_conf(tid, action_options["configuration"])
+                    action_parser.authentication = self.default_authentication
+                    if interface_type in authentication:
+                        action_parser.authentication = authentication[interface_type]
 
                 # subcategory_name is like "cert" in "domain cert status"
                 # subcategory_values is the values of this subcategory (like actions)
@@ -760,6 +759,7 @@ class ActionsMap(object):
                     # action_options are the values
                     for action_name, action_options in actions.items():
                         arguments = action_options.pop("arguments", {})
+                        authentication = action_options.pop("authentication", {})
                         tid = (namespace, category_name, subcategory_name, action_name)
 
                         try:
@@ -780,10 +780,9 @@ class ActionsMap(object):
                             validate_extra=validate_extra,
                         )
 
-                        if "configuration" in action_options:
-                            category_parser.set_conf(
-                                tid, action_options["configuration"]
-                            )
+                        action_parser.authentication = self.default_authentication
+                        if interface_type in authentication:
+                            action_parser.authentication = authentication[interface_type]
 
         logger.debug("building parser took %.3fs", time() - start)
         return top_parser

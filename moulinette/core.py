@@ -314,22 +314,10 @@ class MoulinetteSignals(object):
     signals = {"authenticate", "prompt", "display"}
 
     def authenticate(self, authenticator):
-        """Process the authentication
-
-        Attempt to authenticate to the given authenticator and return
-        it.
-        It is called when authentication is needed (e.g. to process an
-        action).
-
-        Keyword arguments:
-            - authenticator -- The authenticator object to use
-
-        Returns:
-            The authenticator object
-
-        """
-        if authenticator.is_authenticated:
-            return authenticator
+        if hasattr(authenticator, "is_authenticated"):
+            return authenticator.is_authenticated
+        # self._authenticate corresponds to the stuff defined with
+        # msignals.set_handler("authenticate", ...) per interface...
         return self._authenticate(authenticator)
 
     def prompt(self, message, is_password=False, confirm=False, color="blue"):
@@ -394,10 +382,6 @@ class MoulinetteError(Exception):
 
     def content(self):
         return self.strerror
-
-
-class MoulinetteLdapIsDownError(MoulinetteError):
-    """Used when ldap is down"""
 
 
 class MoulinetteLock(object):

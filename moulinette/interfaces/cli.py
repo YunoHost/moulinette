@@ -398,7 +398,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
             self.global_parser.add_argument(*names, **argument_options)
 
-    def auth_required(self, args, **kwargs):
+    def auth_method(self, args, **kwargs):
         # FIXME? idk .. this try/except is duplicated from parse_args below
         # Just to be able to obtain the tid
         try:
@@ -414,19 +414,23 @@ class ActionsMapParser(BaseActionsMapParser):
             raise MoulinetteError(error_message, raw_msg=True)
 
         tid = getattr(ret, "_tid", None)
-        if self.get_conf(tid, "authenticate"):
-            authenticator = self.get_conf(tid, "authenticator")
 
-            # If several authenticator, use the default one
-            if isinstance(authenticator, dict):
-                if "default" in authenticator:
-                    authenticator = "default"
-                else:
-                    # TODO which one should we use?
-                    pass
-            return authenticator
-        else:
-            return False
+        # Ugh that's for yunohost --version ...
+        if tid is None:
+            return None
+
+        # We go down in the subparser tree until we find the leaf
+        # corresponding to the tid with a defined authentication
+        # (yeah it's a mess because the datastructure is a mess..)
+        _p = self._subparsers
+        for word in tid[1:]:
+            _p = _p.choices[word]
+            if hasattr(_p, "authentication"):
+                return _p.authentication
+            else:
+                _p = _p._actions[1]
+
+        raise MoulinetteError(f"Authentication undefined for {tid} ?", raw_msg=True)
 
     def parse_args(self, args, **kwargs):
         try:
@@ -533,8 +537,7 @@ class Interface(BaseInterface):
         # I guess we could imagine some yunohost-independant use-case where
         # moulinette is used to create a CLI for non-root user that needs to
         # auth somehow but hmpf -.-
-        help = authenticator.extra.get("help")
-        msg = m18n.n(help) if help else m18n.g("password")
+        msg = m18n.g("password")
         return authenticator(password=self._do_prompt(msg, True, False, color="yellow"))
 
     def _do_prompt(self, message, is_password, confirm, color="blue"):
