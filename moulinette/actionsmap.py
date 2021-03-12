@@ -14,7 +14,7 @@ from importlib import import_module
 from moulinette import m18n, msignals
 from moulinette.cache import open_cachefile
 from moulinette.globals import init_moulinette_env
-from moulinette.core import MoulinetteError, MoulinetteLock
+from moulinette.core import MoulinetteError, MoulinetteLock, MoulinetteAuthenticationError, MoulinetteValidationError
 from moulinette.interfaces import BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
 
@@ -207,7 +207,7 @@ class PatternParameter(_ExtraParameter):
             if msg == message:
                 msg = m18n.g(message)
 
-            raise MoulinetteError("invalid_argument", argument=arg_name, error=msg)
+            raise MoulinetteValidationError("invalid_argument", argument=arg_name, error=msg)
         return arg_value
 
     @staticmethod
@@ -238,7 +238,7 @@ class RequiredParameter(_ExtraParameter):
     def __call__(self, required, arg_name, arg_value):
         if required and (arg_value is None or arg_value == ""):
             logger.warning("argument '%s' is required", arg_name)
-            raise MoulinetteError("argument_required", argument=arg_name)
+            raise MoulinetteValidationError("argument_required", argument=arg_name)
         return arg_value
 
     @staticmethod
@@ -497,7 +497,7 @@ class ActionsMap(object):
         auth = msignals.authenticate(authenticator)
 
         if not auth.is_authenticated:
-            raise MoulinetteError("authentication_required_long")
+            raise MoulinetteAuthenticationError("authentication_required_long")
 
     def process(self, args, timeout=None, **kwargs):
         """

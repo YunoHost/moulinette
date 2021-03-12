@@ -13,7 +13,7 @@ import argcomplete
 
 from moulinette import msignals, m18n
 from moulinette.actionsmap import ActionsMap
-from moulinette.core import MoulinetteError
+from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
     BaseInterface,
@@ -411,7 +411,7 @@ class ActionsMapParser(BaseActionsMapParser):
                 e,
             )
             logger.exception(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
+            raise MoulinetteValidationError(error_message, raw_msg=True)
 
         tid = getattr(ret, "_tid", None)
         if self.get_conf(tid, "authenticate"):
@@ -439,7 +439,7 @@ class ActionsMapParser(BaseActionsMapParser):
                 e,
             )
             logger.exception(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
+            raise MoulinetteValidationError(error_message, raw_msg=True)
         else:
             self.prepare_action_namespace(getattr(ret, "_tid", None), ret)
             self._parser.dequeue_callbacks(ret)
@@ -490,7 +490,7 @@ class Interface(BaseInterface):
 
         """
         if output_as and output_as not in ["json", "plain", "none"]:
-            raise MoulinetteError("invalid_usage")
+            raise MoulinetteValidationError("invalid_usage")
 
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
@@ -555,7 +555,7 @@ class Interface(BaseInterface):
         if confirm:
             m = message[0].lower() + message[1:]
             if prompt(m18n.g("confirm", prompt=m)) != value:
-                raise MoulinetteError("values_mismatch")
+                raise MoulinetteValidationError("values_mismatch")
 
         return value
 

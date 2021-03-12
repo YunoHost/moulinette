@@ -15,7 +15,7 @@ from bottle import abort
 
 from moulinette import msignals, m18n, env
 from moulinette.actionsmap import ActionsMap
-from moulinette.core import MoulinetteError
+from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
     BaseInterface,
@@ -546,17 +546,17 @@ class _ActionsMapPlugin(object):
 
 # HTTP Responses -------------------------------------------------------
 
-def moulinette_error_to_http_response(self):
+def moulinette_error_to_http_response(error):
 
     content = error.content()
     if isinstance(content, dict):
         return HTTPResponse(
             json_encode(content),
-            400,
+            error.http_code,
             headers={"Content-type": "application/json"},
         )
     else:
-        return HTTPResponse(content, 400)
+        return HTTPResponse(content, error.http_code)
 
 
 def format_for_response(content):
@@ -673,7 +673,7 @@ class ActionsMapParser(BaseActionsMapParser):
                 e,
             )
             logger.error(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
+            raise MoulinetteValidationError(error_message, raw_msg=True)
 
         if self.get_conf(tid, "authenticate"):
             authenticator = self.get_conf(tid, "authenticator")
@@ -702,7 +702,7 @@ class ActionsMapParser(BaseActionsMapParser):
         except KeyError as e:
             error_message = "no argument parser found for route '%s': %s" % (route, e)
             logger.error(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
+            raise MoulinetteValidationError(error_message, raw_msg=True)
         ret = argparse.Namespace()
 
         # TODO: Catch errors?
