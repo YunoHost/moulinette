@@ -10,7 +10,11 @@ import time
 import ldap.modlist as modlist
 
 from moulinette import m18n
-from moulinette.core import MoulinetteError, MoulinetteAuthenticationError, MoulinetteLdapIsDownError
+from moulinette.core import (
+    MoulinetteError,
+    MoulinetteAuthenticationError,
+    MoulinetteLdapIsDownError,
+)
 from moulinette.authenticators import BaseAuthenticator
 
 logger = logging.getLogger("moulinette.authenticator.ldap")

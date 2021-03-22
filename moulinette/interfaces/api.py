@@ -545,6 +545,7 @@ class _ActionsMapPlugin(object):
 
 # HTTP Responses -------------------------------------------------------
 
+
 def moulinette_error_to_http_response(error):
 
     content = error.content()

@@ -14,7 +14,12 @@ from importlib import import_module
 from moulinette import m18n, msignals
 from moulinette.cache import open_cachefile
 from moulinette.globals import init_moulinette_env
-from moulinette.core import MoulinetteError, MoulinetteLock, MoulinetteAuthenticationError, MoulinetteValidationError
+from moulinette.core import (
+    MoulinetteError,
+    MoulinetteLock,
+    MoulinetteAuthenticationError,
+    MoulinetteValidationError,
+)
 from moulinette.interfaces import BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
 
@@ -207,7 +212,9 @@ class PatternParameter(_ExtraParameter):
             if msg == message:
                 msg = m18n.g(message)
 
-            raise MoulinetteValidationError("invalid_argument", argument=arg_name, error=msg)
+            raise MoulinetteValidationError(
+                "invalid_argument", argument=arg_name, error=msg
+            )
         return arg_value
 
     @staticmethod
