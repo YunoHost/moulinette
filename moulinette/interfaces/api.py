@@ -15,7 +15,7 @@ from bottle import abort
 
 from moulinette import msignals, m18n, env
 from moulinette.actionsmap import ActionsMap
-from moulinette.core import MoulinetteError
+from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
     BaseInterface,
@@ -207,8 +207,7 @@ class _HTTPArgumentParser(object):
         return self._parser.dequeue_callbacks(*args, **kwargs)
 
     def _error(self, message):
-        # TODO: Raise a proper exception
-        raise MoulinetteError(message, raw_msg=True)
+        raise MoulinetteValidationError(message, raw_msg=True)
 
 
 class _ActionsMapPlugin(object):
@@ -252,7 +251,7 @@ class _ActionsMapPlugin(object):
                 try:
                     kwargs["password"] = request.POST["password"]
                 except KeyError:
-                    raise HTTPBadRequestResponse("Missing password parameter")
+                    raise HTTPResponse("Missing password parameter", 400)
 
                 kwargs["profile"] = request.POST.get("profile", "default")
                 return callback(**kwargs)
@@ -387,7 +386,7 @@ class _ActionsMapPlugin(object):
                     self.logout(profile)
                 except:
                     pass
-            raise HTTPUnauthorizedResponse(e.strerror)
+            raise HTTPResponse(e.strerror, 401)
         else:
             # Update dicts with new values
             s_tokens[profile] = s_new_token
@@ -420,7 +419,7 @@ class _ActionsMapPlugin(object):
         if profile not in request.get_cookie(
             "session.tokens", secret=s_secret, default={}
         ):
-            raise HTTPUnauthorizedResponse(m18n.g("not_logged_in"))
+            raise HTTPResponse(m18n.g("not_logged_in"), 401)
         else:
             del self.secrets[s_id]
             authenticator = self.actionsmap.get_authenticator_for_profile(profile)
@@ -448,7 +447,7 @@ class _ActionsMapPlugin(object):
 
         wsock = request.environ.get("wsgi.websocket")
         if not wsock:
-            raise HTTPErrorResponse(m18n.g("websocket_request_expected"))
+            raise HTTPResponse(m18n.g("websocket_request_expected"), 500)
 
         while True:
             item = queue.get()
@@ -484,7 +483,7 @@ class _ActionsMapPlugin(object):
         try:
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
-            raise HTTPBadRequestResponse(e)
+            raise moulinette_error_to_http_response(e)
         except Exception as e:
             if isinstance(e, HTTPResponse):
                 raise e
@@ -492,7 +491,7 @@ class _ActionsMapPlugin(object):
 
             tb = traceback.format_exc()
             logs = {"route": _route, "arguments": arguments, "traceback": tb}
-            return HTTPErrorResponse(json_encode(logs))
+            return HTTPResponse(json_encode(logs), 500)
         else:
             return format_for_response(ret)
         finally:
@@ -520,7 +519,7 @@ class _ActionsMapPlugin(object):
             ]
         except KeyError:
             msg = m18n.g("authentication_required")
-            raise HTTPUnauthorizedResponse(msg)
+            raise HTTPResponse(msg, 401)
         else:
             return authenticator(token=(s_id, s_token))
 
@@ -547,36 +546,17 @@ class _ActionsMapPlugin(object):
 # HTTP Responses -------------------------------------------------------
 
 
-class HTTPOKResponse(HTTPResponse):
-    def __init__(self, output=""):
-        super(HTTPOKResponse, self).__init__(output, 200)
+def moulinette_error_to_http_response(error):
 
-
-class HTTPBadRequestResponse(HTTPResponse):
-    def __init__(self, error=""):
-
-        if isinstance(error, MoulinetteError):
-            content = error.content()
-            if isinstance(content, dict):
-                super(HTTPBadRequestResponse, self).__init__(
-                    json_encode(content),
-                    400,
-                    headers={"Content-type": "application/json"},
-                )
-            else:
-                super(HTTPBadRequestResponse, self).__init__(content, 400)
-        else:
-            super(HTTPBadRequestResponse, self).__init__(error, 400)
-
-
-class HTTPUnauthorizedResponse(HTTPResponse):
-    def __init__(self, output=""):
-        super(HTTPUnauthorizedResponse, self).__init__(output, 401)
-
-
-class HTTPErrorResponse(HTTPResponse):
-    def __init__(self, output=""):
-        super(HTTPErrorResponse, self).__init__(output, 500)
+    content = error.content()
+    if isinstance(content, dict):
+        return HTTPResponse(
+            json_encode(content),
+            error.http_code,
+            headers={"Content-type": "application/json"},
+        )
+    else:
+        return HTTPResponse(content, error.http_code)
 
 
 def format_for_response(content):
@@ -693,7 +673,7 @@ class ActionsMapParser(BaseActionsMapParser):
                 e,
             )
             logger.error(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
+            raise MoulinetteValidationError(error_message, raw_msg=True)
 
         if self.get_conf(tid, "authenticate"):
             authenticator = self.get_conf(tid, "authenticator")
@@ -722,7 +702,7 @@ class ActionsMapParser(BaseActionsMapParser):
         except KeyError as e:
             error_message = "no argument parser found for route '%s': %s" % (route, e)
             logger.error(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
+            raise MoulinetteValidationError(error_message, raw_msg=True)
         ret = argparse.Namespace()
 
         # TODO: Catch errors?

@@ -10,7 +10,11 @@ import time
 import ldap.modlist as modlist
 
 from moulinette import m18n
-from moulinette.core import MoulinetteError, MoulinetteLdapIsDownError
+from moulinette.core import (
+    MoulinetteError,
+    MoulinetteAuthenticationError,
+    MoulinetteLdapIsDownError,
+)
 from moulinette.authenticators import BaseAuthenticator
 
 logger = logging.getLogger("moulinette.authenticator.ldap")
@@ -86,7 +90,7 @@ class Authenticator(BaseAuthenticator):
         try:
             con = _reconnect()
         except ldap.INVALID_CREDENTIALS:
-            raise MoulinetteError("invalid_password")
+            raise MoulinetteAuthenticationError("invalid_password")
         except ldap.SERVER_DOWN:
             # ldap is down, attempt to restart it before really failing
             logger.warning(m18n.g("ldap_server_is_down_restart_it"))

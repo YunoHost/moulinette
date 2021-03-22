@@ -382,6 +382,8 @@ class MoulinetteSignals(object):
 
 class MoulinetteError(Exception):
 
+    http_code = 500
+
     """Moulinette base exception"""
 
     def __init__(self, key, raw_msg=False, *args, **kwargs):
@@ -394,6 +396,16 @@ class MoulinetteError(Exception):
 
     def content(self):
         return self.strerror
+
+
+class MoulinetteValidationError(MoulinetteError):
+
+    http_code = 400
+
+
+class MoulinetteAuthenticationError(MoulinetteError):
+
+    http_code = 401
 
 
 class MoulinetteLdapIsDownError(MoulinetteError):
