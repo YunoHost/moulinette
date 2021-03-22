@@ -207,8 +207,7 @@ class _HTTPArgumentParser(object):
         return self._parser.dequeue_callbacks(*args, **kwargs)
 
     def _error(self, message):
-        # TODO: Raise a proper exception
-        raise MoulinetteError(message, raw_msg=True)
+        raise MoulinetteValidationError(message, raw_msg=True)
 
 
 class _ActionsMapPlugin(object):
