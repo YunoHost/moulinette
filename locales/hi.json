@@ -6,14 +6,14 @@
     "colon": "{}: ",
     "confirm": "पुष्टि करें {prompt}",
     "deprecated_command": "'{prog}' '{command}' का प्रयोग न करे, भविष्य में इसे हटा दिया जाएगा",
-    "deprecated_command_alias": "'{prog} {old}' का प्रयोग न करे ,भविष्य में इसे हटा दिया जाएगा।इस की जगह '{prog} {new}' का प्रोयोग करे।",
+    "deprecated_command_alias": "'{prog} {old}' अब पुराना हो गया है और इसे भविष्य में हटा दिया जाएगा, इस की जगह '{prog} {new}' का प्रयोग करें",
     "error": "गलती:",
     "error_see_log": "एक त्रुटि पाई गई। कृपया विवरण के लिए लॉग देखें।",
     "file_exists": "फ़ाइल पहले से ही मौजूद है:'{path}'",
     "file_not_exist": "फ़ाइल मौजूद नहीं है: '{path}'",
     "folder_exists": "फ़ोल्डर में पहले से ही मौजूद है: '{path}'",
-    "folder_not_exist": "फ़ोल्डर मौजूद नहीं है।",
-    "instance_already_running": "आवृत्ति पहले से चल रही है।",
+    "folder_not_exist": "फ़ोल्डर मौजूद नहीं है",
+    "instance_already_running": "यूनोहोस्ट का एक कार्य पहले से चल रहा है। कृपया इस कार्य के समाप्त होने का इंतज़ार करें।",
     "invalid_argument": "अवैध तर्क '{argument}':'{error}'",
     "invalid_password": "अवैध पासवर्ड",
     "invalid_usage": "अवैध उपयोग, सहायता देखने के लिए --help साथ लिखे।",
@@ -35,5 +35,6 @@
     "unknown_user": "अज्ञात उपयोगकर्ता: '{user}'",
     "values_mismatch": "वैल्यूज मेल नहीं खाती।",
     "warning": "चेतावनी:",
-    "websocket_request_expected": "एक WebSocket अनुरोध की उम्मीद।"
+    "websocket_request_expected": "एक WebSocket अनुरोध की उम्मीद।",
+    "info": "सूचना:"
 }
