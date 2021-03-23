@@ -2,7 +2,7 @@ moulinette (4.2.0) testing; urgency=low
 
   - [mod] Python2 -> python3([#228](https://github.com/YunoHost/moulinette/pull/228), 8e70561f, 570e5323, 3758b811, 90f894b5, [#269](https://github.com/YunoHost/moulinette/pull/269), e85b9f71, cafe68f3)
   - [mod] Code formatting, test fixing, cleanup (677efcf6, 0de15467, [#268](https://github.com/YunoHost/moulinette/pull/268), affb54f8, f7199f7a, d6f82c91)
-  - [enh] Be able to return error metadata such that the webadmin shall be able to redirect to the proper log view ([#257](https://github.com/YunoHost/moulinette/pull/257))
+  - [enh] Improve error semantic such that the webadmin shall be able to redirect to the proper log view ([#257](https://github.com/YunoHost/moulinette/pull/257), [#271](https://github.com/YunoHost/moulinette/pull/271))
   - [fix] Simpler and more consistent logging initialization ([#263](https://github.com/YunoHost/moulinette/pull/263))
 
   Thanks to all contributors <3 ! (Kay0u, Laurent Peuch)
