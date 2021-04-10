@@ -56,6 +56,6 @@
     "warn_the_user_about_waiting_lock_again": "Toujours en attente...",
     "warn_the_user_that_lock_is_acquired": "La commande précédente vient de se terminer, lancement de cette nouvelle commande",
     "invalid_token": "Jeton non valide - veuillez vous authentifier",
-    "ldap_server_is_down_restart_it": "Le service LDAP s'est arrêté, une tentative de redémarrage est en cours ...",
+    "ldap_server_is_down_restart_it": "Le service LDAP s'est arrêté, une tentative de redémarrage est en cours...",
     "session_expired": "La session a expiré. Merci de vous ré-authentifier."
 }
