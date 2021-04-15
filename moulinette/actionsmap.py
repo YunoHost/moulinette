@@ -778,6 +778,9 @@ class ActionsMap(object):
                             # No parser for the action
                             continue
 
+                        if action_parser is None:  # No parser for the action
+                            continue
+
                         # Store action identifier and add arguments
                         action_parser.set_defaults(_tid=tid)
                         action_parser.add_arguments(
