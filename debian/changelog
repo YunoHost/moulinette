@@ -1,3 +1,9 @@
+moulinette (4.2.1) testing; urgency=low
+
+  - Fix weird technical thing in actionmap sucategories loading, related to recent changes in Yunohost actionmap (135fae95)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 17 Apr 2021 04:58:10 +0200
+
 moulinette (4.2.0) testing; urgency=low
 
   - [mod] Python2 -> python3([#228](https://github.com/YunoHost/moulinette/pull/228), 8e70561f, 570e5323, 3758b811, 90f894b5, [#269](https://github.com/YunoHost/moulinette/pull/269), e85b9f71, cafe68f3)
