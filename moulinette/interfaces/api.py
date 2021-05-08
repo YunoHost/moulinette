@@ -170,15 +170,17 @@ class _HTTPArgumentParser(object):
                 # Append the option string only
                 if option_string is not None and value != 0:
                     arg_strings.append(option_string)
-            elif isinstance(value, FileUpload) and (isinstance(action.type, argparse.FileType) or action.type == open):
+            elif isinstance(value, FileUpload) and (
+                isinstance(action.type, argparse.FileType) or action.type == open
+            ):
                 # Upload the file in a temp directory
                 global UPLOAD_DIR
                 if UPLOAD_DIR is None:
-                    UPLOAD_DIR = mkdtemp(prefix='moulinette_upload_')
+                    UPLOAD_DIR = mkdtemp(prefix="moulinette_upload_")
                 value.save(UPLOAD_DIR)
                 if option_string is not None:
                     arg_strings.append(option_string)
-                arg_strings.append(UPLOAD_DIR + '/' + value.filename)
+                arg_strings.append(UPLOAD_DIR + "/" + value.filename)
             elif isinstance(value, str):
                 if option_string is not None:
                     arg_strings.append(option_string)
