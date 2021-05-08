@@ -45,13 +45,6 @@ Dev Documentation
 
 https://moulinette.readthedocs.org
 
-Requirements
-------------
-
-* Python 2.7
-* python-bottle (>= 0.10)
-* python-ldap (>= 2.4)
-* PyYAML
 
 Testing
 -------
