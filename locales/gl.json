@@ -19,5 +19,20 @@
     "authentication_required": "Autenticación requerida",
     "argument_required": "O argumento '{argument}' é requerido",
     "logged_out": "Sesión pechada",
-    "password": "Contrasinal"
+    "password": "Contrasinal",
+    "warning": "Aviso:",
+    "values_mismatch": "Non concordan os valores",
+    "unknown_user": "Usuaria '{user}' descoñecida",
+    "unknown_group": "Grupo '{group}' descoñecido",
+    "session_expired": "A sesión caducou. Volve a conectar por favor.",
+    "unable_retrieve_session": "Non se puido obter a sesión porque '{exception}'",
+    "unable_authenticate": "Non se puido autenticar",
+    "success": "Ben feito!",
+    "server_already_running": "Xa hai un servidor a funcionar nese porto",
+    "root_required": "Tes que ser root para facer esta acción",
+    "pattern_not_match": "Non concorda co patrón",
+    "operation_interrupted": "Interrumpeuse a operación",
+    "not_logged_in": "Non estás conectada",
+    "logged_in": "Conectada",
+    "ldap_server_down": "Non se puido acadar o servidor LDAP"
 }
