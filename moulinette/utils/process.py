@@ -77,7 +77,7 @@ def call_async_output(args, callback, **kwargs):
 
             while True:
                 try:
-                    callback, message = log_queue.get_nowait()
+                    callback, message = log_queue.get(True, 1)
                 except queue.Empty:
                     break
 
