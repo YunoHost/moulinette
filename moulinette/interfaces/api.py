@@ -249,7 +249,7 @@ class _ActionsMapPlugin(object):
             def wrapper():
                 kwargs = {}
                 try:
-                    kwargs["password"] = request.POST["password"]
+                    kwargs["password"] = request.POST.password
                 except KeyError:
                     raise HTTPResponse("Missing password parameter", 400)
 
