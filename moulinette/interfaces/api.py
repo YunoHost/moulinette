@@ -320,7 +320,7 @@ class _ActionsMapPlugin(object):
             for a in args:
                 params[a] = True
             # Append other request params
-            for k, v in request.params.dict.items():
+            for k, v in dict(request.params.decode()).items():
                 v = _format(v)
                 if k not in params.keys():
                     params[k] = v
