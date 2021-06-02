@@ -1,3 +1,12 @@
+moulinette (4.2.3.2) stable; urgency=low
+
+  - [fix] wait 1s for message in call_async_output, prevent CPU overload ([#275](https://github.com/YunoHost/moulinette/pull/275))
+  - [i18n] Translations updated for Chinese (Simplified)
+
+  Thanks to all contributors <3 ! (Kayou, yahoo～～)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 02 Jun 2021 20:23:31 +0200
+
 moulinette (4.2.3.1) stable; urgency=low
 
   - [fix] Request params not decoded ([#277](https://github.com/YunoHost/moulinette/pull/277))
