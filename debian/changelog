@@ -1,3 +1,11 @@
+moulinette (4.2.3.3) stable; urgency=low
+
+  - [fix] Damn array args bug (2c9ec9f6)
+
+  Thanks to all contributors <3 ! (ljf)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 03 Jun 2021 18:40:18 +0200
+
 moulinette (4.2.3.2) stable; urgency=low
 
   - [fix] wait 1s for message in call_async_output, prevent CPU overload ([#275](https://github.com/YunoHost/moulinette/pull/275))
