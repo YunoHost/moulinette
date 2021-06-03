@@ -4,7 +4,7 @@
     "authentication_required": "Authentification requise",
     "authentication_required_long": "L’authentification est requise pour exécuter cette action",
     "colon": "{} : ",
-    "confirm": "Confirmez : {prompt}",
+    "confirm": "Confirmez {prompt}",
     "deprecated_command": "'{prog} {command}' est déprécié et sera bientôt supprimé",
     "deprecated_command_alias": "'{prog} {old}' est déprécié et sera bientôt supprimé, utilisez '{prog} {new}' à la place",
     "error": "Erreur :",
