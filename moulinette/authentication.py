@@ -6,7 +6,7 @@ import hashlib
 import hmac
 
 from moulinette.cache import open_cachefile, get_cachedir, cachefile_exists
-from moulinette.core import MoulinetteError
+from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
 
 logger = logging.getLogger("moulinette.authenticator")
 
@@ -80,7 +80,7 @@ class BaseAuthenticator(object):
                 raise
             except Exception as e:
                 logger.exception("authentication {self.name} failed because '{e}'")
-                raise MoulinetteError("unable_authenticate")
+                raise MoulinetteAuthenticationError("unable_authenticate")
             else:
                 is_authenticated = True
 
@@ -109,7 +109,7 @@ class BaseAuthenticator(object):
                 raise
             except Exception as e:
                 logger.exception("authentication {self.name} failed because '{e}'")
-                raise MoulinetteError("unable_authenticate")
+                raise MoulinetteAuthenticationError("unable_authenticate")
             else:
                 is_authenticated = True
 
@@ -117,7 +117,7 @@ class BaseAuthenticator(object):
         # No credentials given, can't authenticate
         #
         else:
-            raise MoulinetteError("unable_authenticate")
+            raise MoulinetteAuthenticationError("unable_authenticate")
 
         self.is_authenticated = is_authenticated
         return is_authenticated
@@ -146,7 +146,7 @@ class BaseAuthenticator(object):
     def _authenticate_session(self, session_id, session_token):
         """Checks session and token against the stored session token"""
         if not self._session_exists(session_id):
-            raise MoulinetteError("session_expired")
+            raise MoulinetteAuthenticationError("session_expired")
         try:
             # FIXME : shouldn't we also add a check that this session file
             # is not too old ? e.g. not older than 24 hours ? idk...
@@ -155,7 +155,7 @@ class BaseAuthenticator(object):
                 stored_hash = f.read()
         except IOError as e:
             logger.debug("unable to retrieve session", exc_info=1)
-            raise MoulinetteError("unable_retrieve_session", exception=e)
+            raise MoulinetteAuthenticationError("unable_retrieve_session", exception=e)
         else:
             #
             # session_id (or just id) : This is unique id for the current session from the user. Not too important
@@ -177,7 +177,7 @@ class BaseAuthenticator(object):
             hash_ = hashlib.sha256(to_hash).hexdigest()
 
             if not hmac.compare_digest(hash_, stored_hash):
-                raise MoulinetteError("invalid_token")
+                raise MoulinetteAuthenticationError("invalid_token")
             else:
                 return
 

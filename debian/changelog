@@ -1,8 +1,62 @@
-moulinette (4.2) unstable; urgency=low
+moulinette (4.2.3.3) stable; urgency=low
 
-  - Placeholder for 4.2 to satisfy CI / debian build during dev
+  - [fix] Damn array args bug (2c9ec9f6)
 
- -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 20 Jan 2021 05:19:58 +0100
+  Thanks to all contributors <3 ! (ljf)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 03 Jun 2021 18:40:18 +0200
+
+moulinette (4.2.3.2) stable; urgency=low
+
+  - [fix] wait 1s for message in call_async_output, prevent CPU overload ([#275](https://github.com/YunoHost/moulinette/pull/275))
+  - [i18n] Translations updated for Chinese (Simplified)
+
+  Thanks to all contributors <3 ! (Kayou, yahoo～～)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 02 Jun 2021 20:23:31 +0200
+
+moulinette (4.2.3.1) stable; urgency=low
+
+  - [fix] Request params not decoded ([#277](https://github.com/YunoHost/moulinette/pull/277))
+
+  Thanks to all contributors <3 ! (ljf)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 25 May 2021 18:59:01 +0200
+
+moulinette (4.2.3) stable; urgency=low
+
+  - [fix] Unicode password doesn't log in ([#276](https://github.com/YunoHost/moulinette/pull/276))
+  - [i18n] Translations updated for Chinese (Simplified), Galician
+
+  Thanks to all contributors <3 ! (José M, ljf, yahoo～～)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 24 May 2021 17:34:19 +0200
+
+moulinette (4.2.2) stable; urgency=low
+
+  - [i18n] Translations updated for French, Hungarian
+  - Release as stable
+
+  Thanks to all contributors <3 ! (Dominik Blahó, Éric Gaspar)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 08 May 2021 15:10:01 +0200
+
+moulinette (4.2.1) testing; urgency=low
+
+  - Fix weird technical thing in actionmap sucategories loading, related to recent changes in Yunohost actionmap (135fae95)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sat, 17 Apr 2021 04:58:10 +0200
+
+moulinette (4.2.0) testing; urgency=low
+
+  - [mod] Python2 -> python3 ([#228](https://github.com/YunoHost/moulinette/pull/228), 8e70561f, 570e5323, 3758b811, 90f894b5, [#269](https://github.com/YunoHost/moulinette/pull/269), e85b9f71, cafe68f3)
+  - [mod] Code formatting, test fixing, cleanup (677efcf6, 0de15467, [#268](https://github.com/YunoHost/moulinette/pull/268), affb54f8, f7199f7a, d6f82c91)
+  - [enh] Improve error semantic such that the webadmin shall be able to redirect to the proper log view ([#257](https://github.com/YunoHost/moulinette/pull/257), [#271](https://github.com/YunoHost/moulinette/pull/271))
+  - [fix] Simpler and more consistent logging initialization ([#263](https://github.com/YunoHost/moulinette/pull/263))
+
+  Thanks to all contributors <3 ! (Kay0u, Laurent Peuch)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 19 Mar 2021 18:39:42 +0100
 
 moulinette (4.1.4) stable; urgency=low
 
