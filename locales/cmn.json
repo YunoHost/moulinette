@@ -38,7 +38,7 @@
     "websocket_request_expected": "期望一个WebSocket请求",
     "cannot_open_file": "不能打开文件{file:s}（原因：{error:s}）",
     "cannot_write_file": "写入文件{file:s}失败（原因：{error:s}）",
-    "unknown_error_reading_file": "尝试读取文件{files}时发生未知错误（原因：{errors}）",
+    "unknown_error_reading_file": "尝试读取文件{file:s}时发生未知错误（原因：{error:s}）",
     "corrupted_json": "从{ressource:s}读取的JSON损坏（原因：{error:s}）",
     "corrupted_yaml": "从{ressource:s}读取的YMAL损坏（原因：{error:s}）",
     "error_writing_file": "写入文件{file:s}失败：{error:s}",
