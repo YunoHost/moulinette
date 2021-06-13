@@ -156,26 +156,9 @@ def test_required_paremeter_missing_value(iface, caplog):
 
 
 def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
-    #    from moulinette.interfaces.cli import ActionsMapParser
-    #    import argparse
-    #
-    #    parser = argparse.ArgumentParser(add_help=False)
-    #    parser.add_argument(
-    #        "--debug",
-    #        action="store_true",
-    #        default=False,
-    #        help="Log and print debug messages",
-    #    )
-    #
-    #monkeypatch.setenv("MOULINETTE_DATA_DIR", str(tmp_path))
-    #actionsmap_dir = tmp_path / "actionsmap"
-    #actionsmap_dir.mkdir()
 
     from moulinette.interfaces.api import ActionsMapParser
     amap = ActionsMap(ActionsMapParser())
-
-    #from moulinette.interfaces import BaseActionsMapParser
-    #amap = ActionsMap(BaseActionsMapParser())
 
     with pytest.raises(MoulinetteError) as exception:
         amap.get_authenticator("unknown")

@@ -79,7 +79,7 @@ class BaseAuthenticator(object):
             except MoulinetteError:
                 raise
             except Exception as e:
-                logger.exception("authentication {self.name} failed because '{e}'")
+                logger.exception(f"authentication {self.name} failed because '{e}'")
                 raise MoulinetteAuthenticationError("unable_authenticate")
             else:
                 is_authenticated = True
@@ -93,7 +93,7 @@ class BaseAuthenticator(object):
                     import traceback
 
                     traceback.print_exc()
-                    logger.exception("unable to store session because %s", e)
+                    logger.exception(f"unable to store session because {e}")
                 else:
                     logger.debug("session has been stored")
 
@@ -108,7 +108,7 @@ class BaseAuthenticator(object):
             except MoulinetteError:
                 raise
             except Exception as e:
-                logger.exception("authentication {self.name} failed because '{e}'")
+                logger.exception(f"authentication {self.name} failed because '{e}'")
                 raise MoulinetteAuthenticationError("unable_authenticate")
             else:
                 is_authenticated = True

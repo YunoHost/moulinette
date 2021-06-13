@@ -8,6 +8,7 @@ logger = logging.getLogger("moulinette.authenticator.yoloswag")
 
 # Dummy authenticator implementation
 
+
 class Authenticator(BaseAuthenticator):
 
     """Dummy authenticator used for tests"""
