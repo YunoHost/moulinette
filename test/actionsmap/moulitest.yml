@@ -3,19 +3,9 @@
 #     Global parameters     #
 #############################
 _global:
-   authentication:
+    authentication:
         api: dummy
-        cli: null
-    configuration:
-        authenticate:
-            - all
-        authenticator:
-            default:
-                vendor: dummy
-                help: Dummy Password
-            yoloswag:
-                vendor: dummy
-                help: Dummy Yoloswag Password
+        cli: dummy
     arguments:
         -v:
             full: --version

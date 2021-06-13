@@ -11,7 +11,6 @@ from moulinette.actionsmap import (
 )
 
 from moulinette.interfaces import GLOBAL_SECTION
-from moulinette.interfaces import BaseActionsMapParser
 from moulinette.core import MoulinetteError
 from moulinette import m18n
 
@@ -157,14 +156,30 @@ def test_required_paremeter_missing_value(iface, caplog):
 
 
 def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
-    monkeypatch.setenv("MOULINETTE_DATA_DIR", str(tmp_path))
-    actionsmap_dir = tmp_path / "actionsmap"
-    actionsmap_dir.mkdir()
+    #    from moulinette.interfaces.cli import ActionsMapParser
+    #    import argparse
+    #
+    #    parser = argparse.ArgumentParser(add_help=False)
+    #    parser.add_argument(
+    #        "--debug",
+    #        action="store_true",
+    #        default=False,
+    #        help="Log and print debug messages",
+    #    )
+    #
+    #monkeypatch.setenv("MOULINETTE_DATA_DIR", str(tmp_path))
+    #actionsmap_dir = tmp_path / "actionsmap"
+    #actionsmap_dir.mkdir()
 
-    amap = ActionsMap(BaseActionsMapParser())
-    with pytest.raises(ValueError) as exception:
-        amap.get_authenticator_for_profile("unknown")
-    assert "Unknown authenticator" in str(exception)
+    from moulinette.interfaces.api import ActionsMapParser
+    amap = ActionsMap(ActionsMapParser())
+
+    #from moulinette.interfaces import BaseActionsMapParser
+    #amap = ActionsMap(BaseActionsMapParser())
+
+    with pytest.raises(MoulinetteError) as exception:
+        amap.get_authenticator("unknown")
+    assert "No module named" in str(exception)
 
 
 def test_extra_argument_parser_add_argument(iface):
@@ -230,9 +245,8 @@ def test_actions_map_api():
 
     amap = ActionsMap(ActionsMapParser())
 
-    assert amap.parser.global_conf["authenticate"] == "all"
-    assert "default" in amap.parser.global_conf["authenticator"]
-    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert amap.main_namespace == "moulitest"
+    assert amap.default_authentication == "dummy"
     assert ("GET", "/test-auth/default") in amap.parser.routes
     assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
 
@@ -240,9 +254,8 @@ def test_actions_map_api():
 
     amap = ActionsMap(ActionsMapParser())
 
-    assert amap.parser.global_conf["authenticate"] == "all"
-    assert "default" in amap.parser.global_conf["authenticator"]
-    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert amap.main_namespace == "moulitest"
+    assert amap.default_authentication == "dummy"
     assert ("GET", "/test-auth/default") in amap.parser.routes
     assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
 
@@ -289,9 +302,8 @@ def test_actions_map_cli():
     )
     amap = ActionsMap(ActionsMapParser(top_parser=parser))
 
-    assert amap.parser.global_conf["authenticate"] == "all"
-    assert "default" in amap.parser.global_conf["authenticator"]
-    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert amap.main_namespace == "moulitest"
+    assert amap.default_authentication == "dummy"
     assert "testauth" in amap.parser._subparsers.choices
     assert "none" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
     assert "subcat" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
@@ -308,9 +320,8 @@ def test_actions_map_cli():
 
     amap = ActionsMap(ActionsMapParser(top_parser=parser))
 
-    assert amap.parser.global_conf["authenticate"] == "all"
-    assert "default" in amap.parser.global_conf["authenticator"]
-    assert "yoloswag" in amap.parser.global_conf["authenticator"]
+    assert amap.main_namespace == "moulitest"
+    assert amap.default_authentication == "dummy"
     assert "testauth" in amap.parser._subparsers.choices
     assert "none" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
     assert "subcat" in amap.parser._subparsers.choices["testauth"]._actions[1].choices

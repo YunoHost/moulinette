@@ -356,7 +356,7 @@ class ActionsMapParser(BaseActionsMapParser):
             type_="subcategory",
             description=subcategory_help,
             help=subcategory_help,
-            **kwargs
+            **kwargs,
         )
         return self.__class__(self, parser, {"title": "actions", "required": True})
 
@@ -367,7 +367,7 @@ class ActionsMapParser(BaseActionsMapParser):
         action_help=None,
         deprecated=False,
         deprecated_alias=[],
-        **kwargs
+        **kwargs,
     ):
         """Add a parser for an action
 

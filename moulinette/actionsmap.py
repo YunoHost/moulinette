@@ -484,8 +484,11 @@ class ActionsMap(object):
             mod = import_module(auth_module)
         except ImportError as e:
             import traceback
+
             traceback.print_exc()
-            raise MoulinetteError(f"unable to load authenticator {auth_module} : {e}", raw_msg=True)
+            raise MoulinetteError(
+                f"unable to load authenticator {auth_module} : {e}", raw_msg=True
+            )
         else:
             return mod.Authenticator()
 
@@ -699,16 +702,20 @@ class ActionsMap(object):
 
             if _global:
                 if getattr(self, "main_namespace", None) is not None:
-                    raise MoulinetteError("It's not possible to have several namespaces with a _global section")
+                    raise MoulinetteError(
+                        "It is not possible to have several namespaces with a _global section"
+                    )
                 else:
                     self.main_namespace = namespace
-                    self.default_authentication = _global["authentication"][interface_type]
+                    self.default_authentication = _global["authentication"][
+                        interface_type
+                    ]
 
             if top_parser.has_global_parser():
                 top_parser.add_global_arguments(_global["arguments"])
 
         if not hasattr(self, "main_namespace"):
-            raise MoulinetteError("Did not found the main namespace")
+            raise MoulinetteError("Did not found the main namespace", raw_msg=True)
 
         for namespace, actionsmap in actionsmaps.items():
             # category_name is stuff like "user", "domain", "hooks"...
@@ -792,7 +799,9 @@ class ActionsMap(object):
 
                         action_parser.authentication = self.default_authentication
                         if interface_type in authentication:
-                            action_parser.authentication = authentication[interface_type]
+                            action_parser.authentication = authentication[
+                                interface_type
+                            ]
 
         logger.debug("building parser took %.3fs", time() - start)
         return top_parser

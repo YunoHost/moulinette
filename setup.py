@@ -23,7 +23,6 @@ install_deps = [
     'pytz',
     'pyyaml',
     'toml',
-    'python-ldap',
     'gevent-websocket',
     'bottle',
 ]

@@ -181,25 +181,6 @@ def test_toml(tmp_path):
 
 
 @pytest.fixture
-def test_ldif(tmp_path):
-    test_file = tmp_path / "test.txt"
-    from ldif import LDIFWriter
-
-    writer = LDIFWriter(open(str(test_file), "w"))
-
-    writer.unparse(
-        "mail=alice@example.com",
-        {
-            "cn": ["Alice Alison".encode("utf-8")],
-            "mail": ["alice@example.com".encode("utf-8")],
-            "objectclass": ["top".encode("utf-8"), "person".encode("utf-8")],
-        },
-    )
-
-    return test_file
-
-
-@pytest.fixture
 def user():
     return os.getlogin()
 

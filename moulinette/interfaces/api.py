@@ -253,7 +253,9 @@ class _ActionsMapPlugin(object):
                 except KeyError:
                     raise HTTPResponse("Missing password parameter", 400)
 
-                kwargs["profile"] = request.POST.get("profile", self.actionsmap.default_authentication)
+                kwargs["profile"] = request.POST.get(
+                    "profile", self.actionsmap.default_authentication
+                )
                 return callback(**kwargs)
 
             return wrapper
@@ -262,7 +264,9 @@ class _ActionsMapPlugin(object):
         def _logout(callback):
             def wrapper():
                 kwargs = {}
-                kwargs["profile"] = request.POST.get("profile", self.actionsmap.default_authentication)
+                kwargs["profile"] = request.POST.get(
+                    "profile", self.actionsmap.default_authentication
+                )
                 return callback(**kwargs)
 
             return wrapper
