@@ -7,8 +7,6 @@ import os
 import shutil
 import pytest
 
-from .src.ldap_server import LDAPServer
-
 
 def patch_init(moulinette):
     """Configure moulinette to use the YunoHost namespace."""
@@ -209,11 +207,3 @@ def user():
 @pytest.fixture
 def test_url():
     return "https://some.test.url/yolo.txt"
-
-
-@pytest.fixture
-def ldap_server():
-    server = LDAPServer()
-    server.start()
-    yield server
-    server.stop()

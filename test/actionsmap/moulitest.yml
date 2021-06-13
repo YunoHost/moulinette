@@ -3,6 +3,9 @@
 #     Global parameters     #
 #############################
 _global:
+   authentication:
+        api: dummy
+        cli: null
     configuration:
         authenticate:
             - all
@@ -13,13 +16,6 @@ _global:
             yoloswag:
                 vendor: dummy
                 help: Dummy Yoloswag Password
-            ldap:
-                vendor: ldap
-                help: admin_password
-                parameters:
-                    uri: ldap://localhost:8080
-                    base_dn: dc=yunohost,dc=org
-                    user_rdn: cn=admin,dc=yunohost,dc=org
     arguments:
         -v:
             full: --version
@@ -43,37 +39,30 @@ testauth:
     actions:
         none:
             api: GET /test-auth/none
-            configuration:
-                authenticate: false
+            authentication:
+                api: null
+                cli: null
 
         default:
             api: GET /test-auth/default
 
         only-api:
             api: GET /test-auth/only-api
-            configuration:
-                authenticate:
-                    - api
+            authentication:
+                api: dummy
+                cli: null
 
         only-cli:
             api: GET /test-auth/only-cli
-            configuration:
-                authenticate:
-                    - cli
+            authentication:
+                api: null
+                cli: dummy
 
         other-profile:
             api: GET /test-auth/other-profile
-            configuration:
-                authenticate:
-                    - all
-                authenticator: yoloswag
-
-        ldap:
-            api: GET /test-auth/ldap
-            configuration:
-                authenticate:
-                    - all
-                authenticator: ldap
+            authentication:
+                api: yoloswag
+                cli: yoloswag
 
         with_arg:
             api: GET /test-auth/with_arg/<super_arg>
@@ -103,21 +92,21 @@ testauth:
             actions:
                 none:
                     api: GET /test-auth/subcat/none
-                    configuration:
-                        authenticate: false
+                    authentication:
+                        api: null
+                        cli: null
 
                 default:
                     api: GET /test-auth/subcat/default
 
                 post:
                     api: POST /test-auth/subcat/post
-                    configuration:
-                        authenticate:
-                            - all
-                        authenticator: default
-
+                    authentication:
+                        api: dummy
+                        cli: dummy
 
                 other-profile:
                     api: GET /test-auth/subcat/other-profile
-                    configuration:
-                        authenticator: yoloswag
+                    authentication:
+                        api: yoloswag
+                        cli: yoloswag

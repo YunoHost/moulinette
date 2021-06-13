@@ -9,7 +9,6 @@ Homepage: https://github.com/YunoHost/moulinette
 Package: moulinette
 Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends},
-    python3-ldap,
     python3-yaml,
     python3-bottle (>= 0.12),
     python3-gevent-websocket,
