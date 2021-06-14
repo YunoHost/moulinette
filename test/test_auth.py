@@ -10,7 +10,7 @@ class TestAuthAPI:
         if password is None:
             password = "dummy"
 
-        data = {"password": password}
+        data = {"credentials": password}
         if profile:
             data["profile"] = profile
 

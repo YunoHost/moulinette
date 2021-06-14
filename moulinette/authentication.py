@@ -21,7 +21,7 @@ class BaseAuthenticator(object):
     Each authenticators must implement an Authenticator class derived
     from this class which must overrides virtual properties and methods.
     It is used to authenticate and manage session. It implements base
-    methods to authenticate with a password or a session token.
+    methods to authenticate with credentials or a session token.
 
     Authenticators configurations are identified by a profile name which
     must be given on instantiation - with the corresponding vendor
@@ -32,14 +32,14 @@ class BaseAuthenticator(object):
     # Virtual methods
     # Each authenticator classes must implement these methods.
 
-    def authenticate(self, password=None):
+    def authenticate(self, credentials=None):
         """Attempt to authenticate
 
-        Attempt to authenticate with given password. It should raise an
+        Attempt to authenticate with given credentials. It should raise an
         AuthenticationError exception if authentication fails.
 
         Keyword arguments:
-            - password -- A clear text password
+            - credentials -- A string containing the credentials to be used by the authenticator
 
         """
         raise NotImplementedError(
@@ -48,18 +48,18 @@ class BaseAuthenticator(object):
 
     # Authentication methods
 
-    def __call__(self, password=None, token=None):
+    def __call__(self, credentials=None, token=None):
         """Attempt to authenticate
 
-        Attempt to authenticate either with password or with session
-        token if 'password' is None. If the authentication succeed, the
+        Attempt to authenticate either with credentials or with session
+        token if 'credentials' is None. If the authentication succeed, the
         instance is returned and the session is registered for the token
-        if 'token' and 'password' are given.
+        if 'token' and 'credentials' are given.
         The token is composed by the session identifier and a session
         hash (the "true token") - to use for encryption - as a 2-tuple.
 
         Keyword arguments:
-            - password -- A clear text password
+            - credentials -- A string containing the credentials to be used by the authenticator
             - token -- The session token in the form of (id, hash)
 
         """
@@ -70,12 +70,12 @@ class BaseAuthenticator(object):
         is_authenticated = False
 
         #
-        # Authenticate using the password
+        # Authenticate using the credentials
         #
-        if password:
+        if credentials:
             try:
                 # Attempt to authenticate
-                self.authenticate(password)
+                self.authenticate(credentials)
             except MoulinetteError:
                 raise
             except Exception as e:

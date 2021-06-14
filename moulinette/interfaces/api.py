@@ -249,9 +249,9 @@ class _ActionsMapPlugin(object):
             def wrapper():
                 kwargs = {}
                 try:
-                    kwargs["password"] = request.POST.password
+                    kwargs["credentials"] = request.POST.credentials
                 except KeyError:
-                    raise HTTPResponse("Missing password parameter", 400)
+                    raise HTTPResponse("Missing credentials parameter", 400)
 
                 kwargs["profile"] = request.POST.get(
                     "profile", self.actionsmap.default_authentication
@@ -347,7 +347,7 @@ class _ActionsMapPlugin(object):
 
     # Routes callbacks
 
-    def login(self, password, profile):
+    def login(self, credentials, profile):
         """Log in to an authenticator profile
 
         Attempt to authenticate to a given authenticator profile and
@@ -355,7 +355,7 @@ class _ActionsMapPlugin(object):
         if needed.
 
         Keyword arguments:
-            - password -- A clear text password
+            - credentials -- Some credentials to use for login
             - profile -- The authenticator profile name to log in
 
         """
@@ -383,7 +383,7 @@ class _ActionsMapPlugin(object):
         try:
             # Attempt to authenticate
             authenticator = self.actionsmap.get_authenticator(profile)
-            authenticator(password, token=(s_id, s_new_token))
+            authenticator(credentials, token=(s_id, s_new_token))
         except MoulinetteError as e:
             if len(s_tokens) > 0:
                 try:
