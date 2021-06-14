@@ -5,6 +5,7 @@ import logging
 import hashlib
 import hmac
 
+from moulinette import console
 from moulinette.cache import open_cachefile, get_cachedir, cachefile_exists
 from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
 
@@ -115,9 +116,7 @@ class BaseAuthenticator(object):
                     s_id, s_token = token
                     self._store_session(s_id, s_token)
                 except Exception as e:
-                    import traceback
-
-                    traceback.print_exc()
+                    console.print_exception()
                     logger.exception("unable to store session because %s", e)
                 else:
                     logger.debug("session has been stored")

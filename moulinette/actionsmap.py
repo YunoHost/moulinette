@@ -11,7 +11,7 @@ from time import time
 from collections import OrderedDict
 from importlib import import_module
 
-from moulinette import m18n, msignals
+from moulinette import m18n, msignals, console
 from moulinette.cache import open_cachefile
 from moulinette.globals import init_moulinette_env
 from moulinette.core import (
@@ -570,9 +570,7 @@ class ActionsMap(object):
                 )
                 func = getattr(mod, func_name)
             except (AttributeError, ImportError) as e:
-                import traceback
-
-                traceback.print_exc()
+                console.print_exception()
                 error_message = "unable to load function %s.%s because: %s" % (
                     namespace,
                     func_name,

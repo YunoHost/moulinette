@@ -6,7 +6,7 @@ import argparse
 import copy
 from collections import deque, OrderedDict
 
-from moulinette import msettings, m18n
+from moulinette import msettings, m18n, console
 from moulinette.core import MoulinetteError
 
 logger = logging.getLogger("moulinette.interface")
@@ -357,9 +357,7 @@ class _CallbackAction(argparse.Action):
             mod = __import__(mod_name, globals=globals(), level=0, fromlist=[func_name])
             func = getattr(mod, func_name)
         except (AttributeError, ImportError):
-            import traceback
-
-            traceback.print_exc()
+            console.print_exception()
             raise ValueError("unable to import method {0}".format(self.callback_method))
         self._callback = func
 

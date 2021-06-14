@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from rich import traceback
+from rich.console import Console
 
 from moulinette.core import (
     MoulinetteError,
@@ -44,9 +45,10 @@ msignals = MoulinetteSignals()
 msettings = dict()
 m18n = Moulinette18n()
 
+console = Console()
+
 # pretty traceback using rich
 traceback.install(show_locals=True, extra_lines=6)
-
 
 # Package functions
 
