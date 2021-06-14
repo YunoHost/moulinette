@@ -26,6 +26,7 @@ install_deps = [
     'python-ldap',
     'gevent-websocket',
     'bottle',
+    'rich',
 ]
 
 test_deps = [
