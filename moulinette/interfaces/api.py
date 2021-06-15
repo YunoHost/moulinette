@@ -13,7 +13,7 @@ from geventwebsocket import WebSocketError
 from bottle import request, response, Bottle, HTTPResponse
 from bottle import abort
 
-from moulinette import msignals, m18n, env
+from moulinette import msignals, m18n, env, console
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
@@ -487,10 +487,8 @@ class _ActionsMapPlugin(object):
         except Exception as e:
             if isinstance(e, HTTPResponse):
                 raise e
-            import traceback
 
-            tb = traceback.format_exc()
-            logs = {"route": _route, "arguments": arguments, "traceback": tb}
+            logs = {"route": _route, "arguments": arguments, "traceback": console.format_traceback()}
             return HTTPResponse(json_encode(logs), 500)
         else:
             return format_for_response(ret)

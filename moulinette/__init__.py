@@ -50,6 +50,17 @@ console = Console()
 # pretty traceback using rich
 traceback.install(show_locals=True, extra_lines=6)
 
+
+# nice helper function for common usecase
+def _format_exception():
+    with console.capture() as capture:
+        console.print_exception()
+
+    return capture.get()
+
+
+console.format_exception = _format_exception
+
 # Package functions
 
 
