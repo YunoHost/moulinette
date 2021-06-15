@@ -32,7 +32,33 @@ class BaseAuthenticator(object):
     # Virtual methods
     # Each authenticator classes must implement these methods.
 
-    def authenticate(self, credentials=None):
+    def authenticate_credentials(self, credentials=None, store_session=False):
+
+        try:
+            # Attempt to authenticate
+            self.authenticate(credentials)
+        except MoulinetteError:
+            raise
+        except Exception as e:
+            logger.exception(f"authentication {self.name} failed because '{e}'")
+            raise MoulinetteAuthenticationError("unable_authenticate")
+
+        # Store session for later using the provided (new) token if any
+        if store_session:
+            try:
+                s_id = random_ascii()
+                s_token = random_ascii()
+                self._store_session(s_id, s_token)
+            except Exception as e:
+                import traceback
+
+                traceback.print_exc()
+                logger.exception(f"unable to store session because {e}")
+            else:
+                logger.debug("session has been stored")
+
+
+    def _authenticate_credentials(self, credentials=None):
         """Attempt to authenticate
 
         Attempt to authenticate with given credentials. It should raise an
@@ -45,84 +71,6 @@ class BaseAuthenticator(object):
         raise NotImplementedError(
             "derived class '%s' must override this method" % self.__class__.__name__
         )
-
-    # Authentication methods
-
-    def __call__(self, credentials=None, token=None):
-        """Attempt to authenticate
-
-        Attempt to authenticate either with credentials or with session
-        token if 'credentials' is None. If the authentication succeed, the
-        instance is returned and the session is registered for the token
-        if 'token' and 'credentials' are given.
-        The token is composed by the session identifier and a session
-        hash (the "true token") - to use for encryption - as a 2-tuple.
-
-        Keyword arguments:
-            - credentials -- A string containing the credentials to be used by the authenticator
-            - token -- The session token in the form of (id, hash)
-
-        """
-
-        if hasattr(self, "is_authenticated"):
-            return self.is_authenticated
-
-        is_authenticated = False
-
-        #
-        # Authenticate using the credentials
-        #
-        if credentials:
-            try:
-                # Attempt to authenticate
-                self.authenticate(credentials)
-            except MoulinetteError:
-                raise
-            except Exception as e:
-                logger.exception(f"authentication {self.name} failed because '{e}'")
-                raise MoulinetteAuthenticationError("unable_authenticate")
-            else:
-                is_authenticated = True
-
-            # Store session for later using the provided (new) token if any
-            if token:
-                try:
-                    s_id, s_token = token
-                    self._store_session(s_id, s_token)
-                except Exception as e:
-                    import traceback
-
-                    traceback.print_exc()
-                    logger.exception(f"unable to store session because {e}")
-                else:
-                    logger.debug("session has been stored")
-
-        #
-        # Authenticate using the token provided
-        #
-        elif token:
-            try:
-                s_id, s_token = token
-                # Attempt to authenticate
-                self._authenticate_session(s_id, s_token)
-            except MoulinetteError:
-                raise
-            except Exception as e:
-                logger.exception(f"authentication {self.name} failed because '{e}'")
-                raise MoulinetteAuthenticationError("unable_authenticate")
-            else:
-                is_authenticated = True
-
-        #
-        # No credentials given, can't authenticate
-        #
-        else:
-            raise MoulinetteAuthenticationError("unable_authenticate")
-
-        self.is_authenticated = is_authenticated
-        return is_authenticated
-
-    # Private methods
 
     def _open_sessionfile(self, session_id, mode="r"):
         """Open a session file for this instance in given mode"""
@@ -142,6 +90,16 @@ class BaseAuthenticator(object):
         hash_ = hashlib.sha256(to_hash).hexdigest()
         with self._open_sessionfile(session_id, "w") as f:
             f.write(hash_)
+
+    def authenticate_session(s_id, s_token):
+        try:
+            # Attempt to authenticate
+            self._authenticate_session(s_id, s_token)
+        except MoulinetteError:
+            raise
+        except Exception as e:
+            logger.exception(f"authentication {self.name} failed because '{e}'")
+            raise MoulinetteAuthenticationError("unable_authenticate")
 
     def _authenticate_session(self, session_id, session_token):
         """Checks session and token against the stored session token"""

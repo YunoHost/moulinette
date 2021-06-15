@@ -359,48 +359,66 @@ class _ActionsMapPlugin(object):
             - profile -- The authenticator profile name to log in
 
         """
-        # Retrieve session values
-        try:
-            s_id = request.get_cookie("session.id") or random_ascii()
-        except:
-            # Super rare case where there are super weird cookie / cache issue
-            # Previous line throws a CookieError that creates a 500 error ...
-            # So let's catch it and just use a fresh ID then...
-            s_id = random_ascii()
+        authenticator = self.actionsmap.get_authenticator(profile)
+
+        ##################################################################
+        # Case 1 : credentials were provided                             #
+        # We want to validate that the credentials are right             #
+        # Then save the session id/token, and return then in the cookies #
+        ##################################################################
 
         try:
-            s_secret = self.secrets[s_id]
-        except KeyError:
-            s_tokens = {}
-        else:
-            try:
-                s_tokens = request.get_cookie("session.tokens", secret=s_secret) or {}
-            except:
-                # Same as for session.id a few lines before
-                s_tokens = {}
-        s_new_token = random_ascii()
-
-        try:
-            # Attempt to authenticate
-            authenticator = self.actionsmap.get_authenticator(profile)
-            authenticator(credentials, token=(s_id, s_new_token))
+            s_id, s_token = authenticator.authenticate_credentials(credentials, store_session=True)
         except MoulinetteError as e:
-            if len(s_tokens) > 0:
-                try:
-                    self.logout(profile)
-                except:
-                    pass
+            try:
+                self.logout(profile)
+            except Exception:
+                pass
+            # FIXME : replace with MoulinetteAuthenticationError !?
             raise HTTPResponse(e.strerror, 401)
         else:
-            # Update dicts with new values
-            s_tokens[profile] = s_new_token
+            # Save session id and token
+
+            # Create and save (in RAM) new cookie secret used to secure(=sign?) the cookie
             self.secrets[s_id] = s_secret = random_ascii()
+
+            # Fetch current token per profile
+            try:
+                s_tokens = request.get_cookie("session.tokens", secret=s_secret) or {}
+            except Exception:
+                # Same as for session.id a few lines before
+                s_tokens = {}
+
+            # Update dicts with new values
+            s_tokens[profile] = s_token
 
             response.set_cookie("session.id", s_id, secure=True)
             response.set_cookie(
-                "session.tokens", s_tokens, secure=True, secret=s_secret
+                "session.tokens", {""}, secure=True, secret=s_secret
             )
             return m18n.g("logged_in")
+
+
+    # This is called before each time a route is going to be processed
+    def _do_authenticate(self, authenticator):
+        """Process the authentication
+
+        Handle the core.MoulinetteSignals.authenticate signal.
+
+        """
+
+        s_id = request.get_cookie("session.id")
+        try:
+            s_secret = self.secrets[s_id]
+            s_token = request.get_cookie("session.tokens", secret=s_secret, default={})[
+                authenticator.name
+            ]
+        except KeyError:
+            msg = m18n.g("authentication_required")
+            raise HTTPResponse(msg, 401)
+        else:
+            authenticator.authenticate_session(s_id, s_token)
+
 
     def logout(self, profile):
         """Log out from an authenticator profile
@@ -412,25 +430,35 @@ class _ActionsMapPlugin(object):
             - profile -- The authenticator profile name to log out
 
         """
-        s_id = request.get_cookie("session.id")
-        # We check that there's a (signed) session.hash available
-        # for additional security ?
-        # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
+        # Retrieve session values
         try:
-            s_secret = self.secrets[s_id]
-        except KeyError:
-            s_secret = {}
-        if profile not in request.get_cookie(
-            "session.tokens", secret=s_secret, default={}
-        ):
-            raise HTTPResponse(m18n.g("not_logged_in"), 401)
-        else:
-            del self.secrets[s_id]
-            authenticator = self.actionsmap.get_authenticator(profile)
-            authenticator._clean_session(s_id)
-            # TODO: Clean the session for profile only
-            # Delete cookie and clean the session
-            response.set_cookie("session.tokens", "", max_age=-1)
+            s_id = request.get_cookie("session.id") or None
+        except:
+            # Super rare case where there are super weird cookie / cache issue
+            # Previous line throws a CookieError that creates a 500 error ...
+            # So let's catch it and just use None...
+            s_id = None
+
+        if s_id is not None:
+
+            # We check that there's a (signed) session.hash available
+            # for additional security ?
+            # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
+            try:
+                s_secret = self.secrets[s_id]
+            except KeyError:
+                s_secret = {}
+            if profile not in request.get_cookie(
+                "session.tokens", secret=s_secret, default={}
+            ):
+                raise HTTPResponse(m18n.g("not_logged_in"), 401)
+            else:
+                del self.secrets[s_id]
+                authenticator = self.actionsmap.get_authenticator(profile)
+                authenticator._clean_session(s_id)
+                # TODO: Clean the session for profile only
+                # Delete cookie and clean the session
+                response.set_cookie("session.tokens", "", max_age=-1)
         return m18n.g("logged_out")
 
     def messages(self):
@@ -509,24 +537,6 @@ class _ActionsMapPlugin(object):
                 queue.put(StopIteration)
 
     # Signals handlers
-
-    def _do_authenticate(self, authenticator):
-        """Process the authentication
-
-        Handle the core.MoulinetteSignals.authenticate signal.
-
-        """
-        s_id = request.get_cookie("session.id")
-        try:
-            s_secret = self.secrets[s_id]
-            s_token = request.get_cookie("session.tokens", secret=s_secret, default={})[
-                authenticator.name
-            ]
-        except KeyError:
-            msg = m18n.g("authentication_required")
-            raise HTTPResponse(msg, 401)
-        else:
-            return authenticator(token=(s_id, s_token))
 
     def _do_display(self, message, style):
         """Display a message

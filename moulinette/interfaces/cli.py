@@ -538,7 +538,8 @@ class Interface(BaseInterface):
         # moulinette is used to create a CLI for non-root user that needs to
         # auth somehow but hmpf -.-
         msg = m18n.g("password")
-        return authenticator(credentials=self._do_prompt(msg, True, False, color="yellow"))
+        credentials = self._do_prompt(msg, True, False, color="yellow")
+        return authenticator.authenticate_credentials(credentials=credentials)
 
     def _do_prompt(self, message, is_password, confirm, color="blue"):
         """Prompt for a value
