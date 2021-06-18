@@ -1,7 +1,7 @@
 {
     "password": "Pasvorto",
     "colon": "{}: ",
-    "warn_the_user_that_lock_is_acquired": "la alia komando ĵus kompletigis, nun komencante ĉi tiun komandon",
+    "warn_the_user_that_lock_is_acquired": "La alia komando ĵus kompletigis, nun komencante ĉi tiun komandon",
     "warn_the_user_about_waiting_lock_again": "Ankoraŭ atendanta...",
     "warn_the_user_about_waiting_lock": "Alia komando de YunoHost funkcias ĝuste nun, ni atendas, ke ĝi finiĝos antaŭ ol funkcii ĉi tiu",
     "command_unknown": "Komando '{command:s}' nekonata?",
@@ -9,13 +9,13 @@
     "download_unknown_error": "Eraro dum elŝutado de datumoj de {url:s}: {error:s}",
     "download_timeout": "{url:s} prenis tro da tempo por respondi, rezignis.",
     "download_ssl_error": "SSL-eraro dum konekto al {url:s}",
-    "invalid_url": "Nevalida url {url:s} (ĉu ĉi tiu retejo ekzistas?)",
+    "invalid_url": "Nevalida URL{url:s} (ĉu ĉi tiu retejo ekzistas?)",
     "error_changing_file_permissions": "Eraro dum ŝanĝo de permesoj por {path:s}: {error:s}",
     "error_removing": "Eraro dum la forigo de {path:s}: {error:s}",
     "error_writing_file": "Eraro skribinte dosieron {file:s}: {error:s}",
-    "corrupted_toml": "Korupta toml legita el {ressource:s} (kialo: {error:s})",
-    "corrupted_yaml": "Korupta yaml legita de {ressource:s} (kialo: {error:s})",
-    "corrupted_json": "Koruptita json legita de {ressource:s} (kialo: {error:s})",
+    "corrupted_toml": "Korupta TOML legita el {ressource:s} (kialo: {error:s})",
+    "corrupted_yaml": "Korupta YAML legita de {ressource:s} (kialo: {error:s})",
+    "corrupted_json": "Koruptita JSON legis de {ressource:s} (Kialo: {error:s})",
     "unknown_error_reading_file": "Nekonata eraro dum provi legi dosieron {file:s} (kialo: {error:s})",
     "cannot_write_file": "Ne povis skribi dosieron {file:s} (kialo: {error:s})",
     "cannot_open_file": "Ne povis malfermi dosieron {file: s} (kialo: {error: s})",
@@ -54,5 +54,7 @@
     "authentication_profile_required": "Aŭtentigo al la profilo '{profile}' bezonata",
     "argument_required": "Argumento '{argument}' estas bezonata",
     "logged_out": "Ensalutinta",
-    "invalid_token": "Nevalida tokeno - bonvolu autentiki"
+    "invalid_token": "Nevalida tokeno - bonvolu autentiki",
+    "ldap_server_is_down_restart_it": "La LDAP-servo malpliiĝas, provu rekomenci ĝin...",
+    "session_expired": "La sesio eksvalidiĝis. Bonvolu re-aŭtentikigi."
 }
