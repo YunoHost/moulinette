@@ -2,7 +2,6 @@
 
 from moulinette.core import (
     MoulinetteError,
-    MoulinetteSignals,
     Moulinette18n,
 )
 from moulinette.globals import init_moulinette_env
@@ -31,14 +30,12 @@ __all__ = [
     "api",
     "cli",
     "m18n",
-    "msignals",
     "env",
     "init_interface",
     "MoulinetteError",
 ]
 
 
-msignals = MoulinetteSignals()
 msettings = dict()
 m18n = Moulinette18n()
 
@@ -116,9 +113,7 @@ def cli(args, top_parser, output_as=None, timeout=None):
 
     try:
         load_only_category = args[0] if args and not args[0].startswith("-") else None
-        Cli(top_parser=top_parser, load_only_category=load_only_category).run(
-            args, output_as=output_as, timeout=timeout
-        )
+        Cli(top_parser=top_parser, load_only_category=load_only_category).run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging
 

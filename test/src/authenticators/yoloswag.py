@@ -18,7 +18,7 @@ class Authenticator(BaseAuthenticator):
     def __init__(self, *args, **kwargs):
         pass
 
-    def authenticate(self, credentials=None):
+    def _authenticate_credentials(self, credentials=None):
 
         if not credentials == self.name:
             raise MoulinetteError("invalid_password")

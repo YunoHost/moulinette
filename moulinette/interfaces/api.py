@@ -13,12 +13,11 @@ from geventwebsocket import WebSocketError
 from bottle import request, response, Bottle, HTTPResponse
 from bottle import abort
 
-from moulinette import msignals, m18n, env
+from moulinette import m18n, env, msettings
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
-    BaseInterface,
     ExtendedArgumentParser,
 )
 from moulinette.utils import log
@@ -226,9 +225,6 @@ class _ActionsMapPlugin(object):
     api = 2
 
     def __init__(self, actionsmap, log_queues={}):
-        # Connect signals to handlers
-        msignals.set_handler("authenticate", self._do_authenticate)
-        msignals.set_handler("display", self._do_display)
 
         self.actionsmap = actionsmap
         self.log_queues = log_queues
@@ -251,6 +247,10 @@ class _ActionsMapPlugin(object):
                 try:
                     kwargs["credentials"] = request.POST.credentials
                 except KeyError:
+                    raise HTTPResponse("Missing credentials parameter", 400)
+
+                # Apparently even if the key doesn't exists, request.POST.foobar just returns empty string...
+                if not kwargs["credentials"]:
                     raise HTTPResponse("Missing credentials parameter", 400)
 
                 kwargs["profile"] = request.POST.get(
@@ -361,12 +361,6 @@ class _ActionsMapPlugin(object):
         """
         authenticator = self.actionsmap.get_authenticator(profile)
 
-        ##################################################################
-        # Case 1 : credentials were provided                             #
-        # We want to validate that the credentials are right             #
-        # Then save the session id/token, and return then in the cookies #
-        ##################################################################
-
         try:
             s_id, s_token = authenticator.authenticate_credentials(credentials, store_session=True)
         except MoulinetteError as e:
@@ -398,14 +392,8 @@ class _ActionsMapPlugin(object):
             )
             return m18n.g("logged_in")
 
-
     # This is called before each time a route is going to be processed
-    def _do_authenticate(self, authenticator):
-        """Process the authentication
-
-        Handle the core.MoulinetteSignals.authenticate signal.
-
-        """
+    def authenticate(self, authenticator):
 
         s_id = request.get_cookie("session.id")
         try:
@@ -418,7 +406,6 @@ class _ActionsMapPlugin(object):
             raise HTTPResponse(msg, 401)
         else:
             authenticator.authenticate_session(s_id, s_token)
-
 
     def logout(self, profile):
         """Log out from an authenticator profile
@@ -465,9 +452,7 @@ class _ActionsMapPlugin(object):
         """Listen to the messages WebSocket stream
 
         Retrieve the WebSocket stream and send to it each messages displayed by
-        the core.MoulinetteSignals.display signal. They are JSON encoded as a
-        dict { style: message }.
-
+        the display method. They are JSON encoded as a dict { style: message }.
         """
         s_id = request.get_cookie("session.id")
         try:
@@ -536,14 +521,8 @@ class _ActionsMapPlugin(object):
             else:
                 queue.put(StopIteration)
 
-    # Signals handlers
+    def display(self, message, style):
 
-    def _do_display(self, message, style):
-        """Display a message
-
-        Handle the core.MoulinetteSignals.display signal.
-
-        """
         s_id = request.get_cookie("session.id")
         try:
             queue = self.log_queues[s_id]
@@ -557,6 +536,8 @@ class _ActionsMapPlugin(object):
         # populate the new message in the queue
         sleep(0)
 
+    def prompt(self, *args, **kwargs):
+        raise NotImplementedError("Prompt is not implemented for this interface")
 
 # HTTP Responses -------------------------------------------------------
 
@@ -734,7 +715,7 @@ class ActionsMapParser(BaseActionsMapParser):
         return key
 
 
-class Interface(BaseInterface):
+class Interface:
 
     """Application Programming Interface for the moulinette
 
@@ -749,15 +730,16 @@ class Interface(BaseInterface):
 
     """
 
-    def __init__(self, routes={}, log_queues=None):
+    type = "api"
+
+    def __init__(self, routes={}):
 
         actionsmap = ActionsMap(ActionsMapParser())
 
         # Attempt to retrieve log queues from an APIQueueHandler
-        if log_queues is None:
-            handler = log.getHandlersByClass(APIQueueHandler, limit=1)
-            if handler:
-                log_queues = handler.queues
+        handler = log.getHandlersByClass(APIQueueHandler, limit=1)
+        if handler:
+            log_queues = handler.queues
 
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
@@ -786,11 +768,12 @@ class Interface(BaseInterface):
         app.install(filter_csrf)
         app.install(apiheader)
         app.install(api18n)
-        app.install(_ActionsMapPlugin(actionsmap, log_queues))
+        actionsmapplugin = _ActionsMapPlugin(actionsmap, log_queues)
+        app.install(actionsmapplugin)
 
-        # Append default routes
-        #        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
-        #                  callback=self.doc, skip=['actionsmap'])
+        self.authenticate = actionsmapplugin.authenticate
+        self.display = actionsmapplugin.display
+        self.prompt = actionsmapplugin.prompt
 
         # Append additional routes
         # TODO: Add optional authentication to those routes?
@@ -798,6 +781,8 @@ class Interface(BaseInterface):
             app.route(p, method=m, callback=c, skip=["actionsmap"])
 
         self._app = app
+
+        msettings["interface"] = self
 
     def run(self, host="localhost", port=80):
         """Run the moulinette
@@ -810,6 +795,7 @@ class Interface(BaseInterface):
             - port -- Server port to bind to
 
         """
+
         logger.debug(
             "starting the server instance in %s:%d",
             host,
@@ -832,25 +818,3 @@ class Interface(BaseInterface):
             if e.args[0] == errno.EADDRINUSE:
                 raise MoulinetteError("server_already_running")
             raise MoulinetteError(error_message)
-
-    # Routes handlers
-
-    def doc(self, category=None):
-        """
-        Get API documentation for a category (all by default)
-
-        Keyword argument:
-            category -- Name of the category
-
-        """
-        DATA_DIR = env()["DATA_DIR"]
-
-        if category is None:
-            with open("%s/../doc/resources.json" % DATA_DIR) as f:
-                return f.read()
-
-        try:
-            with open("%s/../doc/%s.json" % (DATA_DIR, category)) as f:
-                return f.read()
-        except IOError:
-            return None

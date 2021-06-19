@@ -37,7 +37,6 @@ class BaseActionsMapParser(object):
     def __init__(self, parent=None, **kwargs):
         if not parent:
             logger.debug("initializing base actions map parser for %s", self.interface)
-            msettings["interface"] = self.interface
 
     # Virtual properties
     # Each parser classes must implement these properties.
@@ -165,27 +164,6 @@ class BaseActionsMapParser(object):
         namespace._tid = tid
 
         return namespace
-
-
-class BaseInterface(object):
-
-    """Moulinette's base Interface
-
-    Each interfaces must implement an Interface class derived from this
-    class which must overrides virtual properties and methods.
-    It is used to provide a user interface for an actions map.
-
-    Keyword arguments:
-        - actionsmap -- The ActionsMap instance to connect to
-
-    """
-
-    # TODO: Add common interface methods and try to standardize default ones
-
-    def __init__(self, actionsmap):
-        raise NotImplementedError(
-            "derived class '%s' must override this method" % self.__class__.__name__
-        )
 
 
 # Argument parser ------------------------------------------------------

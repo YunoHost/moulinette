@@ -17,7 +17,12 @@ from moulinette import m18n
 
 @pytest.fixture
 def iface():
-    return "iface"
+    class DummyInterface:
+
+        def prompt():
+            pass
+
+    return DummyInterface()
 
 
 def test_comment_parameter_bad_bool_value(iface, caplog):
@@ -67,10 +72,10 @@ def test_ask_parameter(iface, mocker):
     arg = ask("foobar", "a", "a")
     assert arg == "a"
 
-    from moulinette.core import Moulinette18n, MoulinetteSignals
+    from moulinette.core import Moulinette18n
 
     mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
-    mocker.patch.object(MoulinetteSignals, "prompt", return_value="awesome_test")
+    mocker.patch.object(iface, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)
     assert arg == "awesome_test"
 
@@ -80,10 +85,10 @@ def test_password_parameter(iface, mocker):
     arg = ask("foobar", "a", "a")
     assert arg == "a"
 
-    from moulinette.core import Moulinette18n, MoulinetteSignals
+    from moulinette.core import Moulinette18n
 
     mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
-    mocker.patch.object(MoulinetteSignals, "prompt", return_value="awesome_test")
+    mocker.patch.object(iface, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)
     assert arg == "awesome_test"
 

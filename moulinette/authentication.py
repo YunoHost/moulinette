@@ -5,6 +5,7 @@ import logging
 import hashlib
 import hmac
 
+from moulinette.utils.text import random_ascii
 from moulinette.cache import open_cachefile, get_cachedir, cachefile_exists
 from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
 
@@ -32,11 +33,11 @@ class BaseAuthenticator(object):
     # Virtual methods
     # Each authenticator classes must implement these methods.
 
-    def authenticate_credentials(self, credentials=None, store_session=False):
+    def authenticate_credentials(self, credentials, store_session=False):
 
         try:
             # Attempt to authenticate
-            self.authenticate(credentials)
+            self._authenticate_credentials(credentials)
         except MoulinetteError:
             raise
         except Exception as e:
@@ -56,7 +57,6 @@ class BaseAuthenticator(object):
                 logger.exception(f"unable to store session because {e}")
             else:
                 logger.debug("session has been stored")
-
 
     def _authenticate_credentials(self, credentials=None):
         """Attempt to authenticate
@@ -91,7 +91,7 @@ class BaseAuthenticator(object):
         with self._open_sessionfile(session_id, "w") as f:
             f.write(hash_)
 
-    def authenticate_session(s_id, s_token):
+    def authenticate_session(self, s_id, s_token):
         try:
             # Attempt to authenticate
             self._authenticate_session(s_id, s_token)
