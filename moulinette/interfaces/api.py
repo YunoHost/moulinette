@@ -358,7 +358,7 @@ class _ActionsMapPlugin(object):
         # Retrieve session values
         try:
             s_id = request.get_cookie("session.id") or random_ascii()
-        except:
+        except Exception:
             # Super rare case where there are super weird cookie / cache issue
             # Previous line throws a CookieError that creates a 500 error ...
             # So let's catch it and just use a fresh ID then...
@@ -371,7 +371,7 @@ class _ActionsMapPlugin(object):
         else:
             try:
                 s_tokens = request.get_cookie("session.tokens", secret=s_secret) or {}
-            except:
+            except Exception:
                 # Same as for session.id a few lines before
                 s_tokens = {}
         s_new_token = random_ascii()
@@ -384,7 +384,7 @@ class _ActionsMapPlugin(object):
             if len(s_tokens) > 0:
                 try:
                     self.logout(profile)
-                except:
+                except Exception:
                     pass
             raise HTTPResponse(e.strerror, 401)
         else:
