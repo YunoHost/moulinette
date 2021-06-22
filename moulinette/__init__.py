@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from rich import traceback
+from rich.table import Table as RichTable, box
 from rich.console import Console
+from rich.style import Style
 
 from moulinette.core import (
     MoulinetteError,
@@ -60,6 +62,86 @@ def _format_exception():
 
 
 console.format_exception = _format_exception
+
+
+class Table:
+    def __init__(self, data, columns=None, title=None):
+        self.data = data
+        self.columns = columns
+        self.title = title
+
+    def print(self):
+        if not self.data:
+            return
+
+        assert len(self.data.keys()) == 1, self.data
+
+        table = RichTable(show_header=True)
+        table_name = list(self.data.keys())[0]
+        table.title = f"[bold]{self.title if self.title else table_name}[/]"
+        table.title_style = Style(color="white", bgcolor=None)
+        table.row_styles = ["none", "dim"]
+        table.box = box.SIMPLE_HEAD
+        table.border_style = "bright_yellow"
+
+        self._fill_table(table, table_name)
+
+        console.print(table)
+
+    def _fill_table(self, table, table_name):
+        if len(self.data[table_name]) == 0:
+            return
+
+        if self.columns is None:
+            self.columns = sorted(self.data[table_name][0].keys())
+
+        for column in self.columns:
+            if isinstance(column, dict):
+                pass
+            else:
+                table.add_column(column.replace("_", " ").title())
+
+        for row in self.data[table_name]:
+            values = []
+            for column in self.columns:
+                values.append(row.get(column, ""))
+
+            table.add_row(*values)
+
+
+class TableForDict(Table):
+    key = object()  # this is a flag value to say "key of the dictionary"
+
+    def _fill_table(self, table, table_name):
+        if len(self.data[table_name]) == 0:
+            return
+
+        if self.columns is None:
+            an_item = list(self.data[table_name].keys())[0]
+            self.columns = [self.key] + sorted(self.data[table_name][an_item].keys())
+
+        for column in self.columns:
+            if isinstance(column, dict):
+                header = column.get("header", "")
+                table.add_column(str(header))
+            else:
+                if column == self.key:
+                    table.add_column()
+                else:
+                    table.add_column(column.replace("_", " ").title())
+
+        for key, values in self.data[table_name].items():
+            row_values = [key]
+            for column in self.columns:
+                if isinstance(column, dict):
+                    column = column["key"]
+
+                if column != self.key:
+                    row_values.append(str(values.get(column, "")))
+
+            table.add_row(*row_values)
+
+
 
 # Package functions
 

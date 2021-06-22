@@ -11,7 +11,7 @@ from datetime import date, datetime
 
 import argcomplete
 
-from moulinette import msignals, m18n
+from moulinette import msignals, m18n, Table
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
@@ -512,11 +512,17 @@ class Interface(BaseInterface):
                 import json
                 from moulinette.utils.serialize import JSONExtendedEncoder
 
+                # retro compat situation
+                if isinstance(ret, Table):
+                    ret = ret.data
+
                 print(json.dumps(ret, cls=JSONExtendedEncoder))
             else:
                 plain_print_dict(ret)
         elif isinstance(ret, dict):
             pretty_print_dict(ret)
+        elif isinstance(ret, Table):
+            ret.print()
         else:
             print(ret)
 
