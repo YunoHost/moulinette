@@ -65,10 +65,11 @@ console.format_exception = _format_exception
 
 
 class Table:
-    def __init__(self, data, columns=None, title=None, row_function=None):
+    def __init__(self, data, columns=None, title=None, row_function=None, caption=""):
         self.data = data
         self.columns = columns
         self.title = title
+        self.caption = caption
         self.row_function = row_function
 
     def __getitem__(self, key):
@@ -87,6 +88,8 @@ class Table:
         table_name = list(self.data.keys())[0]
         table.title = f"[bold]{self.title if self.title else table_name}[/]"
         table.title_style = Style(color="white", bgcolor=None)
+        table.caption = "[dim]" + self.caption + "[/dim]"
+        table.caption_style = Style(color="white", bgcolor=None)
         table.row_styles = ["none", "dim"]
         table.box = box.SIMPLE_HEAD
         table.border_style = "bright_yellow"
