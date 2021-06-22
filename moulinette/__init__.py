@@ -71,6 +71,12 @@ class Table:
         self.title = title
         self.row_function = row_function
 
+    def __getitem__(self, key):
+        return self.data[key]
+
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
     def print(self):
         if not self.data:
             return
