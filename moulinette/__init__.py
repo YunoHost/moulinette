@@ -65,10 +65,11 @@ console.format_exception = _format_exception
 
 
 class Table:
-    def __init__(self, data, columns=None, title=None):
+    def __init__(self, data, columns=None, title=None, row_function=None):
         self.data = data
         self.columns = columns
         self.title = title
+        self.row_function = row_function
 
     def print(self):
         if not self.data:
@@ -106,7 +107,11 @@ class Table:
             for column in self.columns:
                 values.append(row.get(column, ""))
 
-            table.add_row(*values)
+            if self.row_function is not None:
+                # this function is responsible for adding the row
+                self.row_function(table=table, columns=self.columns, row=row, values=values)
+            else:
+                table.add_row(*values)
 
 
 class TableForDict(Table):
@@ -139,8 +144,12 @@ class TableForDict(Table):
                 if column != self.key:
                     row_values.append(str(values.get(column, "")))
 
-            table.add_row(*row_values)
-
+            if self.row_function is not None:
+                # this function is responsible for adding the row
+                self.row_function(table=table, columns=self.columns, row=(key, values),
+                                  values=row_values)
+            else:
+                table.add_row(*row_values)
 
 
 # Package functions
