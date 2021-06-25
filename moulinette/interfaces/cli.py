@@ -512,10 +512,6 @@ class Interface(BaseInterface):
                 import json
                 from moulinette.utils.serialize import JSONExtendedEncoder
 
-                # retro compat situation
-                if isinstance(ret, Table):
-                    ret = ret.data
-
                 print(json.dumps(ret, cls=JSONExtendedEncoder))
             else:
                 plain_print_dict(ret)

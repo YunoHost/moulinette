@@ -2,6 +2,8 @@ import logging
 from json.encoder import JSONEncoder
 import datetime
 
+from moulinette import Table
+
 logger = logging.getLogger("moulinette.utils.serialize")
 
 
@@ -35,6 +37,9 @@ class JSONExtendedEncoder(JSONEncoder):
             if o.tzinfo is None:
                 o = o.replace(tzinfo=pytz.utc)
             return o.isoformat()
+
+        if isinstance(o, Table):
+            return o.data
 
         # Return the repr for object that json can't encode
         logger.warning(
