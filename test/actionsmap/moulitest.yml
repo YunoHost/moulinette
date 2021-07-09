@@ -3,6 +3,7 @@
 #     Global parameters     #
 #############################
 _global:
+    name: moulitest
     authentication:
         api: dummy
         cli: dummy

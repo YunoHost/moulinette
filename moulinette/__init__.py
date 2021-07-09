@@ -40,6 +40,13 @@ msettings = dict()
 m18n = Moulinette18n()
 
 
+def prompt(**kwargs):
+    return msettings["interface"].prompt(**kwargs)
+
+
+def display(**kwargs):
+    return msettings["interface"].display(**kwargs)
+
 # Package functions
 
 

@@ -61,7 +61,7 @@ def filter_csrf(callback):
 
 class LogQueues(dict):
 
-    """Map of session id to queue."""
+    """Map of session ids to queue."""
 
     pass
 
@@ -78,9 +78,10 @@ class APIQueueHandler(logging.Handler):
         self.queues = LogQueues()
 
     def emit(self, record):
+        s_id = Session.get_infos()["id"]
         sid = request.get_cookie("session.id")
         try:
-            queue = self.queues[sid]
+            queue = self.queues[s_id]
         except KeyError:
             # Session is not initialized, abandon.
             return
@@ -209,6 +210,34 @@ class _HTTPArgumentParser(object):
         raise MoulinetteValidationError(message, raw_msg=True)
 
 
+class Session():
+
+    secret = random_ascii()
+    actionsmap_name = None  # This is later set to the actionsmap name
+
+    def set_infos(infos):
+
+        assert isinstance(infos, dict)
+
+        response.set_cookie(f"session.{Session.actionsmap_name}", infos, secure=True, secret=Session.secret)
+
+    def get_infos():
+
+        try:
+            infos = request.get_cookie(f"session.{Session.actionsmap_name}", secret=Session.secret, default={})
+        except Exception:
+            infos = {}
+
+        if "id" not in infos:
+            infos["id"] = random_ascii()
+
+        return infos
+
+    def delete_infos():
+
+        response.set_cookie(f"session.{Session.actionsmap_name}", "", max_age=-1)
+
+
 class _ActionsMapPlugin(object):
 
     """Actions map Bottle Plugin
@@ -228,8 +257,7 @@ class _ActionsMapPlugin(object):
 
         self.actionsmap = actionsmap
         self.log_queues = log_queues
-        # TODO: Save and load secrets?
-        self.secrets = {}
+        Session.actionsmap_name = actionsmap.name
 
     def setup(self, app):
         """Setup plugin on the application
@@ -240,36 +268,6 @@ class _ActionsMapPlugin(object):
             - app -- The application instance
 
         """
-        # Login wrapper
-        def _login(callback):
-            def wrapper():
-                kwargs = {}
-                try:
-                    kwargs["credentials"] = request.POST.credentials
-                except KeyError:
-                    raise HTTPResponse("Missing credentials parameter", 400)
-
-                # Apparently even if the key doesn't exists, request.POST.foobar just returns empty string...
-                if not kwargs["credentials"]:
-                    raise HTTPResponse("Missing credentials parameter", 400)
-
-                kwargs["profile"] = request.POST.get(
-                    "profile", self.actionsmap.default_authentication
-                )
-                return callback(**kwargs)
-
-            return wrapper
-
-        # Logout wrapper
-        def _logout(callback):
-            def wrapper():
-                kwargs = {}
-                kwargs["profile"] = request.POST.get(
-                    "profile", self.actionsmap.default_authentication
-                )
-                return callback(**kwargs)
-
-            return wrapper
 
         # Append authentication routes
         app.route(
@@ -278,7 +276,6 @@ class _ActionsMapPlugin(object):
             method="POST",
             callback=self.login,
             skip=["actionsmap"],
-            apply=_login,
         )
         app.route(
             "/logout",
@@ -286,7 +283,6 @@ class _ActionsMapPlugin(object):
             method="GET",
             callback=self.logout,
             skip=["actionsmap"],
-            apply=_logout,
         )
 
         # Append messages route
@@ -347,106 +343,61 @@ class _ActionsMapPlugin(object):
 
     # Routes callbacks
 
-    def login(self, credentials, profile):
-        """Log in to an authenticator profile
+    def login(self):
+        """Log in to an authenticator
 
-        Attempt to authenticate to a given authenticator profile and
+        Attempt to authenticate to the default authenticator and
         register it with the current session - a new one will be created
         if needed.
 
-        Keyword arguments:
-            - credentials -- Some credentials to use for login
-            - profile -- The authenticator profile name to log in
-
         """
+
+        credentials = request.POST.credentials
+        # Apparently even if the key doesn't exists, request.POST.foobar just returns empty string...
+        if not credentials:
+            raise HTTPResponse("Missing credentials parameter", 400)
+
+        profile = request.POST.profile
+        if not profile:
+            profile = self.actionsmap.default_authentication
+
         authenticator = self.actionsmap.get_authenticator(profile)
 
         try:
-            s_id, s_token = authenticator.authenticate_credentials(credentials, store_session=True)
+            auth_info = authenticator.authenticate_credentials(credentials, store_session=True)
+            session_infos = Session.get_infos()
+            session_infos[profile] = auth_info
         except MoulinetteError as e:
             try:
-                self.logout(profile)
+                self.logout()
             except Exception:
                 pass
             # FIXME : replace with MoulinetteAuthenticationError !?
             raise HTTPResponse(e.strerror, 401)
         else:
-            # Save session id and token
-
-            # Create and save (in RAM) new cookie secret used to secure(=sign?) the cookie
-            self.secrets[s_id] = s_secret = random_ascii()
-
-            # Fetch current token per profile
-            try:
-                s_tokens = request.get_cookie("session.tokens", secret=s_secret) or {}
-            except Exception:
-                # Same as for session.id a few lines before
-                s_tokens = {}
-
-            # Update dicts with new values
-            s_tokens[profile] = s_token
-
-            response.set_cookie("session.id", s_id, secure=True)
-            response.set_cookie(
-                "session.tokens", {""}, secure=True, secret=s_secret
-            )
+            Session.set_infos(session_infos)
             return m18n.g("logged_in")
 
     # This is called before each time a route is going to be processed
     def authenticate(self, authenticator):
 
-        s_id = request.get_cookie("session.id")
         try:
-            s_secret = self.secrets[s_id]
-            s_token = request.get_cookie("session.tokens", secret=s_secret, default={})[
-                authenticator.name
-            ]
+            session_infos = Session.get_infos()[authenticator.name]
         except KeyError:
             msg = m18n.g("authentication_required")
             raise HTTPResponse(msg, 401)
-        else:
-            authenticator.authenticate_session(s_id, s_token)
 
-    def logout(self, profile):
-        """Log out from an authenticator profile
+        return session_infos
 
-        Attempt to unregister a given profile - or all by default - from
-        the current session.
-
-        Keyword arguments:
-            - profile -- The authenticator profile name to log out
-
-        """
-        # Retrieve session values
+    def logout(self):
         try:
-            s_id = request.get_cookie("session.id") or None
-        except:
-            # Super rare case where there are super weird cookie / cache issue
-            # Previous line throws a CookieError that creates a 500 error ...
-            # So let's catch it and just use None...
-            s_id = None
-
-        if s_id is not None:
-
-            # We check that there's a (signed) session.hash available
-            # for additional security ?
-            # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
-            try:
-                s_secret = self.secrets[s_id]
-            except KeyError:
-                s_secret = {}
-            if profile not in request.get_cookie(
-                "session.tokens", secret=s_secret, default={}
-            ):
-                raise HTTPResponse(m18n.g("not_logged_in"), 401)
-            else:
-                del self.secrets[s_id]
-                authenticator = self.actionsmap.get_authenticator(profile)
-                authenticator._clean_session(s_id)
-                # TODO: Clean the session for profile only
-                # Delete cookie and clean the session
-                response.set_cookie("session.tokens", "", max_age=-1)
-        return m18n.g("logged_out")
+            Session.get_infos()
+        except KeyError:
+            raise HTTPResponse(m18n.g("not_logged_in"), 401)
+        else:
+            # Delete cookie and clean the session
+            Session.delete_infos()
+            return m18n.g("logged_out")
 
     def messages(self):
         """Listen to the messages WebSocket stream
@@ -454,7 +405,7 @@ class _ActionsMapPlugin(object):
         Retrieve the WebSocket stream and send to it each messages displayed by
         the display method. They are JSON encoded as a dict { style: message }.
         """
-        s_id = request.get_cookie("session.id")
+        s_id = Session.get_infos()["id"]
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -515,7 +466,8 @@ class _ActionsMapPlugin(object):
         finally:
             # Close opened WebSocket by putting StopIteration in the queue
             try:
-                queue = self.log_queues[request.get_cookie("session.id")]
+                s_id = Session.get_infos()["id"]
+                queue = self.log_queues[s_id]
             except KeyError:
                 pass
             else:
@@ -523,7 +475,7 @@ class _ActionsMapPlugin(object):
 
     def display(self, message, style):
 
-        s_id = request.get_cookie("session.id")
+        s_id = Sesson.get_infos()["id"]
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -659,7 +611,7 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
-    def auth_method(self, args, route, **kwargs):
+    def auth_method(self, _, route):
 
         try:
             # Retrieve the tid for the route

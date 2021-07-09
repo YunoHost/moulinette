@@ -10,9 +10,8 @@ from moulinette.actionsmap import (
     ActionsMap,
 )
 
-from moulinette.interfaces import GLOBAL_SECTION
 from moulinette.core import MoulinetteError
-from moulinette import m18n
+from moulinette import m18n, msettings
 
 
 @pytest.fixture
@@ -74,6 +73,7 @@ def test_ask_parameter(iface, mocker):
 
     from moulinette.core import Moulinette18n
 
+    msettings["interface"] = iface
     mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
     mocker.patch.object(iface, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)
@@ -87,6 +87,7 @@ def test_password_parameter(iface, mocker):
 
     from moulinette.core import Moulinette18n
 
+    msettings["interface"] = iface
     mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
     mocker.patch.object(iface, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)
@@ -179,17 +180,17 @@ def test_extra_argument_parser_add_argument(iface):
     assert extra_argument_parse._extra_params["Test"]["foo"]["ask"] == "lol"
 
     extra_argument_parse = ExtraArgumentParser(iface)
-    extra_argument_parse.add_argument(GLOBAL_SECTION, "foo", {"ask": "lol"})
-    assert GLOBAL_SECTION in extra_argument_parse._extra_params
-    assert "foo" in extra_argument_parse._extra_params[GLOBAL_SECTION]
-    assert "ask" in extra_argument_parse._extra_params[GLOBAL_SECTION]["foo"]
-    assert extra_argument_parse._extra_params[GLOBAL_SECTION]["foo"]["ask"] == "lol"
+    extra_argument_parse.add_argument("_global", "foo", {"ask": "lol"})
+    assert "_global" in extra_argument_parse._extra_params
+    assert "foo" in extra_argument_parse._extra_params["_global"]
+    assert "ask" in extra_argument_parse._extra_params["_global"]["foo"]
+    assert extra_argument_parse._extra_params["_global"]["foo"]["ask"] == "lol"
 
 
 def test_extra_argument_parser_add_argument_bad_arg(iface):
     extra_argument_parse = ExtraArgumentParser(iface)
     with pytest.raises(MoulinetteError) as exception:
-        extra_argument_parse.add_argument(GLOBAL_SECTION, "foo", {"ask": 1})
+        extra_argument_parse.add_argument("_global", "foo", {"ask": 1})
 
     expected_msg = "unable to validate extra parameter '%s' for argument '%s': %s" % (
         "ask",
@@ -199,23 +200,23 @@ def test_extra_argument_parser_add_argument_bad_arg(iface):
     assert expected_msg in str(exception)
 
     extra_argument_parse = ExtraArgumentParser(iface)
-    extra_argument_parse.add_argument(GLOBAL_SECTION, "foo", {"error": 1})
+    extra_argument_parse.add_argument("_global", "foo", {"error": 1})
 
-    assert GLOBAL_SECTION in extra_argument_parse._extra_params
-    assert "foo" in extra_argument_parse._extra_params[GLOBAL_SECTION]
-    assert not len(extra_argument_parse._extra_params[GLOBAL_SECTION]["foo"])
+    assert "_global" in extra_argument_parse._extra_params
+    assert "foo" in extra_argument_parse._extra_params["_global"]
+    assert not len(extra_argument_parse._extra_params["_global"]["foo"])
 
 
 def test_extra_argument_parser_parse_args(iface, mocker):
     extra_argument_parse = ExtraArgumentParser(iface)
-    extra_argument_parse.add_argument(GLOBAL_SECTION, "foo", {"ask": "lol"})
-    extra_argument_parse.add_argument(GLOBAL_SECTION, "foo2", {"ask": "lol2"})
+    extra_argument_parse.add_argument("_global", "foo", {"ask": "lol"})
+    extra_argument_parse.add_argument("_global", "foo2", {"ask": "lol2"})
     extra_argument_parse.add_argument(
-        GLOBAL_SECTION, "bar", {"password": "lul", "ask": "lul"}
+        "_global", "bar", {"password": "lul", "ask": "lul"}
     )
 
     args = extra_argument_parse.parse_args(
-        GLOBAL_SECTION, {"foo": 1, "foo2": ["a", "b", {"foobar": True}], "bar": "rab"}
+        "_global", {"foo": 1, "foo2": ["a", "b", {"foobar": True}], "bar": "rab"}
     )
 
     assert "foo" in args
@@ -231,21 +232,31 @@ def test_extra_argument_parser_parse_args(iface, mocker):
 def test_actions_map_api():
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap(ActionsMapParser())
+    parser = ActionsMapParser()
+    amap = ActionsMap(parser)
 
     assert amap.main_namespace == "moulitest"
     assert amap.default_authentication == "dummy"
     assert ("GET", "/test-auth/default") in amap.parser.routes
     assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
+
+    assert parser.auth_method(None, ("GET", "/test-auth/default")) == "dummy"
+    assert parser.auth_method(None, ("GET", "/test-auth/only-api")) == "dummy"
+    assert parser.auth_method(None, ("GET", "/test-auth/only-cli")) is None
 
     amap.generate_cache("moulitest")
 
-    amap = ActionsMap(ActionsMapParser())
+    parser = ActionsMapParser()
+    amap = ActionsMap(parser)
 
     assert amap.main_namespace == "moulitest"
     assert amap.default_authentication == "dummy"
     assert ("GET", "/test-auth/default") in amap.parser.routes
     assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
+
+    assert parser.auth_method(None, ("GET", "/test-auth/default")) == "dummy"
+    assert parser.auth_method(None, ("GET", "/test-auth/only-api")) == "dummy"
+    assert parser.auth_method(None, ("GET", "/test-auth/only-cli")) is None
 
 
 def test_actions_map_import_error(mocker):
@@ -281,14 +292,16 @@ def test_actions_map_cli():
     from moulinette.interfaces.cli import ActionsMapParser
     import argparse
 
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument(
+    top_parser = argparse.ArgumentParser(add_help=False)
+    top_parser.add_argument(
         "--debug",
         action="store_true",
         default=False,
         help="Log and print debug messages",
     )
-    amap = ActionsMap(ActionsMapParser(top_parser=parser))
+
+    parser = ActionsMapParser(top_parser=top_parser)
+    amap = ActionsMap(parser)
 
     assert amap.main_namespace == "moulitest"
     assert amap.default_authentication == "dummy"
@@ -303,10 +316,15 @@ def test_actions_map_cli():
         ._actions[1]
         .choices
     )
+
+    assert parser.auth_method(["testauth", "default"]) == "dummy"
+    assert parser.auth_method(["testauth", "only-api"]) is None
+    assert parser.auth_method(["testauth", "only-cli"]) == "dummy"
 
     amap.generate_cache("moulitest")
 
-    amap = ActionsMap(ActionsMapParser(top_parser=parser))
+    parser = ActionsMapParser(top_parser=top_parser)
+    amap = ActionsMap(parser)
 
     assert amap.main_namespace == "moulitest"
     assert amap.default_authentication == "dummy"
@@ -321,3 +339,7 @@ def test_actions_map_cli():
         ._actions[1]
         .choices
     )
+
+    assert parser.auth_method(["testauth", "default"]) == "dummy"
+    assert parser.auth_method(["testauth", "only-api"]) is None
+    assert parser.auth_method(["testauth", "only-cli"]) == "dummy"

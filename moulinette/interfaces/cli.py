@@ -397,7 +397,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
             self.global_parser.add_argument(*names, **argument_options)
 
-    def auth_method(self, args, **kwargs):
+    def auth_method(self, args):
         # FIXME? idk .. this try/except is duplicated from parse_args below
         # Just to be able to obtain the tid
         try:

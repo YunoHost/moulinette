@@ -1,7 +1,6 @@
 {
     "argument_required": "Argument '{argument}' is required",
     "authentication_required": "Authentication required",
-    "authentication_required_long": "Authentication is required to perform this action",
     "colon": "{}: ",
     "confirm": "Confirm {prompt}",
     "deprecated_command": "'{prog} {command}' is deprecated and will be removed in the future",

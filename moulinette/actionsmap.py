@@ -20,7 +20,7 @@ from moulinette.core import (
     MoulinetteAuthenticationError,
     MoulinetteValidationError,
 )
-from moulinette.interfaces import BaseActionsMapParser, GLOBAL_SECTION, TO_RETURN_PROP
+from moulinette.interfaces import BaseActionsMapParser, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
 
 logger = logging.getLogger("moulinette.actionsmap")
@@ -42,7 +42,6 @@ class _ExtraParameter(object):
     """
 
     def __init__(self, iface):
-        # TODO: Add conn argument which contains authentification object
         self.iface = iface
 
     # Required variables
@@ -98,7 +97,7 @@ class CommentParameter(_ExtraParameter):
     def __call__(self, message, arg_name, arg_value):
         if arg_value is None:
             return
-        return self.iface.display(m18n.n(message))
+        return msettings['interface'].display(m18n.n(message))
 
     @classmethod
     def validate(klass, value, arg_name):
@@ -135,7 +134,7 @@ class AskParameter(_ExtraParameter):
 
         try:
             # Ask for the argument value
-            return self.iface.prompt(m18n.n(message))
+            return msettings['interface'].prompt(m18n.n(message))
         except NotImplementedError:
             return arg_value
 
@@ -173,7 +172,7 @@ class PasswordParameter(AskParameter):
 
         try:
             # Ask for the password
-            return self.iface.prompt(m18n.n(message), True, True)
+            return msettings['interface'].prompt(m18n.n(message), True, True)
         except NotImplementedError:
             return arg_value
 
@@ -284,7 +283,7 @@ class ExtraArgumentParser(object):
     def __init__(self, iface):
         self.iface = iface
         self.extra = OrderedDict()
-        self._extra_params = {GLOBAL_SECTION: {}}
+        self._extra_params = {"_global": {}}
 
         # Append available extra parameters for the current interface
         for klass in extraparameters_list:
@@ -326,7 +325,7 @@ class ExtraArgumentParser(object):
         Add extra parameters to apply on an action argument
 
         Keyword arguments:
-            - tid -- The tuple identifier of the action or GLOBAL_SECTION
+            - tid -- The tuple identifier of the action or _global
                 for global extra parameters
             - arg_name -- The argument name
             - parameters -- A dict of extra parameters with their values
@@ -349,7 +348,7 @@ class ExtraArgumentParser(object):
             - args -- A dict of argument name associated to their value
 
         """
-        extra_args = OrderedDict(self._extra_params.get(GLOBAL_SECTION, {}))
+        extra_args = OrderedDict(self._extra_params.get("_global", {}))
         extra_args.update(self._extra_params.get(tid, {}))
 
         # Iterate over action arguments with extra parameters
@@ -492,16 +491,15 @@ class ActionsMap(object):
         else:
             return mod.Authenticator()
 
-    def check_authentication_if_required(self, args, **kwargs):
+    def check_authentication_if_required(self, *args, **kwargs):
 
-        auth_method = self.parser.auth_method(args, **kwargs)
+        auth_method = self.parser.auth_method(*args, **kwargs)
 
         if auth_method is None:
             return
 
         authenticator = self.get_authenticator(auth_method)
-        if not msettings['interface'].authenticate(authenticator):
-            raise MoulinetteAuthenticationError("authentication_required_long")
+        msettings['interface'].authenticate(authenticator)
 
     def process(self, args, timeout=None, **kwargs):
         """
@@ -707,6 +705,7 @@ class ActionsMap(object):
                     )
                 else:
                     self.main_namespace = namespace
+                    self.name = _global["name"]
                     self.default_authentication = _global["authentication"][
                         interface_type
                     ]

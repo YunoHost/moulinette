@@ -11,7 +11,7 @@ from moulinette.core import MoulinetteError
 
 logger = logging.getLogger("moulinette.interface")
 
-GLOBAL_SECTION = "_global"
+# FIXME : are these even used for anything useful ...
 TO_RETURN_PROP = "_to_return"
 CALLBACKS_PROP = "_callbacks"
 
@@ -114,7 +114,7 @@ class BaseActionsMapParser(object):
             "derived class '%s' must override this method" % self.__class__.__name__
         )
 
-    def auth_method(self, args, **kwargs):
+    def auth_method(self, *args, **kwargs):
         """Check if authentication is required to run the requested action
 
         Keyword arguments:
@@ -156,7 +156,7 @@ class BaseActionsMapParser(object):
         ):
             raise MoulinetteError("invalid_usage")
         elif not tid:
-            tid = GLOBAL_SECTION
+            tid = "_global"
 
         # Prepare namespace
         if namespace is None:
