@@ -473,7 +473,7 @@ class _ActionsMapPlugin(object):
             else:
                 queue.put(StopIteration)
 
-    def display(self, message, style):
+    def display(self, message, style="info"):
 
         s_id = Sesson.get_infos()["id"]
         try:

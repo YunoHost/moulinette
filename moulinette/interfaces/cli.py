@@ -529,7 +529,7 @@ class Interface:
         credentials = self.prompt(msg, True, False, color="yellow")
         return authenticator.authenticate_credentials(credentials=credentials)
 
-    def prompt(self, message, is_password, confirm, color="blue"):
+    def prompt(self, message, is_password=False, confirm=False, color="blue"):
         """Prompt for a value
 
         Keyword arguments:
@@ -552,7 +552,7 @@ class Interface:
 
         return value
 
-    def display(self, message, style):
+    def display(self, message, style="info"):
         """Display a message
 
         """
