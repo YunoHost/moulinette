@@ -29,9 +29,9 @@
     "success": "Erfolg!",
     "unable_authenticate": "Anmelden fehlgeschlagen",
     "unable_retrieve_session": "Sitzung konnte nicht abgerufen werden. Grund: '{exception}'",
-    "values_mismatch": "Die Werte passen nicht",
+    "values_mismatch": "Die Werte passen nicht zusammen",
     "warning": "Warnung:",
-    "websocket_request_expected": "Eine WebSocket Anfrage wurde erwartet",
+    "websocket_request_expected": "Eine WebSocket-Anfrage wurde erwartet",
     "deprecated_command": "'{prog} {command}' ist veraltet und wird bald entfernt werden",
     "deprecated_command_alias": "'{prog} {old}' ist veraltet und wird bald entfernt werden, benutze '{prog} {new}' stattdessen",
     "unknown_group": "Gruppe '{group}' ist unbekannt",
@@ -41,7 +41,7 @@
     "corrupted_json": "Beschädigtes JSON gelesen von {ressource:s} (reason: {error:s})",
     "unknown_error_reading_file": "Unbekannter Fehler beim Lesen der Datei {file:s} (reason: {error:s})",
     "cannot_write_file": "Kann Datei {file:s} nicht schreiben (reason: {error:s})",
-    "cannot_open_file": "Kann Datei {file:s} nicht öffnen (reason: {error:s})",
+    "cannot_open_file": "Datei {file:s} konnte nicht geöffnet werden (Ursache: {error:s})",
     "corrupted_yaml": "Beschädigtes YAML gelesen von {ressource:s} (reason: {error:s})",
     "warn_the_user_that_lock_is_acquired": "Der andere Befehl wurde gerade abgeschlossen, starte jetzt diesen Befehl",
     "warn_the_user_about_waiting_lock_again": "Immer noch wartend...",
@@ -57,5 +57,5 @@
     "error_writing_file": "Fehler beim Schreiben von Datei {file:s}: {error:s}",
     "corrupted_toml": "Beschädigtes TOML gelesen von {ressource:s} (reason: {error:s})",
     "ldap_server_is_down_restart_it": "Der LDAP-Dienst wurde angehalten. Es wird versucht, ihn erneut zu starten...",
-    "session_expired": "Die Sitzung ist abgelaufen. Bitte neuauthentifizieren."
+    "session_expired": "Die Sitzung ist abgelaufen. Bitte authentifizieren Sie sich neu ."
 }
