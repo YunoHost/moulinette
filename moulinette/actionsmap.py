@@ -11,9 +11,9 @@ from time import time
 from collections import OrderedDict
 from importlib import import_module
 
-from moulinette import m18n, msettings
-from moulinette.cache import open_cachefile
+from moulinette import m18n, Moulinette
 from moulinette.globals import init_moulinette_env
+from moulinette.cache import open_cachefile
 from moulinette.core import (
     MoulinetteError,
     MoulinetteLock,
@@ -97,7 +97,7 @@ class CommentParameter(_ExtraParameter):
     def __call__(self, message, arg_name, arg_value):
         if arg_value is None:
             return
-        return msettings['interface'].display(m18n.n(message))
+        return Moulinette.display(m18n.n(message))
 
     @classmethod
     def validate(klass, value, arg_name):
@@ -134,7 +134,7 @@ class AskParameter(_ExtraParameter):
 
         try:
             # Ask for the argument value
-            return msettings['interface'].prompt(m18n.n(message))
+            return Moulinette.prompt(m18n.n(message))
         except NotImplementedError:
             return arg_value
 
@@ -172,7 +172,7 @@ class PasswordParameter(AskParameter):
 
         try:
             # Ask for the password
-            return msettings['interface'].prompt(m18n.n(message), True, True)
+            return Moulinette.prompt(m18n.n(message), True, True)
         except NotImplementedError:
             return arg_value
 
@@ -499,7 +499,7 @@ class ActionsMap(object):
             return
 
         authenticator = self.get_authenticator(auth_method)
-        msettings['interface'].authenticate(authenticator)
+        Moulinette.interface.authenticate(authenticator)
 
     def process(self, args, timeout=None, **kwargs):
         """

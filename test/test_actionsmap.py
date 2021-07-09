@@ -11,7 +11,7 @@ from moulinette.actionsmap import (
 )
 
 from moulinette.core import MoulinetteError
-from moulinette import m18n, msettings
+from moulinette import m18n, Moulinette
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ def test_ask_parameter(iface, mocker):
 
     from moulinette.core import Moulinette18n
 
-    msettings["interface"] = iface
+    Moulinette._interface = iface
     mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
     mocker.patch.object(iface, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)
@@ -87,7 +87,7 @@ def test_password_parameter(iface, mocker):
 
     from moulinette.core import Moulinette18n
 
-    msettings["interface"] = iface
+    Moulinette._interface = iface
     mocker.patch.object(Moulinette18n, "n", return_value="awesome_test")
     mocker.patch.object(iface, "prompt", return_value="awesome_test")
     arg = ask("foobar", "a", None)

@@ -100,9 +100,6 @@ class TestAuthAPI:
         self.login(moulinette_webapi)
 
         assert "session.moulitest" in moulinette_webapi.cookies
-        print("====================cookie")
-        print(moulinette_webapi.cookiejar)
-        print(moulinette_webapi.cookies)
 
         assert (
             moulinette_webapi.get("/test-auth/default", status=200).text

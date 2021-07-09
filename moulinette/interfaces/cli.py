@@ -11,7 +11,7 @@ from datetime import date, datetime
 
 import argcomplete
 
-from moulinette import m18n, msettings
+from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
@@ -473,7 +473,7 @@ class Interface:
             load_only_category=load_only_category,
         )
 
-        msettings["interface"] = self
+        Moulinette._interface = self
 
     def run(self, args, output_as=None, timeout=None):
         """Run the moulinette

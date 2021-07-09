@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from os import environ
 from moulinette.core import (
     MoulinetteError,
     Moulinette18n,
@@ -30,22 +31,34 @@ __all__ = [
     "api",
     "cli",
     "m18n",
-    "env",
-    "init_interface",
     "MoulinetteError",
+    "Moulinette"
 ]
 
 
-msettings = dict()
 m18n = Moulinette18n()
 
+class classproperty(object):
+    def __init__(self, f):
+        self.f = f
+    def __get__(self, obj, owner):
+        return self.f(owner)
 
-def prompt(**kwargs):
-    return msettings["interface"].prompt(**kwargs)
+class Moulinette():
+
+    _interface = None
+
+    def prompt(*args, **kwargs):
+        return Moulinette.interface.prompt(*args, **kwargs)
 
 
-def display(**kwargs):
-    return msettings["interface"].display(**kwargs)
+    def display(*args, **kwargs):
+        return Moulinette.interface.display(*args, **kwargs)
+
+    @classproperty
+    def interface(cls):
+        return cls._interface
+
 
 # Package functions
 
@@ -127,8 +140,3 @@ def cli(args, top_parser, output_as=None, timeout=None):
         logging.getLogger("moulinette").error(e.strerror)
         return 1
     return 0
-
-
-def env():
-    """Initialise moulinette specific configuration."""
-    return init_moulinette_env()

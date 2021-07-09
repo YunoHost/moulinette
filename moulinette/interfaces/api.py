@@ -13,7 +13,7 @@ from geventwebsocket import WebSocketError
 from bottle import request, response, Bottle, HTTPResponse
 from bottle import abort
 
-from moulinette import m18n, env, msettings
+from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
@@ -734,7 +734,7 @@ class Interface:
 
         self._app = app
 
-        msettings["interface"] = self
+        Moulinette._interface = self
 
     def run(self, host="localhost", port=80):
         """Run the moulinette

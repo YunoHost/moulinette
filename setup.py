@@ -3,7 +3,7 @@
 import os
 import sys
 from setuptools import setup, find_packages
-from moulinette.globals import init_moulinette_env
+from moulinette import init_moulinette_env
 
 
 LOCALES_DIR = init_moulinette_env()['LOCALES_DIR']
