@@ -1,5 +1,5 @@
 {
-    "argument_required": "O argumento {argument} é obrigatório",
+    "argument_required": "O argumento '{argument}' é obrigatório",
     "authentication_profile_required": "Autenticação requerida para o perfil '{profile}'",
     "authentication_required": "Autenticação obrigatória",
     "authentication_required_long": "É preciso autenticar-se para realizar esta ação",
