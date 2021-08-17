@@ -384,7 +384,7 @@ class ExtraArgumentParser(object):
 
 
 def ordered_yaml_load(stream):
-    class OrderedLoader(yaml.Loader):
+    class OrderedLoader(yaml.SafeLoader):
         pass
 
     OrderedLoader.add_constructor(
