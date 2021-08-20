@@ -1,3 +1,13 @@
+moulinette (4.2.4) stable; urgency=low
+
+  - [fix] Avoid warning and use safeloader ([#281](https://github.com/YunoHost/moulinette/pull/281))
+  - [fix] Add warning when trying to feed non-string values to Popen env (2a89a82)
+  - [i18n] Translations updated for Esperanto, French, German, Portuguese
+
+  Thanks to all contributors <3 ! (amirale qt, Christian Wehrli, Éric Gaspar, ljf, mifegui)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 19 Aug 2021 19:25:30 +0200
+
 moulinette (4.2.3.3) stable; urgency=low
 
   - [fix] Damn array args bug (2c9ec9f6)
