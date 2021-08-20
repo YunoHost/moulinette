@@ -4,7 +4,7 @@
     "websocket_request_expected": "Forventet en WebSocket-forespørsel",
     "warning": "Advarsel:",
     "values_mismatch": "Verdiene samsvarer ikke",
-    "unknown_user": "Ukjent '{group}' bruker",
+    "unknown_user": "Ukjent '{user}' bruker",
     "unknown_group": "Ukjent '{group}' gruppe",
     "unable_authenticate": "Kunne ikke identitetsbekrefte",
     "success": "Vellykket.",
