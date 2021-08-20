@@ -19,7 +19,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        apt install ldap-utils slapd
+        sudo apt install ldap-utils slapd
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
