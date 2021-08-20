@@ -46,7 +46,7 @@
     "error_writing_file": "Error when writing file {file:s}: {error:s}",
     "error_removing": "Error when removing {path:s}: {error:s}",
     "error_changing_file_permissions": "Error when changing permissions for {path:s}: {error:s}",
-    "invalid_url": "Invalid URL {url:s} (does this site exists?)",
+    "invalid_url": "Failed to connect to {url:s} ... maybe the service is down, or you are not properly connected to the Internet in IPv4/IPv6.",
     "download_ssl_error": "SSL error when connecting to {url:s}",
     "download_timeout": "{url:s} took too long to answer, gave up.",
     "download_unknown_error": "Error when downloading data from {url:s}: {error:s}",
