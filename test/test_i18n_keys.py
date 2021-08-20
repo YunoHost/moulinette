@@ -15,10 +15,10 @@ def find_expected_string_keys():
     # Try to find :
     #    m18n.g(   "foo"
     #    MoulinetteError("foo"
+    #    # i18n: "some_key"
     p1 = re.compile(r"m18n\.g\(\s*[\"\'](\w+)[\"\']")
-    p2 = re.compile(r"MoulinetteError\([\'\"](\w+)[\'\"]")
-    p3 = re.compile(r"MoulinetteValidationError\([\'\"](\w+)[\'\"]")
-    p4 = re.compile(r"MoulinetteAuthenticationError\([\'\"](\w+)[\'\"]")
+    p2 = re.compile(r"Moulinette[a-zA-Z]+\(\s*[\'\"](\w+)[\'\"]")
+    p3 = re.compile(r"# i18n: [\'\"]?(\w+)[\'\"]?")
 
     python_files = glob.glob("moulinette/*.py")
     python_files.extend(glob.glob("moulinette/*/*.py"))
@@ -37,11 +37,6 @@ def find_expected_string_keys():
             if m.endswith("_"):
                 continue
             yield m
-        for m in p4.findall(content):
-            if m.endswith("_"):
-                continue
-            yield m
-
 
 ###############################################################################
 #   Load en locale json keys                                                  #
@@ -59,7 +54,6 @@ def keys_defined_for_en():
 
 expected_string_keys = set(find_expected_string_keys())
 keys_defined = set(keys_defined_for_en())
-
 
 def test_undefined_i18n_keys():
     undefined_keys = expected_string_keys.difference(keys_defined)

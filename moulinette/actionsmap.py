@@ -225,7 +225,7 @@ class PatternParameter(_ExtraParameter):
                 "expecting a list as extra parameter 'pattern' of " "argument '%s'",
                 arg_name,
             )
-            value = [value, "pattern_not_match"]
+            value = [value, "pattern_not_match"]  # i18n: pattern_not_match
         elif not isinstance(value, list) or len(value) != 2:
             raise TypeError("parameter value must be a list, got %r" % value)
         return value

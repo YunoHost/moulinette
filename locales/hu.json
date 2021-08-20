@@ -14,6 +14,5 @@
     "invalid_password": "Helytelen jelszó",
     "info": "Információ:",
     "file_not_exist": "A fájl nem létezik: '{path}'",
-    "file_exists": "A fájl már létezik: '{path}'",
     "error": "Hiba:"
 }

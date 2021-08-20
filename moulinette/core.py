@@ -353,7 +353,7 @@ class MoulinetteSignals(object):
         """
         return self._prompt(message, is_password, confirm, color=color)
 
-    def display(self, message, style="info"):
+    def display(self, message, style="info"): # i18n: info
         """Display a message
 
         Display a message with a given style to the user.
