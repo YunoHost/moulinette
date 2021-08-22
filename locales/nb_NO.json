@@ -13,7 +13,6 @@
     "logged_in": "Innlogget",
     "invalid_password": "Ugyldig passord",
     "info": "Info:",
-    "file_exists": "Filen finnes allerede: '{path}'",
     "error": "Feil:",
     "confirm": "Bekreft {prompt}",
     "colon": "{}: ",
