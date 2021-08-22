@@ -72,7 +72,9 @@ def call_async_output(args, callback, **kwargs):
         kwargs["env"]["YNH_STDINFO"] = str(stdinfo.fdWrite)
 
     if "env" in kwargs and not all(isinstance(v, str) for v in kwargs["env"].values()):
-        logger.warning("While trying to call call_async_output: env contained non-string values, probably gonna cause issue in Popen(...)")
+        logger.warning(
+            "While trying to call call_async_output: env contained non-string values, probably gonna cause issue in Popen(...)"
+        )
 
     try:
         p = subprocess.Popen(args, **kwargs)
