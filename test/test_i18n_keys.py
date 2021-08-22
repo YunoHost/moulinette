@@ -55,6 +55,7 @@ def keys_defined_for_en():
 expected_string_keys = set(find_expected_string_keys())
 keys_defined = set(keys_defined_for_en())
 
+
 def test_undefined_i18n_keys():
     undefined_keys = expected_string_keys.difference(keys_defined)
     undefined_keys = sorted(undefined_keys)
