@@ -2,6 +2,7 @@ import subprocess
 import os
 import threading
 import queue
+import logging
 
 # This import is unused in this file. It will be deleted in future (W0611 PEP8),
 # but for the momment we keep it due to yunohost moulinette script that used
@@ -12,7 +13,7 @@ quote  # This line is here to avoid W0611 PEP8 error (see comments above)
 
 # Prevent to import subprocess only for common classes
 CalledProcessError = subprocess.CalledProcessError
-
+logger = logging.getLogger("moulinette.utils.process")
 
 # Alternative subprocess methods ---------------------------------------
 
@@ -69,6 +70,11 @@ def call_async_output(args, callback, **kwargs):
         if "env" not in kwargs:
             kwargs["env"] = os.environ
         kwargs["env"]["YNH_STDINFO"] = str(stdinfo.fdWrite)
+
+    if "env" in kwargs and not all(isinstance(v, str) for v in kwargs["env"].values()):
+        logger.warning(
+            "While trying to call call_async_output: env contained non-string values, probably gonna cause issue in Popen(...)"
+        )
 
     try:
         p = subprocess.Popen(args, **kwargs)
