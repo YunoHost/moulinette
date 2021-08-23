@@ -537,7 +537,7 @@ class Interface:
         """
 
         if not os.isatty(1):
-            raise MoulinetteError("No a tty, can't do interactive prompts", raw_msg=True)
+            raise MoulinetteError("Not a tty, can't do interactive prompts", raw_msg=True)
 
         if is_password:
             prompt = lambda m: getpass.getpass(colorize(m18n.g("colon", m), color))

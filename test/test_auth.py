@@ -187,6 +187,7 @@ class TestAuthAPI:
 
 class TestAuthCLI:
     def test_login(self, moulinette_cli, capsys, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "default"], output_as="plain")
         message = capsys.readouterr()
@@ -199,15 +200,18 @@ class TestAuthCLI:
         assert "some_data_from_default" in message.out
 
     def test_login_bad_password(self, moulinette_cli, capsys, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
             moulinette_cli.run(["testauth", "default"], output_as="plain")
 
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
             moulinette_cli.run(["testauth", "default"], output_as="plain")
 
     def test_login_wrong_profile(self, moulinette_cli, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="dummy")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "other-profile"], output_as="none")
@@ -216,6 +220,7 @@ class TestAuthCLI:
         expected_msg = translation.format()
         assert expected_msg in str(exception)
 
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="yoloswag")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "default"], output_as="none")
@@ -236,6 +241,7 @@ class TestAuthCLI:
         assert "some_data_from_only_api" in message.out
 
     def test_request_only_cli(self, capsys, moulinette_cli, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
 
@@ -244,6 +250,7 @@ class TestAuthCLI:
         assert "some_data_from_only_cli" in message.out
 
     def test_request_not_logged_only_cli(self, capsys, moulinette_cli, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
@@ -256,6 +263,7 @@ class TestAuthCLI:
         assert expected_msg in str(exception)
 
     def test_request_with_callback(self, moulinette_cli, capsys, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["--version"], output_as="plain")
         message = capsys.readouterr()
@@ -274,6 +282,7 @@ class TestAuthCLI:
         assert "cannot get value from callback method" in message.err
 
     def test_request_with_arg(self, moulinette_cli, capsys, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "with_arg", "yoloswag"], output_as="plain")
         message = capsys.readouterr()
@@ -281,6 +290,7 @@ class TestAuthCLI:
         assert "yoloswag" in message.out
 
     def test_request_arg_with_extra(self, moulinette_cli, capsys, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(
             ["testauth", "with_extra_str_only", "YoLoSwAg"], output_as="plain"
@@ -300,6 +310,7 @@ class TestAuthCLI:
         assert "doesn't match pattern" in message.err
 
     def test_request_arg_with_type(self, moulinette_cli, capsys, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "with_type_int", "12345"], output_as="plain")
         message = capsys.readouterr()
