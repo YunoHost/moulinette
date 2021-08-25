@@ -15,7 +15,9 @@ class TestLDAP:
             "extra": {},
         }
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_authenticate_simple_bind_with_admin(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         self.ldap_conf["parameters"]["user_rdn"] = "cn=admin,dc=yunohost,dc=org"
@@ -24,7 +26,9 @@ class TestLDAP:
 
         assert ldap_interface.con
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_authenticate_simple_bind_with_wrong_user(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         self.ldap_conf["parameters"]["user_rdn"] = "cn=yoloswag,dc=yunohost,dc=org"
@@ -37,7 +41,9 @@ class TestLDAP:
         assert expected_msg in str(exception)
         assert ldap_interface.con is None
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_authenticate_simple_bind_with_rdn_wrong_password(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         self.ldap_conf["parameters"]["user_rdn"] = "cn=admin,dc=yunohost,dc=org"
@@ -51,7 +57,9 @@ class TestLDAP:
 
         assert ldap_interface.con is None
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_authenticate_simple_bind_anonymous(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         self.ldap_conf["parameters"]["user_rdn"] = ""
@@ -60,7 +68,9 @@ class TestLDAP:
 
         assert ldap_interface.con
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_authenticate_sasl_non_interactive_bind(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         self.ldap_conf["parameters"][
@@ -73,7 +83,9 @@ class TestLDAP:
 
         assert ldap_interface.con
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_authenticate_server_down(self, ldap_server, mocker):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         self.ldap_conf["parameters"]["user_rdn"] = "cn=admin,dc=yunohost,dc=org"
@@ -99,7 +111,9 @@ class TestLDAP:
             ldap_interface.authenticate(password=password)
         return ldap_interface
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_admin_read(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -120,7 +134,9 @@ class TestLDAP:
         assert list(admin_info.keys()) == ["userPassword"]
         assert admin_info["userPassword"][0].startswith("{CRYPT}$6$")
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_sasl_read(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -142,7 +158,9 @@ class TestLDAP:
         assert list(admin_info.keys()) == ["userPassword"]
         assert admin_info["userPassword"][0].startswith("{CRYPT}$6$")
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_anonymous_read(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface("")
@@ -181,7 +199,9 @@ class TestLDAP:
             "uid=%s,ou=users,dc=yunohost,dc=org" % new_user, attrs=None
         )[0]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_admin_add(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -199,7 +219,9 @@ class TestLDAP:
         assert "inetOrgPerson" in new_user_info["objectClass"]
         assert "posixAccount" in new_user_info["objectClass"]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_sasl_add(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -218,7 +240,9 @@ class TestLDAP:
         assert "inetOrgPerson" in new_user_info["objectClass"]
         assert "posixAccount" in new_user_info["objectClass"]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_anonymous_add(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface("")
@@ -253,7 +277,9 @@ class TestLDAP:
         assert expected_error in str(exception)
         assert expected_message in str(exception)
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_admin_remove(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -262,7 +288,9 @@ class TestLDAP:
 
         self.remove_new_user(ldap_interface)
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_sasl_remove(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -272,7 +300,9 @@ class TestLDAP:
 
         self.remove_new_user(ldap_interface)
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_anonymous_remove(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface("")
@@ -308,7 +338,9 @@ class TestLDAP:
             "uid=%s,ou=users,dc=yunohost,dc=org" % uid, attrs=None
         )[0]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_admin_update(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -320,7 +352,9 @@ class TestLDAP:
         assert new_user_info["uidNumber"] == ["555"]
         assert new_user_info["gidNumber"] == ["555"]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_admin_update_new_rdn(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -332,7 +366,9 @@ class TestLDAP:
         assert new_user_info["uidNumber"] == ["555"]
         assert new_user_info["gidNumber"] == ["555"]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_sasl_update(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -345,7 +381,9 @@ class TestLDAP:
         assert new_user_info["uidNumber"] == ["555"]
         assert new_user_info["gidNumber"] == ["555"]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_sasl_update_new_rdn(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -357,7 +395,9 @@ class TestLDAP:
         assert new_user_info["uidNumber"] == ["555"]
         assert new_user_info["gidNumber"] == ["555"]
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_anonymous_update(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface("")
@@ -370,7 +410,9 @@ class TestLDAP:
         assert expected_error in str(exception)
         assert expected_message in str(exception)
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_anonymous_update_new_rdn(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface("")
@@ -383,7 +425,9 @@ class TestLDAP:
         assert expected_error in str(exception)
         assert expected_message in str(exception)
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_empty_update(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -399,7 +443,9 @@ class TestLDAP:
 
         assert ldap_interface.update("uid=%s,ou=users" % uid, new_user_info)
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_get_conflict(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(
@@ -418,7 +464,9 @@ class TestLDAP:
         conflict = ldap_interface.get_conflict({"uid": "not_a_user"})
         assert not conflict
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_validate_uniqueness(self, ldap_server):
         self.ldap_conf["parameters"]["uri"] = ldap_server.uri
         ldap_interface = self.create_ldap_interface(

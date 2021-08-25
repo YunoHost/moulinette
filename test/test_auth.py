@@ -158,7 +158,9 @@ class TestAuthAPI:
             == "Authentication required"
         )
 
-    @pytest.mark.skip(reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway...")
+    @pytest.mark.skip(
+        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
+    )
     def test_login_ldap(self, moulinette_webapi, ldap_server, mocker):
         mocker.patch(
             "moulinette.authenticators.ldap.Authenticator._get_uri",
