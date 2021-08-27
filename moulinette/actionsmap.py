@@ -3,7 +3,6 @@
 import os
 import re
 import logging
-import yaml
 import glob
 import pickle as pickle
 
@@ -13,7 +12,6 @@ from importlib import import_module
 
 from moulinette import m18n, Moulinette
 from moulinette.globals import init_moulinette_env
-from moulinette.cache import open_cachefile
 from moulinette.core import (
     MoulinetteError,
     MoulinetteLock,
@@ -21,6 +19,7 @@ from moulinette.core import (
 )
 from moulinette.interfaces import BaseActionsMapParser, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
+from moulinette.utils.filesystem import read_yaml
 
 logger = logging.getLogger("moulinette.actionsmap")
 
@@ -380,18 +379,6 @@ class ExtraArgumentParser(object):
 
 # Main class ----------------------------------------------------------
 
-
-def ordered_yaml_load(stream):
-    class OrderedLoader(yaml.SafeLoader):
-        pass
-
-    OrderedLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        lambda loader, node: OrderedDict(loader.construct_pairs(node)),
-    )
-    return yaml.load(stream, OrderedLoader)
-
-
 class ActionsMap(object):
 
     """Validate and process actions defined into an actions map
@@ -439,6 +426,29 @@ class ActionsMap(object):
                 actionsmap_yml_stat.st_mtime,
             )
 
+            def generate_cache():
+
+                # Iterate over actions map namespaces
+                logger.debug("generating cache for actions map namespace '%s'", n)
+
+                # Read actions map from yaml file
+                actionsmap = read_yaml(actionsmap_yml)
+
+                # Delete old cache files
+                for old_cache in glob.glob("%s/actionsmap/%s-*.pkl" % (CACHE_DIR, n)):
+                    os.remove(old_cache)
+
+                # at installation, cachedir might not exists
+                dir_ = os.path.dirname(actionsmap_pkl)
+                if not os.path.isdir(dir_):
+                    os.makedirs(dir_)
+
+                # Cache actions map into pickle file
+                with open(actionsmap_pkl, "wb") as f:
+                    pickle.dump(actionsmap, f)
+
+                return actionsmap
+
             if os.path.exists(actionsmap_pkl):
                 try:
                     # Attempt to load cache
@@ -448,9 +458,9 @@ class ActionsMap(object):
                     self.from_cache = True
                 # TODO: Switch to python3 and catch proper exception
                 except (IOError, EOFError):
-                    actionsmaps[n] = self.generate_cache(n)
+                    actionsmaps[n] = generate_cache()
             else:  # cache file doesn't exists
-                actionsmaps[n] = self.generate_cache(n)
+                actionsmaps[n] = generate_cache()
 
             # If load_only_category is set, and *if* the target category
             # is in the actionsmap, we'll load only that one.
@@ -624,43 +634,6 @@ class ActionsMap(object):
         namespaces = [os.path.basename(n)[:-4] for n in namespaces]
 
         return namespaces
-
-    @classmethod
-    def generate_cache(klass, namespace):
-        """
-        Generate cache for the actions map's file(s)
-
-        Keyword arguments:
-            - namespace -- The namespace to generate cache for
-
-        Returns:
-            The action map for the namespace
-        """
-        moulinette_env = init_moulinette_env()
-        CACHE_DIR = moulinette_env["CACHE_DIR"]
-        DATA_DIR = moulinette_env["DATA_DIR"]
-
-        # Iterate over actions map namespaces
-        logger.debug("generating cache for actions map namespace '%s'", namespace)
-
-        # Read actions map from yaml file
-        am_file = "%s/actionsmap/%s.yml" % (DATA_DIR, namespace)
-        with open(am_file, "r") as f:
-            actionsmap = ordered_yaml_load(f)
-
-        # at installation, cachedir might not exists
-        for old_cache in glob.glob("%s/actionsmap/%s-*.pkl" % (CACHE_DIR, namespace)):
-            os.remove(old_cache)
-
-        # Cache actions map into pickle file
-        am_file_stat = os.stat(am_file)
-
-        pkl = "%s-%d-%d.pkl" % (namespace, am_file_stat.st_size, am_file_stat.st_mtime)
-
-        with open_cachefile(pkl, "wb", subdir="actionsmap") as f:
-            pickle.dump(actionsmap, f)
-
-        return actionsmap
 
     # Private methods
 
