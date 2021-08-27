@@ -3,10 +3,10 @@
 import os
 import sys
 from setuptools import setup, find_packages
-from moulinette import init_moulinette_env
+from moulinette import env
 
 
-LOCALES_DIR = init_moulinette_env()["LOCALES_DIR"]
+LOCALES_DIR = env["LOCALES_DIR"]
 
 # Extend installation
 locale_files = []

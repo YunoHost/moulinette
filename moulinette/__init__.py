@@ -3,8 +3,8 @@
 from moulinette.core import (
     MoulinetteError,
     Moulinette18n,
+    env,
 )
-from moulinette.globals import init_moulinette_env
 
 __title__ = "moulinette"
 __author__ = ["Yunohost Contributors"]
@@ -78,7 +78,7 @@ def init(logging_config=None, **kwargs):
     configure_logging(logging_config)
 
     # Add library directory to python path
-    sys.path.insert(0, init_moulinette_env()["LIB_DIR"])
+    sys.path.insert(0, env["LIB_DIR"])
 
 
 # Easy access to interfaces

@@ -6,10 +6,23 @@ import json
 import logging
 
 import moulinette
-from moulinette.globals import init_moulinette_env
 
 logger = logging.getLogger("moulinette.core")
 
+env = {
+    "DATA_DIR": "/usr/share/moulinette",
+    "LIB_DIR": "/usr/lib/moulinette",
+    "LOCALES_DIR": "/usr/share/moulinette/locale",
+    "CACHE_DIR": "/var/cache/moulinette",
+    "NAMESPACES": "*",  # By default we'll load every namespace we find
+}
+
+for key in env.keys():
+    value_from_environ = os.environ.get(f"MOULINETTE_{key}")
+    if value_from_environ:
+        env[key] = value_from_environ
+
+env["NAMESPACES"] = env["NAMESPACES"].split()
 
 def during_unittests_run():
     return "TESTS_RUN" in os.environ
@@ -195,8 +208,7 @@ class Moulinette18n(object):
         self.default_locale = default_locale
         self.locale = default_locale
 
-        moulinette_env = init_moulinette_env()
-        self.locales_dir = moulinette_env["LOCALES_DIR"]
+        self.locales_dir = env["LOCALES_DIR"]
 
         # Init global translator
         self._global = Translator(self.locales_dir, default_locale)
@@ -217,7 +229,7 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            lib_dir = init_moulinette_env()["LIB_DIR"]
+            lib_dir = env["LIB_DIR"]
             translator = Translator(
                 "%s/%s/locales" % (lib_dir, namespace), self.default_locale
             )

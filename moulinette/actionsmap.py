@@ -11,11 +11,11 @@ from collections import OrderedDict
 from importlib import import_module
 
 from moulinette import m18n, Moulinette
-from moulinette.globals import init_moulinette_env
 from moulinette.core import (
     MoulinetteError,
     MoulinetteLock,
     MoulinetteValidationError,
+    env,
 )
 from moulinette.interfaces import BaseActionsMapParser, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
@@ -406,9 +406,8 @@ class ActionsMap(object):
             "Invalid parser class '%s'" % top_parser.__class__.__name__
         )
 
-        moulinette_env = init_moulinette_env()
-        DATA_DIR = moulinette_env["DATA_DIR"]
-        CACHE_DIR = moulinette_env["CACHE_DIR"]
+        DATA_DIR = env["DATA_DIR"]
+        CACHE_DIR = env["CACHE_DIR"]
 
         actionsmaps = OrderedDict()
 
@@ -617,12 +616,11 @@ class ActionsMap(object):
         """
         namespaces = []
 
-        moulinette_env = init_moulinette_env()
-        DATA_DIR = moulinette_env["DATA_DIR"]
+        DATA_DIR = env["DATA_DIR"]
 
         # This var is ['*'] by default but could be set for example to
         # ['yunohost', 'yml_*']
-        NAMESPACE_PATTERNS = moulinette_env["NAMESPACES"]
+        NAMESPACE_PATTERNS = env["NAMESPACES"]
 
         # Look for all files that match the given patterns in the actionsmap dir
         for namespace_pattern in NAMESPACE_PATTERNS:
