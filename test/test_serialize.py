@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from moulinette.interface import JSONExtendedEncoder
+from moulinette.interfaces import JSONExtendedEncoder
 
 
 def test_json_extended_encoder(caplog):
