@@ -379,6 +379,7 @@ class ExtraArgumentParser(object):
 
 # Main class ----------------------------------------------------------
 
+
 class ActionsMap(object):
 
     """Validate and process actions defined into an actions map

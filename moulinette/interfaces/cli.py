@@ -31,6 +31,7 @@ from moulinette.utils import log
 # But it display instead:
 #       Error: unable to parse arguments 'firewall' because: sequence item 0: expected str instance, NoneType found
 
+
 def monkey_get_action_name(argument):
     if argument is None:
         return None
@@ -502,6 +503,7 @@ class Interface:
         if output_as:
             if output_as == "json":
                 import json
+
                 print(json.dumps(ret, cls=JSONExtendedEncoder))
             else:
                 plain_print_dict(ret)
