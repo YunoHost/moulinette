@@ -217,17 +217,14 @@ class TestAuthCLI:
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "other-profile"], output_as="none")
 
-        translation = m18n.g("invalid_password")
-        expected_msg = translation.format()
-        assert expected_msg in str(exception)
+        assert "invalid_password" in str(exception)
 
         mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="yoloswag")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "default"], output_as="none")
 
-        expected_msg = translation.format()
-        assert expected_msg in str(exception)
+        assert "invalid_password" in str(exception)
 
     def test_request_no_auth_needed(self, capsys, moulinette_cli):
         moulinette_cli.run(["testauth", "none"], output_as="plain")
@@ -259,9 +256,7 @@ class TestAuthCLI:
         message = capsys.readouterr()
         assert "some_data_from_only_cli" not in message.out
 
-        translation = m18n.g("invalid_password")
-        expected_msg = translation.format()
-        assert expected_msg in str(exception)
+        assert "invalid_password" in str(exception)
 
     def test_request_with_callback(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
