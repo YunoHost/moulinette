@@ -554,7 +554,7 @@ class Interface:
 
         return value
 
-    def display(self, message, style="info"):
+    def display(self, message, style="info"):  # m18n: info
         """Display a message"""
         if style == "success":
             print("{} {}".format(colorize(m18n.g("success"), "green"), message))
