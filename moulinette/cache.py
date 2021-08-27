@@ -42,10 +42,3 @@ def open_cachefile(filename, mode="r", subdir=""):
     cache_dir = get_cachedir(subdir, make_dir=True if mode[0] == "w" else False)
     file_path = os.path.join(cache_dir, filename)
     return open(file_path, mode)
-
-
-def cachefile_exists(filename, subdir=""):
-
-    cache_dir = get_cachedir(subdir, make_dir=False)
-    file_path = os.path.join(cache_dir, filename)
-    return os.path.exists(file_path)

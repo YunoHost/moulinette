@@ -6,6 +6,7 @@ import logging
 import argparse
 from json import dumps as json_encode
 from tempfile import mkdtemp
+from shutil import rmtree
 
 from gevent import sleep
 from gevent.queue import Queue
@@ -14,14 +15,11 @@ from geventwebsocket import WebSocketError
 from bottle import request, response, Bottle, HTTPResponse, FileUpload
 from bottle import abort
 
-from shutil import rmtree
-
-from moulinette import msignals, m18n, env
+from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
-    BaseInterface,
     ExtendedArgumentParser,
 )
 from moulinette.utils import log
@@ -67,7 +65,7 @@ def filter_csrf(callback):
 
 class LogQueues(dict):
 
-    """Map of session id to queue."""
+    """Map of session ids to queue."""
 
     pass
 
@@ -84,9 +82,10 @@ class APIQueueHandler(logging.Handler):
         self.queues = LogQueues()
 
     def emit(self, record):
+        s_id = Session.get_infos()["id"]
         sid = request.get_cookie("session.id")
         try:
-            queue = self.queues[sid]
+            queue = self.queues[s_id]
         except KeyError:
             # Session is not initialized, abandon.
             return
@@ -231,6 +230,34 @@ class _HTTPArgumentParser(object):
         raise MoulinetteValidationError(message, raw_msg=True)
 
 
+class Session():
+
+    secret = random_ascii()
+    actionsmap_name = None  # This is later set to the actionsmap name
+
+    def set_infos(infos):
+
+        assert isinstance(infos, dict)
+
+        response.set_cookie(f"session.{Session.actionsmap_name}", infos, secure=True, secret=Session.secret)
+
+    def get_infos():
+
+        try:
+            infos = request.get_cookie(f"session.{Session.actionsmap_name}", secret=Session.secret, default={})
+        except Exception:
+            infos = {}
+
+        if "id" not in infos:
+            infos["id"] = random_ascii()
+
+        return infos
+
+    def delete_infos():
+
+        response.set_cookie(f"session.{Session.actionsmap_name}", "", max_age=-1)
+
+
 class _ActionsMapPlugin(object):
 
     """Actions map Bottle Plugin
@@ -247,14 +274,10 @@ class _ActionsMapPlugin(object):
     api = 2
 
     def __init__(self, actionsmap, log_queues={}):
-        # Connect signals to handlers
-        msignals.set_handler("authenticate", self._do_authenticate)
-        msignals.set_handler("display", self._do_display)
 
         self.actionsmap = actionsmap
         self.log_queues = log_queues
-        # TODO: Save and load secrets?
-        self.secrets = {}
+        Session.actionsmap_name = actionsmap.name
 
     def setup(self, app):
         """Setup plugin on the application
@@ -265,28 +288,6 @@ class _ActionsMapPlugin(object):
             - app -- The application instance
 
         """
-        # Login wrapper
-        def _login(callback):
-            def wrapper():
-                kwargs = {}
-                try:
-                    kwargs["password"] = request.POST.password
-                except KeyError:
-                    raise HTTPResponse("Missing password parameter", 400)
-
-                kwargs["profile"] = request.POST.get("profile", "default")
-                return callback(**kwargs)
-
-            return wrapper
-
-        # Logout wrapper
-        def _logout(callback):
-            def wrapper():
-                kwargs = {}
-                kwargs["profile"] = request.POST.get("profile", "default")
-                return callback(**kwargs)
-
-            return wrapper
 
         # Append authentication routes
         app.route(
@@ -295,7 +296,6 @@ class _ActionsMapPlugin(object):
             method="POST",
             callback=self.login,
             skip=["actionsmap"],
-            apply=_login,
         )
         app.route(
             "/logout",
@@ -303,7 +303,6 @@ class _ActionsMapPlugin(object):
             method="GET",
             callback=self.logout,
             skip=["actionsmap"],
-            apply=_logout,
         )
 
         # Append messages route
@@ -368,101 +367,69 @@ class _ActionsMapPlugin(object):
 
     # Routes callbacks
 
-    def login(self, password, profile):
-        """Log in to an authenticator profile
+    def login(self):
+        """Log in to an authenticator
 
-        Attempt to authenticate to a given authenticator profile and
+        Attempt to authenticate to the default authenticator and
         register it with the current session - a new one will be created
         if needed.
 
-        Keyword arguments:
-            - password -- A clear text password
-            - profile -- The authenticator profile name to log in
-
         """
-        # Retrieve session values
-        try:
-            s_id = request.get_cookie("session.id") or random_ascii()
-        except:
-            # Super rare case where there are super weird cookie / cache issue
-            # Previous line throws a CookieError that creates a 500 error ...
-            # So let's catch it and just use a fresh ID then...
-            s_id = random_ascii()
+
+        credentials = request.POST.credentials
+        # Apparently even if the key doesn't exists, request.POST.foobar just returns empty string...
+        if not credentials:
+            raise HTTPResponse("Missing credentials parameter", 400)
+
+        profile = request.POST.profile
+        if not profile:
+            profile = self.actionsmap.default_authentication
+
+        authenticator = self.actionsmap.get_authenticator(profile)
 
         try:
-            s_secret = self.secrets[s_id]
-        except KeyError:
-            s_tokens = {}
-        else:
-            try:
-                s_tokens = request.get_cookie("session.tokens", secret=s_secret) or {}
-            except:
-                # Same as for session.id a few lines before
-                s_tokens = {}
-        s_new_token = random_ascii()
-
-        try:
-            # Attempt to authenticate
-            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
-            authenticator(password, token=(s_id, s_new_token))
+            auth_info = authenticator.authenticate_credentials(credentials, store_session=True)
+            session_infos = Session.get_infos()
+            session_infos[profile] = auth_info
         except MoulinetteError as e:
-            if len(s_tokens) > 0:
-                try:
-                    self.logout(profile)
-                except:
-                    pass
+            try:
+                self.logout()
+            except Exception:
+                pass
+            # FIXME : replace with MoulinetteAuthenticationError !?
             raise HTTPResponse(e.strerror, 401)
         else:
-            # Update dicts with new values
-            s_tokens[profile] = s_new_token
-            self.secrets[s_id] = s_secret = random_ascii()
-
-            response.set_cookie("session.id", s_id, secure=True)
-            response.set_cookie(
-                "session.tokens", s_tokens, secure=True, secret=s_secret
-            )
+            Session.set_infos(session_infos)
             return m18n.g("logged_in")
 
-    def logout(self, profile):
-        """Log out from an authenticator profile
+    # This is called before each time a route is going to be processed
+    def authenticate(self, authenticator):
 
-        Attempt to unregister a given profile - or all by default - from
-        the current session.
-
-        Keyword arguments:
-            - profile -- The authenticator profile name to log out
-
-        """
-        s_id = request.get_cookie("session.id")
-        # We check that there's a (signed) session.hash available
-        # for additional security ?
-        # (An attacker could not craft such signed hashed ? (FIXME : need to make sure of this))
         try:
-            s_secret = self.secrets[s_id]
+            session_infos = Session.get_infos()[authenticator.name]
         except KeyError:
-            s_secret = {}
-        if profile not in request.get_cookie(
-            "session.tokens", secret=s_secret, default={}
-        ):
+            msg = m18n.g("authentication_required")
+            raise HTTPResponse(msg, 401)
+
+        return session_infos
+
+    def logout(self):
+        try:
+            Session.get_infos()
+        except KeyError:
             raise HTTPResponse(m18n.g("not_logged_in"), 401)
         else:
-            del self.secrets[s_id]
-            authenticator = self.actionsmap.get_authenticator_for_profile(profile)
-            authenticator._clean_session(s_id)
-            # TODO: Clean the session for profile only
             # Delete cookie and clean the session
-            response.set_cookie("session.tokens", "", max_age=-1)
-        return m18n.g("logged_out")
+            Session.delete_infos()
+            return m18n.g("logged_out")
 
     def messages(self):
         """Listen to the messages WebSocket stream
 
         Retrieve the WebSocket stream and send to it each messages displayed by
-        the core.MoulinetteSignals.display signal. They are JSON encoded as a
-        dict { style: message }.
-
+        the display method. They are JSON encoded as a dict { style: message }.
         """
-        s_id = request.get_cookie("session.id")
+        s_id = Session.get_infos()["id"]
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -505,6 +472,7 @@ class _ActionsMapPlugin(object):
             - arguments -- A dict of arguments for the route
 
         """
+
         try:
             ret = self.actionsmap.process(arguments, timeout=30, route=_route)
         except MoulinetteError as e:
@@ -530,39 +498,16 @@ class _ActionsMapPlugin(object):
 
             # Close opened WebSocket by putting StopIteration in the queue
             try:
-                queue = self.log_queues[request.get_cookie("session.id")]
+                s_id = Session.get_infos()["id"]
+                queue = self.log_queues[s_id]
             except KeyError:
                 pass
             else:
                 queue.put(StopIteration)
 
-    # Signals handlers
+    def display(self, message, style="info"):
 
-    def _do_authenticate(self, authenticator):
-        """Process the authentication
-
-        Handle the core.MoulinetteSignals.authenticate signal.
-
-        """
-        s_id = request.get_cookie("session.id")
-        try:
-            s_secret = self.secrets[s_id]
-            s_token = request.get_cookie("session.tokens", secret=s_secret, default={})[
-                authenticator.name
-            ]
-        except KeyError:
-            msg = m18n.g("authentication_required")
-            raise HTTPResponse(msg, 401)
-        else:
-            return authenticator(token=(s_id, s_token))
-
-    def _do_display(self, message, style):
-        """Display a message
-
-        Handle the core.MoulinetteSignals.display signal.
-
-        """
-        s_id = request.get_cookie("session.id")
+        s_id = Sesson.get_infos()["id"]
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -575,6 +520,8 @@ class _ActionsMapPlugin(object):
         # populate the new message in the queue
         sleep(0)
 
+    def prompt(self, *args, **kwargs):
+        raise NotImplementedError("Prompt is not implemented for this interface")
 
 # HTTP Responses -------------------------------------------------------
 
@@ -696,31 +643,17 @@ class ActionsMapParser(BaseActionsMapParser):
         # Return the created parser
         return parser
 
-    def auth_required(self, args, **kwargs):
+    def auth_method(self, _, route):
+
         try:
             # Retrieve the tid for the route
-            tid, _ = self._parsers[kwargs.get("route")]
+            _, parser = self._parsers[route]
         except KeyError as e:
-            error_message = "no argument parser found for route '%s': %s" % (
-                kwargs.get("route"),
-                e,
-            )
+            error_message = "no argument parser found for route '%s': %s" % (route, e)
             logger.error(error_message)
             raise MoulinetteValidationError(error_message, raw_msg=True)
 
-        if self.get_conf(tid, "authenticate"):
-            authenticator = self.get_conf(tid, "authenticator")
-
-            # If several authenticator, use the default one
-            if isinstance(authenticator, dict):
-                if "default" in authenticator:
-                    authenticator = "default"
-                else:
-                    # TODO which one should we use?
-                    pass
-            return authenticator
-        else:
-            return False
+        return parser.authentication
 
     def parse_args(self, args, route, **kwargs):
         """Parse arguments
@@ -766,7 +699,7 @@ class ActionsMapParser(BaseActionsMapParser):
         return key
 
 
-class Interface(BaseInterface):
+class Interface:
 
     """Application Programming Interface for the moulinette
 
@@ -781,15 +714,16 @@ class Interface(BaseInterface):
 
     """
 
-    def __init__(self, routes={}, log_queues=None):
+    type = "api"
+
+    def __init__(self, routes={}):
 
         actionsmap = ActionsMap(ActionsMapParser())
 
         # Attempt to retrieve log queues from an APIQueueHandler
-        if log_queues is None:
-            handler = log.getHandlersByClass(APIQueueHandler, limit=1)
-            if handler:
-                log_queues = handler.queues
+        handler = log.getHandlersByClass(APIQueueHandler, limit=1)
+        if handler:
+            log_queues = handler.queues
 
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
@@ -818,11 +752,12 @@ class Interface(BaseInterface):
         app.install(filter_csrf)
         app.install(apiheader)
         app.install(api18n)
-        app.install(_ActionsMapPlugin(actionsmap, log_queues))
+        actionsmapplugin = _ActionsMapPlugin(actionsmap, log_queues)
+        app.install(actionsmapplugin)
 
-        # Append default routes
-        #        app.route(['/api', '/api/<category:re:[a-z]+>'], method='GET',
-        #                  callback=self.doc, skip=['actionsmap'])
+        self.authenticate = actionsmapplugin.authenticate
+        self.display = actionsmapplugin.display
+        self.prompt = actionsmapplugin.prompt
 
         # Append additional routes
         # TODO: Add optional authentication to those routes?
@@ -830,6 +765,8 @@ class Interface(BaseInterface):
             app.route(p, method=m, callback=c, skip=["actionsmap"])
 
         self._app = app
+
+        Moulinette._interface = self
 
     def run(self, host="localhost", port=80):
         """Run the moulinette
@@ -842,6 +779,7 @@ class Interface(BaseInterface):
             - port -- Server port to bind to
 
         """
+
         logger.debug(
             "starting the server instance in %s:%d",
             host,
@@ -864,25 +802,3 @@ class Interface(BaseInterface):
             if e.args[0] == errno.EADDRINUSE:
                 raise MoulinetteError("server_already_running")
             raise MoulinetteError(error_message)
-
-    # Routes handlers
-
-    def doc(self, category=None):
-        """
-        Get API documentation for a category (all by default)
-
-        Keyword argument:
-            category -- Name of the category
-
-        """
-        DATA_DIR = env()["DATA_DIR"]
-
-        if category is None:
-            with open("%s/../doc/resources.json" % DATA_DIR) as f:
-                return f.read()
-
-        try:
-            with open("%s/../doc/%s.json" % (DATA_DIR, category)) as f:
-                return f.read()
-        except IOError:
-            return None

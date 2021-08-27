@@ -6,12 +6,12 @@ import argparse
 import copy
 from collections import deque, OrderedDict
 
-from moulinette import msettings, m18n
+from moulinette import Moulinette, m18n
 from moulinette.core import MoulinetteError
 
 logger = logging.getLogger("moulinette.interface")
 
-GLOBAL_SECTION = "_global"
+# FIXME : are these even used for anything useful ...
 TO_RETURN_PROP = "_to_return"
 CALLBACKS_PROP = "_callbacks"
 
@@ -35,15 +35,8 @@ class BaseActionsMapParser(object):
     """
 
     def __init__(self, parent=None, **kwargs):
-        if parent:
-            self._o = parent
-        else:
+        if not parent:
             logger.debug("initializing base actions map parser for %s", self.interface)
-            msettings["interface"] = self.interface
-
-            self._o = self
-            self._global_conf = {}
-            self._conf = {}
 
     # Virtual properties
     # Each parser classes must implement these properties.
@@ -121,7 +114,7 @@ class BaseActionsMapParser(object):
             "derived class '%s' must override this method" % self.__class__.__name__
         )
 
-    def auth_required(self, args, **kwargs):
+    def auth_method(self, *args, **kwargs):
         """Check if authentication is required to run the requested action
 
         Keyword arguments:
@@ -163,7 +156,7 @@ class BaseActionsMapParser(object):
         ):
             raise MoulinetteError("invalid_usage")
         elif not tid:
-            tid = GLOBAL_SECTION
+            tid = "_global"
 
         # Prepare namespace
         if namespace is None:
@@ -171,151 +164,6 @@ class BaseActionsMapParser(object):
         namespace._tid = tid
 
         return namespace
-
-    # Configuration access
-
-    @property
-    def global_conf(self):
-        """Return the global configuration of the parser"""
-        return self._o._global_conf
-
-    def set_global_conf(self, configuration):
-        """Set global configuration
-
-        Set the global configuration to use for the parser.
-
-        Keyword arguments:
-            - configuration -- The global configuration
-
-        """
-        self._o._global_conf.update(self._validate_conf(configuration, True))
-
-    def get_conf(self, action, name):
-        """Get the value of an action configuration
-
-        Return the formated value of configuration 'name' for the action
-        identified by 'action'. If the configuration for the action is
-        not set, the default one is returned.
-
-        Keyword arguments:
-            - action -- An action identifier
-            - name -- The configuration name
-
-        """
-        try:
-            return self._o._conf[action][name]
-        except KeyError:
-            return self.global_conf[name]
-
-    def set_conf(self, action, configuration):
-        """Set configuration for an action
-
-        Set the configuration to use for a given action identified by
-        'action' which is specific to the parser.
-
-        Keyword arguments:
-            - action -- The action identifier
-            - configuration -- The configuration for the action
-
-        """
-        self._o._conf[action] = self._validate_conf(configuration)
-
-    def _validate_conf(self, configuration, is_global=False):
-        """Validate configuration for the parser
-
-        Return the validated configuration for the interface's actions
-        map parser.
-
-        Keyword arguments:
-            - configuration -- The configuration to pre-format
-
-        """
-        # TODO: Create a class with a validator method for each configuration
-        conf = {}
-
-        # -- 'authenficate'
-        try:
-            ifaces = configuration["authenticate"]
-        except KeyError:
-            pass
-        else:
-            if ifaces == "all":
-                conf["authenticate"] = ifaces
-            elif ifaces is False:
-                conf["authenticate"] = False
-            elif isinstance(ifaces, list):
-                if "all" in ifaces:
-                    conf["authenticate"] = "all"
-                else:
-                    # Store only if authentication is needed
-                    conf["authenticate"] = True if self.interface in ifaces else False
-            else:
-                error_message = (
-                    "expecting 'all', 'False' or a list for "
-                    "configuration 'authenticate', got %r" % ifaces,
-                )
-                logger.error(error_message)
-                raise MoulinetteError(error_message, raw_msg=True)
-
-        # -- 'authenticator'
-        auth = configuration.get("authenticator", "default")
-        if not is_global and isinstance(auth, str):
-            # Store needed authenticator profile
-            if auth not in self.global_conf["authenticator"]:
-                error_message = (
-                    "requesting profile '%s' which is undefined in "
-                    "global configuration of 'authenticator'" % auth,
-                )
-                logger.error(error_message)
-                raise MoulinetteError(error_message, raw_msg=True)
-            else:
-                conf["authenticator"] = auth
-        elif is_global and isinstance(auth, dict):
-            if len(auth) == 0:
-                logger.warning(
-                    "no profile defined in global configuration " "for 'authenticator'"
-                )
-            else:
-                auths = {}
-                for auth_name, auth_conf in auth.items():
-                    auths[auth_name] = {
-                        "name": auth_name,
-                        "vendor": auth_conf.get("vendor"),
-                        "parameters": auth_conf.get("parameters", {}),
-                        "extra": {"help": auth_conf.get("help", None)},
-                    }
-                conf["authenticator"] = auths
-        else:
-            error_message = (
-                "expecting a dict of profile(s) or a profile name "
-                "for configuration 'authenticator', got %r",
-                auth,
-            )
-            logger.error(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
-
-        return conf
-
-
-class BaseInterface(object):
-
-    """Moulinette's base Interface
-
-    Each interfaces must implement an Interface class derived from this
-    class which must overrides virtual properties and methods.
-    It is used to provide a user interface for an actions map.
-
-    Keyword arguments:
-        - actionsmap -- The ActionsMap instance to connect to
-
-    """
-
-    # TODO: Add common interface methods and try to standardize default ones
-
-    def __init__(self, actionsmap):
-        raise NotImplementedError(
-            "derived class '%s' must override this method" % self.__class__.__name__
-        )
 
 
 # Argument parser ------------------------------------------------------

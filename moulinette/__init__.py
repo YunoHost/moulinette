@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from os import environ
 from moulinette.core import (
     MoulinetteError,
-    MoulinetteSignals,
     Moulinette18n,
 )
 from moulinette.globals import init_moulinette_env
@@ -31,16 +31,33 @@ __all__ = [
     "api",
     "cli",
     "m18n",
-    "msignals",
-    "env",
-    "init_interface",
     "MoulinetteError",
+    "Moulinette"
 ]
 
 
-msignals = MoulinetteSignals()
-msettings = dict()
 m18n = Moulinette18n()
+
+class classproperty(object):
+    def __init__(self, f):
+        self.f = f
+    def __get__(self, obj, owner):
+        return self.f(owner)
+
+class Moulinette():
+
+    _interface = None
+
+    def prompt(*args, **kwargs):
+        return Moulinette.interface.prompt(*args, **kwargs)
+
+
+    def display(*args, **kwargs):
+        return Moulinette.interface.display(*args, **kwargs)
+
+    @classproperty
+    def interface(cls):
+        return cls._interface
 
 
 # Package functions
@@ -116,17 +133,10 @@ def cli(args, top_parser, output_as=None, timeout=None):
 
     try:
         load_only_category = args[0] if args and not args[0].startswith("-") else None
-        Cli(top_parser=top_parser, load_only_category=load_only_category).run(
-            args, output_as=output_as, timeout=timeout
-        )
+        Cli(top_parser=top_parser, load_only_category=load_only_category).run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging
 
         logging.getLogger("moulinette").error(e.strerror)
         return 1
     return 0
-
-
-def env():
-    """Initialise moulinette specific configuration."""
-    return init_moulinette_env()

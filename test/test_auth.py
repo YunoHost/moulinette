@@ -6,8 +6,12 @@ from moulinette import m18n
 
 
 class TestAuthAPI:
-    def login(self, webapi, csrf=False, profile=None, status=200, password="default"):
-        data = {"password": password}
+    def login(self, webapi, csrf=False, profile=None, status=200, password=None):
+        if password is None:
+            password = "dummy"
+
+        data = {"credentials": password}
+
         if profile:
             data["profile"] = profile
 
@@ -64,13 +68,7 @@ class TestAuthAPI:
     def test_login(self, moulinette_webapi):
         assert self.login(moulinette_webapi).text == "Logged in"
 
-        assert "session.id" in moulinette_webapi.cookies
-        assert "session.tokens" in moulinette_webapi.cookies
-
-        cache_session_default = os.environ["MOULINETTE_CACHE_DIR"] + "/session/default/"
-        assert moulinette_webapi.cookies["session.id"] + ".asc" in os.listdir(
-            cache_session_default
-        )
+        assert "session.moulitest" in moulinette_webapi.cookies
 
     def test_login_bad_password(self, moulinette_webapi):
         assert (
@@ -78,8 +76,7 @@ class TestAuthAPI:
             == "Invalid password"
         )
 
-        assert "session.id" not in moulinette_webapi.cookies
-        assert "session.tokens" not in moulinette_webapi.cookies
+        assert "session.moulitest" not in moulinette_webapi.cookies
 
     def test_login_csrf_attempt(self, moulinette_webapi):
         # C.f.
@@ -90,8 +87,7 @@ class TestAuthAPI:
             "CSRF protection"
             in self.login(moulinette_webapi, csrf=True, status=403).text
         )
-        assert not any(c.name == "session.id" for c in moulinette_webapi.cookiejar)
-        assert not any(c.name == "session.tokens" for c in moulinette_webapi.cookiejar)
+        assert not any(c.name == "session.moulitest" for c in moulinette_webapi.cookiejar)
 
     def test_login_then_legit_request_without_cookies(self, moulinette_webapi):
         self.login(moulinette_webapi)
@@ -102,6 +98,8 @@ class TestAuthAPI:
 
     def test_login_then_legit_request(self, moulinette_webapi):
         self.login(moulinette_webapi)
+
+        assert "session.moulitest" in moulinette_webapi.cookies
 
         assert (
             moulinette_webapi.get("/test-auth/default", status=200).text
@@ -118,11 +116,6 @@ class TestAuthAPI:
 
         moulinette_webapi.get("/logout", status=200)
 
-        cache_session_default = os.environ["MOULINETTE_CACHE_DIR"] + "/session/default/"
-        assert not moulinette_webapi.cookies["session.id"] + ".asc" in os.listdir(
-            cache_session_default
-        )
-
         assert (
             moulinette_webapi.get("/test-auth/default", status=401).text
             == "Authentication required"
@@ -131,15 +124,7 @@ class TestAuthAPI:
     def test_login_other_profile(self, moulinette_webapi):
         self.login(moulinette_webapi, profile="yoloswag", password="yoloswag")
 
-        assert "session.id" in moulinette_webapi.cookies
-        assert "session.tokens" in moulinette_webapi.cookies
-
-        cache_session_default = (
-            os.environ["MOULINETTE_CACHE_DIR"] + "/session/yoloswag/"
-        )
-        assert moulinette_webapi.cookies["session.id"] + ".asc" in os.listdir(
-            cache_session_default
-        )
+        assert "session.moulitest" in moulinette_webapi.cookies
 
     def test_login_wrong_profile(self, moulinette_webapi):
         self.login(moulinette_webapi)
@@ -156,21 +141,6 @@ class TestAuthAPI:
         assert (
             moulinette_webapi.get("/test-auth/default", status=401).text
             == "Authentication required"
-        )
-
-    @pytest.mark.skip(
-        reason="Not passing because setup issue idk, to be removed or moved to Yunohost soon anyway..."
-    )
-    def test_login_ldap(self, moulinette_webapi, ldap_server, mocker):
-        mocker.patch(
-            "moulinette.authenticators.ldap.Authenticator._get_uri",
-            return_value=ldap_server.uri,
-        )
-        self.login(moulinette_webapi, profile="ldap", password="yunohost")
-
-        assert (
-            moulinette_webapi.get("/test-auth/ldap", status=200).text
-            == '"some_data_from_ldap"'
         )
 
     def test_request_with_arg(self, moulinette_webapi, capsys):
@@ -217,7 +187,8 @@ class TestAuthAPI:
 
 class TestAuthCLI:
     def test_login(self, moulinette_cli, capsys, mocker):
-        mocker.patch("getpass.getpass", return_value="default")
+        mocker.patch("os.isatty", return_value=True)
+        mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "default"], output_as="plain")
         message = capsys.readouterr()
 
@@ -229,16 +200,19 @@ class TestAuthCLI:
         assert "some_data_from_default" in message.out
 
     def test_login_bad_password(self, moulinette_cli, capsys, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
             moulinette_cli.run(["testauth", "default"], output_as="plain")
 
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
             moulinette_cli.run(["testauth", "default"], output_as="plain")
 
     def test_login_wrong_profile(self, moulinette_cli, mocker):
-        mocker.patch("getpass.getpass", return_value="default")
+        mocker.patch("os.isatty", return_value=True)
+        mocker.patch("getpass.getpass", return_value="dummy")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "other-profile"], output_as="none")
 
@@ -246,6 +220,7 @@ class TestAuthCLI:
         expected_msg = translation.format()
         assert expected_msg in str(exception)
 
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass", return_value="yoloswag")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "default"], output_as="none")
@@ -266,7 +241,8 @@ class TestAuthCLI:
         assert "some_data_from_only_api" in message.out
 
     def test_request_only_cli(self, capsys, moulinette_cli, mocker):
-        mocker.patch("getpass.getpass", return_value="default")
+        mocker.patch("os.isatty", return_value=True)
+        mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
 
         message = capsys.readouterr()
@@ -274,6 +250,7 @@ class TestAuthCLI:
         assert "some_data_from_only_cli" in message.out
 
     def test_request_not_logged_only_cli(self, capsys, moulinette_cli, mocker):
+        mocker.patch("os.isatty", return_value=True)
         mocker.patch("getpass.getpass")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
@@ -286,7 +263,8 @@ class TestAuthCLI:
         assert expected_msg in str(exception)
 
     def test_request_with_callback(self, moulinette_cli, capsys, mocker):
-        mocker.patch("getpass.getpass", return_value="default")
+        mocker.patch("os.isatty", return_value=True)
+        mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["--version"], output_as="plain")
         message = capsys.readouterr()
 
@@ -304,14 +282,16 @@ class TestAuthCLI:
         assert "cannot get value from callback method" in message.err
 
     def test_request_with_arg(self, moulinette_cli, capsys, mocker):
-        mocker.patch("getpass.getpass", return_value="default")
+        mocker.patch("os.isatty", return_value=True)
+        mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "with_arg", "yoloswag"], output_as="plain")
         message = capsys.readouterr()
 
         assert "yoloswag" in message.out
 
     def test_request_arg_with_extra(self, moulinette_cli, capsys, mocker):
-        mocker.patch("getpass.getpass", return_value="default")
+        mocker.patch("os.isatty", return_value=True)
+        mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(
             ["testauth", "with_extra_str_only", "YoLoSwAg"], output_as="plain"
         )
@@ -330,7 +310,8 @@ class TestAuthCLI:
         assert "doesn't match pattern" in message.err
 
     def test_request_arg_with_type(self, moulinette_cli, capsys, mocker):
-        mocker.patch("getpass.getpass", return_value="default")
+        mocker.patch("os.isatty", return_value=True)
+        mocker.patch("getpass.getpass", return_value="dummy")
         moulinette_cli.run(["testauth", "with_type_int", "12345"], output_as="plain")
         message = capsys.readouterr()
 

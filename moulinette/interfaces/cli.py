@@ -11,12 +11,11 @@ from datetime import date, datetime
 
 import argcomplete
 
-from moulinette import msignals, m18n
+from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
-    BaseInterface,
     ExtendedArgumentParser,
 )
 from moulinette.utils import log
@@ -356,7 +355,7 @@ class ActionsMapParser(BaseActionsMapParser):
             type_="subcategory",
             description=subcategory_help,
             help=subcategory_help,
-            **kwargs
+            **kwargs,
         )
         return self.__class__(self, parser, {"title": "actions", "required": True})
 
@@ -367,7 +366,7 @@ class ActionsMapParser(BaseActionsMapParser):
         action_help=None,
         deprecated=False,
         deprecated_alias=[],
-        **kwargs
+        **kwargs,
     ):
         """Add a parser for an action
 
@@ -398,7 +397,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
             self.global_parser.add_argument(*names, **argument_options)
 
-    def auth_required(self, args, **kwargs):
+    def auth_method(self, args):
         # FIXME? idk .. this try/except is duplicated from parse_args below
         # Just to be able to obtain the tid
         try:
@@ -414,19 +413,23 @@ class ActionsMapParser(BaseActionsMapParser):
             raise MoulinetteValidationError(error_message, raw_msg=True)
 
         tid = getattr(ret, "_tid", None)
-        if self.get_conf(tid, "authenticate"):
-            authenticator = self.get_conf(tid, "authenticator")
 
-            # If several authenticator, use the default one
-            if isinstance(authenticator, dict):
-                if "default" in authenticator:
-                    authenticator = "default"
-                else:
-                    # TODO which one should we use?
-                    pass
-            return authenticator
-        else:
-            return False
+        # Ugh that's for yunohost --version ...
+        if tid is None:
+            return None
+
+        # We go down in the subparser tree until we find the leaf
+        # corresponding to the tid with a defined authentication
+        # (yeah it's a mess because the datastructure is a mess..)
+        _p = self._subparsers
+        for word in tid[1:]:
+            _p = _p.choices[word]
+            if hasattr(_p, "authentication"):
+                return _p.authentication
+            else:
+                _p = _p._actions[1]
+
+        raise MoulinetteError(f"Authentication undefined for {tid} ?", raw_msg=True)
 
     def parse_args(self, args, **kwargs):
         try:
@@ -446,7 +449,7 @@ class ActionsMapParser(BaseActionsMapParser):
             return ret
 
 
-class Interface(BaseInterface):
+class Interface:
 
     """Command-line Interface for the moulinette
 
@@ -458,21 +461,19 @@ class Interface(BaseInterface):
 
     """
 
+    type = "cli"
+
     def __init__(self, top_parser=None, load_only_category=None):
 
         # Set user locale
         m18n.set_locale(get_locale())
 
-        # Connect signals to handlers
-        msignals.set_handler("display", self._do_display)
-        if os.isatty(1):
-            msignals.set_handler("authenticate", self._do_authenticate)
-            msignals.set_handler("prompt", self._do_prompt)
-
         self.actionsmap = ActionsMap(
             ActionsMapParser(top_parser=top_parser),
             load_only_category=load_only_category,
         )
+
+        Moulinette._interface = self
 
     def run(self, args, output_as=None, timeout=None):
         """Run the moulinette
@@ -489,14 +490,12 @@ class Interface(BaseInterface):
             - timeout -- Number of seconds before this command will timeout because it can't acquire the lock (meaning that another command is currently running), by default there is no timeout and the command will wait until it can get the lock
 
         """
+
         if output_as and output_as not in ["json", "plain", "none"]:
             raise MoulinetteValidationError("invalid_usage")
 
         # auto-complete
         argcomplete.autocomplete(self.actionsmap.parser._parser)
-
-        # Set handler for authentication
-        msignals.set_handler("authenticate", self._do_authenticate)
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
@@ -520,32 +519,26 @@ class Interface(BaseInterface):
         else:
             print(ret)
 
-    # Signals handlers
-
-    def _do_authenticate(self, authenticator):
-        """Process the authentication
-
-        Handle the core.MoulinetteSignals.authenticate signal.
-
-        """
+    def authenticate(self, authenticator):
         # Hmpf we have no-use case in yunohost anymore where we need to auth
         # because everything is run as root ...
         # I guess we could imagine some yunohost-independant use-case where
         # moulinette is used to create a CLI for non-root user that needs to
         # auth somehow but hmpf -.-
-        help = authenticator.extra.get("help")
-        msg = m18n.n(help) if help else m18n.g("password")
-        return authenticator(password=self._do_prompt(msg, True, False, color="yellow"))
+        msg = m18n.g("password")
+        credentials = self.prompt(msg, True, False, color="yellow")
+        return authenticator.authenticate_credentials(credentials=credentials)
 
-    def _do_prompt(self, message, is_password, confirm, color="blue"):
+    def prompt(self, message, is_password=False, confirm=False, color="blue"):
         """Prompt for a value
-
-        Handle the core.MoulinetteSignals.prompt signal.
 
         Keyword arguments:
             - color -- The color to use for prompting message
-
         """
+
+        if not os.isatty(1):
+            raise MoulinetteError("Not a tty, can't do interactive prompts", raw_msg=True)
+
         if is_password:
             prompt = lambda m: getpass.getpass(colorize(m18n.g("colon", m), color))
         else:
@@ -559,10 +552,8 @@ class Interface(BaseInterface):
 
         return value
 
-    def _do_display(self, message, style):
+    def display(self, message, style="info"):
         """Display a message
-
-        Handle the core.MoulinetteSignals.display signal.
 
         """
         if style == "success":
