@@ -244,20 +244,6 @@ def test_actions_map_api():
     assert parser.auth_method(None, ("GET", "/test-auth/only-api")) == "dummy"
     assert parser.auth_method(None, ("GET", "/test-auth/only-cli")) is None
 
-    amap.generate_cache("moulitest")
-
-    parser = ActionsMapParser()
-    amap = ActionsMap(parser)
-
-    assert amap.main_namespace == "moulitest"
-    assert amap.default_authentication == "dummy"
-    assert ("GET", "/test-auth/default") in amap.parser.routes
-    assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
-
-    assert parser.auth_method(None, ("GET", "/test-auth/default")) == "dummy"
-    assert parser.auth_method(None, ("GET", "/test-auth/only-api")) == "dummy"
-    assert parser.auth_method(None, ("GET", "/test-auth/only-cli")) is None
-
 
 def test_actions_map_import_error(mocker):
     from moulinette.interfaces.api import ActionsMapParser
@@ -299,29 +285,6 @@ def test_actions_map_cli():
         default=False,
         help="Log and print debug messages",
     )
-
-    parser = ActionsMapParser(top_parser=top_parser)
-    amap = ActionsMap(parser)
-
-    assert amap.main_namespace == "moulitest"
-    assert amap.default_authentication == "dummy"
-    assert "testauth" in amap.parser._subparsers.choices
-    assert "none" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
-    assert "subcat" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
-    assert (
-        "default"
-        in amap.parser._subparsers.choices["testauth"]
-        ._actions[1]
-        .choices["subcat"]
-        ._actions[1]
-        .choices
-    )
-
-    assert parser.auth_method(["testauth", "default"]) == "dummy"
-    assert parser.auth_method(["testauth", "only-api"]) is None
-    assert parser.auth_method(["testauth", "only-cli"]) == "dummy"
-
-    amap.generate_cache("moulitest")
 
     parser = ActionsMapParser(top_parser=top_parser)
     amap = ActionsMap(parser)
