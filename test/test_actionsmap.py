@@ -17,7 +17,6 @@ from moulinette import m18n, Moulinette
 @pytest.fixture
 def iface():
     class DummyInterface:
-
         def prompt():
             pass
 
@@ -164,6 +163,7 @@ def test_required_paremeter_missing_value(iface, caplog):
 def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
 
     from moulinette.interfaces.api import ActionsMapParser
+
     amap = ActionsMap(ActionsMapParser())
 
     with pytest.raises(MoulinetteError) as exception:

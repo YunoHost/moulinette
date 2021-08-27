@@ -26,31 +26,26 @@ __credits__ = """
     You should have received a copy of the GNU Affero General Public License
     along with this program; if not, see http://www.gnu.org/licenses
     """
-__all__ = [
-    "init",
-    "api",
-    "cli",
-    "m18n",
-    "MoulinetteError",
-    "Moulinette"
-]
+__all__ = ["init", "api", "cli", "m18n", "MoulinetteError", "Moulinette"]
 
 
 m18n = Moulinette18n()
 
+
 class classproperty(object):
     def __init__(self, f):
         self.f = f
+
     def __get__(self, obj, owner):
         return self.f(owner)
 
-class Moulinette():
+
+class Moulinette:
 
     _interface = None
 
     def prompt(*args, **kwargs):
         return Moulinette.interface.prompt(*args, **kwargs)
-
 
     def display(*args, **kwargs):
         return Moulinette.interface.display(*args, **kwargs)
@@ -133,7 +128,9 @@ def cli(args, top_parser, output_as=None, timeout=None):
 
     try:
         load_only_category = args[0] if args and not args[0].startswith("-") else None
-        Cli(top_parser=top_parser, load_only_category=load_only_category).run(args, output_as=output_as, timeout=timeout)
+        Cli(top_parser=top_parser, load_only_category=load_only_category).run(
+            args, output_as=output_as, timeout=timeout
+        )
     except MoulinetteError as e:
         import logging
 

@@ -537,7 +537,9 @@ class Interface:
         """
 
         if not os.isatty(1):
-            raise MoulinetteError("Not a tty, can't do interactive prompts", raw_msg=True)
+            raise MoulinetteError(
+                "Not a tty, can't do interactive prompts", raw_msg=True
+            )
 
         if is_password:
             prompt = lambda m: getpass.getpass(colorize(m18n.g("colon", m), color))
@@ -553,9 +555,7 @@ class Interface:
         return value
 
     def display(self, message, style="info"):
-        """Display a message
-
-        """
+        """Display a message"""
         if style == "success":
             print("{} {}".format(colorize(m18n.g("success"), "green"), message))
         elif style == "warning":

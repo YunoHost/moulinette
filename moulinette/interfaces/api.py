@@ -230,7 +230,7 @@ class _HTTPArgumentParser(object):
         raise MoulinetteValidationError(message, raw_msg=True)
 
 
-class Session():
+class Session:
 
     secret = random_ascii()
     actionsmap_name = None  # This is later set to the actionsmap name
@@ -239,12 +239,19 @@ class Session():
 
         assert isinstance(infos, dict)
 
-        response.set_cookie(f"session.{Session.actionsmap_name}", infos, secure=True, secret=Session.secret)
+        response.set_cookie(
+            f"session.{Session.actionsmap_name}",
+            infos,
+            secure=True,
+            secret=Session.secret,
+        )
 
     def get_infos():
 
         try:
-            infos = request.get_cookie(f"session.{Session.actionsmap_name}", secret=Session.secret, default={})
+            infos = request.get_cookie(
+                f"session.{Session.actionsmap_name}", secret=Session.secret, default={}
+            )
         except Exception:
             infos = {}
 
@@ -388,7 +395,9 @@ class _ActionsMapPlugin(object):
         authenticator = self.actionsmap.get_authenticator(profile)
 
         try:
-            auth_info = authenticator.authenticate_credentials(credentials, store_session=True)
+            auth_info = authenticator.authenticate_credentials(
+                credentials, store_session=True
+            )
             session_infos = Session.get_infos()
             session_infos[profile] = auth_info
         except MoulinetteError as e:
@@ -522,6 +531,7 @@ class _ActionsMapPlugin(object):
 
     def prompt(self, *args, **kwargs):
         raise NotImplementedError("Prompt is not implemented for this interface")
+
 
 # HTTP Responses -------------------------------------------------------
 
