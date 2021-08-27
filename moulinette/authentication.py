@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
 
 logger = logging.getLogger("moulinette.authenticator")

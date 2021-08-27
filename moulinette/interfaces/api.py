@@ -83,7 +83,6 @@ class APIQueueHandler(logging.Handler):
 
     def emit(self, record):
         s_id = Session.get_infos()["id"]
-        sid = request.get_cookie("session.id")
         try:
             queue = self.queues[s_id]
         except KeyError:
