@@ -5,12 +5,14 @@ import errno
 import logging
 import argparse
 from json import dumps as json_encode
+from tempfile import mkdtemp
+from shutil import rmtree
 
 from gevent import sleep
 from gevent.queue import Queue
 from geventwebsocket import WebSocketError
 
-from bottle import request, response, Bottle, HTTPResponse
+from bottle import request, response, Bottle, HTTPResponse, FileUpload
 from bottle import abort
 
 from moulinette import m18n, Moulinette
@@ -28,6 +30,8 @@ logger = log.getLogger("moulinette.interface.api")
 
 
 # API helpers ----------------------------------------------------------
+# We define a global variable to manage in a dirty way the upload...
+UPLOAD_DIR = None
 
 CSRF_TYPES = set(
     ["text/plain", "application/x-www-form-urlencoded", "multipart/form-data"]
@@ -111,6 +115,7 @@ class _HTTPArgumentParser(object):
 
         self._positional = []  # list(arg_name)
         self._optional = {}  # dict({arg_name: option_strings})
+        self._upload_dir = None
 
     def set_defaults(self, **kwargs):
         return self._parser.set_defaults(**kwargs)
@@ -145,9 +150,9 @@ class _HTTPArgumentParser(object):
 
         # Append newly created action
         if len(action.option_strings) == 0:
-            self._positional.append(action.dest)
+            self._positional.append(action)
         else:
-            self._optional[action.dest] = action.option_strings
+            self._optional[action.dest] = action
 
         return action
 
@@ -155,11 +160,26 @@ class _HTTPArgumentParser(object):
         arg_strings = []
 
         # Append an argument to the current one
-        def append(arg_strings, value, option_string=None):
-            if isinstance(value, bool):
+        def append(arg_strings, value, action):
+            option_string = None
+            if len(action.option_strings) > 0:
+                option_string = action.option_strings[0]
+
+            if isinstance(value, bool) or isinstance(action.const, bool):
                 # Append the option string only
+                if option_string is not None and value != 0:
+                    arg_strings.append(option_string)
+            elif isinstance(value, FileUpload) and (
+                isinstance(action.type, argparse.FileType) or action.type == open
+            ):
+                # Upload the file in a temp directory
+                global UPLOAD_DIR
+                if UPLOAD_DIR is None:
+                    UPLOAD_DIR = mkdtemp(prefix="moulinette_upload_")
+                value.save(UPLOAD_DIR)
                 if option_string is not None:
                     arg_strings.append(option_string)
+                arg_strings.append(UPLOAD_DIR + "/" + value.filename)
             elif isinstance(value, str):
                 if option_string is not None:
                     arg_strings.append(option_string)
@@ -192,14 +212,14 @@ class _HTTPArgumentParser(object):
             return arg_strings
 
         # Iterate over positional arguments
-        for dest in self._positional:
-            if dest in args:
-                arg_strings = append(arg_strings, args[dest])
+        for action in self._positional:
+            if action.dest in args:
+                arg_strings = append(arg_strings, args[action.dest], action)
 
         # Iterate over optional arguments
-        for dest, opt in self._optional.items():
+        for dest, action in self._optional.items():
             if dest in args:
-                arg_strings = append(arg_strings, args[dest], opt[0])
+                arg_strings = append(arg_strings, args[dest], action)
 
         return self._parser.parse_args(arg_strings, namespace)
 
@@ -319,8 +339,12 @@ class _ActionsMapPlugin(object):
             # Format boolean params
             for a in args:
                 params[a] = True
+
             # Append other request params
-            for k, v in request.params.decode().dict.items():
+            req_params = list(request.params.decode().dict.items())
+            # TODO test special chars in filename
+            req_params += list(request.files.dict.items())
+            for k, v in req_params:
                 v = _format(v)
                 if k not in params.keys():
                     params[k] = v
@@ -464,6 +488,14 @@ class _ActionsMapPlugin(object):
         else:
             return format_for_response(ret)
         finally:
+
+            # Clean upload directory
+            # FIXME do that in a better way
+            global UPLOAD_DIR
+            if UPLOAD_DIR is not None:
+                rmtree(UPLOAD_DIR, True)
+                UPLOAD_DIR = None
+
             # Close opened WebSocket by putting StopIteration in the queue
             try:
                 s_id = Session.get_infos()["id"]
