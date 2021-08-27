@@ -17,7 +17,6 @@ from moulinette.cache import open_cachefile
 from moulinette.core import (
     MoulinetteError,
     MoulinetteLock,
-    MoulinetteAuthenticationError,
     MoulinetteValidationError,
 )
 from moulinette.interfaces import BaseActionsMapParser, TO_RETURN_PROP

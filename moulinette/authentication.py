@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
-import logging
-import hashlib
-import hmac
-
-from moulinette.utils.text import random_ascii
 from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
 
 logger = logging.getLogger("moulinette.authenticator")

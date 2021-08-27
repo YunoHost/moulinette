@@ -516,7 +516,7 @@ class _ActionsMapPlugin(object):
 
     def display(self, message, style="info"):
 
-        s_id = Sesson.get_infos()["id"]
+        s_id = Session.get_infos()["id"]
         try:
             queue = self.log_queues[s_id]
         except KeyError:

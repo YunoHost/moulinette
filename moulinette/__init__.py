@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from os import environ
 from moulinette.core import (
     MoulinetteError,
     Moulinette18n,
