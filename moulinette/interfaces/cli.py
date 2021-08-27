@@ -5,7 +5,7 @@ import sys
 import getpass
 import locale
 import logging
-from argparse import SUPPRESS
+import argparse
 from collections import OrderedDict
 from datetime import date, datetime
 
@@ -17,6 +17,7 @@ from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
     ExtendedArgumentParser,
+    JSONExtendedEncoder,
 )
 from moulinette.utils import log
 
@@ -32,17 +33,14 @@ from moulinette.utils import log
 # But it display instead:
 #       Error: unable to parse arguments 'firewall' because: sequence item 0: expected str instance, NoneType found
 
-import argparse
-
-
 def monkey_get_action_name(argument):
     if argument is None:
         return None
     elif argument.option_strings:
         return "/".join(argument.option_strings)
-    elif argument.metavar not in (None, SUPPRESS):
+    elif argument.metavar not in (None, argparse.SUPPRESS):
         return argument.metavar
-    elif argument.dest not in (None, SUPPRESS):
+    elif argument.dest not in (None, argparse.SUPPRESS):
         return argument.dest
     elif argument.choices:
         return "{" + ",".join(argument.choices) + "}"
@@ -307,7 +305,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
             # Append each top parser action to the global group
             for action in top_parser._actions:
-                action.dest = SUPPRESS
+                action.dest = argparse.SUPPRESS
                 self.global_parser._add_action(action)
 
     # Implement virtual properties
@@ -509,8 +507,6 @@ class Interface:
         if output_as:
             if output_as == "json":
                 import json
-                from moulinette.utils.serialize import JSONExtendedEncoder
-
                 print(json.dumps(ret, cls=JSONExtendedEncoder))
             else:
                 plain_print_dict(ret)

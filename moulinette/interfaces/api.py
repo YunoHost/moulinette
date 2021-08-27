@@ -21,9 +21,9 @@ from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
     ExtendedArgumentParser,
+    JSONExtendedEncoder,
 )
 from moulinette.utils import log
-from moulinette.utils.serialize import JSONExtendedEncoder
 from moulinette.utils.text import random_ascii
 
 logger = log.getLogger("moulinette.interface.api")
