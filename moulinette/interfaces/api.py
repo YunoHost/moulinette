@@ -243,6 +243,8 @@ class Session:
             infos,
             secure=True,
             secret=Session.secret,
+            httponly=True,
+            # samesite="strict", # Bottle 0.12 doesn't support samesite, to be added in next versions
         )
 
     def get_infos():
