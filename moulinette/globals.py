@@ -1,3 +1,0 @@
-"""Moulinette global configuration core."""
-
-
