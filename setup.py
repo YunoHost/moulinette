@@ -18,7 +18,6 @@ if "install" in sys.argv:
             locale_files.append("locales/%s" % f)
 
 install_deps = [
-    "argcomplete",
     "psutil",
     "pytz",
     "pyyaml",

@@ -9,8 +9,6 @@ import argparse
 from collections import OrderedDict
 from datetime import date, datetime
 
-import argcomplete
-
 from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
@@ -491,9 +489,6 @@ class Interface:
 
         if output_as and output_as not in ["json", "plain", "none"]:
             raise MoulinetteValidationError("invalid_usage")
-
-        # auto-complete
-        argcomplete.autocomplete(self.actionsmap.parser._parser)
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
