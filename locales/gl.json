@@ -41,7 +41,7 @@
     "download_unknown_error": "Erro ao descargar os datos desde {url}: {error}",
     "download_timeout": "{url} está tardando en responder, deixámolo.",
     "download_ssl_error": "Erro SSL ao conectar con {url}",
-    "invalid_url": "URL non válido {url} (existe esta web?)",
+    "invalid_url": "Fallou a conexión con {url} ... pode que o servizo esté caído, ou que non teñas conexión a Internet con IPv4/IPv6.",
     "error_changing_file_permissions": "Erro ao cambiar os permisos de {path}: {error}",
     "error_removing": "Erro ao eliminar {path}: {error}",
     "error_writing_file": "Erro ao escribir o ficheiro {file}: {error}",
