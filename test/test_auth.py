@@ -1,7 +1,6 @@
 import pytest
 
 from moulinette import MoulinetteError
-from moulinette import m18n
 
 
 class TestAuthAPI:
@@ -72,7 +71,7 @@ class TestAuthAPI:
     def test_login_bad_password(self, moulinette_webapi):
         assert (
             self.login(moulinette_webapi, password="Bad Password", status=401).text
-            == "Invalid password"
+            == "invalid_password"
         )
 
         assert "session.moulitest" not in moulinette_webapi.cookies
