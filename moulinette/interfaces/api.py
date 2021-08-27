@@ -264,6 +264,7 @@ class Session:
     def delete_infos():
 
         response.set_cookie(f"session.{Session.actionsmap_name}", "", max_age=-1)
+        response.delete_cookie(f"session.{Session.actionsmap_name}")
 
 
 class _ActionsMapPlugin(object):
