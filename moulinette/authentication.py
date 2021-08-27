@@ -28,7 +28,7 @@ class BaseAuthenticator(object):
     # Virtual methods
     # Each authenticator classes must implement these methods.
 
-    def authenticate_credentials(self, credentials, store_session=False):
+    def authenticate_credentials(self, credentials):
 
         try:
             # Attempt to authenticate

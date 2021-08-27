@@ -4,6 +4,7 @@ import re
 import errno
 import logging
 import argparse
+
 from json import dumps as json_encode
 from tempfile import mkdtemp
 from shutil import rmtree
@@ -17,7 +18,7 @@ from bottle import abort
 
 from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
-from moulinette.core import MoulinetteError, MoulinetteValidationError
+from moulinette.core import MoulinetteError, MoulinetteValidationError, MoulinetteAuthenticationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
     ExtendedArgumentParser,
@@ -82,7 +83,7 @@ class APIQueueHandler(logging.Handler):
         self.queues = LogQueues()
 
     def emit(self, record):
-        s_id = Session.get_infos()["id"]
+        s_id = Session.get_infos(raise_if_no_session_exists=False)["id"]
         try:
             queue = self.queues[s_id]
         except KeyError:
@@ -247,14 +248,16 @@ class Session:
             # samesite="strict", # Bottle 0.12 doesn't support samesite, to be added in next versions
         )
 
-    def get_infos():
+    def get_infos(raise_if_no_session_exists=True):
 
         try:
             infos = request.get_cookie(
                 f"session.{Session.actionsmap_name}", secret=Session.secret, default={}
             )
         except Exception:
-            infos = {}
+            if not raise_if_no_session_exists:
+                return {"id": random_ascii()}
+            raise MoulinetteAuthenticationError("unable_authenticate")
 
         if "id" not in infos:
             infos["id"] = random_ascii()
@@ -397,17 +400,14 @@ class _ActionsMapPlugin(object):
         authenticator = self.actionsmap.get_authenticator(profile)
 
         try:
-            auth_info = authenticator.authenticate_credentials(
-                credentials, store_session=True
-            )
-            session_infos = Session.get_infos()
+            auth_info = authenticator.authenticate_credentials(credentials)
+            session_infos = Session.get_infos(raise_if_no_session_exists=False)
             session_infos[profile] = auth_info
         except MoulinetteError as e:
             try:
                 self.logout()
             except Exception:
                 pass
-            # FIXME : replace with MoulinetteAuthenticationError !?
             raise HTTPResponse(e.strerror, 401)
         else:
             Session.set_infos(session_infos)
@@ -418,7 +418,11 @@ class _ActionsMapPlugin(object):
 
         try:
             session_infos = Session.get_infos()[authenticator.name]
-        except KeyError:
+
+            # Here, maybe we want to re-authenticate the session via the authenticator
+            # For example to check that the username authenticated is still in the admin group...
+
+        except Exception as e:
             msg = m18n.g("authentication_required")
             raise HTTPResponse(msg, 401)
 
@@ -518,7 +522,7 @@ class _ActionsMapPlugin(object):
 
     def display(self, message, style="info"):
 
-        s_id = Session.get_infos()["id"]
+        s_id = Session.get_infos(raise_if_no_session_exists=False)["id"]
         try:
             queue = self.log_queues[s_id]
         except KeyError:
