@@ -18,7 +18,11 @@ from bottle import abort
 
 from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
-from moulinette.core import MoulinetteError, MoulinetteValidationError, MoulinetteAuthenticationError
+from moulinette.core import (
+    MoulinetteError,
+    MoulinetteValidationError,
+    MoulinetteAuthenticationError,
+)
 from moulinette.interfaces import (
     BaseActionsMapParser,
     ExtendedArgumentParser,
