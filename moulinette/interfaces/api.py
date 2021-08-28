@@ -422,7 +422,7 @@ class _ActionsMapPlugin(object):
             # Here, maybe we want to re-authenticate the session via the authenticator
             # For example to check that the username authenticated is still in the admin group...
 
-        except Exception as e:
+        except Exception:
             msg = m18n.g("authentication_required")
             raise HTTPResponse(msg, 401)
 
