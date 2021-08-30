@@ -1,1 +1,17 @@
-{}
+{
+    "logged_in": "وارد شده",
+    "invalid_usage": "استفاده نامعتبر ، برای مشاهده راهنما --help را ارسال کنید",
+    "invalid_argument": "استدلال نامعتبر '{argument}': {error}",
+    "instance_already_running": "در حال حاضر یک عملیات YunoHost در حال اجرا است. لطفاً قبل از اجرای یکی دیگر ، منتظر بمانید تا آن به پایان برسد.",
+    "info": "اطلاعات:",
+    "folder_exists": "پوشه موجود است: '{path}'",
+    "file_not_exist": "فایل وجود ندارد: '{path}'",
+    "error": "خطا:",
+    "deprecated_command_alias": "'{prog} {old}' منسوخ شده است و در آینده حذف خواهد شد ، بجای آن از '{prog} {new}' استفاده کنید",
+    "deprecated_command": "'{prog} {command}' منسوخ شده است و در آینده حذف خواهد شد",
+    "confirm": "تأیید {prompt}",
+    "colon": "{}: ",
+    "authentication_required": "احراز هویّت الزامی است",
+    "argument_required": "استدلال '{argument}' ضروری است",
+    "password": "کلمه عبور"
+}
