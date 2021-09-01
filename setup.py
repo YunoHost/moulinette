@@ -51,7 +51,7 @@ setup(
     license="AGPL",
     packages=find_packages(exclude=["test"]),
     data_files=[(LOCALES_DIR, locale_files)],
-    python_requires=">=3.7.*,  <3.8",
+    python_requires=">=3.7.*,  <3.10",
     install_requires=install_deps,
     tests_require=test_deps,
     extras_require=extras,
