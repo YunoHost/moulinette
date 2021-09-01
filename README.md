@@ -1,15 +1,20 @@
-[![Build Status](https://travis-ci.org/YunoHost/moulinette.svg?branch=stretch-unstable)](https://travis-ci.org/YunoHost/moulinette)
-[![GitHub license](https://img.shields.io/github/license/YunoHost/moulinette)](https://github.com/YunoHost/moulinette/blob/stretch-unstable/LICENSE)
+<h1 align="center">Moulinette</h1>
 
-Moulinette
-==========
+<div align="center">
+ 
+[![Tests status](https://github.com/YunoHost/moulinette/actions/workflows/tox.yml/badge.svg)](https://github.com/YunoHost/moulinette/actions/workflows/tox.yml)
+[![GitHub license](https://img.shields.io/github/license/YunoHost/moulinette)](https://github.com/YunoHost/moulinette/blob/dev/LICENSE)
+ 
+<a href="https://translate.yunohost.org/engage/yunohost/?utm_source=widget">
+<img src="https://translate.yunohost.org/widgets/yunohost/-/287x66-white.png" alt="Translation status" />
+</a>
+  
+</div>
+
 
 The *moulinette* is a Python package that allows to quickly and easily
 prototype interfaces for your application.
 
-<a href="https://translate.yunohost.org/engage/yunohost/?utm_source=widget">
-<img src="https://translate.yunohost.org/widgets/yunohost/-/287x66-white.png" alt="Translation status" />
-</a>
 
 Issues
 ------
