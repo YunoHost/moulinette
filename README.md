@@ -4,17 +4,13 @@
  
 [![Tests status](https://github.com/YunoHost/moulinette/actions/workflows/tox.yml/badge.svg)](https://github.com/YunoHost/moulinette/actions/workflows/tox.yml)
 [![GitHub license](https://img.shields.io/github/license/YunoHost/moulinette)](https://github.com/YunoHost/moulinette/blob/dev/LICENSE)
+
  
-<a href="https://translate.yunohost.org/engage/yunohost/?utm_source=widget">
-<img src="https://translate.yunohost.org/widgets/yunohost/-/287x66-white.png" alt="Translation status" />
-</a>
-  
+Moulinette is a small Python framework meant to easily create programs with unified CLI and API.
+
+In particular, it is used as a base framework for the YunoHost project.
+ 
 </div>
-
-
-The *moulinette* is a Python package that allows to quickly and easily
-prototype interfaces for your application.
-
 
 Issues
 ------
@@ -24,35 +20,23 @@ Issues
 Overview
 --------
 
-Initially, the moulinette was an application made for the
-[YunoHost](https://yunohost.org/) project in order to regroup all its
-related operations into a single program called *moulinette*. Those
-operations were available from a command-line interface and a Web server
-providing an API. Moreover, the usage of these operations (e.g.
-required/optional arguments) was defined into a simple yaml file -
-called *actionsmap*. This file was parsed in order to construct an
-*ArgumentParser* object and to parse the command arguments to process
-the proper operation.
+Moulinette allows to create a YAML "actionmaps" that describes what commands are available. Moulinette will automatically make these commands available through the CLI and Web API, and will be mapped to a python function. Moulinette also provide some general helpers, for example for logging, i18n, authentication, or common file system operations.
 
-During a long refactoring with the goal of unify both interfaces, the
-idea to separate the core of the YunoHost operations has emerged.
-The core kept the same name *moulinette* and try to follow the same
-initial principle. An [Actions Map](#actions-map) - which defines
-available operations and their usage - is parsed and it's used to
-process an operation from several unified [Interfaces](#interfaces). It
-also supports a configuration mechanism - which allows to restrict an
-operation on an interface for example (see
-[Authenticators](#authenticators)).
+<div align="center"><img src="doc/actionsmap.png" width="700" /></div>
 
+Translation
+-----------
 
-Dev Documentation
------------------
+You can help translate Moulinette on our [translation platform](https://translate.yunohost.org/engage/yunohost/?utm_source=widget)
 
-https://moulinette.readthedocs.org
+<div align="center"><img src="https://translate.yunohost.org/widgets/yunohost/-/moulinette/horizontal-auto.svg" alt="Translation status" /></div>
 
+Developpers
+-----------
 
-Testing
--------
+- You can learn how to get started with developing on YunoHost by reading [this piece of documentation](https://yunohost.org/dev).
+- Specific doc for moulinette: https://moulinette.readthedocs.org
+- Run tests with:
 
 ```
 $ pip install tox
