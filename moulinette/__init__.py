@@ -2,10 +2,9 @@
 
 from moulinette.core import (
     MoulinetteError,
-    MoulinetteSignals,
     Moulinette18n,
+    env,
 )
-from moulinette.globals import init_moulinette_env
 
 __title__ = "moulinette"
 __author__ = ["Yunohost Contributors"]
@@ -26,21 +25,33 @@ __credits__ = """
     You should have received a copy of the GNU Affero General Public License
     along with this program; if not, see http://www.gnu.org/licenses
     """
-__all__ = [
-    "init",
-    "api",
-    "cli",
-    "m18n",
-    "msignals",
-    "env",
-    "init_interface",
-    "MoulinetteError",
-]
+__all__ = ["init", "api", "cli", "m18n", "MoulinetteError", "Moulinette"]
 
 
-msignals = MoulinetteSignals()
-msettings = dict()
 m18n = Moulinette18n()
+
+
+class classproperty(object):
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, owner):
+        return self.f(owner)
+
+
+class Moulinette:
+
+    _interface = None
+
+    def prompt(*args, **kwargs):
+        return Moulinette.interface.prompt(*args, **kwargs)
+
+    def display(*args, **kwargs):
+        return Moulinette.interface.display(*args, **kwargs)
+
+    @classproperty
+    def interface(cls):
+        return cls._interface
 
 
 # Package functions
@@ -67,7 +78,7 @@ def init(logging_config=None, **kwargs):
     configure_logging(logging_config)
 
     # Add library directory to python path
-    sys.path.insert(0, init_moulinette_env()["LIB_DIR"])
+    sys.path.insert(0, env["LIB_DIR"])
 
 
 # Easy access to interfaces
@@ -125,8 +136,3 @@ def cli(args, top_parser, output_as=None, timeout=None):
         logging.getLogger("moulinette").error(e.strerror)
         return 1
     return 0
-
-
-def env():
-    """Initialise moulinette specific configuration."""
-    return init_moulinette_env()

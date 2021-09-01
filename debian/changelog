@@ -4,6 +4,33 @@ moulinette (11.0.0~alpha) unstable; urgency=low
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Feb 2021 00:02:38 +0100
 
+moulinette (4.2.4) stable; urgency=low
+
+  - [fix] Avoid warning and use safeloader ([#281](https://github.com/YunoHost/moulinette/pull/281))
+  - [fix] Add warning when trying to feed non-string values to Popen env (2a89a82)
+  - [i18n] Translations updated for Esperanto, French, German, Portuguese
+
+  Thanks to all contributors <3 ! (amirale qt, Christian Wehrli, Éric Gaspar, ljf, mifegui)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 19 Aug 2021 19:25:30 +0200
+
+moulinette (4.2.3.3) stable; urgency=low
+
+  - [fix] Damn array args bug (2c9ec9f6)
+
+  Thanks to all contributors <3 ! (ljf)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 03 Jun 2021 18:40:18 +0200
+
+moulinette (4.2.3.2) stable; urgency=low
+
+  - [fix] wait 1s for message in call_async_output, prevent CPU overload ([#275](https://github.com/YunoHost/moulinette/pull/275))
+  - [i18n] Translations updated for Chinese (Simplified)
+
+  Thanks to all contributors <3 ! (Kayou, yahoo～～)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 02 Jun 2021 20:23:31 +0200
+
 moulinette (4.2.3.1) stable; urgency=low
 
   - [fix] Request params not decoded ([#277](https://github.com/YunoHost/moulinette/pull/277))

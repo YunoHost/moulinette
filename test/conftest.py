@@ -7,8 +7,6 @@ import os
 import shutil
 import pytest
 
-from .src.ldap_server import LDAPServer
-
 
 def patch_init(moulinette):
     """Configure moulinette to use the YunoHost namespace."""
@@ -95,9 +93,9 @@ def moulinette(tmp_path_factory):
     tmp_cache = str(tmp_path_factory.mktemp("cache"))
     tmp_data = str(tmp_path_factory.mktemp("data"))
     tmp_lib = str(tmp_path_factory.mktemp("lib"))
-    os.environ["MOULINETTE_CACHE_DIR"] = tmp_cache
-    os.environ["MOULINETTE_DATA_DIR"] = tmp_data
-    os.environ["MOULINETTE_LIB_DIR"] = tmp_lib
+    moulinette.env["CACHE_DIR"] = tmp_cache
+    moulinette.env["DATA_DIR"] = tmp_data
+    moulinette.env["LIB_DIR"] = tmp_lib
     shutil.copytree("./test/actionsmap", "%s/actionsmap" % tmp_data)
     shutil.copytree("./test/src", "%s/%s" % (tmp_lib, namespace))
     shutil.copytree("./test/locales", "%s/%s/locales" % (tmp_lib, namespace))
@@ -183,25 +181,6 @@ def test_toml(tmp_path):
 
 
 @pytest.fixture
-def test_ldif(tmp_path):
-    test_file = tmp_path / "test.txt"
-    from ldif import LDIFWriter
-
-    writer = LDIFWriter(open(str(test_file), "w"))
-
-    writer.unparse(
-        "mail=alice@example.com",
-        {
-            "cn": ["Alice Alison".encode("utf-8")],
-            "mail": ["alice@example.com".encode("utf-8")],
-            "objectclass": ["top".encode("utf-8"), "person".encode("utf-8")],
-        },
-    )
-
-    return test_file
-
-
-@pytest.fixture
 def user():
     return os.getlogin()
 
@@ -209,11 +188,3 @@ def user():
 @pytest.fixture
 def test_url():
     return "https://some.test.url/yolo.txt"
-
-
-@pytest.fixture
-def ldap_server():
-    server = LDAPServer()
-    server.start()
-    yield server
-    server.stop()

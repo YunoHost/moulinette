@@ -6,9 +6,23 @@ import json
 import logging
 
 import moulinette
-from moulinette.globals import init_moulinette_env
 
 logger = logging.getLogger("moulinette.core")
+
+env = {
+    "DATA_DIR": "/usr/share/moulinette",
+    "LIB_DIR": "/usr/lib/moulinette",
+    "LOCALES_DIR": "/usr/share/moulinette/locale",
+    "CACHE_DIR": "/var/cache/moulinette",
+    "NAMESPACES": "*",  # By default we'll load every namespace we find
+}
+
+for key in env.keys():
+    value_from_environ = os.environ.get(f"MOULINETTE_{key}")
+    if value_from_environ:
+        env[key] = value_from_environ
+
+env["NAMESPACES"] = env["NAMESPACES"].split()
 
 
 def during_unittests_run():
@@ -195,8 +209,7 @@ class Moulinette18n(object):
         self.default_locale = default_locale
         self.locale = default_locale
 
-        moulinette_env = init_moulinette_env()
-        self.locales_dir = moulinette_env["LOCALES_DIR"]
+        self.locales_dir = env["LOCALES_DIR"]
 
         # Init global translator
         self._global = Translator(self.locales_dir, default_locale)
@@ -217,7 +230,7 @@ class Moulinette18n(object):
         """
         if namespace not in self._namespaces:
             # Create new Translator object
-            lib_dir = init_moulinette_env()["LIB_DIR"]
+            lib_dir = env["LIB_DIR"]
             translator = Translator(
                 "%s/%s/locales" % (lib_dir, namespace), self.default_locale
             )
@@ -270,113 +283,6 @@ class Moulinette18n(object):
         return self._namespaces[self._current_namespace].key_exists(key)
 
 
-class MoulinetteSignals(object):
-
-    """Signals connector for the moulinette
-
-    Allow to easily connect signals from the moulinette to handlers. A
-    signal is emitted by calling the relevant method which call the
-    handler.
-    For the moment, a return value can be requested by a signal to its
-    connected handler - make them not real-signals.
-
-    Keyword arguments:
-        - kwargs -- A dict of {signal: handler} to connect
-
-    """
-
-    def __init__(self, **kwargs):
-        # Initialize handlers
-        for s in self.signals:
-            self.clear_handler(s)
-
-        # Iterate over signals to connect
-        for s, h in kwargs.items():
-            self.set_handler(s, h)
-
-    def set_handler(self, signal, handler):
-        """Set the handler for a signal"""
-        if signal not in self.signals:
-            logger.error("unknown signal '%s'", signal)
-            return
-        setattr(self, "_%s" % signal, handler)
-
-    def clear_handler(self, signal):
-        """Clear the handler of a signal"""
-        if signal not in self.signals:
-            logger.error("unknown signal '%s'", signal)
-            return
-        setattr(self, "_%s" % signal, self._notimplemented)
-
-    # Signals definitions
-
-    """The list of available signals"""
-    signals = {"authenticate", "prompt", "display"}
-
-    def authenticate(self, authenticator):
-        """Process the authentication
-
-        Attempt to authenticate to the given authenticator and return
-        it.
-        It is called when authentication is needed (e.g. to process an
-        action).
-
-        Keyword arguments:
-            - authenticator -- The authenticator object to use
-
-        Returns:
-            The authenticator object
-
-        """
-        if authenticator.is_authenticated:
-            return authenticator
-        return self._authenticate(authenticator)
-
-    def prompt(self, message, is_password=False, confirm=False, color="blue"):
-        """Prompt for a value
-
-        Prompt the interface for a parameter value which is a password
-        if 'is_password' and must be confirmed if 'confirm'.
-        Is is called when a parameter value is needed and when the
-        current interface should allow user interaction (e.g. to parse
-        extra parameter 'ask' in the cli).
-
-        Keyword arguments:
-            - message -- The message to display
-            - is_password -- True if the parameter is a password
-            - confirm -- True if the value must be confirmed
-            - color -- Color to use for the prompt ...
-
-        Returns:
-            The collected value
-
-        """
-        return self._prompt(message, is_password, confirm, color=color)
-
-    def display(self, message, style="info"):
-        """Display a message
-
-        Display a message with a given style to the user.
-        It is called when a message should be printed to the user if the
-        current interface allows user interaction (e.g. print a success
-        message to the user).
-
-        Keyword arguments:
-            - message -- The message to display
-            - style -- The type of the message. Possible values are:
-                info, success, warning
-
-        """
-        try:
-            self._display(message, style)
-        except NotImplementedError:
-            pass
-
-    @staticmethod
-    def _notimplemented(*args, **kwargs):
-        raise NotImplementedError("this signal is not handled")
-
-
 # Moulinette core classes ----------------------------------------------
 
 
@@ -406,10 +312,6 @@ class MoulinetteValidationError(MoulinetteError):
 class MoulinetteAuthenticationError(MoulinetteError):
 
     http_code = 401
-
-
-class MoulinetteLdapIsDownError(MoulinetteError):
-    """Used when ldap is down"""
 
 
 class MoulinetteLock(object):

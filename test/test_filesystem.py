@@ -12,7 +12,6 @@ from moulinette.utils.filesystem import (
     read_json,
     read_yaml,
     read_toml,
-    read_ldif,
     rm,
     write_to_file,
     write_to_json,
@@ -114,46 +113,6 @@ def test_read_toml_cannot_read(test_toml, mocker):
 
     translation = m18n.g("corrupted_toml", ressource=str(test_toml), error=error)
     expected_msg = translation.format(ressource=str(test_toml), error=error)
-    assert expected_msg in str(exception)
-
-
-def test_read_ldif(test_ldif):
-    dn, entry = read_ldif(str(test_ldif))[0]
-
-    assert dn == "mail=alice@example.com"
-    assert entry["mail"] == ["alice@example.com".encode("utf-8")]
-    assert entry["objectclass"] == ["top".encode("utf-8"), "person".encode("utf-8")]
-    assert entry["cn"] == ["Alice Alison".encode("utf-8")]
-
-    dn, entry = read_ldif(str(test_ldif), ["objectclass"])[0]
-
-    assert dn == "mail=alice@example.com"
-    assert entry["mail"] == ["alice@example.com".encode("utf-8")]
-    assert "objectclass" not in entry
-    assert entry["cn"] == ["Alice Alison".encode("utf-8")]
-
-
-def test_read_ldif_cannot_ioerror(test_ldif, mocker):
-    error = "foobar"
-
-    mocker.patch("builtins.open", side_effect=IOError(error))
-    with pytest.raises(MoulinetteError) as exception:
-        read_ldif(str(test_ldif))
-
-    translation = m18n.g("cannot_open_file", file=str(test_ldif), error=error)
-    expected_msg = translation.format(file=str(test_ldif), error=error)
-    assert expected_msg in str(exception)
-
-
-def test_read_ldif_cannot_exception(test_ldif, mocker):
-    error = "foobar"
-
-    mocker.patch("builtins.open", side_effect=Exception(error))
-    with pytest.raises(MoulinetteError) as exception:
-        read_ldif(str(test_ldif))
-
-    translation = m18n.g("unknown_error_reading_file", file=str(test_ldif), error=error)
-    expected_msg = translation.format(file=str(test_ldif), error=error)
     assert expected_msg in str(exception)
 
 
