@@ -38,7 +38,7 @@
     "error_writing_file": "Erreur en écrivant le fichier {file} : {error}",
     "error_removing": "Erreur lors de la suppression {path} : {error}",
     "error_changing_file_permissions": "Erreur lors de la modification des autorisations pour {path} : {error}",
-    "invalid_url": "URL {url} invalide : ce site existe-t-il ?",
+    "invalid_url": "Impossible de se connecter à {url} ... peut-être que le service est hors service/indisponible/interrompu, ou que vous n'êtes pas correctement connecté à Internet en IPv4/IPv6.",
     "download_ssl_error": "Erreur SSL lors de la connexion à {url}",
     "download_timeout": "{url} a pris trop de temps pour répondre : abandon.",
     "download_unknown_error": "Erreur lors du téléchargement des données à partir de {url} : {error}",
