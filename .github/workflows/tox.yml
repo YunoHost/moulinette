@@ -4,6 +4,7 @@ on:
   push:
       branches:
           - dev
+          - bullseye
   pull_request:
 
 jobs:
