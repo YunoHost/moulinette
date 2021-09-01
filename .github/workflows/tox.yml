@@ -1,4 +1,4 @@
-name: Run tests for Moulinette
+name: Tests
 
 on:
   push:
