@@ -23,7 +23,6 @@
     "values_mismatch": "Wartości nie pasują",
     "unknown_user": "Nieznany użytkownik '{user}'",
     "unknown_group": "Nieznana grupa '{group}'",
-    "unable_retrieve_session": "Nie można pobrać sesji, ponieważ „{exception}”",
     "unable_authenticate": "Nie można uwierzytelnić",
     "success": "Sukces!",
     "server_already_running": "Serwer już działa na tym porcie",
@@ -32,11 +31,7 @@
     "operation_interrupted": "Operacja przerwana",
     "not_logged_in": "Nie jesteś zalogowany",
     "logged_in": "Zalogowany",
-    "ldap_server_down": "Nie można połączyć się z serwerem LDAP",
-    "ldap_attribute_already_exists": "Atrybut „{attribute}” już istnieje z wartością „{value}”",
     "invalid_usage": "Nieprawidłowe użycie. Przejdź --help, aby wyświetlić pomoc",
-    "invalid_token": "Nieprawidłowy token - proszę uwierzytelnić",
-    "invalid_password": "Nieprawidłowe hasło",
     "invalid_argument": "Nieprawidłowy argument „{argument}”: {error}",
     "instance_already_running": "Trwa już operacja YunoHost. Zaczekaj na zakończenie, zanim uruchomisz kolejny.",
     "info": "Informacje:",
@@ -47,9 +42,6 @@
     "deprecated_command": "„{prog} {command}” jest przestarzałe i zostanie usunięte w przyszłości",
     "confirm": "Potwierdź {prompt}",
     "colon": "{}: ",
-    "authentication_required_long": "Do wykonania tej czynności wymagane jest uwierzytelnienie",
     "authentication_required": "Wymagane uwierzytelnienie",
-    "argument_required": "Argument „{argument}” jest wymagany",
-    "ldap_server_is_down_restart_it": "Usługa LDAP nie działa, próba restartu...",
-    "session_expired": "Sesja wygasła. Zaloguj się ponownie."
+    "argument_required": "Argument „{argument}” jest wymagany"
 }

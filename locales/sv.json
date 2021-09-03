@@ -17,8 +17,6 @@
     "operation_interrupted": "Behandling avbruten",
     "not_logged_in": "Du är inte inloggad",
     "logged_in": "Inloggad",
-    "ldap_attribute_already_exists": "Attributet '{attribute}' finns redan med värdet '{value}'",
-    "invalid_password": "Ogiltigt lösenord",
     "invalid_argument": "Ogiltig parameter '{argument}': {error}",
     "logged_out": "Utloggad",
     "info": "Info:",
@@ -42,12 +40,8 @@
     "corrupted_yaml": "Skadad yaml läst från {ressource} (anledning: {error})",
     "corrupted_json": "Skadad json läst från {ressource} (anledning: {error})",
     "unknown_error_reading_file": "Okänt fel vid försök att läsa filen {file} (anledning: {error})",
-    "unable_retrieve_session": "Det gick inte att hämta sessionen eftersom '{exception}'",
     "unable_authenticate": "Det går inte att verifiera",
-    "ldap_server_down": "Det går inte att nå LDAP-servern",
     "invalid_usage": "Ogiltig användning, pass --help för att se hjälp",
-    "invalid_token": "Ogiltigt token - verifiera",
     "instance_already_running": "Det finns redan en YunoHost-operation. Vänta tills den är klar innan du kör en annan.",
-    "authentication_required_long": "Autentisering krävs för att utföra denna åtgärd",
     "authentication_required": "Autentisering krävs"
 }
