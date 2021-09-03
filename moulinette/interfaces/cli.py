@@ -536,10 +536,19 @@ class Interface:
             raise MoulinetteError(
                 "Not a tty, can't do interactive prompts", raw_msg=True
             )
-        def prompt(message):
+
+        def _prompt(message):
+
             if is_password:
                 return getpass.getpass(colorize(m18n.g("colon", message), color))
-            elif is_multiline:
+            elif not is_multiline:
+                set_startup_hook(lambda: insert_text(prefill))
+                try:
+                    value = input(colorize(m18n.g("colon", message), color))
+                finally:
+                    set_startup_hook()
+                return value
+            else:
                 while True:
                     value = input(colorize(m18n.g("edit_text_question", message), color))
                     value = value.lower().strip()
@@ -557,18 +566,12 @@ class Interface:
                     tf.seek(0)
                     edited_message = tf.read()
                 return edited_message.decode("utf-8")
-            else:
-                set_startup_hook(lambda: insert_text(prefill))
-                try:
-                    value = input(colorize(m18n.g("colon", message), color))
-                finally:
-                    set_startup_hook()
-                return value
-        value = prompt(message)
+
+        value = _prompt(message)
 
         if confirm:
             m = message[0].lower() + message[1:]
-            if prompt(m18n.g("confirm", prompt=m)) != value:
+            if _prompt(m18n.g("confirm", prompt=m)) != value:
                 raise MoulinetteValidationError("values_mismatch")
 
         return value
