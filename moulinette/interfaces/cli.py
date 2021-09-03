@@ -542,9 +542,10 @@ class Interface:
             elif is_multiline:
                 while True:
                     value = input(colorize(m18n.g("edit_text_question", message), color))
-                    if value in ["", "n", "N", "no", "NO"]:
+                    value = value.lower().strip()
+                    if value in ["", "n", "no"]:
                         return prefill
-                    elif value in ['y', 'yes', 'Y', 'YES']:
+                    elif value in ['y', 'yes']:
                         break
 
                 initial_message = prefill.encode('utf-8')
