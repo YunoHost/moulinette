@@ -2,7 +2,7 @@ import json
 import glob
 from collections import OrderedDict
 
-locale_folder = "../locales/"
+locale_folder = "locales/"
 locale_files = glob.glob(locale_folder + "*.json")
 locale_files = [filename.split("/")[-1] for filename in locale_files]
 locale_files.remove("en.json")
