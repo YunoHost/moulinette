@@ -67,16 +67,17 @@ def read_json(file_path):
     return loaded_json
 
 
-def read_yaml(file_path):
+def read_yaml(file_):
     """
     Safely read a yaml file
 
     Keyword argument:
-        file_path -- Path to the yaml file
+        file -- Path or stream to the yaml file
     """
 
     # Read file
-    file_content = read_file(file_path)
+    file_path = file_ if isinstance(file_, str) else file_.name
+    file_content = read_file(file_) if isinstance(file_, str) else file_
 
     # Try to load yaml to check if it's syntaxically correct
     try:

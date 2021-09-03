@@ -6,8 +6,11 @@ import getpass
 import locale
 import logging
 import argparse
+import tempfile
+from readline import insert_text, set_startup_hook
 from collections import OrderedDict
 from datetime import date, datetime
+from subprocess import call
 
 from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
@@ -522,7 +525,7 @@ class Interface:
         credentials = self.prompt(msg, True, False, color="yellow")
         return authenticator.authenticate_credentials(credentials=credentials)
 
-    def prompt(self, message, is_password=False, confirm=False, color="blue"):
+    def prompt(self, message, is_password=False, confirm=False, color="blue", prefill="", is_multiline=False):
         """Prompt for a value
 
         Keyword arguments:
@@ -534,15 +537,41 @@ class Interface:
                 "Not a tty, can't do interactive prompts", raw_msg=True
             )
 
-        if is_password:
-            prompt = lambda m: getpass.getpass(colorize(m18n.g("colon", m), color))
-        else:
-            prompt = lambda m: input(colorize(m18n.g("colon", m), color))
-        value = prompt(message)
+        def _prompt(message):
+
+            if is_password:
+                return getpass.getpass(colorize(m18n.g("colon", message), color))
+            elif not is_multiline:
+                set_startup_hook(lambda: insert_text(prefill))
+                try:
+                    value = input(colorize(m18n.g("colon", message), color))
+                finally:
+                    set_startup_hook()
+                return value
+            else:
+                while True:
+                    value = input(colorize(m18n.g("edit_text_question", message), color))
+                    value = value.lower().strip()
+                    if value in ["", "n", "no"]:
+                        return prefill
+                    elif value in ['y', 'yes']:
+                        break
+
+                initial_message = prefill.encode('utf-8')
+
+                with tempfile.NamedTemporaryFile(suffix=".tmp") as tf:
+                    tf.write(initial_message)
+                    tf.flush()
+                    call(["editor", tf.name])
+                    tf.seek(0)
+                    edited_message = tf.read()
+                return edited_message.decode("utf-8")
+
+        value = _prompt(message)
 
         if confirm:
             m = message[0].lower() + message[1:]
-            if prompt(m18n.g("confirm", prompt=m)) != value:
+            if _prompt(m18n.g("confirm", prompt=m)) != value:
                 raise MoulinetteValidationError("values_mismatch")
 
         return value
