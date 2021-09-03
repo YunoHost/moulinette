@@ -15,8 +15,7 @@ jobs:
               python3 test/remove_stale_i18n_strings.py
               python3 test/autofix_locale_format.py
               python3 test/reformat_locales.py
-              git diff -w --exit-cide
-          continue-on-error: true
+              git diff -w --exit-code
         - name: Create Pull Request
           if: ${{ failure() }}
           uses: peter-evans/create-pull-request@v3
