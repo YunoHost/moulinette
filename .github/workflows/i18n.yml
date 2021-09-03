@@ -1,11 +1,11 @@
-name: Check / autofix locales
+name: Autoreformat locale files
 on:
   push:
       branches:
           - dev
 jobs:
   i18n:
-    name: Check / auto apply black
+    name: Autoreformat locale files
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v2
@@ -23,5 +23,7 @@ jobs:
             token: ${{ secrets.GITHUB_TOKEN }}
             title: "Reformat locale files"
             commit-message: ":robot: Reformat locale files"
+            body: |
+              Automatic pull request using the scripts in `test/`
             base: ${{ github.head_ref }}
-            branch: actions/i18n
+            branch: actions/i18nreformat
