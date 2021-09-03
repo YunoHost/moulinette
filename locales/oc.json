@@ -1,7 +1,6 @@
 {
     "argument_required": "L’argument {argument} es requesit",
     "authentication_required": "Autentificacion requesida",
-    "authentication_required_long": "Una autentificacion es requesida per acomplir aquesta accion",
     "logged_in": "Connectat",
     "logged_out": "Desconnectat",
     "password": "Senhal",
@@ -14,18 +13,14 @@
     "folder_exists": "Lo repertòri existís ja : « {path} »",
     "instance_already_running": "I a ja una operacion de YunoHost en cors. Mercés d’esperar que s’acabe abans de ne lançar una mai.",
     "invalid_argument": "Argument « {argument} » incorrècte : {error}",
-    "invalid_password": "Senhal incorrècte",
-    "ldap_server_down": "Impossible d’aténher lo servidor LDAP",
     "not_logged_in": "Cap de session començada",
     "pattern_not_match": "Correspond pas al patron",
     "root_required": "Cal èsser root per realizar aquesta accion",
-    "unable_retrieve_session": "Recuperacion impossibla de la session a causa de « {exception} »",
     "unknown_group": "Grop « {group} » desconegut",
     "unknown_user": "Utilizaire « {user} » desconegut",
     "values_mismatch": "Las valors correspondon pas",
     "warning": "Atencion :",
     "invalid_usage": "Usatge invalid, utilizatz --help per accedir a l’ajuda",
-    "ldap_attribute_already_exists": "L’atribut  « {attribute} » existís ja amb la valor : {value}",
     "operation_interrupted": "Operacion interrompuda",
     "server_already_running": "Un servidor es ja en execucion sus aqueste pòrt",
     "success": "Capitada !",
@@ -48,8 +43,5 @@
     "corrupted_toml": "Fichièr TOML corromput en lectura de {ressource} estant (rason : {error})",
     "warn_the_user_about_waiting_lock": "Una autra comanda YunoHost es en execucion, sèm a esperar qu’acabe abans d’aviar aquesta d’aquí",
     "warn_the_user_about_waiting_lock_again": "Encara en espèra…",
-    "warn_the_user_that_lock_is_acquired": "l’autra comanda ven d’acabar, ara lançament d’aquesta comanda",
-    "invalid_token": "Geton invalid - volgatz vos autentificar",
-    "ldap_server_is_down_restart_it": "Lo servici LDAP s’es atudat, ensajam de lo reaviar…",
-    "session_expired": "La session a expirat. Tornatz vos autentificar."
+    "warn_the_user_that_lock_is_acquired": "l’autra comanda ven d’acabar, ara lançament d’aquesta comanda"
 }
