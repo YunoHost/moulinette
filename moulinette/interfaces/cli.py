@@ -525,7 +525,15 @@ class Interface:
         credentials = self.prompt(msg, True, False, color="yellow")
         return authenticator.authenticate_credentials(credentials=credentials)
 
-    def prompt(self, message, is_password=False, confirm=False, color="blue", prefill="", is_multiline=False):
+    def prompt(
+        self,
+        message,
+        is_password=False,
+        confirm=False,
+        color="blue",
+        prefill="",
+        is_multiline=False,
+    ):
         """Prompt for a value
 
         Keyword arguments:
@@ -550,14 +558,16 @@ class Interface:
                 return value
             else:
                 while True:
-                    value = input(colorize(m18n.g("edit_text_question", message), color))
+                    value = input(
+                        colorize(m18n.g("edit_text_question", message), color)
+                    )
                     value = value.lower().strip()
                     if value in ["", "n", "no"]:
                         return prefill
-                    elif value in ['y', 'yes']:
+                    elif value in ["y", "yes"]:
                         break
 
-                initial_message = prefill.encode('utf-8')
+                initial_message = prefill.encode("utf-8")
 
                 with tempfile.NamedTemporaryFile(suffix=".tmp") as tf:
                     tf.write(initial_message)
