@@ -17,12 +17,12 @@ jobs:
               python3 test/reformat_locales.py
               git diff -w --exit-cide
           continue-on-error: true
-      - name: Create Pull Request
-        if: ${{ failure() }}
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: "Reformat locale files"
-          commit-message: ":robot: Reformat locale files"
-          base: ${{ github.head_ref }}
-          branch: actions/i18n
+        - name: Create Pull Request
+          if: ${{ failure() }}
+          uses: peter-evans/create-pull-request@v3
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            title: "Reformat locale files"
+            commit-message: ":robot: Reformat locale files"
+            base: ${{ github.head_ref }}
+            branch: actions/i18n
