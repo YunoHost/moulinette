@@ -11,7 +11,6 @@
     "success": "Siker!",
     "values_mismatch": "Eltérő értékek",
     "warning": "Figyelem:",
-    "invalid_password": "Helytelen jelszó",
     "info": "Információ:",
     "file_not_exist": "A fájl nem létezik: '{path}'",
     "error": "Hiba:"

@@ -1,7 +1,6 @@
 {
     "argument_required": "Требуется'{argument}' аргумент",
     "authentication_required": "Требуется аутентификация",
-    "authentication_required_long": "Для этого действия требуется аутентификация",
     "colon": "{}: ",
     "confirm": "Подтвердить {prompt}",
     "deprecated_command": "'{prog} {command}' устарела и будет удалена",
@@ -10,8 +9,6 @@
     "file_not_exist": "Файл не существует: '{path}'",
     "folder_exists": "Каталог уже существует: '{path}'",
     "invalid_argument": "Неправильный аргумент '{argument}': {error}",
-    "invalid_password": "Неправильный пароль",
-    "ldap_attribute_already_exists": "Атрибут '{attribute}' уже существует со значением '{value}'",
     "logged_in": "Вы вошли",
     "logged_out": "Вы вышли из системы",
     "not_logged_in": "Вы не залогинились",
@@ -45,9 +42,6 @@
     "download_bad_status_code": "{url} вернул код состояния {code}",
     "error_changing_file_permissions": "Ошибка при изменении разрешений для {path}: {error}",
     "corrupted_toml": "Поврежденный том, прочитанный из {ressource} (причина: {error})",
-    "unable_retrieve_session": "Невозможно получить сеанс, так как '{exception}'",
-    "ldap_server_down": "Невозможно связаться с сервером LDAP",
     "invalid_usage": "Неправильное использование, передайте --help, чтобы увидеть помощь",
-    "invalid_token": "Неверный токен - пожалуйста, авторизуйтесь",
     "info": "Информация:"
 }
