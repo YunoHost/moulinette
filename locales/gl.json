@@ -43,5 +43,6 @@
     "unknown_error_reading_file": "Erro descoñecido ao intentar ler o ficheiro {file} (razón: {error})",
     "cannot_write_file": "Non se puido escribir o ficheiro {file} (razón: {error})",
     "cannot_open_file": "Non se puido abrir o ficheiro {file} (razón: {error})",
-    "websocket_request_expected": "Agardábase unha solicitude WebSocket"
+    "websocket_request_expected": "Agardábase unha solicitude WebSocket",
+    "edit_text_question": "{}. Editar este texto ? [yN]: "
 }
