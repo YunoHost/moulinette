@@ -119,7 +119,7 @@ def write_to_file(file_path, data, file_mode="w"):
         file_mode -- Mode used when writing the file. Option meant to be used
         by append_to_file to avoid duplicating the code of this function.
     """
-    assert isinstance(data, str) or isinstance(
+    assert isinstance(data, str) or isinstance(data, bytes) or isinstance(
         data, list
     ), "Error: data '%s' should be either a string or a list but is of type '%s'" % (
         data,
@@ -136,7 +136,7 @@ def write_to_file(file_path, data, file_mode="w"):
     )
 
     # If data is a list, check elements are strings and build a single string
-    if not isinstance(data, str):
+    if isinstance(data, list):
         for element in data:
             assert isinstance(
                 element, str
