@@ -550,9 +550,10 @@ class Interface:
             if is_password:
                 return getpass.getpass(colorize(m18n.g("colon", message), color))
             elif not is_multiline:
+                print(colorize(m18n.g("colon", message), color), end="")
                 set_startup_hook(lambda: insert_text(prefill))
                 try:
-                    value = input(colorize(m18n.g("colon", message), color))
+                    value = input()
                 finally:
                     set_startup_hook()
                 return value
