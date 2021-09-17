@@ -44,3 +44,5 @@ jobs:
         pip install tox tox-gh-actions
     - name: Linter
       run: tox -e py37-invalidcode
+    - name: Mypy
+      run: tox -e py37-mypy

@@ -22,8 +22,6 @@ for key in env.keys():
     if value_from_environ:
         env[key] = value_from_environ
 
-env["NAMESPACES"] = env["NAMESPACES"].split()
-
 
 def during_unittests_run():
     return "TESTS_RUN" in os.environ
