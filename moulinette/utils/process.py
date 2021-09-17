@@ -121,7 +121,7 @@ class LogPipe(threading.Thread):
     def run(self):
         """Run the thread, logging everything."""
         for line in iter(self.pipeReader.readline, ""):
-            self.queue.put((self.log_callback, line.decode('utf-8').strip("\n")))
+            self.queue.put((self.log_callback, line.decode("utf-8").strip("\n")))
 
         self.pipeReader.close()
 
