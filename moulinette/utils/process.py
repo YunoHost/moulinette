@@ -108,7 +108,7 @@ class LogPipe(threading.Thread):
         self.log_callback = log_callback
 
         self.fdRead, self.fdWrite = os.pipe()
-        self.pipeReader = os.fdopen(self.fdRead)
+        self.pipeReader = os.fdopen(self.fdRead, "rb")
 
         self.queue = queue
 
