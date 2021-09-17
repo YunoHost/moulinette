@@ -31,6 +31,7 @@ test_deps = [
     "pytest-cov",
     "pytest-env",
     "pytest-mock",
+    "mock",
     "requests",
     "requests-mock",
     "webtest",
