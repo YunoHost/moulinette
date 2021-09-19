@@ -43,5 +43,6 @@
     "confirm": "Підтвердити {prompt}",
     "colon": "{}: ",
     "authentication_required": "Потрібна автентифікація",
-    "argument_required": "Потрібен аргумент '{argument}'"
+    "argument_required": "Потрібен аргумент '{argument}'",
+    "edit_text_question": "{}. Редагувати цей текст? [yN]: "
 }
