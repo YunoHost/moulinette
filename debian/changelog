@@ -1,3 +1,17 @@
+moulinette (4.3.0) testing; urgency=low
+
+  - [enh] Allow file type in actionmaps ([#258](https://github.com/YunoHost/moulinette/pull/258))
+  - [refactor] Rework and externalize the authenticator system ([#270](https://github.com/YunoHost/moulinette/pull/270))
+  - [security] Add httponly to API cookies (8562c05d)
+  - [enh] Add prefill and multiline in prompt ([#290](https://github.com/YunoHost/moulinette/pull/290), 08f7866f)
+  - [enh] Support bytes/stream in write_to_file (6e714314)
+  - [fix] Various technical bugs in utils/process.py (fdc61c91, 4eb60dac, 3741101d)
+  - [i18n] Translations updated for French, Galician, Persian, Ukrainian
+
+  Thanks to all contributors <3 ! (Éric Gaspar, José M, Kay0u, ljf, Parviz Homayun, ppr, Tymofii-Lytvynenko)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 19 Sep 2021 21:19:43 +0200
+
 moulinette (4.2.4) stable; urgency=low
 
   - [fix] Avoid warning and use safeloader ([#281](https://github.com/YunoHost/moulinette/pull/281))
