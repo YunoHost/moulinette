@@ -7,7 +7,13 @@ import subprocess
 from setuptools import setup, find_packages
 from moulinette import env
 
-version = subprocess.check_output("head debian/changelog  -n1 | awk '{print $2}' | tr -d '()'", shell=True).decode().strip()
+version = (
+    subprocess.check_output(
+        "head debian/changelog  -n1 | awk '{print $2}' | tr -d '()'", shell=True
+    )
+    .decode()
+    .strip()
+)
 
 LOCALES_DIR = env["LOCALES_DIR"]
 
