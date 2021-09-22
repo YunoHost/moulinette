@@ -2,12 +2,10 @@
 
 import os
 import sys
-import getpass
 import locale
 import logging
 import argparse
 import tempfile
-from readline import insert_text, set_startup_hook
 from collections import OrderedDict
 from datetime import date, datetime
 from subprocess import call

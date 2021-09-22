@@ -33,6 +33,7 @@ install_deps = [
     "toml",
     "gevent-websocket",
     "bottle",
+    "prompt-toolkit",
 ]
 
 test_deps = [
