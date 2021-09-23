@@ -1,7 +1,6 @@
 {
     "argument_required": "المُعامِل '{argument}' مطلوب",
     "authentication_required": "المصادقة مطلوبة",
-    "colon": "{}: ",
     "confirm": "تأكيد {prompt}",
     "deprecated_command": "'{prog} {command}' تم التخلي عنه و سوف تتم إزالته مستقبلا",
     "deprecated_command_alias": "'{prog} {old}' تم التخلي عنه و سوف يتم إزالته مستقبلا، إستخدم '{prog} {new}' بدلا من ذلك",

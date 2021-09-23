@@ -1,7 +1,6 @@
 {
     "argument_required": "Argument {argument} is vereist",
     "authentication_required": "Aanmelding vereist",
-    "colon": "{}: ",
     "confirm": "Bevestig {prompt}",
     "error": "Fout:",
     "file_not_exist": "Bestand bestaat niet: '{path}'",

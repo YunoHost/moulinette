@@ -10,7 +10,6 @@
     "deprecated_command_alias": "'{prog} {old}' منسوخ شده است و در آینده حذف خواهد شد ، بجای آن از '{prog} {new}' استفاده کنید",
     "deprecated_command": "'{prog} {command}' منسوخ شده است و در آینده حذف خواهد شد",
     "confirm": "تایید کردن {prompt}",
-    "colon": "{}: ",
     "authentication_required": "احراز هویّت الزامی است",
     "argument_required": "استدلال '{argument}' ضروری است",
     "password": "کلمه عبور",

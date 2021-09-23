@@ -1,7 +1,6 @@
 {
     "argument_required": "Es requereix l'argument {argument}",
     "authentication_required": "Es requereix autenticació",
-    "colon": "{}: ",
     "confirm": "Confirmar{prompt}",
     "deprecated_command": "{prog}{command}és obsolet i es desinstal·larà en el futur",
     "deprecated_command_alias": "{prog}{old}és obsolet i es desinstal·larà en el futur, utilitzeu {prog}{new}en el seu lloc",

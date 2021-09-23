@@ -1,7 +1,6 @@
 {
     "argument_required": "Der Parameter {argument} ist erforderlich",
     "authentication_required": "Anmeldung erforderlich",
-    "colon": "{}: ",
     "confirm": "Bestätige {prompt}",
     "error": "Fehler:",
     "file_not_exist": "Datei  ist nicht vorhanden: '{path}'",

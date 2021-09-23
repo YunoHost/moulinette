@@ -14,7 +14,6 @@
     "info": "Info:",
     "error": "Feil:",
     "confirm": "Bekreft {prompt}",
-    "colon": "{}: ",
     "logged_out": "Utlogget",
     "password": "Passord"
 }
