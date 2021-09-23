@@ -554,9 +554,11 @@ class Interface:
                 from pygments.token import Token
 
                 autocomplete_ = WordCompleter(autocomplete)
-                style = prompt_toolkit.styles.style_from_dict({
-                    Token.Message: f'#ansi{color} bold',
-                })
+                style = prompt_toolkit.styles.style_from_dict(
+                    {
+                        Token.Message: f"#ansi{color} bold",
+                    }
+                )
 
                 def get_bottom_toolbar_tokens(cli):
                     if help:
@@ -567,16 +569,18 @@ class Interface:
                 def get_tokens(cli):
                     return [
                         (Token.Message, message),
-                        (Token, ': '),
+                        (Token, ": "),
                     ]
 
-                return prompt_toolkit.prompt(get_prompt_tokens=get_tokens,
-                                             get_bottom_toolbar_tokens=get_bottom_toolbar_tokens,
-                                             style=style,
-                                             default=prefill,
-                                             true_color=True,
-                                             completer=autocomplete_,
-                                             is_password=is_password)
+                return prompt_toolkit.prompt(
+                    get_prompt_tokens=get_tokens,
+                    get_bottom_toolbar_tokens=get_bottom_toolbar_tokens,
+                    style=style,
+                    default=prefill,
+                    true_color=True,
+                    completer=autocomplete_,
+                    is_password=is_password,
+                )
 
             else:
                 while True:
