@@ -1,7 +1,6 @@
 {
     "argument_required": "O argumento '{argument}' é obrigatório",
     "authentication_required": "Autenticação obrigatória",
-    "colon": "{}: ",
     "confirm": "Confirmar {prompt}",
     "error": "Erro:",
     "file_not_exist": "O ficheiro não existe: '{path}'",

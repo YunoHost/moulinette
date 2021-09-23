@@ -1,7 +1,6 @@
 {
     "argument_required": "L'argument '{argument}' est requis",
     "authentication_required": "Authentification requise",
-    "colon": "{} : ",
     "confirm": "Confirmez {prompt}",
     "deprecated_command": "'{prog} {command}' est déprécié et sera bientôt supprimé",
     "deprecated_command_alias": "'{prog} {old}' est déprécié et sera bientôt supprimé, utilisez '{prog} {new}' à la place",

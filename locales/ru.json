@@ -1,7 +1,6 @@
 {
     "argument_required": "Требуется'{argument}' аргумент",
     "authentication_required": "Требуется аутентификация",
-    "colon": "{}: ",
     "confirm": "Подтвердить {prompt}",
     "deprecated_command": "'{prog} {command}' устарела и будет удалена",
     "deprecated_command_alias": "'{prog} {old}' устарела и будет удалена, вместо неё используйте '{prog} {new}'",

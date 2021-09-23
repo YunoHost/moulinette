@@ -9,7 +9,6 @@
     "deprecated_command_alias": "'{prog} {old}' xa non se utiliza e será eliminado no futuro, usa '{prog} {new}' no seu lugar",
     "deprecated_command": "'{prog} {command}' xa non se utiliza e xa non se usará no futuro",
     "confirm": "Confirma {prompt}",
-    "colon": "{}: ",
     "authentication_required": "Autenticación requerida",
     "argument_required": "O argumento '{argument}' é requerido",
     "logged_out": "Sesión pechada",

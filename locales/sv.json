@@ -26,7 +26,6 @@
     "deprecated_command_alias": "'{prog} {old}' rekommenderas inte längre och kommer tas bort i framtiden, använd '{prog} {new}' istället",
     "deprecated_command": "'{prog} {command}' rekommenderas inte längre och kommer tas bort i framtiden",
     "confirm": "Bekräfta {prompt}",
-    "colon": "{}: ",
     "argument_required": "Parametern '{argument}' krävs",
     "password": "Lösenord",
     "warn_the_user_that_lock_is_acquired": "det andra kommandot har bara slutförts, nu startar du det här kommandot",

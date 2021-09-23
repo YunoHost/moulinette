@@ -1,7 +1,6 @@
 {
     "argument_required": "参数“{argument}”是必须的",
     "authentication_required": "需要验证",
-    "colon": "{} ",
     "confirm": "确认 {prompt}",
     "deprecated_command": "{prog}{command}已经放弃使用，将来会删除",
     "deprecated_command_alias": "{prog}{old}已经放弃使用，将来会删除，请使用{prog}{new}代替",

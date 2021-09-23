@@ -41,7 +41,6 @@
     "deprecated_command_alias": "'{prog} {old}' je zastaralý a bude odebrán v budoucích verzích, použijte '{prog} {new}'",
     "deprecated_command": "'{prog} {command}' je zastaralý a bude odebrán v budoucích verzích",
     "confirm": "Potvrdit {prompt}",
-    "colon": "{}: ",
     "authentication_required": "Vyžadováno ověření",
     "argument_required": "Je vyžadován argument '{argument}'"
 }

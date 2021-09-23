@@ -3,7 +3,6 @@
     "password": "Password",
     "argument_required": "L'argomento '{argument}' è richiesto",
     "authentication_required": "Autenticazione richiesta",
-    "colon": "{}: ",
     "confirm": "Confermare {prompt}",
     "deprecated_command": "'{prog} {command}' è deprecato e sarà rimosso in futuro",
     "deprecated_command_alias": "'{prog} {old}' è deprecato e sarà rimosso in futuro, usa invece '{prog} {new}'",

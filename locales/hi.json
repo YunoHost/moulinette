@@ -1,7 +1,6 @@
 {
     "argument_required": "तर्क '{argument}' आवश्यक है",
     "authentication_required": "प्रमाणीकरण आवश्यक",
-    "colon": "{}: ",
     "confirm": "पुष्टि करें {prompt}",
     "deprecated_command": "'{prog}' '{command}' का प्रयोग न करे, भविष्य में इसे हटा दिया जाएगा",
     "deprecated_command_alias": "'{prog} {old}' अब पुराना हो गया है और इसे भविष्य में हटा दिया जाएगा, इस की जगह '{prog} {new}' का प्रयोग करें",

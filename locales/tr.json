@@ -1,7 +1,6 @@
 {
     "argument_required": "{argument} argümanı gerekli",
     "authentication_required": "Yetklendirme gerekli",
-    "colon": "{}: ",
     "confirm": "{prompt}'i doğrulayın",
     "error": "Hata:",
     "instance_already_running": "Halihazırda bir YunoHost operasyonu var. Lütfen başka bir tane çalıştırmadan önce bitmesini bekleyin.",
