@@ -15,7 +15,7 @@ from moulinette.core import MoulinetteError
 # Files & directories --------------------------------------------------
 
 
-def read_file(file_path):
+def read_file(file_path, file_mode="r"):
     """
     Read a regular text file
 
@@ -35,7 +35,7 @@ def read_file(file_path):
 
     # Open file and read content
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, file_mode) as f:
             file_content = f.read()
     except IOError as e:
         raise MoulinetteError("cannot_open_file", file=file_path, error=str(e))

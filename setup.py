@@ -33,6 +33,8 @@ install_deps = [
     "toml",
     "gevent-websocket",
     "bottle",
+    "prompt-toolkit==1.0.15",  # To be bumped to debian version once we're on bullseye (+ need tweaks in cli.py)
+    "pygments",
 ]
 
 test_deps = [

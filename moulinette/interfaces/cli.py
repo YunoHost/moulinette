@@ -2,12 +2,10 @@
 
 import os
 import sys
-import getpass
 import locale
 import logging
 import argparse
 import tempfile
-from readline import insert_text, set_startup_hook
 from collections import OrderedDict
 from datetime import date, datetime
 from subprocess import call
@@ -533,6 +531,8 @@ class Interface:
         color="blue",
         prefill="",
         is_multiline=False,
+        autocomplete=[],
+        help=None,
     ):
         """Prompt for a value
 
@@ -547,16 +547,37 @@ class Interface:
 
         def _prompt(message):
 
-            if is_password:
-                return getpass.getpass(colorize(m18n.g("colon", message), color))
-            elif not is_multiline:
-                print(colorize(m18n.g("colon", message), color), end="")
-                set_startup_hook(lambda: insert_text(prefill))
-                try:
-                    value = input()
-                finally:
-                    set_startup_hook()
-                return value
+            if not is_multiline:
+
+                import prompt_toolkit
+                from prompt_toolkit.contrib.completers import WordCompleter
+                from pygments.token import Token
+
+                autocomplete_ = WordCompleter(autocomplete)
+                style = prompt_toolkit.styles.style_from_dict({
+                    Token.Message: f'#ansi{color} bold',
+                })
+
+                def get_bottom_toolbar_tokens(cli):
+                    if help:
+                        return [(Token, help)]
+                    else:
+                        return []
+
+                def get_tokens(cli):
+                    return [
+                        (Token.Message, message),
+                        (Token, ': '),
+                    ]
+
+                return prompt_toolkit.prompt(get_prompt_tokens=get_tokens,
+                                             get_bottom_toolbar_tokens=get_bottom_toolbar_tokens,
+                                             style=style,
+                                             default=prefill,
+                                             true_color=True,
+                                             completer=autocomplete_,
+                                             is_password=is_password)
+
             else:
                 while True:
                     value = input(
