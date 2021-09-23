@@ -1,7 +1,6 @@
 {
     "argument_required": "Argument '{argument}' is required",
     "authentication_required": "Authentication required",
-    "colon": "{}: ",
     "confirm": "Confirm {prompt}",
     "deprecated_command": "'{prog} {command}' is deprecated and will be removed in the future",
     "deprecated_command_alias": "'{prog} {old}' is deprecated and will be removed in the future, use '{prog} {new}' instead",
