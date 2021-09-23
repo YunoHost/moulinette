@@ -41,7 +41,6 @@
     "deprecated_command_alias": "„{prog} {old}” jest przestarzałe i zostanie usunięte w przyszłości, zamiast tego użyj „{prog} {new}”",
     "deprecated_command": "„{prog} {command}” jest przestarzałe i zostanie usunięte w przyszłości",
     "confirm": "Potwierdź {prompt}",
-    "colon": "{}: ",
     "authentication_required": "Wymagane uwierzytelnienie",
     "argument_required": "Argument „{argument}” jest wymagany"
 }

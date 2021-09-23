@@ -1,7 +1,6 @@
 {
     "argument_required": "Argumen '{argument}' dibutuhkan",
     "authentication_required": "Otentikasi dibutuhkan",
-    "colon": "{}: ",
     "deprecated_command": "'{prog} {command}' sudah usang dan akan dihapus nanti",
     "logged_out": "Berhasil keluar",
     "password": "Kata sandi",
