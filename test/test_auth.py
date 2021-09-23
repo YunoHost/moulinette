@@ -188,7 +188,7 @@ class TestAuthAPI:
 class TestAuthCLI:
     def test_login(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="dummy")
+        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
         moulinette_cli.run(["testauth", "default"], output_as="plain")
         message = capsys.readouterr()
 
@@ -201,25 +201,25 @@ class TestAuthCLI:
 
     def test_login_bad_password(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="Bad Password")
+        mocker.patch("prompt_toolkit.prompt", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
             moulinette_cli.run(["testauth", "default"], output_as="plain")
 
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="Bad Password")
+        mocker.patch("prompt_toolkit.prompt", return_value="Bad Password")
         with pytest.raises(MoulinetteError):
             moulinette_cli.run(["testauth", "default"], output_as="plain")
 
     def test_login_wrong_profile(self, moulinette_cli, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="dummy")
+        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "other-profile"], output_as="none")
 
         assert "invalid_password" in str(exception)
 
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="yoloswag")
+        mocker.patch("prompt_toolkit.prompt", return_value="yoloswag")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "default"], output_as="none")
 
@@ -239,7 +239,7 @@ class TestAuthCLI:
 
     def test_request_only_cli(self, capsys, moulinette_cli, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="dummy")
+        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
         moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
 
         message = capsys.readouterr()
@@ -248,7 +248,7 @@ class TestAuthCLI:
 
     def test_request_not_logged_only_cli(self, capsys, moulinette_cli, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass")
+        mocker.patch("prompt_toolkit.prompt")
         with pytest.raises(MoulinetteError) as exception:
             moulinette_cli.run(["testauth", "only-cli"], output_as="plain")
 
@@ -259,7 +259,7 @@ class TestAuthCLI:
 
     def test_request_with_callback(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="dummy")
+        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
         moulinette_cli.run(["--version"], output_as="plain")
         message = capsys.readouterr()
 
@@ -278,7 +278,7 @@ class TestAuthCLI:
 
     def test_request_with_arg(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="dummy")
+        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
         moulinette_cli.run(["testauth", "with_arg", "yoloswag"], output_as="plain")
         message = capsys.readouterr()
 
@@ -286,7 +286,7 @@ class TestAuthCLI:
 
     def test_request_arg_with_extra(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="dummy")
+        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
         moulinette_cli.run(
             ["testauth", "with_extra_str_only", "YoLoSwAg"], output_as="plain"
         )
@@ -306,7 +306,7 @@ class TestAuthCLI:
 
     def test_request_arg_with_type(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
-        mocker.patch("getpass.getpass", return_value="dummy")
+        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
         moulinette_cli.run(["testauth", "with_type_int", "12345"], output_as="plain")
         message = capsys.readouterr()
 
