@@ -1,3 +1,12 @@
+moulinette (4.3.1) testing; urgency=low
+
+  - [mod] Rework cli prompt mecanisc ([#303](https://github.com/YunoHost/moulinette/pull/303))
+  - [i18n] Translations updated for Indonesian, Russian, Turkish
+
+  Thanks to all contributors <3 ! (Éric Gaspar, liimee)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 29 Sep 2021 22:37:28 +0200
+
 moulinette (4.3.0) testing; urgency=low
 
   - [enh] Allow file type in actionmaps ([#258](https://github.com/YunoHost/moulinette/pull/258))
