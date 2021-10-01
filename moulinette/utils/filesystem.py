@@ -365,3 +365,10 @@ def rm(path, recursive=False, force=False):
         except OSError as e:
             if not force:
                 raise MoulinetteError("error_removing", path=path, error=str(e))
+
+
+def cp(source, dest, recursive=False, **kwargs):
+    if recursive and os.path.isdir(source):
+        return shutil.copytree(source, dest, symlinks=True, **kwargs)
+    else:
+        return shutil.copy2(source, dest, follow_symlinks=False, **kwargs)
