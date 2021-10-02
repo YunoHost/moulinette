@@ -6,11 +6,10 @@
     "info": "اطلاعات:",
     "folder_exists": "پوشه موجود است: '{path}'",
     "file_not_exist": "فایل وجود ندارد: '{path}'",
-    "error": "خطا:",
+    "error": "ایراد:",
     "deprecated_command_alias": "'{prog} {old}' منسوخ شده است و در آینده حذف خواهد شد ، بجای آن از '{prog} {new}' استفاده کنید",
     "deprecated_command": "'{prog} {command}' منسوخ شده است و در آینده حذف خواهد شد",
-    "confirm": "تأیید {prompt}",
-    "colon": "{}: ",
+    "confirm": "تایید کردن {prompt}",
     "authentication_required": "احراز هویّت الزامی است",
     "argument_required": "استدلال '{argument}' ضروری است",
     "password": "کلمه عبور",
@@ -41,7 +40,7 @@
     "server_already_running": "در حال حاضر یک سرور روی آن پورت کار می کند",
     "root_required": "برای انجام این عمل باید کاربر ریشه باشید",
     "pattern_not_match": "با الگو مطابقت ندارد",
-    "operation_interrupted": "عملیات قطع شد",
+    "operation_interrupted": "عملیات قطع شده است",
     "not_logged_in": "‌شما وارد نشده اید",
     "logged_out": "خارج شده"
 }

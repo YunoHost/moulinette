@@ -22,8 +22,6 @@ for key in env.keys():
     if value_from_environ:
         env[key] = value_from_environ
 
-env["NAMESPACES"] = env["NAMESPACES"].split()
-
 
 def during_unittests_run():
     return "TESTS_RUN" in os.environ
@@ -248,7 +246,7 @@ class Moulinette18n(object):
         for n in self._namespaces.values():
             n.set_locale(locale)
 
-    def g(self, key, *args, **kwargs):
+    def g(self, key: str, *args, **kwargs) -> str:
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from moulinette translations
@@ -260,7 +258,7 @@ class Moulinette18n(object):
         """
         return self._global.translate(key, *args, **kwargs)
 
-    def n(self, key, *args, **kwargs):
+    def n(self, key: str, *args, **kwargs) -> str:
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from current loaded namespace
@@ -273,7 +271,7 @@ class Moulinette18n(object):
         """
         return self._namespaces[self._current_namespace].translate(key, *args, **kwargs)
 
-    def key_exists(self, key):
+    def key_exists(self, key: str) -> bool:
         """Check if a key exists in the translation files
 
         Keyword arguments:
@@ -300,7 +298,7 @@ class MoulinetteError(Exception):
         super(MoulinetteError, self).__init__(msg)
         self.strerror = msg
 
-    def content(self):
+    def content(self) -> str:
         return self.strerror
 
 

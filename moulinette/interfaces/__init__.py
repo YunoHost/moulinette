@@ -7,6 +7,7 @@ import copy
 import datetime
 from collections import deque, OrderedDict
 from json.encoder import JSONEncoder
+from typing import Optional
 
 from moulinette import m18n
 from moulinette.core import MoulinetteError
@@ -44,7 +45,7 @@ class BaseActionsMapParser(object):
     # Each parser classes must implement these properties.
 
     """The name of the interface for which it is the parser"""
-    interface = None
+    interface: Optional[str] = None
 
     # Virtual methods
     # Each parser classes must implement these methods.

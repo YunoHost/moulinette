@@ -15,7 +15,7 @@ from moulinette.core import MoulinetteError
 # Files & directories --------------------------------------------------
 
 
-def read_file(file_path):
+def read_file(file_path, file_mode="r"):
     """
     Read a regular text file
 
@@ -35,7 +35,7 @@ def read_file(file_path):
 
     # Open file and read content
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, file_mode) as f:
             file_content = f.read()
     except IOError as e:
         raise MoulinetteError("cannot_open_file", file=file_path, error=str(e))
@@ -67,16 +67,17 @@ def read_json(file_path):
     return loaded_json
 
 
-def read_yaml(file_path):
+def read_yaml(file_):
     """
     Safely read a yaml file
 
     Keyword argument:
-        file_path -- Path to the yaml file
+        file -- Path or stream to the yaml file
     """
 
     # Read file
-    file_content = read_file(file_path)
+    file_path = file_ if isinstance(file_, str) else file_.name
+    file_content = read_file(file_) if isinstance(file_, str) else file_
 
     # Try to load yaml to check if it's syntaxically correct
     try:
@@ -118,8 +119,8 @@ def write_to_file(file_path, data, file_mode="w"):
         file_mode -- Mode used when writing the file. Option meant to be used
         by append_to_file to avoid duplicating the code of this function.
     """
-    assert isinstance(data, str) or isinstance(
-        data, list
+    assert (
+        isinstance(data, str) or isinstance(data, bytes) or isinstance(data, list)
     ), "Error: data '%s' should be either a string or a list but is of type '%s'" % (
         data,
         type(data),
@@ -135,7 +136,7 @@ def write_to_file(file_path, data, file_mode="w"):
     )
 
     # If data is a list, check elements are strings and build a single string
-    if not isinstance(data, str):
+    if isinstance(data, list):
         for element in data:
             assert isinstance(
                 element, str
@@ -364,3 +365,10 @@ def rm(path, recursive=False, force=False):
         except OSError as e:
             if not force:
                 raise MoulinetteError("error_removing", path=path, error=str(e))
+
+
+def cp(source, dest, recursive=False, **kwargs):
+    if recursive and os.path.isdir(source):
+        return shutil.copytree(source, dest, symlinks=True, **kwargs)
+    else:
+        return shutil.copy2(source, dest, follow_symlinks=False, **kwargs)

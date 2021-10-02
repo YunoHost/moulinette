@@ -41,7 +41,7 @@
     "deprecated_command_alias": "'{prog} {old}' застаріла і буде видалена, замість неї використовуйте '{prog} {new}'",
     "deprecated_command": "'{prog} {command}' застаріла і буде видалена",
     "confirm": "Підтвердити {prompt}",
-    "colon": "{}: ",
     "authentication_required": "Потрібна автентифікація",
-    "argument_required": "Потрібен аргумент '{argument}'"
+    "argument_required": "Потрібен аргумент '{argument}'",
+    "edit_text_question": "{}. Редагувати цей текст? [yN]: "
 }

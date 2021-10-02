@@ -88,6 +88,13 @@ def call_async_output(args, callback, **kwargs):
                     break
 
                 callback(message)
+        while True:
+            try:
+                callback, message = log_queue.get_nowait()
+            except queue.Empty:
+                break
+
+            callback(message)
     finally:
         kwargs["stdout"].close()
         kwargs["stderr"].close()
@@ -108,7 +115,7 @@ class LogPipe(threading.Thread):
         self.log_callback = log_callback
 
         self.fdRead, self.fdWrite = os.pipe()
-        self.pipeReader = os.fdopen(self.fdRead)
+        self.pipeReader = os.fdopen(self.fdRead, "rb")
 
         self.queue = queue
 
@@ -120,8 +127,8 @@ class LogPipe(threading.Thread):
 
     def run(self):
         """Run the thread, logging everything."""
-        for line in iter(self.pipeReader.readline, ""):
-            self.queue.put((self.log_callback, line.strip("\n")))
+        for line in iter(self.pipeReader.readline, b""):
+            self.queue.put((self.log_callback, line.decode("utf-8").strip("\n")))
 
         self.pipeReader.close()
 

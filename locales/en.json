@@ -1,10 +1,10 @@
 {
     "argument_required": "Argument '{argument}' is required",
     "authentication_required": "Authentication required",
-    "colon": "{}: ",
     "confirm": "Confirm {prompt}",
     "deprecated_command": "'{prog} {command}' is deprecated and will be removed in the future",
     "deprecated_command_alias": "'{prog} {old}' is deprecated and will be removed in the future, use '{prog} {new}' instead",
+    "edit_text_question": "{}. Edit this text ? [yN]: ",
     "error": "Error:",
     "file_not_exist": "File does not exist: '{path}'",
     "folder_exists": "Folder already exists: '{path}'",

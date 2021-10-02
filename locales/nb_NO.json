@@ -11,11 +11,9 @@
     "operation_interrupted": "Operasjon forstyrret",
     "not_logged_in": "Du er ikke innlogget",
     "logged_in": "Innlogget",
-    "invalid_password": "Ugyldig passord",
     "info": "Info:",
     "error": "Feil:",
     "confirm": "Bekreft {prompt}",
-    "colon": "{}: ",
     "logged_out": "Utlogget",
     "password": "Passord"
 }

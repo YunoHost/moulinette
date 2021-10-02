@@ -2,12 +2,13 @@
 
 import os
 import sys
-import getpass
 import locale
 import logging
 import argparse
+import tempfile
 from collections import OrderedDict
 from datetime import date, datetime
+from subprocess import call
 
 from moulinette import m18n, Moulinette
 from moulinette.actionsmap import ActionsMap
@@ -522,7 +523,17 @@ class Interface:
         credentials = self.prompt(msg, True, False, color="yellow")
         return authenticator.authenticate_credentials(credentials=credentials)
 
-    def prompt(self, message, is_password=False, confirm=False, color="blue"):
+    def prompt(
+        self,
+        message,
+        is_password=False,
+        confirm=False,
+        color="blue",
+        prefill="",
+        is_multiline=False,
+        autocomplete=[],
+        help=None,
+    ):
         """Prompt for a value
 
         Keyword arguments:
@@ -534,15 +545,69 @@ class Interface:
                 "Not a tty, can't do interactive prompts", raw_msg=True
             )
 
-        if is_password:
-            prompt = lambda m: getpass.getpass(colorize(m18n.g("colon", m), color))
-        else:
-            prompt = lambda m: input(colorize(m18n.g("colon", m), color))
-        value = prompt(message)
+        def _prompt(message):
+
+            if not is_multiline:
+
+                import prompt_toolkit
+                from prompt_toolkit.contrib.completers import WordCompleter
+                from pygments.token import Token
+
+                autocomplete_ = WordCompleter(autocomplete)
+                style = prompt_toolkit.styles.style_from_dict(
+                    {
+                        Token.Message: f"#ansi{color} bold",
+                    }
+                )
+
+                def get_bottom_toolbar_tokens(cli):
+                    if help:
+                        return [(Token, help)]
+                    else:
+                        return []
+
+                def get_tokens(cli):
+                    return [
+                        (Token.Message, message),
+                        (Token, ": "),
+                    ]
+
+                return prompt_toolkit.prompt(
+                    get_prompt_tokens=get_tokens,
+                    get_bottom_toolbar_tokens=get_bottom_toolbar_tokens,
+                    style=style,
+                    default=prefill,
+                    true_color=True,
+                    completer=autocomplete_,
+                    is_password=is_password,
+                )
+
+            else:
+                while True:
+                    value = input(
+                        colorize(m18n.g("edit_text_question", message), color)
+                    )
+                    value = value.lower().strip()
+                    if value in ["", "n", "no"]:
+                        return prefill
+                    elif value in ["y", "yes"]:
+                        break
+
+                initial_message = prefill.encode("utf-8")
+
+                with tempfile.NamedTemporaryFile(suffix=".tmp") as tf:
+                    tf.write(initial_message)
+                    tf.flush()
+                    call(["editor", tf.name])
+                    tf.seek(0)
+                    edited_message = tf.read()
+                return edited_message.decode("utf-8")
+
+        value = _prompt(message)
 
         if confirm:
             m = message[0].lower() + message[1:]
-            if prompt(m18n.g("confirm", prompt=m)) != value:
+            if _prompt(m18n.g("confirm", prompt=m)) != value:
                 raise MoulinetteValidationError("values_mismatch")
 
         return value

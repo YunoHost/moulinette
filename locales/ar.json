@@ -1,8 +1,6 @@
 {
     "argument_required": "المُعامِل '{argument}' مطلوب",
     "authentication_required": "المصادقة مطلوبة",
-    "authentication_required_long": "المصادقة مطلوبة قبل القيام بهذا الإجراء",
-    "colon": "{}: ",
     "confirm": "تأكيد {prompt}",
     "deprecated_command": "'{prog} {command}' تم التخلي عنه و سوف تتم إزالته مستقبلا",
     "deprecated_command_alias": "'{prog} {old}' تم التخلي عنه و سوف يتم إزالته مستقبلا، إستخدم '{prog} {new}' بدلا من ذلك",
@@ -11,10 +9,7 @@
     "folder_exists": "إنّ المجلد موجود من قبل : '{path}'",
     "instance_already_running": "هناك بالفعل عملية YunoHost جارية. الرجاء الانتظار حتى ينتهي الأمر قبل تشغيل آخر.",
     "invalid_argument": "المُعامِل غير صالح '{argument}': {error}",
-    "invalid_password": "كلمة السر خاطئة",
     "invalid_usage": "إستعمال غير صالح، إستخدم --help لعرض المساعدة",
-    "ldap_attribute_already_exists": "الخاصية '{attribute}' موجودة مسبقا و تحمل القيمة '{value}'",
-    "ldap_server_down": "لا يمكن الإتصال بخادم LDAP",
     "logged_in": "مُتّصل",
     "logged_out": "تم تسجيل خروجك",
     "not_logged_in": "لم تقم بعدُ بتسجيل دخولك",
@@ -25,7 +20,6 @@
     "server_already_running": "هناك خادم يشتغل على ذاك المنفذ",
     "success": "تم بنجاح !",
     "unable_authenticate": "تعذرت المصادقة",
-    "unable_retrieve_session": "تعذرت مواصلة الجلسة بسبب '{exception}'",
     "unknown_group": "الفريق '{group}' مجهول",
     "unknown_user": "المستخدم '{user}' مجهول",
     "values_mismatch": "القيمتين غير متطابقتين",
@@ -47,8 +41,5 @@
     "info": "معلومة:",
     "warn_the_user_about_waiting_lock_again": "جارٍ الانتظار…",
     "warn_the_user_that_lock_is_acquired": "لقد انتهى تنفيذ ذاك الأمر للتوّ ، جارٍ تنفيذ هذا الأمر",
-    "warn_the_user_about_waiting_lock": "هناك أمر لـ YunoHost قيد التشغيل حاليا. في انتظار انتهاء تنفيذه قبل تشغيل التالي",
-    "ldap_server_is_down_restart_it": "إنّ خدمة LDAP غير مشغّلة ، نحن بصدد محاولة إعادة تشغيلها…",
-    "session_expired": "لقد انتهت مدة صلاحية الجلسة. رجاءً أعد الإستيثاق.",
-    "invalid_token": "إنّ الرمز المميز غير صالح - يرجى الإستيثاق"
+    "warn_the_user_about_waiting_lock": "هناك أمر لـ YunoHost قيد التشغيل حاليا. في انتظار انتهاء تنفيذه قبل تشغيل التالي"
 }

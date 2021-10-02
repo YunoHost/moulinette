@@ -2,9 +2,18 @@
 
 import os
 import sys
+import subprocess
+
 from setuptools import setup, find_packages
 from moulinette import env
 
+version = (
+    subprocess.check_output(
+        "head debian/changelog  -n1 | awk '{print $2}' | tr -d '()'", shell=True
+    )
+    .decode()
+    .strip()
+)
 
 LOCALES_DIR = env["LOCALES_DIR"]
 
@@ -24,6 +33,8 @@ install_deps = [
     "toml",
     "gevent-websocket",
     "bottle",
+    "prompt-toolkit==1.0.15",  # To be bumped to debian version once we're on bullseye (+ need tweaks in cli.py)
+    "pygments",
 ]
 
 test_deps = [
@@ -31,23 +42,24 @@ test_deps = [
     "pytest-cov",
     "pytest-env",
     "pytest-mock",
+    "mock",
     "requests",
     "requests-mock",
     "webtest",
 ]
+
 extras = {
     "install": install_deps,
     "tests": test_deps,
 }
 
-
 setup(
     name="Moulinette",
-    version="2.0.0",
+    version=version,
     description="Prototype interfaces quickly and easily",
     author="Yunohost Team",
     author_email="yunohost@yunohost.org",
-    url="http://yunohost.org",
+    url="https://yunohost.org",
     license="AGPL",
     packages=find_packages(exclude=["test"]),
     data_files=[(LOCALES_DIR, locale_files)],

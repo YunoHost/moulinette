@@ -2,6 +2,7 @@
 
 <div align="center">
  
+![Version](https://img.shields.io/github/v/tag/yunohost/moulinette?label=version&sort=semver)
 [![Tests status](https://github.com/YunoHost/moulinette/actions/workflows/tox.yml/badge.svg)](https://github.com/YunoHost/moulinette/actions/workflows/tox.yml)
 [![GitHub license](https://img.shields.io/github/license/YunoHost/moulinette)](https://github.com/YunoHost/moulinette/blob/dev/LICENSE)
 

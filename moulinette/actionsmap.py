@@ -6,6 +6,7 @@ import logging
 import glob
 import pickle as pickle
 
+from typing import List, Optional
 from time import time
 from collections import OrderedDict
 from importlib import import_module
@@ -30,7 +31,6 @@ logger = logging.getLogger("moulinette.actionsmap")
 
 
 class _ExtraParameter(object):
-
     """
     Argument parser for an extra parameter.
 
@@ -39,20 +39,13 @@ class _ExtraParameter(object):
 
     """
 
+    name: Optional[str] = None
+
+    """A list of interface for which the parameter doesn't apply to"""
+    skipped_iface: List[str] = []
+
     def __init__(self, iface):
         self.iface = iface
-
-    # Required variables
-    # Each extra parameters classes must overwrite these variables.
-
-    """The extra parameter name"""
-    name = None
-
-    # Optional variables
-    # Each extra parameters classes can overwrite these variables.
-
-    """A list of interface for which the parameter doesn't apply"""
-    skipped_iface = []
 
     # Virtual methods
     # Each extra parameters classes can implement these methods.
@@ -621,7 +614,7 @@ class ActionsMap(object):
 
         # This var is ['*'] by default but could be set for example to
         # ['yunohost', 'yml_*']
-        NAMESPACE_PATTERNS = env["NAMESPACES"]
+        NAMESPACE_PATTERNS = env["NAMESPACES"].split()
 
         # Look for all files that match the given patterns in the actionsmap dir
         for namespace_pattern in NAMESPACE_PATTERNS:

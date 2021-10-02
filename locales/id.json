@@ -1,0 +1,19 @@
+{
+    "argument_required": "Argumen '{argument}' dibutuhkan",
+    "authentication_required": "Otentikasi dibutuhkan",
+    "deprecated_command": "'{prog} {command}' sudah usang dan akan dihapus nanti",
+    "logged_out": "Berhasil keluar",
+    "password": "Kata sandi",
+    "deprecated_command_alias": "'{prog} {old}' sudah usang dan akan dihapus nanti, gunakan '{prog} {new}' saja",
+    "info": "Informasi:",
+    "instance_already_running": "Sudah ada operasi YunoHost yang sedang berjalan. Tunggu itu selesai sebelum menjalankan yang lain.",
+    "logged_in": "Berhasil masuk",
+    "warning": "Peringatan:",
+    "cannot_open_file": "Tidak dapat membuka berkas {file} (alasan: {error})",
+    "error_removing": "Terjadi kesalahan ketika menghapus {path}: {error}",
+    "success": "Berhasil!",
+    "warn_the_user_about_waiting_lock": "Perintah YunoHost lain sedang berjalan saat ini, kami sedang menunggu itu selesai sebelum menjalankan yang ini",
+    "warn_the_user_about_waiting_lock_again": "Masih menunggu...",
+    "unable_authenticate": "Tidak dapat mengotentikasi",
+    "warn_the_user_that_lock_is_acquired": "Perintah yang tadi baru saja selesai, akan memulai perintah ini"
+}
