@@ -4,6 +4,12 @@ moulinette (11.0.0~alpha) unstable; urgency=low
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Feb 2021 00:02:38 +0100
 
+moulinette (4.3.1.1) testing; urgency=low
+
+  - [enh] Add cp helper (14e37366)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 04 Oct 2021 01:24:34 +0200
+
 moulinette (4.3.1) testing; urgency=low
 
   - [mod] Rework cli prompt mecanisc ([#303](https://github.com/YunoHost/moulinette/pull/303))
