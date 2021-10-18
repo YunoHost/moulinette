@@ -1,5 +1,11 @@
 {
     "argument_required": "'{argument}' argumentua beharrezkoa da",
     "logged_out": "Saioa amaitu",
-    "password": "Pasahitza"
+    "password": "Pasahitza",
+    "authentication_required": "Egiaztatu behar da",
+    "confirm": "{prompt} baieztatu",
+    "edit_text_question": "{}. Moldatu testu hau? [yN]: ",
+    "deprecated_command": "'{prog} {command}' zaharkitua dago eta etorkizunean kenduko da",
+    "deprecated_command_alias": "'{prog} {old} zaharkitua dago eta etorkizunean kenduko da, erabili '{prog} {new}' haren ordez",
+    "error": "Errorea:"
 }
