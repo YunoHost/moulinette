@@ -550,35 +550,36 @@ class Interface:
             if not is_multiline:
 
                 import prompt_toolkit
-                from prompt_toolkit.contrib.completers import WordCompleter
+                from prompt_toolkit.completion import WordCompleter
+                from prompt_toolkit.styles import Style
                 from pygments.token import Token
 
                 autocomplete_ = WordCompleter(autocomplete)
-                style = prompt_toolkit.styles.style_from_dict(
+                style = Style.from_dict(
                     {
-                        Token.Message: f"#ansi{color} bold",
+                        "": "",
+                        "message": f"#ansi{color} bold",
                     }
                 )
 
-                def get_bottom_toolbar_tokens(cli):
+                def bottom_toolbar():
                     if help:
-                        return [(Token, help)]
+                        return [("class:", help)]
                     else:
                         return []
 
-                def get_tokens(cli):
-                    return [
-                        (Token.Message, message),
-                        (Token, ": "),
-                    ]
+                colored_message = [
+                    ("class:message", message),
+                    ("class:", ": "),
+                ]
 
                 return prompt_toolkit.prompt(
-                    get_prompt_tokens=get_tokens,
-                    get_bottom_toolbar_tokens=get_bottom_toolbar_tokens,
+                    colored_message,
+                    bottom_toolbar=bottom_toolbar,
                     style=style,
                     default=prefill,
-                    true_color=True,
                     completer=autocomplete_,
+                    complete_while_typing=True,
                     is_password=is_password,
                 )
 
