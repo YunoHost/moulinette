@@ -561,11 +561,11 @@ class Interface:
                     }
                 )
 
-                def bottom_toolbar():
-                    if help:
+                if help:
+                    def bottom_toolbar():
                         return [("class:", help)]
-                    else:
-                        return []
+                else:
+                    bottom_toolbar = None
 
                 colored_message = [
                     ("class:message", message),
