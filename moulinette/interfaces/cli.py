@@ -552,7 +552,6 @@ class Interface:
                 import prompt_toolkit
                 from prompt_toolkit.completion import WordCompleter
                 from prompt_toolkit.styles import Style
-                from pygments.token import Token
 
                 autocomplete_ = WordCompleter(autocomplete)
                 style = Style.from_dict(
