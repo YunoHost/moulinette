@@ -21,7 +21,7 @@
     "cannot_write_file": "Ezinezkoa izan da {file} fitxategia idaztea (zergatia: {error})",
     "download_ssl_error": "SSL errorea {url}-ra konektatzean",
     "corrupted_toml": "{ressource}-eko/go TOMLa hondatuta dago (zergatia: {error})",
-    "warn_the_user_about_waiting_lock": "YunoHosten beste komanda bat ari da gauzatzen, horrek amaitu arte gaude zain",
+    "warn_the_user_about_waiting_lock": "YunoHosten beste komando bat ari da exekutatzen, horrek amaitu arte gaude zain",
     "warn_the_user_about_waiting_lock_again": "Zain…",
     "folder_exists": "Direktorioa existitzen da dagoeneko: '{path}'",
     "instance_already_running": "YunoHosten eragiketa bat exekutatzen ari da dagoeneko. Mesedez, itxaron amaitu arte beste eragiketa bat abiatu baino lehen.",
