@@ -1,10 +1,10 @@
 {
-    "argument_required": "'{argument}' argumentua beharrezkoa da",
+    "argument_required": "'{argument}' argumentua ezinbestekoa da",
     "logged_out": "Saioa itxita",
     "password": "Pasahitza",
     "authentication_required": "Saioa hasi beharra dago",
     "confirm": "{prompt} baieztatu",
-    "edit_text_question": "{}. Moldatu testua? [yN]: ",
+    "edit_text_question": "{}. Testua moldatu nahi al duzu? [yN]: ",
     "deprecated_command": "'{prog} {command}' zaharkitua dago eta etorkizunean kenduko da",
     "deprecated_command_alias": "'{prog} {old} zaharkitua dago eta etorkizunean kenduko da, erabili '{prog} {new}' haren ordez",
     "error": "Errorea:",
