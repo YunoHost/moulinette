@@ -42,5 +42,6 @@
     "warn_the_user_that_lock_is_acquired": "另一个命令刚刚完成，现在启动此命令",
     "warn_the_user_about_waiting_lock_again": "还在等...",
     "warn_the_user_about_waiting_lock": "目前正在运行另一个YunoHost命令，我们在运行此命令之前等待它完成",
-    "corrupted_toml": "从{ressource：s}读取的TOML损坏（原因：{error：s}）"
+    "corrupted_toml": "从{ressource}读取的TOML损坏（原因：{error}）",
+    "edit_text_question": "{}.编辑此文本？[yN]: "
 }
