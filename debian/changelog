@@ -1,3 +1,13 @@
+moulinette (4.3.2.1) testing; urgency=low
+
+  - [fix] api: 'Missing credentials parameter' bug : request.POST is buggy when value contains special chars ... request.params appears to be more reliable (c5f577c0)
+  - [fix] api: issue with accented chars in form .. decode() is not needed anymore? (c5700f1b)
+  - [i18n] Translations updated for Chinese (Simplified), Italian
+
+  Thanks to all contributors <3 ! (dagangtie, Flavio Cristoforetti)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 15 Nov 2021 18:44:09 +0100
+
 moulinette (4.3.2) stable; urgency=low
 
   - Bump version for stable release
