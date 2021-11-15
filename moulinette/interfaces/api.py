@@ -393,14 +393,11 @@ class _ActionsMapPlugin(object):
 
         """
 
-        credentials = request.POST.credentials
-        # Apparently even if the key doesn't exists, request.POST.foobar just returns empty string...
-        if not credentials:
+        if "credentials" not in request.params:
             raise HTTPResponse("Missing credentials parameter", 400)
+        credentials = request.params["credentials"]
 
-        profile = request.POST.profile
-        if not profile:
-            profile = self.actionsmap.default_authentication
+        profile = request.params.get("profile", self.actionsmap.default_authentication)
 
         authenticator = self.actionsmap.get_authenticator(profile)
 
