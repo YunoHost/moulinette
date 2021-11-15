@@ -358,7 +358,7 @@ class _ActionsMapPlugin(object):
                 params[a] = True
 
             # Append other request params
-            req_params = list(request.params.decode().dict.items())
+            req_params = list(request.params.dict.items())
             # TODO test special chars in filename
             req_params += list(request.files.dict.items())
             for k, v in req_params:
