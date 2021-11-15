@@ -4,6 +4,36 @@ moulinette (11.0.0~alpha) unstable; urgency=low
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Feb 2021 00:02:38 +0100
 
+moulinette (4.3.2.2) stable; urgency=low
+
+  Aaaaaand typoed 'testing' instead of 'stable' in previous changelog
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 15 Nov 2021 18:44:09 +0100
+
+moulinette (4.3.2.1) testing; urgency=low
+
+  - [fix] api: 'Missing credentials parameter' bug : request.POST is buggy when value contains special chars ... request.params appears to be more reliable (c5f577c0)
+  - [fix] api: issue with accented chars in form .. decode() is not needed anymore? (c5700f1b)
+  - [i18n] Translations updated for Chinese (Simplified), Italian
+
+  Thanks to all contributors <3 ! (dagangtie, Flavio Cristoforetti)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 15 Nov 2021 18:44:09 +0100
+
+moulinette (4.3.2) stable; urgency=low
+
+  - Bump version for stable release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Nov 2021 02:35:56 +0100
+
+moulinette (4.3.1.2) testing; urgency=low
+
+  - [i18n] Translations updated for Basque, Occitan, Russian, Spanish
+
+  Thanks to all contributors <3 ! (Page Asgardius, punkrockgirl, Quentí, Semen Turchikhin)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 03 Nov 2021 18:42:44 +0100
+
 moulinette (4.3.1.1) testing; urgency=low
 
   - [enh] Add cp helper (14e37366)
