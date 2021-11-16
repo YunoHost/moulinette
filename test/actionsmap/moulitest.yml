@@ -3,7 +3,8 @@
 #     Global parameters     #
 #############################
 _global:
-    name: moulitest
+    namespace: moulitest
+    cookie_name: moulitest
     authentication:
         api: dummy
         cli: dummy

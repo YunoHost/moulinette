@@ -5,7 +5,6 @@ import sys
 import subprocess
 
 from setuptools import setup, find_packages
-from moulinette import env
 
 version = (
     subprocess.check_output(
@@ -14,8 +13,6 @@ version = (
     .decode()
     .strip()
 )
-
-LOCALES_DIR = env["LOCALES_DIR"]
 
 # Extend installation
 locale_files = []
@@ -62,7 +59,7 @@ setup(
     url="https://yunohost.org",
     license="AGPL",
     packages=find_packages(exclude=["test"]),
-    data_files=[(LOCALES_DIR, locale_files)],
+    data_files=[("/usr/share/moulinette/locales", locale_files)],
     python_requires=">=3.7.*,  <3.10",
     install_requires=install_deps,
     tests_require=test_deps,

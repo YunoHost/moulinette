@@ -9,23 +9,9 @@ import moulinette
 
 logger = logging.getLogger("moulinette.core")
 
-env = {
-    "DATA_DIR": "/usr/share/moulinette",
-    "LIB_DIR": "/usr/lib/moulinette",
-    "LOCALES_DIR": "/usr/share/moulinette/locale",
-    "CACHE_DIR": "/var/cache/moulinette",
-    "NAMESPACES": "*",  # By default we'll load every namespace we find
-}
-
-for key in env.keys():
-    value_from_environ = os.environ.get(f"MOULINETTE_{key}")
-    if value_from_environ:
-        env[key] = value_from_environ
-
 
 def during_unittests_run():
     return "TESTS_RUN" in os.environ
-
 
 # Internationalization -------------------------------------------------
 
@@ -51,11 +37,7 @@ class Translator(object):
         # Attempt to load default translations
         if not self._load_translations(default_locale):
             logger.error(
-                "unable to load locale '%s' from '%s'. Does the file '%s/%s.json' exists?",
-                default_locale,
-                locale_dir,
-                locale_dir,
-                default_locale,
+                f"unable to load locale '{default_locale}' from '{locale_dir}'. Does the file '{locale_dir}/{default_locale}.json' exists?",
             )
         self.default_locale = default_locale
 
@@ -207,44 +189,23 @@ class Moulinette18n(object):
         self.default_locale = default_locale
         self.locale = default_locale
 
-        self.locales_dir = env["LOCALES_DIR"]
-
         # Init global translator
-        self._global = Translator(self.locales_dir, default_locale)
+        global_locale_dir = "/usr/share/moulinette/locales"
+        if during_unittests_run():
+            global_locale_dir = os.path.dirname(__file__) + "/../locales"
 
-        # Define namespace related variables
-        self._namespaces = {}
-        self._current_namespace = None
+        self._global = Translator(global_locale_dir, default_locale)
 
-    def load_namespace(self, namespace):
-        """Load the namespace to use
+    def set_locales_dir(self, locales_dir):
 
-        Load and set translations of a given namespace. Those translations
-        are accessible with Moulinette18n.n().
-
-        Keyword arguments:
-            - namespace -- The namespace to load
-
-        """
-        if namespace not in self._namespaces:
-            # Create new Translator object
-            lib_dir = env["LIB_DIR"]
-            translator = Translator(
-                "%s/%s/locales" % (lib_dir, namespace), self.default_locale
-            )
-            translator.set_locale(self.locale)
-            self._namespaces[namespace] = translator
-
-        # Set current namespace
-        self._current_namespace = namespace
+        self.translator = Translator(locales_dir, self.default_locale)
 
     def set_locale(self, locale):
         """Set the locale to use"""
-        self.locale = locale
 
+        self.locale = locale
         self._global.set_locale(locale)
-        for n in self._namespaces.values():
-            n.set_locale(locale)
+        self.translator.set_locale(locale)
 
     def g(self, key: str, *args, **kwargs) -> str:
         """Retrieve proper translation for a moulinette key
@@ -269,7 +230,7 @@ class Moulinette18n(object):
             - key -- The key to translate
 
         """
-        return self._namespaces[self._current_namespace].translate(key, *args, **kwargs)
+        return self.translator.translate(key, *args, **kwargs)
 
     def key_exists(self, key: str) -> bool:
         """Check if a key exists in the translation files
@@ -278,7 +239,7 @@ class Moulinette18n(object):
             - key -- The key to translate
 
         """
-        return self._namespaces[self._current_namespace].key_exists(key)
+        return self.translator.key_exists(key)
 
 
 # Moulinette core classes ----------------------------------------------

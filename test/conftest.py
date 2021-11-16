@@ -1,22 +1,13 @@
 """Pytest fixtures for testing."""
 
+import sys
 import toml
 import yaml
 import json
 import os
+
 import shutil
 import pytest
-
-
-def patch_init(moulinette):
-    """Configure moulinette to use the YunoHost namespace."""
-    old_init = moulinette.core.Moulinette18n.__init__
-
-    def monkey_path_i18n_init(self, package, default_locale="en"):
-        old_init(self, package, default_locale)
-        self.load_namespace("moulinette")
-
-    moulinette.core.Moulinette18n.__init__ = monkey_path_i18n_init
 
 
 def patch_translate(moulinette):
@@ -38,7 +29,7 @@ def patch_translate(moulinette):
     moulinette.core.Moulinette18n.g = new_m18nn
 
 
-def patch_logging(moulinette):
+def logging_configuration(moulinette):
     """Configure logging to use the custom logger."""
     handlers = set(["tty", "api"])
     root_handlers = set(handlers)
@@ -85,27 +76,28 @@ def patch_lock(moulinette):
 
 @pytest.fixture(scope="session", autouse=True)
 def moulinette(tmp_path_factory):
+
     import moulinette
+    import moulinette.core
+    from moulinette.utils.log import configure_logging
 
     # Can't call the namespace just 'test' because
     # that would lead to some "import test" not importing the right stuff
     namespace = "moulitest"
-    tmp_cache = str(tmp_path_factory.mktemp("cache"))
-    tmp_data = str(tmp_path_factory.mktemp("data"))
-    tmp_lib = str(tmp_path_factory.mktemp("lib"))
-    moulinette.env["CACHE_DIR"] = tmp_cache
-    moulinette.env["DATA_DIR"] = tmp_data
-    moulinette.env["LIB_DIR"] = tmp_lib
-    shutil.copytree("./test/actionsmap", "%s/actionsmap" % tmp_data)
-    shutil.copytree("./test/src", "%s/%s" % (tmp_lib, namespace))
-    shutil.copytree("./test/locales", "%s/%s/locales" % (tmp_lib, namespace))
+    tmp_dir = str(tmp_path_factory.mktemp(namespace))
+    shutil.copy("./test/actionsmap/moulitest.yml", f"{tmp_dir}/moulitest.yml")
+    shutil.copytree("./test/src", f"{tmp_dir}/lib/{namespace}/")
+    shutil.copytree("./test/locales", f"{tmp_dir}/locales")
+    sys.path.insert(0, f"{tmp_dir}/lib")
 
-    patch_init(moulinette)
     patch_translate(moulinette)
     patch_lock(moulinette)
-    logging = patch_logging(moulinette)
 
-    moulinette.init(logging_config=logging, _from_source=False)
+    configure_logging(logging_configuration(moulinette))
+    moulinette.m18n.set_locales_dir(f"{tmp_dir}/locales")
+
+    # Dirty hack to pass this path to Api() and Cli() init later
+    moulinette._actionsmap_path = f"{tmp_dir}/moulitest.yml"
 
     return moulinette
 
@@ -125,7 +117,7 @@ def moulinette_webapi(moulinette):
 
     from moulinette.interfaces.api import Interface as Api
 
-    return TestApp(Api(routes={})._app)
+    return TestApp(Api(routes={}, actionsmap=moulinette._actionsmap_path)._app)
 
 
 @pytest.fixture
@@ -142,7 +134,7 @@ def moulinette_cli(moulinette, mocker):
     mocker.patch("os.isatty", return_value=True)
     from moulinette.interfaces.cli import Interface as Cli
 
-    cli = Cli(top_parser=parser)
+    cli = Cli(top_parser=parser, actionsmap=moulinette._actionsmap_path)
     mocker.stopall()
 
     return cli

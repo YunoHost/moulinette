@@ -237,14 +237,14 @@ class _HTTPArgumentParser(object):
 class Session:
 
     secret = random_ascii()
-    actionsmap_name = None  # This is later set to the actionsmap name
+    cookie_name = None  # This is later set to the actionsmap name
 
     def set_infos(infos):
 
         assert isinstance(infos, dict)
 
         response.set_cookie(
-            f"session.{Session.actionsmap_name}",
+            f"session.{Session.cookie_name}",
             infos,
             secure=True,
             secret=Session.secret,
@@ -256,7 +256,7 @@ class Session:
 
         try:
             infos = request.get_cookie(
-                f"session.{Session.actionsmap_name}", secret=Session.secret, default={}
+                f"session.{Session.cookie_name}", secret=Session.secret, default={}
             )
         except Exception:
             if not raise_if_no_session_exists:
@@ -271,8 +271,8 @@ class Session:
     @staticmethod
     def delete_infos():
 
-        response.set_cookie(f"session.{Session.actionsmap_name}", "", max_age=-1)
-        response.delete_cookie(f"session.{Session.actionsmap_name}")
+        response.set_cookie(f"session.{Session.cookie_name}", "", max_age=-1)
+        response.delete_cookie(f"session.{Session.cookie_name}")
 
 
 class _ActionsMapPlugin(object):
@@ -294,7 +294,7 @@ class _ActionsMapPlugin(object):
 
         self.actionsmap = actionsmap
         self.log_queues = log_queues
-        Session.actionsmap_name = actionsmap.name
+        Session.cookie_name = actionsmap.cookie_name
 
     def setup(self, app):
         """Setup plugin on the application
@@ -734,9 +734,9 @@ class Interface:
 
     type = "api"
 
-    def __init__(self, routes={}):
+    def __init__(self, routes={}, actionsmap=None):
 
-        actionsmap = ActionsMap(ActionsMapParser())
+        actionsmap = ActionsMap(actionsmap, ActionsMapParser())
 
         # Attempt to retrieve log queues from an APIQueueHandler
         handler = log.getHandlersByClass(APIQueueHandler, limit=1)

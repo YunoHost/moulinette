@@ -461,12 +461,13 @@ class Interface:
 
     type = "cli"
 
-    def __init__(self, top_parser=None, load_only_category=None):
+    def __init__(self, top_parser=None, load_only_category=None, actionsmap=None, locales_dir=None):
 
         # Set user locale
         m18n.set_locale(get_locale())
 
         self.actionsmap = ActionsMap(
+            actionsmap,
             ActionsMapParser(top_parser=top_parser),
             load_only_category=load_only_category,
         )

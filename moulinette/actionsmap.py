@@ -16,7 +16,6 @@ from moulinette.core import (
     MoulinetteError,
     MoulinetteLock,
     MoulinetteValidationError,
-    env,
 )
 from moulinette.interfaces import BaseActionsMapParser, TO_RETURN_PROP
 from moulinette.utils.log import start_action_logging
@@ -382,9 +381,6 @@ class ActionsMap(object):
     It is composed by categories which contain one or more action(s).
     Moreover, the action can have specific argument(s).
 
-    This class allows to manipulate one or several actions maps
-    associated to a namespace.
-
     Keyword arguments:
         - top_parser -- A BaseActionsMapParser-derived instance to use for
                         parsing the actions map
@@ -394,84 +390,71 @@ class ActionsMap(object):
                         purposes...
     """
 
-    def __init__(self, top_parser, load_only_category=None):
+    def __init__(self, actionsmap_yml, top_parser, load_only_category=None):
 
         assert isinstance(top_parser, BaseActionsMapParser), (
             "Invalid parser class '%s'" % top_parser.__class__.__name__
         )
 
-        DATA_DIR = env["DATA_DIR"]
-        CACHE_DIR = env["CACHE_DIR"]
-
-        actionsmaps = OrderedDict()
-
         self.from_cache = False
-        # Iterate over actions map namespaces
-        for n in self.get_namespaces():
-            logger.debug("loading actions map namespace '%s'", n)
 
-            actionsmap_yml = "%s/actionsmap/%s.yml" % (DATA_DIR, n)
-            actionsmap_yml_stat = os.stat(actionsmap_yml)
-            actionsmap_pkl = "%s/actionsmap/%s-%d-%d.pkl" % (
-                CACHE_DIR,
-                n,
-                actionsmap_yml_stat.st_size,
-                actionsmap_yml_stat.st_mtime,
-            )
+        logger.debug("loading actions map")
 
-            def generate_cache():
+        actionsmap_yml_dir = os.path.dirname(actionsmap_yml)
+        actionsmap_yml_file = os.path.basename(actionsmap_yml)
+        actionsmap_yml_stat = os.stat(actionsmap_yml)
 
-                # Iterate over actions map namespaces
-                logger.debug("generating cache for actions map namespace '%s'", n)
+        actionsmap_pkl = f"{actionsmap_yml_dir}/.{actionsmap_yml_file}.{actionsmap_yml_stat.st_size}-{actionsmap_yml_stat.st_mtime}.pkl"
 
-                # Read actions map from yaml file
-                actionsmap = read_yaml(actionsmap_yml)
+        def generate_cache():
 
-                # Delete old cache files
-                for old_cache in glob.glob("%s/actionsmap/%s-*.pkl" % (CACHE_DIR, n)):
-                    os.remove(old_cache)
+            logger.debug("generating cache for actions map")
 
-                # at installation, cachedir might not exists
-                dir_ = os.path.dirname(actionsmap_pkl)
-                if not os.path.isdir(dir_):
-                    os.makedirs(dir_)
+            # Read actions map from yaml file
+            actionsmap = read_yaml(actionsmap_yml)
 
-                # Cache actions map into pickle file
-                with open(actionsmap_pkl, "wb") as f:
-                    pickle.dump(actionsmap, f)
+            # Delete old cache files
+            for old_cache in glob.glob(f"{actionsmap_yml_dir}/.{actionsmap_yml_file}.*.pkl"):
+                os.remove(old_cache)
 
-                return actionsmap
+            # at installation, cachedir might not exists
+            dir_ = os.path.dirname(actionsmap_pkl)
+            if not os.path.isdir(dir_):
+                os.makedirs(dir_)
 
-            if os.path.exists(actionsmap_pkl):
-                try:
-                    # Attempt to load cache
-                    with open(actionsmap_pkl, "rb") as f:
-                        actionsmaps[n] = pickle.load(f)
+            # Cache actions map into pickle file
+            with open(actionsmap_pkl, "wb") as f:
+                pickle.dump(actionsmap, f)
 
-                    self.from_cache = True
-                # TODO: Switch to python3 and catch proper exception
-                except (IOError, EOFError):
-                    actionsmaps[n] = generate_cache()
-            else:  # cache file doesn't exists
-                actionsmaps[n] = generate_cache()
+            return actionsmap
 
-            # If load_only_category is set, and *if* the target category
-            # is in the actionsmap, we'll load only that one.
-            # If we filter it even if it doesn't exist, we'll end up with a
-            # weird help message when we do a typo in the category name..
-            if load_only_category and load_only_category in actionsmaps[n]:
-                actionsmaps[n] = {
-                    k: v
-                    for k, v in actionsmaps[n].items()
-                    if k in [load_only_category, "_global"]
-                }
+        if os.path.exists(actionsmap_pkl):
+            try:
+                # Attempt to load cache
+                with open(actionsmap_pkl, "rb") as f:
+                    actionsmap = pickle.load(f)
 
-            # Load translations
-            m18n.load_namespace(n)
+                self.from_cache = True
+            # TODO: Switch to python3 and catch proper exception
+            except (IOError, EOFError):
+                actionsmap = generate_cache()
+        else:  # cache file doesn't exists
+            actionsmap = generate_cache()
+
+        # If load_only_category is set, and *if* the target category
+        # is in the actionsmap, we'll load only that one.
+        # If we filter it even if it doesn't exist, we'll end up with a
+        # weird help message when we do a typo in the category name..
+        if load_only_category and load_only_category in actionsmap:
+            actionsmap = {
+                k: v
+                for k, v in actionsmap.items()
+                if k in [load_only_category, "_global"]
+            }
 
         # Generate parsers
         self.extraparser = ExtraArgumentParser(top_parser.interface)
-        self.parser = self._construct_parser(actionsmaps, top_parser)
+        self.parser = self._construct_parser(actionsmap, top_parser)
 
     def get_authenticator(self, auth_method):
 
@@ -479,7 +462,7 @@ class ActionsMap(object):
             auth_method = self.default_authentication
 
         # Load and initialize the authenticator module
-        auth_module = "%s.authenticators.%s" % (self.main_namespace, auth_method)
+        auth_module = "%s.authenticators.%s" % (self.namespace, auth_method)
         logger.debug(f"Loading auth module {auth_module}")
         try:
             mod = import_module(auth_module)
@@ -591,7 +574,6 @@ class ActionsMap(object):
                     logger.debug("processing action [%s]: %s", log_id, full_action_name)
 
                 # Load translation and process the action
-                m18n.load_namespace(namespace)
                 start = time()
                 try:
                     return func(**arguments)
@@ -599,43 +581,14 @@ class ActionsMap(object):
                     stop = time()
                     logger.debug("action [%s] executed in %.3fs", log_id, stop - start)
 
-    @staticmethod
-    def get_namespaces():
-        """
-        Retrieve available actions map namespaces
-
-        Returns:
-            A list of available namespaces
-
-        """
-        namespaces = []
-
-        DATA_DIR = env["DATA_DIR"]
-
-        # This var is ['*'] by default but could be set for example to
-        # ['yunohost', 'yml_*']
-        NAMESPACE_PATTERNS = env["NAMESPACES"].split()
-
-        # Look for all files that match the given patterns in the actionsmap dir
-        for namespace_pattern in NAMESPACE_PATTERNS:
-            namespaces.extend(
-                glob.glob("%s/actionsmap/%s.yml" % (DATA_DIR, namespace_pattern))
-            )
-
-        # Keep only the filenames with extension
-        namespaces = [os.path.basename(n)[:-4] for n in namespaces]
-
-        return namespaces
-
     # Private methods
 
-    def _construct_parser(self, actionsmaps, top_parser):
+    def _construct_parser(self, actionsmap, top_parser):
         """
         Construct the parser with the actions map
 
         Keyword arguments:
-            - actionsmaps -- A dict of multi-level dictionnary of
-                categories/actions/arguments list for each namespaces
+            - actionsmap -- A dictionnary of categories/actions/arguments list
             - top_parser -- A BaseActionsMapParser-derived instance to use for
                 parsing the actions map
 
@@ -658,52 +611,85 @@ class ActionsMap(object):
         # * namespace define the top "name", for us it will always be
         #   "yunohost" and there well be only this one
         # * actionsmap is the actual actionsmap that we care about
-        for namespace, actionsmap in actionsmaps.items():
-            # Retrieve global parameters
-            _global = actionsmap.pop("_global", {})
 
-            if _global:
-                if getattr(self, "main_namespace", None) is not None:
-                    raise MoulinetteError(
-                        "It is not possible to have several namespaces with a _global section"
-                    )
-                else:
-                    self.main_namespace = namespace
-                    self.name = _global["name"]
-                    self.default_authentication = _global["authentication"][
-                        interface_type
-                    ]
+        # Retrieve global parameters
+        _global = actionsmap.pop("_global", {})
 
-            if top_parser.has_global_parser():
-                top_parser.add_global_arguments(_global["arguments"])
+        self.namespace = _global["namespace"]
+        self.cookie_name = _global["cookie_name"]
+        self.default_authentication = _global["authentication"][
+            interface_type
+        ]
 
-        if not hasattr(self, "main_namespace"):
-            raise MoulinetteError("Did not found the main namespace", raw_msg=True)
+        if top_parser.has_global_parser():
+            top_parser.add_global_arguments(_global["arguments"])
 
-        for namespace, actionsmap in actionsmaps.items():
-            # category_name is stuff like "user", "domain", "hooks"...
-            # category_values is the values of this category (like actions)
-            for category_name, category_values in actionsmap.items():
+        # category_name is stuff like "user", "domain", "hooks"...
+        # category_values is the values of this category (like actions)
+        for category_name, category_values in actionsmap.items():
 
-                actions = category_values.pop("actions", {})
-                subcategories = category_values.pop("subcategories", {})
+            actions = category_values.pop("actions", {})
+            subcategories = category_values.pop("subcategories", {})
 
-                # Get category parser
-                category_parser = top_parser.add_category_parser(
-                    category_name, **category_values
+            # Get category parser
+            category_parser = top_parser.add_category_parser(
+                category_name, **category_values
+            )
+
+            # action_name is like "list" of "domain list"
+            # action_options are the values
+            for action_name, action_options in actions.items():
+                arguments = action_options.pop("arguments", {})
+                authentication = action_options.pop("authentication", {})
+                tid = (self.namespace, category_name, action_name)
+
+                # Get action parser
+                action_parser = category_parser.add_action_parser(
+                    action_name, tid, **action_options
                 )
 
-                # action_name is like "list" of "domain list"
+                if action_parser is None:  # No parser for the action
+                    continue
+
+                # Store action identifier and add arguments
+                action_parser.set_defaults(_tid=tid)
+                action_parser.add_arguments(
+                    arguments,
+                    extraparser=self.extraparser,
+                    format_arg_names=top_parser.format_arg_names,
+                    validate_extra=validate_extra,
+                )
+
+                action_parser.authentication = self.default_authentication
+                if interface_type in authentication:
+                    action_parser.authentication = authentication[interface_type]
+
+            # subcategory_name is like "cert" in "domain cert status"
+            # subcategory_values is the values of this subcategory (like actions)
+            for subcategory_name, subcategory_values in subcategories.items():
+
+                actions = subcategory_values.pop("actions")
+
+                # Get subcategory parser
+                subcategory_parser = category_parser.add_subcategory_parser(
+                    subcategory_name, **subcategory_values
+                )
+
+                # action_name is like "status" of "domain cert status"
                 # action_options are the values
                 for action_name, action_options in actions.items():
                     arguments = action_options.pop("arguments", {})
                     authentication = action_options.pop("authentication", {})
-                    tid = (namespace, category_name, action_name)
+                    tid = (self.namespace, category_name, subcategory_name, action_name)
 
-                    # Get action parser
-                    action_parser = category_parser.add_action_parser(
-                        action_name, tid, **action_options
-                    )
+                    try:
+                        # Get action parser
+                        action_parser = subcategory_parser.add_action_parser(
+                            action_name, tid, **action_options
+                        )
+                    except AttributeError:
+                        # No parser for the action
+                        continue
 
                     if action_parser is None:  # No parser for the action
                         continue
@@ -719,52 +705,9 @@ class ActionsMap(object):
 
                     action_parser.authentication = self.default_authentication
                     if interface_type in authentication:
-                        action_parser.authentication = authentication[interface_type]
-
-                # subcategory_name is like "cert" in "domain cert status"
-                # subcategory_values is the values of this subcategory (like actions)
-                for subcategory_name, subcategory_values in subcategories.items():
-
-                    actions = subcategory_values.pop("actions")
-
-                    # Get subcategory parser
-                    subcategory_parser = category_parser.add_subcategory_parser(
-                        subcategory_name, **subcategory_values
-                    )
-
-                    # action_name is like "status" of "domain cert status"
-                    # action_options are the values
-                    for action_name, action_options in actions.items():
-                        arguments = action_options.pop("arguments", {})
-                        authentication = action_options.pop("authentication", {})
-                        tid = (namespace, category_name, subcategory_name, action_name)
-
-                        try:
-                            # Get action parser
-                            action_parser = subcategory_parser.add_action_parser(
-                                action_name, tid, **action_options
-                            )
-                        except AttributeError:
-                            # No parser for the action
-                            continue
-
-                        if action_parser is None:  # No parser for the action
-                            continue
-
-                        # Store action identifier and add arguments
-                        action_parser.set_defaults(_tid=tid)
-                        action_parser.add_arguments(
-                            arguments,
-                            extraparser=self.extraparser,
-                            format_arg_names=top_parser.format_arg_names,
-                            validate_extra=validate_extra,
-                        )
-
-                        action_parser.authentication = self.default_authentication
-                        if interface_type in authentication:
-                            action_parser.authentication = authentication[
-                                interface_type
-                            ]
+                        action_parser.authentication = authentication[
+                            interface_type
+                        ]
 
         logger.debug("building parser took %.3fs", time() - start)
         return top_parser

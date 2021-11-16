@@ -3,7 +3,6 @@
 from moulinette.core import (
     MoulinetteError,
     Moulinette18n,
-    env,
 )
 
 __title__ = "moulinette"
@@ -54,35 +53,8 @@ class Moulinette:
         return cls._interface
 
 
-# Package functions
-
-
-def init(logging_config=None, **kwargs):
-    """Package initialization
-
-    Initialize directories and global variables. It must be called
-    before any of package method is used - even the easy access
-    functions.
-
-    Keyword arguments:
-        - logging_config -- A dict containing logging configuration to load
-        - **kwargs -- See core.Package
-
-    At the end, the global variable 'pkg' will contain a Package
-    instance. See core.Package for available methods and variables.
-
-    """
-    import sys
-    from moulinette.utils.log import configure_logging
-
-    configure_logging(logging_config)
-
-    # Add library directory to python path
-    sys.path.insert(0, env["LIB_DIR"])
-
-
 # Easy access to interfaces
-def api(host="localhost", port=80, routes={}):
+def api(host="localhost", port=80, routes={}, actionsmap=None, locales_dir=None):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
@@ -96,8 +68,16 @@ def api(host="localhost", port=80, routes={}):
     """
     from moulinette.interfaces.api import Interface as Api
 
+    m18n.set_locales_dir(locales_dir)
+
     try:
-        Api(routes=routes).run(host, port)
+        Api(
+            routes=routes,
+            actionsmap=actionsmap,
+        ).run(
+            host,
+            port
+        )
     except MoulinetteError as e:
         import logging
 
@@ -110,7 +90,7 @@ def api(host="localhost", port=80, routes={}):
     return 0
 
 
-def cli(args, top_parser, output_as=None, timeout=None):
+def cli(args, top_parser, output_as=None, timeout=None, actionsmap=None, locales_dir=None):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -125,10 +105,18 @@ def cli(args, top_parser, output_as=None, timeout=None):
     """
     from moulinette.interfaces.cli import Interface as Cli
 
+    m18n.set_locales_dir(locales_dir)
+
     try:
         load_only_category = args[0] if args and not args[0].startswith("-") else None
-        Cli(top_parser=top_parser, load_only_category=load_only_category).run(
-            args, output_as=output_as, timeout=timeout
+        Cli(
+            top_parser=top_parser,
+            load_only_category=load_only_category,
+            actionsmap=actionsmap,
+        ).run(
+            args,
+            output_as=output_as,
+            timeout=timeout
         )
     except MoulinetteError as e:
         import logging

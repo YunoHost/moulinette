@@ -164,7 +164,7 @@ def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
 
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap(ActionsMapParser())
+    amap = ActionsMap("test/actionsmap/moulitest.yml", ActionsMapParser())
 
     with pytest.raises(MoulinetteError) as exception:
         amap.get_authenticator("unknown")
@@ -233,9 +233,9 @@ def test_actions_map_api():
     from moulinette.interfaces.api import ActionsMapParser
 
     parser = ActionsMapParser()
-    amap = ActionsMap(parser)
+    amap = ActionsMap("test/actionsmap/moulitest.yml", parser)
 
-    assert amap.main_namespace == "moulitest"
+    assert amap.namespace == "moulitest"
     assert amap.default_authentication == "dummy"
     assert ("GET", "/test-auth/default") in amap.parser.routes
     assert ("POST", "/test-auth/subcat/post") in amap.parser.routes
@@ -248,7 +248,7 @@ def test_actions_map_api():
 def test_actions_map_import_error(mocker):
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap(ActionsMapParser())
+    amap = ActionsMap("test/actionsmap/moulitest.yml", ActionsMapParser())
 
     from moulinette.core import MoulinetteLock
 
@@ -287,9 +287,9 @@ def test_actions_map_cli():
     )
 
     parser = ActionsMapParser(top_parser=top_parser)
-    amap = ActionsMap(parser)
+    amap = ActionsMap("test/actionsmap/moulitest.yml", parser)
 
-    assert amap.main_namespace == "moulitest"
+    assert amap.namespace == "moulitest"
     assert amap.default_authentication == "dummy"
     assert "testauth" in amap.parser._subparsers.choices
     assert "none" in amap.parser._subparsers.choices["testauth"]._actions[1].choices
