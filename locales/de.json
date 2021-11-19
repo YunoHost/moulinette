@@ -3,7 +3,7 @@
     "authentication_required": "Anmeldung erforderlich",
     "confirm": "Bestätige {prompt}",
     "error": "Fehler:",
-    "file_not_exist": "Datei  ist nicht vorhanden: '{path}'",
+    "file_not_exist": "Datei ist nicht vorhanden: '{path}'",
     "folder_exists": "Ordner existiert bereits: '{path}'",
     "instance_already_running": "Es läuft bereits eine YunoHost-Operation. Bitte warte, bis sie fertig ist, bevor du eine weitere startest.",
     "invalid_argument": "Argument ungültig '{argument}': {error}",
@@ -42,5 +42,6 @@
     "error_changing_file_permissions": "Fehler beim Ändern der Berechtigungen für {path}: {error}",
     "error_removing": "Fehler beim Entfernen {path}: {error}",
     "error_writing_file": "Fehler beim Schreiben von Datei {file}: {error}",
-    "corrupted_toml": "Beschädigtes TOML gelesen von {ressource} (reason: {error})"
+    "corrupted_toml": "Beschädigtes TOML gelesen von {ressource} (reason: {error})",
+    "edit_text_question": "{}. Diesen Text bearbeiten ? [yN]: "
 }
