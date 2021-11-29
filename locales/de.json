@@ -43,5 +43,5 @@
     "error_removing": "Fehler beim Entfernen {path}: {error}",
     "error_writing_file": "Fehler beim Schreiben von Datei {file}: {error}",
     "corrupted_toml": "Beschädigtes TOML gelesen von {ressource} (reason: {error})",
-    "edit_text_question": "{}. Diesen Text bearbeiten ? [yN]: "
+    "edit_text_question": "{}. Diesen Text bearbeiten? [yN]: "
 }
