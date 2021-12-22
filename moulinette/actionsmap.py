@@ -10,6 +10,7 @@ from typing import List, Optional
 from time import time
 from collections import OrderedDict
 from importlib import import_module
+from functools import cache
 
 from moulinette import m18n, Moulinette
 from moulinette.core import (
@@ -456,6 +457,7 @@ class ActionsMap(object):
         self.extraparser = ExtraArgumentParser(top_parser.interface)
         self.parser = self._construct_parser(actionsmap, top_parser)
 
+    @cache
     def get_authenticator(self, auth_method):
 
         if auth_method == "default":
@@ -616,7 +618,6 @@ class ActionsMap(object):
         _global = actionsmap.pop("_global", {})
 
         self.namespace = _global["namespace"]
-        self.cookie_name = _global["cookie_name"]
         self.default_authentication = _global["authentication"][
             interface_type
         ]

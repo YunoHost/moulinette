@@ -85,9 +85,15 @@ class APIQueueHandler(logging.Handler):
     def __init__(self):
         logging.Handler.__init__(self)
         self.queues = LogQueues()
+        # actionsmap is actually set during the interface's init ...
+        self.actionsmap = None
 
     def emit(self, record):
-        s_id = Session.get_infos(raise_if_no_session_exists=False)["id"]
+
+        profile = request.params.get("profile", self.actionsmap.default_authentication)
+        authenticator = self.actionsmap.get_authenticator(profile)
+
+        s_id = authenticator.get_session_cookie(raise_if_no_session_exists=False)["id"]
         try:
             queue = self.queues[s_id]
         except KeyError:
@@ -234,47 +240,6 @@ class _HTTPArgumentParser(object):
         raise MoulinetteValidationError(message, raw_msg=True)
 
 
-class Session:
-
-    secret = random_ascii()
-    cookie_name = None  # This is later set to the actionsmap name
-
-    def set_infos(infos):
-
-        assert isinstance(infos, dict)
-
-        response.set_cookie(
-            f"session.{Session.cookie_name}",
-            infos,
-            secure=True,
-            secret=Session.secret,
-            httponly=True,
-            # samesite="strict", # Bottle 0.12 doesn't support samesite, to be added in next versions
-        )
-
-    def get_infos(raise_if_no_session_exists=True):
-
-        try:
-            infos = request.get_cookie(
-                f"session.{Session.cookie_name}", secret=Session.secret, default={}
-            )
-        except Exception:
-            if not raise_if_no_session_exists:
-                return {"id": random_ascii()}
-            raise MoulinetteAuthenticationError("unable_authenticate")
-
-        if "id" not in infos:
-            infos["id"] = random_ascii()
-
-        return infos
-
-    @staticmethod
-    def delete_infos():
-
-        response.set_cookie(f"session.{Session.cookie_name}", "", max_age=-1)
-        response.delete_cookie(f"session.{Session.cookie_name}")
-
-
 class _ActionsMapPlugin(object):
 
     """Actions map Bottle Plugin
@@ -294,7 +259,6 @@ class _ActionsMapPlugin(object):
 
         self.actionsmap = actionsmap
         self.log_queues = log_queues
-        Session.cookie_name = actionsmap.cookie_name
 
     def setup(self, app):
         """Setup plugin on the application
@@ -398,13 +362,10 @@ class _ActionsMapPlugin(object):
         credentials = request.params["credentials"]
 
         profile = request.params.get("profile", self.actionsmap.default_authentication)
-
         authenticator = self.actionsmap.get_authenticator(profile)
 
         try:
-            auth_info = authenticator.authenticate_credentials(credentials)
-            session_infos = Session.get_infos(raise_if_no_session_exists=False)
-            session_infos[profile] = auth_info
+            auth_infos = authenticator.authenticate_credentials(credentials)
         except MoulinetteError as e:
             try:
                 self.logout()
@@ -412,18 +373,14 @@ class _ActionsMapPlugin(object):
                 pass
             raise HTTPResponse(e.strerror, 401)
         else:
-            Session.set_infos(session_infos)
+            authenticator.set_session_cookie(auth_infos)
             return m18n.g("logged_in")
 
     # This is called before each time a route is going to be processed
     def authenticate(self, authenticator):
 
         try:
-            session_infos = Session.get_infos()[authenticator.name]
-
-            # Here, maybe we want to re-authenticate the session via the authenticator
-            # For example to check that the username authenticated is still in the admin group...
-
+            session_infos = authenticator.get_session_cookie()
         except Exception:
             msg = m18n.g("authentication_required")
             raise HTTPResponse(msg, 401)
@@ -431,13 +388,17 @@ class _ActionsMapPlugin(object):
         return session_infos
 
     def logout(self):
+
+        profile = request.params.get("profile", self.actionsmap.default_authentication)
+        authenticator = self.actionsmap.get_authenticator(profile)
+
         try:
-            Session.get_infos()
+            authenticator.get_session_cookie()
         except KeyError:
             raise HTTPResponse(m18n.g("not_logged_in"), 401)
         else:
             # Delete cookie and clean the session
-            Session.delete_infos()
+            authenticator.delete_session_cookie()
             return m18n.g("logged_out")
 
     def messages(self):
@@ -446,7 +407,11 @@ class _ActionsMapPlugin(object):
         Retrieve the WebSocket stream and send to it each messages displayed by
         the display method. They are JSON encoded as a dict { style: message }.
         """
-        s_id = Session.get_infos()["id"]
+
+        profile = request.params.get("profile", self.actionsmap.default_authentication)
+        authenticator = self.actionsmap.get_authenticator(profile)
+
+        s_id = authenticator.get_session_cookie()["id"]
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -514,8 +479,10 @@ class _ActionsMapPlugin(object):
                 UPLOAD_DIR = None
 
             # Close opened WebSocket by putting StopIteration in the queue
+            profile = request.params.get("profile", self.actionsmap.default_authentication)
+            authenticator = self.actionsmap.get_authenticator(profile)
             try:
-                s_id = Session.get_infos()["id"]
+                s_id = authenticator.get_session_cookie()["id"]
                 queue = self.log_queues[s_id]
             except KeyError:
                 pass
@@ -524,7 +491,10 @@ class _ActionsMapPlugin(object):
 
     def display(self, message, style="info"):
 
-        s_id = Session.get_infos(raise_if_no_session_exists=False)["id"]
+        profile = request.params.get("profile", self.actionsmap.default_authentication)
+        authenticator = self.actionsmap.get_authenticator(profile)
+        s_id = authenticator.get_session_cookie(raise_if_no_session_exists=False)["id"]
+
         try:
             queue = self.log_queues[s_id]
         except KeyError:
@@ -742,6 +712,7 @@ class Interface:
         handler = log.getHandlersByClass(APIQueueHandler, limit=1)
         if handler:
             log_queues = handler.queues
+            handler.actionsmap = actionsmap
 
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
