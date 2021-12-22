@@ -4,7 +4,6 @@
 #############################
 _global:
     namespace: moulitest
-    cookie_name: moulitest
     authentication:
         api: dummy
         cli: dummy
