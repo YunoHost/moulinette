@@ -90,6 +90,11 @@ class APIQueueHandler(logging.Handler):
 
     def emit(self, record):
 
+        # Prevent triggering this function while moulinette
+        # is being initialized with --debug
+        if not self.actionsmap or len(request.cookies) == 0:
+            return
+
         profile = request.params.get("profile", self.actionsmap.default_authentication)
         authenticator = self.actionsmap.get_authenticator(profile)
 
@@ -484,6 +489,8 @@ class _ActionsMapPlugin(object):
             try:
                 s_id = authenticator.get_session_cookie()["id"]
                 queue = self.log_queues[s_id]
+            except MoulinetteAuthenticationError:
+                pass
             except KeyError:
                 pass
             else:

@@ -61,6 +61,9 @@ class Authenticator(BaseAuthenticator):
                 return {"id": random_ascii()}
             raise MoulinetteAuthenticationError("unable_authenticate")
 
+        if not infos and raise_if_no_session_exists:
+            raise MoulinetteAuthenticationError("unable_authenticate")
+
         if "id" not in infos:
             infos["id"] = random_ascii()
 
