@@ -31,7 +31,7 @@ __all__ = ["init", "api", "cli", "m18n", "MoulinetteError", "Moulinette"]
 m18n = Moulinette18n()
 
 
-class classproperty(object):
+class classproperty:
     def __init__(self, f):
         self.f = f
 

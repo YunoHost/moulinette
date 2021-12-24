@@ -22,7 +22,7 @@ CALLBACKS_PROP = "_callbacks"
 # Base Class -----------------------------------------------------------
 
 
-class BaseActionsMapParser(object):
+class BaseActionsMapParser:
 
     """Actions map's base Parser
 

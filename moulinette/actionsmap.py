@@ -30,7 +30,7 @@ logger = logging.getLogger("moulinette.actionsmap")
 # Extra parameters definition
 
 
-class _ExtraParameter(object):
+class _ExtraParameter:
     """
     Argument parser for an extra parameter.
 
@@ -261,7 +261,7 @@ extraparameters_list = [
 # Extra parameters argument Parser
 
 
-class ExtraArgumentParser(object):
+class ExtraArgumentParser:
 
     """
     Argument validator and parser for the extra parameters.
@@ -373,7 +373,7 @@ class ExtraArgumentParser(object):
 # Main class ----------------------------------------------------------
 
 
-class ActionsMap(object):
+class ActionsMap:
 
     """Validate and process actions defined into an actions map
 

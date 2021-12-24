@@ -30,7 +30,7 @@ def during_unittests_run():
 # Internationalization -------------------------------------------------
 
 
-class Translator(object):
+class Translator:
 
     """Internationalization class
 
@@ -190,7 +190,7 @@ class Translator(object):
         return True
 
 
-class Moulinette18n(object):
+class Moulinette18n:
 
     """Internationalization service for the moulinette
 
@@ -312,7 +312,7 @@ class MoulinetteAuthenticationError(MoulinetteError):
     http_code = 401
 
 
-class MoulinetteLock(object):
+class MoulinetteLock:
 
     """Locker for a moulinette instance
 

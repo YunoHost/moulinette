@@ -167,7 +167,7 @@ def getActionLogger(name=None, logger=None, action_id=None):
     return logger
 
 
-class ActionFilter(object):
+class ActionFilter:
 
     """Extend log record for an optionnal action
 

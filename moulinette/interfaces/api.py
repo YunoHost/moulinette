@@ -101,7 +101,7 @@ class APIQueueHandler(logging.Handler):
             sleep(0)
 
 
-class _HTTPArgumentParser(object):
+class _HTTPArgumentParser:
 
     """Argument parser for HTTP requests
 
@@ -275,7 +275,7 @@ class Session:
         response.delete_cookie(f"session.{Session.actionsmap_name}")
 
 
-class _ActionsMapPlugin(object):
+class _ActionsMapPlugin:
 
     """Actions map Bottle Plugin
 
