@@ -40,7 +40,7 @@ def patch_translate(moulinette):
 
 def patch_logging(moulinette):
     """Configure logging to use the custom logger."""
-    handlers = set(["tty", "api"])
+    handlers = {"tty", "api"}
     root_handlers = set(handlers)
 
     level = "INFO"
@@ -97,8 +97,8 @@ def moulinette(tmp_path_factory):
     moulinette.env["DATA_DIR"] = tmp_data
     moulinette.env["LIB_DIR"] = tmp_lib
     shutil.copytree("./test/actionsmap", "%s/actionsmap" % tmp_data)
-    shutil.copytree("./test/src", "%s/%s" % (tmp_lib, namespace))
-    shutil.copytree("./test/locales", "%s/%s/locales" % (tmp_lib, namespace))
+    shutil.copytree("./test/src", "{}/{}".format(tmp_lib, namespace))
+    shutil.copytree("./test/locales", "{}/{}/locales".format(tmp_lib, namespace))
 
     patch_init(moulinette)
     patch_translate(moulinette)

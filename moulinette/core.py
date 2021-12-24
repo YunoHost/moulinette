@@ -230,7 +230,7 @@ class Moulinette18n(object):
             # Create new Translator object
             lib_dir = env["LIB_DIR"]
             translator = Translator(
-                "%s/%s/locales" % (lib_dir, namespace), self.default_locale
+                "{}/{}/locales".format(lib_dir, namespace), self.default_locale
             )
             translator.set_locale(self.locale)
             self._namespaces[namespace] = translator
