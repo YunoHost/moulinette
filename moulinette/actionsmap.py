@@ -414,6 +414,9 @@ class ActionsMap(object):
             # Read actions map from yaml file
             actionsmap = read_yaml(actionsmap_yml)
 
+            if not actionsmap["_global"].get("cache", True):
+                return actionsmap
+
             # Delete old cache files
             for old_cache in glob.glob(f"{actionsmap_yml_dir}/.{actionsmap_yml_file}.*.pkl"):
                 os.remove(old_cache)
@@ -536,7 +539,7 @@ class ActionsMap(object):
             full_action_name = "%s.%s.%s" % (namespace, category, action)
 
         # Lock the moulinette for the namespace
-        with MoulinetteLock(namespace, timeout):
+        with MoulinetteLock(namespace, timeout, self.enable_lock):
             start = time()
             try:
                 mod = __import__(
@@ -618,6 +621,7 @@ class ActionsMap(object):
         _global = actionsmap.pop("_global", {})
 
         self.namespace = _global["namespace"]
+        self.enable_lock = _global.get("lock", True)
         self.default_authentication = _global["authentication"][
             interface_type
         ]
