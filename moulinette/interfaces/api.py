@@ -29,7 +29,6 @@ from moulinette.interfaces import (
     JSONExtendedEncoder,
 )
 from moulinette.utils import log
-from moulinette.utils.text import random_ascii
 
 logger = log.getLogger("moulinette.interface.api")
 
