@@ -8,7 +8,7 @@
     "download_unknown_error": "Chyba při stahování dat z {url}: {error}",
     "download_timeout": "{url} příliš dlouho neodpovídá, akce přerušena.",
     "download_ssl_error": "SSL chyba při spojení s {url}",
-    "invalid_url": "Špatný odkaz {url} (je vůbec dostupný?)",
+    "invalid_url": "Špatný odkaz {url} (je vůbec dostupný?).",
     "error_changing_file_permissions": "Chyba při nastavování oprávnění pro {path}: {error}",
     "error_removing": "Chyba při přesunu {path}: {error}",
     "error_writing_file": "Chyba při zápisu souboru/ů {file}: {error}",
@@ -42,5 +42,6 @@
     "deprecated_command": "'{prog} {command}' je zastaralý a bude odebrán v budoucích verzích",
     "confirm": "Potvrdit {prompt}",
     "authentication_required": "Vyžadováno ověření",
-    "argument_required": "Je vyžadován argument '{argument}'"
+    "argument_required": "Je vyžadován argument '{argument}'",
+    "edit_text_question": "{}. Upravit tento text? [yN]: "
 }
