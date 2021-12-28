@@ -266,7 +266,7 @@ def test_actions_map_import_error(mocker):
     with pytest.raises(MoulinetteError) as exception:
         amap.process({}, timeout=30, route=("GET", "/test-auth/none"))
 
-    expected_msg = "unable to load function {: }.{} because: {}".format(
+    expected_msg = "unable to load function {}.{} because: {}".format(
         "moulitest",
         "testauth_none",
         "Yoloswag",
