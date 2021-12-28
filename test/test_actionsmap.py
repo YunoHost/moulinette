@@ -192,10 +192,12 @@ def test_extra_argument_parser_add_argument_bad_arg(iface):
     with pytest.raises(MoulinetteError) as exception:
         extra_argument_parse.add_argument("_global", "foo", {"ask": 1})
 
-    expected_msg = "unable to validate extra parameter '{}' for argument '{}': {}".format(
-        "ask",
-        "foo",
-        "parameter value must be a string, got 1",
+    expected_msg = (
+        "unable to validate extra parameter '{}' for argument '{}': {}".format(
+            "ask",
+            "foo",
+            "parameter value must be a string, got 1",
+        )
     )
     assert expected_msg in str(exception)
 
