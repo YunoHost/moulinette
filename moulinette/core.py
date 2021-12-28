@@ -30,7 +30,7 @@ def during_unittests_run():
 # Internationalization -------------------------------------------------
 
 
-class Translator(object):
+class Translator:
 
     """Internationalization class
 
@@ -190,7 +190,7 @@ class Translator(object):
         return True
 
 
-class Moulinette18n(object):
+class Moulinette18n:
 
     """Internationalization service for the moulinette
 
@@ -230,7 +230,7 @@ class Moulinette18n(object):
             # Create new Translator object
             lib_dir = env["LIB_DIR"]
             translator = Translator(
-                "%s/%s/locales" % (lib_dir, namespace), self.default_locale
+                "{}/{}/locales".format(lib_dir, namespace), self.default_locale
             )
             translator.set_locale(self.locale)
             self._namespaces[namespace] = translator
@@ -312,7 +312,7 @@ class MoulinetteAuthenticationError(MoulinetteError):
     http_code = 401
 
 
-class MoulinetteLock(object):
+class MoulinetteLock:
 
     """Locker for a moulinette instance
 

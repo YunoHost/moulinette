@@ -34,7 +34,7 @@ ldapsearch -x -b 'dc=nodomain' | \\
 import sys
 
 
-class Element(object):
+class Element:
     """Represents an LDIF entry."""
 
     def __init__(self):
@@ -109,7 +109,7 @@ class Element(object):
 
         return TABLE_TEMPLATE % (self.index, '\n    '.join(_format(self.attributes)), self.edge(dnmap))
 
-class Converter(object):
+class Converter:
     """An LDIF to DOT converter."""
 
     def __init__(self):

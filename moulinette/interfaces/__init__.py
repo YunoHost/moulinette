@@ -22,7 +22,7 @@ CALLBACKS_PROP = "_callbacks"
 # Base Class -----------------------------------------------------------
 
 
-class BaseActionsMapParser(object):
+class BaseActionsMapParser:
 
     """Actions map's base Parser
 
@@ -211,7 +211,7 @@ class _CallbackAction(argparse.Action):
             import traceback
 
             traceback.print_exc()
-            raise ValueError("unable to import method {0}".format(self.callback_method))
+            raise ValueError("unable to import method {}".format(self.callback_method))
         self._callback = func
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -226,7 +226,7 @@ class _CallbackAction(argparse.Action):
         except Exception as e:
             error_message = (
                 "cannot get value from callback method "
-                "'{0}': {1}".format(self.callback_method, e)
+                "'{}': {}".format(self.callback_method, e)
             )
             logger.exception(error_message)
             raise MoulinetteError(error_message, raw_msg=True)
@@ -562,7 +562,7 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
                 usage = "\n".join(lines)
 
         # prefix with 'usage:'
-        return "%s%s\n\n" % (prefix, usage)
+        return "{}{}\n\n".format(prefix, usage)
 
 
 class JSONExtendedEncoder(JSONEncoder):

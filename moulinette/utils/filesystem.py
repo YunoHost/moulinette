@@ -24,7 +24,7 @@ def read_file(file_path, file_mode="r"):
     """
     assert isinstance(
         file_path, str
-    ), "Error: file_path '%s' should be a string but is of type '%s' instead" % (
+    ), "Error: file_path '{}' should be a string but is of type '{}' instead".format(
         file_path,
         type(file_path),
     )
@@ -121,7 +121,7 @@ def write_to_file(file_path, data, file_mode="w"):
     """
     assert (
         isinstance(data, str) or isinstance(data, bytes) or isinstance(data, list)
-    ), "Error: data '%s' should be either a string or a list but is of type '%s'" % (
+    ), "Error: data '{}' should be either a string or a list but is of type '{}'".format(
         data,
         type(data),
     )
@@ -130,7 +130,7 @@ def write_to_file(file_path, data, file_mode="w"):
     )
     assert os.path.isdir(
         os.path.dirname(file_path)
-    ), "Error: the path ('%s') base dir ('%s') is not a dir" % (
+    ), "Error: the path ('{}') base dir ('{}') is not a dir".format(
         file_path,
         os.path.dirname(file_path),
     )
@@ -140,7 +140,7 @@ def write_to_file(file_path, data, file_mode="w"):
         for element in data:
             assert isinstance(
                 element, str
-            ), "Error: element '%s' should be a string but is of type '%s' instead" % (
+            ), "Error: element '{}' should be a string but is of type '{}' instead".format(
                 element,
                 type(element),
             )
@@ -179,13 +179,13 @@ def write_to_json(file_path, data, sort_keys=False, indent=None):
     # Assumptions
     assert isinstance(
         file_path, str
-    ), "Error: file_path '%s' should be a string but is of type '%s' instead" % (
+    ), "Error: file_path '{}' should be a string but is of type '{}' instead".format(
         file_path,
         type(file_path),
     )
     assert isinstance(data, dict) or isinstance(
         data, list
-    ), "Error: data '%s' should be a dict or a list but is of type '%s' instead" % (
+    ), "Error: data '{}' should be a dict or a list but is of type '{}' instead".format(
         data,
         type(data),
     )
@@ -194,7 +194,7 @@ def write_to_json(file_path, data, sort_keys=False, indent=None):
     )
     assert os.path.isdir(
         os.path.dirname(file_path)
-    ), "Error: the path ('%s') base dir ('%s') is not a dir" % (
+    ), "Error: the path ('{}') base dir ('{}') is not a dir".format(
         file_path,
         os.path.dirname(file_path),
     )
