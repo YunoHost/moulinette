@@ -428,7 +428,9 @@ class ActionsMap:
                 actionsmap = read_yaml(actionsmap_yml)
 
                 # Delete old cache files
-                for old_cache in glob.glob("{}/actionsmap/{}-*.pkl".format(CACHE_DIR, n)):
+                for old_cache in glob.glob(
+                    "{}/actionsmap/{}-*.pkl".format(CACHE_DIR, n)
+                ):
                     os.remove(old_cache)
 
                 # at installation, cachedir might not exists

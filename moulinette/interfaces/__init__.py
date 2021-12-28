@@ -224,9 +224,8 @@ class _CallbackAction(argparse.Action):
             # Execute callback and get returned value
             value = self.callback(namespace, values, **self.callback_kwargs)
         except Exception as e:
-            error_message = (
-                "cannot get value from callback method "
-                "'{}': {}".format(self.callback_method, e)
+            error_message = "cannot get value from callback method " "'{}': {}".format(
+                self.callback_method, e
             )
             logger.exception(error_message)
             raise MoulinetteError(error_message, raw_msg=True)

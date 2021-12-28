@@ -38,9 +38,7 @@ logger = log.getLogger("moulinette.interface.api")
 # We define a global variable to manage in a dirty way the upload...
 UPLOAD_DIR = None
 
-CSRF_TYPES = {
-    "text/plain", "application/x-www-form-urlencoded", "multipart/form-data"
-}
+CSRF_TYPES = {"text/plain", "application/x-www-form-urlencoded", "multipart/form-data"}
 
 
 def is_csrf():
@@ -667,7 +665,9 @@ class ActionsMapParser(BaseActionsMapParser):
             # Retrieve the tid for the route
             _, parser = self._parsers[route]
         except KeyError as e:
-            error_message = "no argument parser found for route '{}': {}".format(route, e)
+            error_message = "no argument parser found for route '{}': {}".format(
+                route, e
+            )
             logger.error(error_message)
             raise MoulinetteValidationError(error_message, raw_msg=True)
 
@@ -684,7 +684,9 @@ class ActionsMapParser(BaseActionsMapParser):
             # Retrieve the parser for the route
             _, parser = self._parsers[route]
         except KeyError as e:
-            error_message = "no argument parser found for route '{}': {}".format(route, e)
+            error_message = "no argument parser found for route '{}': {}".format(
+                route, e
+            )
             logger.error(error_message)
             raise MoulinetteValidationError(error_message, raw_msg=True)
         ret = argparse.Namespace()
