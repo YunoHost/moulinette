@@ -237,6 +237,7 @@ class Session:
     secret = random_ascii()
     actionsmap_name = None  # This is later set to the actionsmap name
 
+    @staticmethod
     def set_infos(infos):
 
         assert isinstance(infos, dict)
@@ -250,6 +251,7 @@ class Session:
             # samesite="strict", # Bottle 0.12 doesn't support samesite, to be added in next versions
         )
 
+    @staticmethod
     def get_infos(raise_if_no_session_exists=True):
 
         try:
@@ -673,13 +675,14 @@ class ActionsMapParser(BaseActionsMapParser):
 
         return parser.authentication
 
-    def parse_args(self, args, route, **kwargs):
+    def parse_args(self, args, **kwargs):
         """Parse arguments
 
         Keyword arguments:
             - route -- The action route as a 2-tuple (method, path)
 
         """
+        route = kwargs["route"]
         try:
             # Retrieve the parser for the route
             _, parser = self._parsers[route]

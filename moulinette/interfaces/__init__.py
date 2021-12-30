@@ -331,7 +331,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             c.execute(namespace, v)
         try:
             delattr(namespace, CALLBACKS_PROP)
-        except:
+        except AttributeError:
             pass
 
     def _get_callbacks_queue(self, namespace, create=True):
