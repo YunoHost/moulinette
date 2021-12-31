@@ -16,7 +16,7 @@ def during_unittests_run():
 # Internationalization -------------------------------------------------
 
 
-class Translator(object):
+class Translator:
 
     """Internationalization class
 
@@ -172,7 +172,7 @@ class Translator(object):
         return True
 
 
-class Moulinette18n(object):
+class Moulinette18n:
 
     """Internationalization service for the moulinette
 
@@ -197,7 +197,6 @@ class Moulinette18n(object):
         self._global = Translator(global_locale_dir, default_locale)
 
     def set_locales_dir(self, locales_dir):
-
         self.translator = Translator(locales_dir, self.default_locale)
 
     def set_locale(self, locale):
@@ -273,7 +272,7 @@ class MoulinetteAuthenticationError(MoulinetteError):
     http_code = 401
 
 
-class MoulinetteLock(object):
+class MoulinetteLock:
 
     """Locker for a moulinette instance
 

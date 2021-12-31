@@ -59,7 +59,7 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
 def prependlines(text, prepend):
     """Prepend a string to each line of a text"""
     lines = text.splitlines(True)
-    return "%s%s" % (prepend, prepend.join(lines))
+    return "{}{}".format(prepend, prepend.join(lines))
 
 
 # Randomize ------------------------------------------------------------

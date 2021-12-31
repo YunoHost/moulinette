@@ -1,5 +1,4 @@
 import os
-import logging
 
 # import all constants because other modules try to import them from this
 # module because SUCCESS is defined in this module
@@ -70,8 +69,11 @@ def configure_logging(logging_config=None):
 
 def getHandlersByClass(classinfo, limit=0):
     """Retrieve registered handlers of a given class."""
+
+    from logging import _handlers
+
     handlers = []
-    for ref in logging._handlers.itervaluerefs():
+    for ref in _handlers.itervaluerefs():
         o = ref()
         if o is not None and isinstance(o, classinfo):
             if limit == 1:
@@ -102,14 +104,17 @@ class MoulinetteLogger(Logger):
 
     def findCaller(self, *args):
         """Override findCaller method to consider this source file."""
-        f = logging.currentframe()
+
+        from logging import currentframe, _srcfile
+
+        f = currentframe()
         if f is not None:
             f = f.f_back
         rv = "(unknown file)", 0, "(unknown function)"
         while hasattr(f, "f_code"):
             co = f.f_code
             filename = os.path.normcase(co.co_filename)
-            if filename == logging._srcfile or filename == __file__:
+            if filename == _srcfile or filename == __file__:
                 f = f.f_back
                 continue
             rv = (co.co_filename, f.f_lineno, co.co_name)
@@ -167,7 +172,7 @@ def getActionLogger(name=None, logger=None, action_id=None):
     return logger
 
 
-class ActionFilter(object):
+class ActionFilter:
 
     """Extend log record for an optionnal action
 

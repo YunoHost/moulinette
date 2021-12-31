@@ -31,7 +31,7 @@ def patch_translate(moulinette):
 
 def logging_configuration(moulinette):
     """Configure logging to use the custom logger."""
-    handlers = set(["tty", "api"])
+    handlers = {"tty", "api"}
     root_handlers = set(handlers)
 
     level = "INFO"

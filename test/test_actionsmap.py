@@ -192,10 +192,12 @@ def test_extra_argument_parser_add_argument_bad_arg(iface):
     with pytest.raises(MoulinetteError) as exception:
         extra_argument_parse.add_argument("_global", "foo", {"ask": 1})
 
-    expected_msg = "unable to validate extra parameter '%s' for argument '%s': %s" % (
-        "ask",
-        "foo",
-        "parameter value must be a string, got 1",
+    expected_msg = (
+        "unable to validate extra parameter '{}' for argument '{}': {}".format(
+            "ask",
+            "foo",
+            "parameter value must be a string, got 1",
+        )
     )
     assert expected_msg in str(exception)
 
@@ -266,7 +268,7 @@ def test_actions_map_import_error(mocker):
     with pytest.raises(MoulinetteError) as exception:
         amap.process({}, timeout=30, route=("GET", "/test-auth/none"))
 
-    expected_msg = "unable to load function % s.%s because: %s" % (
+    expected_msg = "unable to load function {}.{} because: {}".format(
         "moulitest",
         "testauth_none",
         "Yoloswag",
