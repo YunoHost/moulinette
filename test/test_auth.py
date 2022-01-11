@@ -66,7 +66,7 @@ class TestAuthAPI:
     def test_login(self, moulinette_webapi):
         assert self.login(moulinette_webapi).text == "Logged in"
 
-        assert "session.moulitest" in moulinette_webapi.cookies
+        assert "moulitest" in moulinette_webapi.cookies
 
     def test_login_bad_password(self, moulinette_webapi):
         assert (
@@ -74,7 +74,7 @@ class TestAuthAPI:
             == "invalid_password"
         )
 
-        assert "session.moulitest" not in moulinette_webapi.cookies
+        assert "moulitest" not in moulinette_webapi.cookies
 
     def test_login_csrf_attempt(self, moulinette_webapi):
         # C.f.
@@ -86,7 +86,7 @@ class TestAuthAPI:
             in self.login(moulinette_webapi, csrf=True, status=403).text
         )
         assert not any(
-            c.name == "session.moulitest" for c in moulinette_webapi.cookiejar
+            c.name == "moulitest" for c in moulinette_webapi.cookiejar
         )
 
     def test_login_then_legit_request_without_cookies(self, moulinette_webapi):
@@ -99,7 +99,7 @@ class TestAuthAPI:
     def test_login_then_legit_request(self, moulinette_webapi):
         self.login(moulinette_webapi)
 
-        assert "session.moulitest" in moulinette_webapi.cookies
+        assert "moulitest" in moulinette_webapi.cookies
 
         assert (
             moulinette_webapi.get("/test-auth/default", status=200).text
@@ -124,7 +124,7 @@ class TestAuthAPI:
     def test_login_other_profile(self, moulinette_webapi):
         self.login(moulinette_webapi, profile="yoloswag", password="yoloswag")
 
-        assert "session.moulitest" in moulinette_webapi.cookies
+        assert "moulitest" in moulinette_webapi.cookies
 
     def test_login_wrong_profile(self, moulinette_webapi):
         self.login(moulinette_webapi)

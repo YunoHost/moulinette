@@ -290,10 +290,11 @@ class MoulinetteLock:
 
     base_lockfile = "/var/run/moulinette_%s.lock"
 
-    def __init__(self, namespace, timeout=None, interval=0.5):
+    def __init__(self, namespace, timeout=None, enable_lock=True, interval=0.5):
         self.namespace = namespace
         self.timeout = timeout
         self.interval = interval
+        self.enable_lock = enable_lock
 
         self._lockfile = self.base_lockfile % namespace
         self._stale_checked = False
@@ -420,7 +421,7 @@ class MoulinetteLock:
         return False
 
     def __enter__(self):
-        if not self._locked:
+        if self.enable_lock and not self._locked:
             self.acquire()
         return self
 
