@@ -251,7 +251,7 @@ class TTYHandler(logging.StreamHandler):
                 # add translated level name before message
                 level = "%s " % m18n.g(record.levelname.lower())
             color = self.LEVELS_COLOR.get(record.levelno, "white")
-            msg = "{0}{1}{2}{3}".format(colors_codes[color], level, END_CLI_COLOR, msg)
+            msg = "{}{}{}{}".format(colors_codes[color], level, END_CLI_COLOR, msg)
         if self.formatter:
             # use user-defined formatter
             record.__dict__[self.message_key] = msg
@@ -403,7 +403,7 @@ class ActionsMapParser(BaseActionsMapParser):
         except SystemExit:
             raise
         except Exception as e:
-            error_message = "unable to parse arguments '%s' because: %s" % (
+            error_message = "unable to parse arguments '{}' because: {}".format(
                 " ".join(args),
                 e,
             )
@@ -435,7 +435,7 @@ class ActionsMapParser(BaseActionsMapParser):
         except SystemExit:
             raise
         except Exception as e:
-            error_message = "unable to parse arguments '%s' because: %s" % (
+            error_message = "unable to parse arguments '{}' because: {}".format(
                 " ".join(args),
                 e,
             )

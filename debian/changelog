@@ -4,6 +4,15 @@ moulinette (11.0.0~alpha) unstable; urgency=low
 
  -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Feb 2021 00:02:38 +0100
 
+moulinette (4.3.3) stable; urgency=low
+
+  - [enh] quality: Apply pyupgrade ([#312](https://github.com/YunoHost/moulinette/pull/312))
+  - [i18n] Translations updated for Czech, German, Portuguese
+
+  Thanks to all contributors <3 ! (Bram, Christian Wehrli, maique madeira, Radek S, Valentin von Guttenberg)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 29 Dec 2021 01:08:10 +0100
+
 moulinette (4.3.2.2) stable; urgency=low
 
   Aaaaaand typoed 'testing' instead of 'stable' in previous changelog

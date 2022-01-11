@@ -10,7 +10,7 @@ logger = logging.getLogger("moulinette.authenticator")
 # Base Class -----------------------------------------------------------
 
 
-class BaseAuthenticator(object):
+class BaseAuthenticator:
 
     """Authenticator base representation
 

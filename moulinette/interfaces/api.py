@@ -37,9 +37,7 @@ logger = log.getLogger("moulinette.interface.api")
 # We define a global variable to manage in a dirty way the upload...
 UPLOAD_DIR = None
 
-CSRF_TYPES = set(
-    ["text/plain", "application/x-www-form-urlencoded", "multipart/form-data"]
-)
+CSRF_TYPES = {"text/plain", "application/x-www-form-urlencoded", "multipart/form-data"}
 
 
 def is_csrf():
@@ -111,7 +109,7 @@ class APIQueueHandler(logging.Handler):
             sleep(0)
 
 
-class _HTTPArgumentParser(object):
+class _HTTPArgumentParser:
 
     """Argument parser for HTTP requests
 
@@ -244,8 +242,7 @@ class _HTTPArgumentParser(object):
         raise MoulinetteValidationError(message, raw_msg=True)
 
 
-class _ActionsMapPlugin(object):
-
+class _ActionsMapPlugin:
     """Actions map Bottle Plugin
 
     Process relevant action for the request using the actions map and
@@ -643,24 +640,29 @@ class ActionsMapParser(BaseActionsMapParser):
             # Retrieve the tid for the route
             _, parser = self._parsers[route]
         except KeyError as e:
-            error_message = "no argument parser found for route '%s': %s" % (route, e)
+            error_message = "no argument parser found for route '{}': {}".format(
+                route, e
+            )
             logger.error(error_message)
             raise MoulinetteValidationError(error_message, raw_msg=True)
 
         return parser.authentication
 
-    def parse_args(self, args, route, **kwargs):
+    def parse_args(self, args, **kwargs):
         """Parse arguments
 
         Keyword arguments:
             - route -- The action route as a 2-tuple (method, path)
 
         """
+        route = kwargs["route"]
         try:
             # Retrieve the parser for the route
             _, parser = self._parsers[route]
         except KeyError as e:
-            error_message = "no argument parser found for route '%s': %s" % (route, e)
+            error_message = "no argument parser found for route '{}': {}".format(
+                route, e
+            )
             logger.error(error_message)
             raise MoulinetteValidationError(error_message, raw_msg=True)
         ret = argparse.Namespace()

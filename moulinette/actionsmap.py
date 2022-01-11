@@ -30,7 +30,7 @@ logger = logging.getLogger("moulinette.actionsmap")
 # Extra parameters definition
 
 
-class _ExtraParameter(object):
+class _ExtraParameter:
     """
     Argument parser for an extra parameter.
 
@@ -261,7 +261,7 @@ extraparameters_list = [
 # Extra parameters argument Parser
 
 
-class ExtraArgumentParser(object):
+class ExtraArgumentParser:
 
     """
     Argument validator and parser for the extra parameters.
@@ -373,7 +373,7 @@ class ExtraArgumentParser(object):
 # Main class ----------------------------------------------------------
 
 
-class ActionsMap(object):
+class ActionsMap:
 
     """Validate and process actions defined into an actions map
 
@@ -467,7 +467,7 @@ class ActionsMap(object):
             auth_method = self.default_authentication
 
         # Load and initialize the authenticator module
-        auth_module = "%s.authenticators.%s" % (self.namespace, auth_method)
+        auth_module = f"{self.namespace}.authenticators.{auth_method}"
         logger.debug(f"Loading auth module {auth_module}")
         try:
             mod = import_module(auth_module)
@@ -520,12 +520,12 @@ class ActionsMap(object):
         # Retrieve action information
         if len(tid) == 4:
             namespace, category, subcategory, action = tid
-            func_name = "%s_%s_%s" % (
+            func_name = "{}_{}_{}".format(
                 category,
                 subcategory.replace("-", "_"),
                 action.replace("-", "_"),
             )
-            full_action_name = "%s.%s.%s.%s" % (
+            full_action_name = "{}.{}.{}.{}".format(
                 namespace,
                 category,
                 subcategory,
@@ -535,22 +535,22 @@ class ActionsMap(object):
             assert len(tid) == 3
             namespace, category, action = tid
             subcategory = None
-            func_name = "%s_%s" % (category, action.replace("-", "_"))
-            full_action_name = "%s.%s.%s" % (namespace, category, action)
+            func_name = "{}_{}".format(category, action.replace("-", "_"))
+            full_action_name = "{}.{}.{}".format(namespace, category, action)
 
         # Lock the moulinette for the namespace
         with MoulinetteLock(namespace, timeout, self.enable_lock):
             start = time()
             try:
                 mod = __import__(
-                    "%s.%s" % (namespace, category),
+                    "{}.{}".format(namespace, category),
                     globals=globals(),
                     level=0,
                     fromlist=[func_name],
                 )
                 logger.debug(
                     "loading python module %s took %.3fs",
-                    "%s.%s" % (namespace, category),
+                    "{}.{}".format(namespace, category),
                     time() - start,
                 )
                 func = getattr(mod, func_name)
@@ -558,7 +558,7 @@ class ActionsMap(object):
                 import traceback
 
                 traceback.print_exc()
-                error_message = "unable to load function %s.%s because: %s" % (
+                error_message = "unable to load function {}.{} because: {}".format(
                     namespace,
                     func_name,
                     e,
