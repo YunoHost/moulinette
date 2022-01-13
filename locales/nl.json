@@ -2,7 +2,7 @@
     "argument_required": "Argument {argument} is vereist",
     "authentication_required": "Aanmelding vereist",
     "confirm": "Bevestig {prompt}",
-    "error": "Fout:",
+    "error": "Fout",
     "file_not_exist": "Bestand bestaat niet: '{path}'",
     "folder_exists": "Deze map bestaat al: '{path}'",
     "instance_already_running": "Er is al een instantie actief, bedankt om te wachten tot  deze afgesloten is alvorens een andere te starten.",
@@ -37,10 +37,11 @@
     "download_timeout": "{url} neemt te veel tijd om te antwoorden, we geven het op.",
     "download_unknown_error": "Fout tijdens het downloaden van data van {url}: {error}",
     "download_bad_status_code": "{url} stuurt status code {code}",
-    "warn_the_user_that_lock_is_acquired": "de andere opdracht is zojuist voltooid en start nu deze opdracht",
+    "warn_the_user_that_lock_is_acquired": "De andere opdracht is zojuist voltooid; nu wordt nu deze opdracht gestart",
     "warn_the_user_about_waiting_lock_again": "Nog steeds aan het wachten...",
     "warn_the_user_about_waiting_lock": "Een ander YunoHost commando wordt uitgevoerd, we wachten tot het gedaan is alovrens dit te starten",
-    "corrupted_toml": "Ongeldige TOML werd gelezen op  {ressource} (reason: {error})",
+    "corrupted_toml": "Ongeldige TOML werd gelezen van {ressource} (reason: {error})",
     "corrupted_yaml": "Ongeldig YAML bestand op {ressource} (reason: {error})",
-    "info": "Ter info:"
+    "info": "Ter info:",
+    "edit_text_question": "{}. Deze tekst bewerken ? [yN]: "
 }
