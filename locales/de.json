@@ -38,7 +38,7 @@
     "download_unknown_error": "Fehler beim Herunterladen von Daten von {url}: {error}",
     "download_timeout": "{url} brauchte zu lange zum Antworten, hab aufgegeben.",
     "download_ssl_error": "SSL Fehler beim Verbinden zu {url}",
-    "invalid_url": "Ungültige URL {url} (existiert diese Seite?)",
+    "invalid_url": "Konnte keine Verbindung zu {url} herstellen... vielleicht ist der Dienst ausgefallen, oder Sie sind nicht richtig mit dem Internet in IPv4/IPv6 verbunden.",
     "error_changing_file_permissions": "Fehler beim Ändern der Berechtigungen für {path}: {error}",
     "error_removing": "Fehler beim Entfernen {path}: {error}",
     "error_writing_file": "Fehler beim Schreiben von Datei {file}: {error}",
