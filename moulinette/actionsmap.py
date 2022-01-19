@@ -418,7 +418,9 @@ class ActionsMap:
                 return actionsmap
 
             # Delete old cache files
-            for old_cache in glob.glob(f"{actionsmap_yml_dir}/.{actionsmap_yml_file}.*.pkl"):
+            for old_cache in glob.glob(
+                f"{actionsmap_yml_dir}/.{actionsmap_yml_file}.*.pkl"
+            ):
                 os.remove(old_cache)
 
             # at installation, cachedir might not exists
@@ -622,9 +624,7 @@ class ActionsMap:
 
         self.namespace = _global["namespace"]
         self.enable_lock = _global.get("lock", True)
-        self.default_authentication = _global["authentication"][
-            interface_type
-        ]
+        self.default_authentication = _global["authentication"][interface_type]
 
         if top_parser.has_global_parser():
             top_parser.add_global_arguments(_global["arguments"])
@@ -710,9 +710,7 @@ class ActionsMap:
 
                     action_parser.authentication = self.default_authentication
                     if interface_type in authentication:
-                        action_parser.authentication = authentication[
-                            interface_type
-                        ]
+                        action_parser.authentication = authentication[interface_type]
 
         logger.debug("building parser took %.3fs", time() - start)
         return top_parser

@@ -13,6 +13,7 @@ logger = logging.getLogger("moulinette.core")
 def during_unittests_run():
     return "TESTS_RUN" in os.environ
 
+
 # Internationalization -------------------------------------------------
 
 

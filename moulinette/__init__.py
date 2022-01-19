@@ -74,10 +74,7 @@ def api(host="localhost", port=80, routes={}, actionsmap=None, locales_dir=None)
         Api(
             routes=routes,
             actionsmap=actionsmap,
-        ).run(
-            host,
-            port
-        )
+        ).run(host, port)
     except MoulinetteError as e:
         import logging
 
@@ -90,7 +87,9 @@ def api(host="localhost", port=80, routes={}, actionsmap=None, locales_dir=None)
     return 0
 
 
-def cli(args, top_parser, output_as=None, timeout=None, actionsmap=None, locales_dir=None):
+def cli(
+    args, top_parser, output_as=None, timeout=None, actionsmap=None, locales_dir=None
+):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -113,11 +112,7 @@ def cli(args, top_parser, output_as=None, timeout=None, actionsmap=None, locales
             top_parser=top_parser,
             load_only_category=load_only_category,
             actionsmap=actionsmap,
-        ).run(
-            args,
-            output_as=output_as,
-            timeout=timeout
-        )
+        ).run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging
 
