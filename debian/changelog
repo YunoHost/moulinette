@@ -1,3 +1,11 @@
+moulinette (4.3.3.1) stable; urgency=low
+
+  - [i18n] Translations updated for Dutch, Finnish, German
+
+  Thanks to all contributors <3 ! (Boudewijn, Gregor, Kay0u, Mico Hauataluoma)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 19 Jan 2022 21:10:44 +0100
+
 moulinette (4.3.3) stable; urgency=low
 
   - [enh] quality: Apply pyupgrade ([#312](https://github.com/YunoHost/moulinette/pull/312))
