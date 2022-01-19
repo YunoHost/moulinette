@@ -480,7 +480,9 @@ class _ActionsMapPlugin:
                 UPLOAD_DIR = None
 
             # Close opened WebSocket by putting StopIteration in the queue
-            profile = request.params.get("profile", self.actionsmap.default_authentication)
+            profile = request.params.get(
+                "profile", self.actionsmap.default_authentication
+            )
             authenticator = self.actionsmap.get_authenticator(profile)
             try:
                 s_id = authenticator.get_session_cookie()["id"]

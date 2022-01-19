@@ -53,9 +53,7 @@ class Authenticator(BaseAuthenticator):
         from bottle import request
 
         try:
-            infos = request.get_cookie(
-                "moulitest", secret=session_secret, default={}
-            )
+            infos = request.get_cookie("moulitest", secret=session_secret, default={})
         except Exception:
             if not raise_if_no_session_exists:
                 return {"id": random_ascii()}
@@ -75,4 +73,3 @@ class Authenticator(BaseAuthenticator):
 
         response.set_cookie("moulitest", "", max_age=-1)
         response.delete_cookie("moulitest")
-
