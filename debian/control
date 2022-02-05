@@ -16,7 +16,8 @@ Depends: ${misc:Depends}, ${python3:Depends},
     python3-psutil,
     python3-tz,
     python3-prompt-toolkit,
-    python3-pygments
+    python3-pygments,
+    python3-rich
 Breaks: yunohost (<< 4.1)
 Description: prototype interfaces with ease in Python
  Quickly and easily prototype interfaces for your application.
