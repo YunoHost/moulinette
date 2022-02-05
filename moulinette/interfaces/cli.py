@@ -10,7 +10,7 @@ from collections import OrderedDict
 from datetime import date, datetime
 from subprocess import call
 
-from moulinette import msignals, m18n, Table
+from moulinette import m18n, Moulinette, Table
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (

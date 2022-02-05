@@ -16,7 +16,7 @@ from geventwebsocket import WebSocketError
 from bottle import request, response, Bottle, HTTPResponse, FileUpload
 from bottle import abort
 
-from moulinette import m18n, env, console, Moulinette
+from moulinette import m18n, console, Moulinette
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import (
     MoulinetteError,
