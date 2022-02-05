@@ -7,10 +7,8 @@ from rich.style import Style
 
 from moulinette.core import (
     MoulinetteError,
-    MoulinetteSignals,
     Moulinette18n,
 )
-from moulinette.globals import init_moulinette_env
 
 __title__ = "moulinette"
 __author__ = ["Yunohost Contributors"]
@@ -31,21 +29,7 @@ __credits__ = """
     You should have received a copy of the GNU Affero General Public License
     along with this program; if not, see http://www.gnu.org/licenses
     """
-__all__ = [
-    "init",
-    "api",
-    "cli",
-    "m18n",
-    "msignals",
-    "env",
-    "init_interface",
-    "MoulinetteError",
-]
-
-
-msignals = MoulinetteSignals()
-msettings = dict()
-m18n = Moulinette18n()
+__all__ = ["init", "api", "cli", "m18n", "MoulinetteError", "Moulinette"]
 
 console = Console()
 
@@ -161,35 +145,34 @@ class TableForDict(Table):
                 table.add_row(*row_values)
 
 
-# Package functions
+m18n = Moulinette18n()
 
 
-def init(logging_config=None, **kwargs):
-    """Package initialization
+class classproperty:
+    def __init__(self, f):
+        self.f = f
 
-    Initialize directories and global variables. It must be called
-    before any of package method is used - even the easy access
-    functions.
+    def __get__(self, obj, owner):
+        return self.f(owner)
 
-    Keyword arguments:
-        - logging_config -- A dict containing logging configuration to load
-        - **kwargs -- See core.Package
 
-    At the end, the global variable 'pkg' will contain a Package
-    instance. See core.Package for available methods and variables.
+class Moulinette:
 
-    """
-    import sys
-    from moulinette.utils.log import configure_logging
+    _interface = None
 
-    configure_logging(logging_config)
+    def prompt(*args, **kwargs):
+        return Moulinette.interface.prompt(*args, **kwargs)
 
-    # Add library directory to python path
-    sys.path.insert(0, init_moulinette_env()["LIB_DIR"])
+    def display(*args, **kwargs):
+        return Moulinette.interface.display(*args, **kwargs)
+
+    @classproperty
+    def interface(cls):
+        return cls._interface
 
 
 # Easy access to interfaces
-def api(host="localhost", port=80, routes={}):
+def api(host="localhost", port=80, routes={}, actionsmap=None, locales_dir=None):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
@@ -203,8 +186,13 @@ def api(host="localhost", port=80, routes={}):
     """
     from moulinette.interfaces.api import Interface as Api
 
+    m18n.set_locales_dir(locales_dir)
+
     try:
-        Api(routes=routes).run(host, port)
+        Api(
+            routes=routes,
+            actionsmap=actionsmap,
+        ).run(host, port)
     except MoulinetteError as e:
         import logging
 
@@ -217,7 +205,9 @@ def api(host="localhost", port=80, routes={}):
     return 0
 
 
-def cli(args, top_parser, output_as=None, timeout=None):
+def cli(
+    args, top_parser, output_as=None, timeout=None, actionsmap=None, locales_dir=None
+):
     """Command line interface
 
     Execute an action with the moulinette from the CLI and print its
@@ -232,19 +222,18 @@ def cli(args, top_parser, output_as=None, timeout=None):
     """
     from moulinette.interfaces.cli import Interface as Cli
 
+    m18n.set_locales_dir(locales_dir)
+
     try:
         load_only_category = args[0] if args and not args[0].startswith("-") else None
-        Cli(top_parser=top_parser, load_only_category=load_only_category).run(
-            args, output_as=output_as, timeout=timeout
-        )
+        Cli(
+            top_parser=top_parser,
+            load_only_category=load_only_category,
+            actionsmap=actionsmap,
+        ).run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging
 
         logging.getLogger("moulinette").error(e.strerror)
         return 1
     return 0
-
-
-def env():
-    """Initialise moulinette specific configuration."""
-    return init_moulinette_env()

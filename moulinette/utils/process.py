@@ -2,6 +2,7 @@ import subprocess
 import os
 import threading
 import queue
+import logging
 
 # This import is unused in this file. It will be deleted in future (W0611 PEP8),
 # but for the momment we keep it due to yunohost moulinette script that used
@@ -12,7 +13,7 @@ quote  # This line is here to avoid W0611 PEP8 error (see comments above)
 
 # Prevent to import subprocess only for common classes
 CalledProcessError = subprocess.CalledProcessError
-
+logger = logging.getLogger("moulinette.utils.process")
 
 # Alternative subprocess methods ---------------------------------------
 
@@ -70,6 +71,11 @@ def call_async_output(args, callback, **kwargs):
             kwargs["env"] = os.environ
         kwargs["env"]["YNH_STDINFO"] = str(stdinfo.fdWrite)
 
+    if "env" in kwargs and not all(isinstance(v, str) for v in kwargs["env"].values()):
+        logger.warning(
+            "While trying to call call_async_output: env contained non-string values, probably gonna cause issue in Popen(...)"
+        )
+
     try:
         p = subprocess.Popen(args, **kwargs)
 
@@ -82,6 +88,13 @@ def call_async_output(args, callback, **kwargs):
                     break
 
                 callback(message)
+        while True:
+            try:
+                callback, message = log_queue.get_nowait()
+            except queue.Empty:
+                break
+
+            callback(message)
     finally:
         kwargs["stdout"].close()
         kwargs["stderr"].close()
@@ -102,7 +115,7 @@ class LogPipe(threading.Thread):
         self.log_callback = log_callback
 
         self.fdRead, self.fdWrite = os.pipe()
-        self.pipeReader = os.fdopen(self.fdRead)
+        self.pipeReader = os.fdopen(self.fdRead, "rb")
 
         self.queue = queue
 
@@ -114,8 +127,8 @@ class LogPipe(threading.Thread):
 
     def run(self):
         """Run the thread, logging everything."""
-        for line in iter(self.pipeReader.readline, ""):
-            self.queue.put((self.log_callback, line.strip("\n")))
+        for line in iter(self.pipeReader.readline, b""):
+            self.queue.put((self.log_callback, line.decode("utf-8").strip("\n")))
 
         self.pipeReader.close()
 

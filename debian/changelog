@@ -1,3 +1,106 @@
+moulinette (11.0.2) testing; urgency=low
+
+  - [fix] Various tweaks for Python 3.9
+  - [fix] cli: Adapt prompt_toolkit call because now using the v3.x of the lib (d901d28a, 12218bcb, c44e0252)
+  - [mod] refactor: Rework actionsmap and m18n init, drop multiple actionsmap support (9fcc9630)
+  - [mod] api: Move cookie session management logic to the authenticator for more flexibility ([#311](https://github.com/YunoHost/moulinette/pull/311))
+
+  Thanks to all contributors <3 ! (Kay0u)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 19 Jan 2022 21:15:58 +0100
+
+moulinette (4.4.0) testing; urgency=low
+
+  - Bump version for 4.4 release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 19 Jan 2022 21:10:44 +0100
+
+moulinette (4.3.3.1) stable; urgency=low
+
+  - [i18n] Translations updated for Dutch, Finnish, German
+
+  Thanks to all contributors <3 ! (Boudewijn, Gregor, Kay0u, Mico Hauataluoma)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 19 Jan 2022 21:10:44 +0100
+
+moulinette (4.3.3) stable; urgency=low
+
+  - [enh] quality: Apply pyupgrade ([#312](https://github.com/YunoHost/moulinette/pull/312))
+  - [i18n] Translations updated for Czech, German, Portuguese
+
+  Thanks to all contributors <3 ! (Bram, Christian Wehrli, maique madeira, Radek S, Valentin von Guttenberg)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 29 Dec 2021 01:08:10 +0100
+
+moulinette (4.3.2.2) stable; urgency=low
+
+  Aaaaaand typoed 'testing' instead of 'stable' in previous changelog
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 15 Nov 2021 18:44:09 +0100
+
+moulinette (4.3.2.1) testing; urgency=low
+
+  - [fix] api: 'Missing credentials parameter' bug : request.POST is buggy when value contains special chars ... request.params appears to be more reliable (c5f577c0)
+  - [fix] api: issue with accented chars in form .. decode() is not needed anymore? (c5700f1b)
+  - [i18n] Translations updated for Chinese (Simplified), Italian
+
+  Thanks to all contributors <3 ! (dagangtie, Flavio Cristoforetti)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 15 Nov 2021 18:44:09 +0100
+
+moulinette (4.3.2) stable; urgency=low
+
+  - Bump version for stable release
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 05 Nov 2021 02:35:56 +0100
+
+moulinette (4.3.1.2) testing; urgency=low
+
+  - [i18n] Translations updated for Basque, Occitan, Russian, Spanish
+
+  Thanks to all contributors <3 ! (Page Asgardius, punkrockgirl, Quentí, Semen Turchikhin)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 03 Nov 2021 18:42:44 +0100
+
+moulinette (4.3.1.1) testing; urgency=low
+
+  - [enh] Add cp helper (14e37366)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 04 Oct 2021 01:24:34 +0200
+
+moulinette (4.3.1) testing; urgency=low
+
+  - [mod] Rework cli prompt mecanisc ([#303](https://github.com/YunoHost/moulinette/pull/303))
+  - [i18n] Translations updated for Indonesian, Russian, Turkish
+
+  Thanks to all contributors <3 ! (Éric Gaspar, liimee)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 29 Sep 2021 22:37:28 +0200
+
+moulinette (4.3.0) testing; urgency=low
+
+  - [enh] Allow file type in actionmaps ([#258](https://github.com/YunoHost/moulinette/pull/258))
+  - [refactor] Rework and externalize the authenticator system ([#270](https://github.com/YunoHost/moulinette/pull/270))
+  - [security] Add httponly to API cookies (8562c05d)
+  - [enh] Add prefill and multiline in prompt ([#290](https://github.com/YunoHost/moulinette/pull/290), 08f7866f)
+  - [enh] Support bytes/stream in write_to_file (6e714314)
+  - [fix] Various technical bugs in utils/process.py (fdc61c91, 4eb60dac, 3741101d)
+  - [i18n] Translations updated for French, Galician, Persian, Ukrainian
+
+  Thanks to all contributors <3 ! (Éric Gaspar, José M, Kay0u, ljf, Parviz Homayun, ppr, Tymofii-Lytvynenko)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 19 Sep 2021 21:19:43 +0200
+
+moulinette (4.2.4) stable; urgency=low
+
+  - [fix] Avoid warning and use safeloader ([#281](https://github.com/YunoHost/moulinette/pull/281))
+  - [fix] Add warning when trying to feed non-string values to Popen env (2a89a82)
+  - [i18n] Translations updated for Esperanto, French, German, Portuguese
+
+  Thanks to all contributors <3 ! (amirale qt, Christian Wehrli, Éric Gaspar, ljf, mifegui)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Thu, 19 Aug 2021 19:25:30 +0200
+
 moulinette (4.2.3.3) stable; urgency=low
 
   - [fix] Damn array args bug (2c9ec9f6)

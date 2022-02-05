@@ -15,7 +15,7 @@ from moulinette.core import MoulinetteError
 # Files & directories --------------------------------------------------
 
 
-def read_file(file_path):
+def read_file(file_path, file_mode="r"):
     """
     Read a regular text file
 
@@ -24,7 +24,7 @@ def read_file(file_path):
     """
     assert isinstance(
         file_path, str
-    ), "Error: file_path '%s' should be a string but is of type '%s' instead" % (
+    ), "Error: file_path '{}' should be a string but is of type '{}' instead".format(
         file_path,
         type(file_path),
     )
@@ -35,7 +35,7 @@ def read_file(file_path):
 
     # Open file and read content
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, file_mode) as f:
             file_content = f.read()
     except IOError as e:
         raise MoulinetteError("cannot_open_file", file=file_path, error=str(e))
@@ -67,16 +67,17 @@ def read_json(file_path):
     return loaded_json
 
 
-def read_yaml(file_path):
+def read_yaml(file_):
     """
     Safely read a yaml file
 
     Keyword argument:
-        file_path -- Path to the yaml file
+        file -- Path or stream to the yaml file
     """
 
     # Read file
-    file_content = read_file(file_path)
+    file_path = file_ if isinstance(file_, str) else file_.name
+    file_content = read_file(file_) if isinstance(file_, str) else file_
 
     # Try to load yaml to check if it's syntaxically correct
     try:
@@ -107,41 +108,6 @@ def read_toml(file_path):
     return loaded_toml
 
 
-def read_ldif(file_path, filtred_entries=[]):
-    """
-    Safely read a LDIF file and create struct in the same style than
-    what return the auth objet with the seach method
-    The main difference with the auth object is that this function return a 2-tuples
-    with the "dn" and the LDAP entry.
-
-    Keyword argument:
-        file_path       -- Path to the ldif file
-        filtred_entries -- The entries to don't include in the result
-    """
-    from ldif import LDIFRecordList
-
-    class LDIFPar(LDIFRecordList):
-        def handle(self, dn, entry):
-            for e in filtred_entries:
-                if e in entry:
-                    entry.pop(e)
-            self.all_records.append((dn, entry))
-
-    # Open file and read content
-    try:
-        with open(file_path, "r") as f:
-            parser = LDIFPar(f)
-            parser.parse()
-    except IOError as e:
-        raise MoulinetteError("cannot_open_file", file=file_path, error=str(e))
-    except Exception as e:
-        raise MoulinetteError(
-            "unknown_error_reading_file", file=file_path, error=str(e)
-        )
-
-    return parser.all_records
-
-
 def write_to_file(file_path, data, file_mode="w"):
     """
     Write a single string or a list of string to a text file.
@@ -153,9 +119,9 @@ def write_to_file(file_path, data, file_mode="w"):
         file_mode -- Mode used when writing the file. Option meant to be used
         by append_to_file to avoid duplicating the code of this function.
     """
-    assert isinstance(data, str) or isinstance(
-        data, list
-    ), "Error: data '%s' should be either a string or a list but is of type '%s'" % (
+    assert (
+        isinstance(data, str) or isinstance(data, bytes) or isinstance(data, list)
+    ), "Error: data '{}' should be either a string or a list but is of type '{}'".format(
         data,
         type(data),
     )
@@ -164,17 +130,17 @@ def write_to_file(file_path, data, file_mode="w"):
     )
     assert os.path.isdir(
         os.path.dirname(file_path)
-    ), "Error: the path ('%s') base dir ('%s') is not a dir" % (
+    ), "Error: the path ('{}') base dir ('{}') is not a dir".format(
         file_path,
         os.path.dirname(file_path),
     )
 
     # If data is a list, check elements are strings and build a single string
-    if not isinstance(data, str):
+    if isinstance(data, list):
         for element in data:
             assert isinstance(
                 element, str
-            ), "Error: element '%s' should be a string but is of type '%s' instead" % (
+            ), "Error: element '{}' should be a string but is of type '{}' instead".format(
                 element,
                 type(element),
             )
@@ -213,13 +179,13 @@ def write_to_json(file_path, data, sort_keys=False, indent=None):
     # Assumptions
     assert isinstance(
         file_path, str
-    ), "Error: file_path '%s' should be a string but is of type '%s' instead" % (
+    ), "Error: file_path '{}' should be a string but is of type '{}' instead".format(
         file_path,
         type(file_path),
     )
     assert isinstance(data, dict) or isinstance(
         data, list
-    ), "Error: data '%s' should be a dict or a list but is of type '%s' instead" % (
+    ), "Error: data '{}' should be a dict or a list but is of type '{}' instead".format(
         data,
         type(data),
     )
@@ -228,7 +194,7 @@ def write_to_json(file_path, data, sort_keys=False, indent=None):
     )
     assert os.path.isdir(
         os.path.dirname(file_path)
-    ), "Error: the path ('%s') base dir ('%s') is not a dir" % (
+    ), "Error: the path ('{}') base dir ('{}') is not a dir".format(
         file_path,
         os.path.dirname(file_path),
     )
@@ -399,3 +365,10 @@ def rm(path, recursive=False, force=False):
         except OSError as e:
             if not force:
                 raise MoulinetteError("error_removing", path=path, error=str(e))
+
+
+def cp(source, dest, recursive=False, **kwargs):
+    if recursive and os.path.isdir(source):
+        return shutil.copytree(source, dest, symlinks=True, **kwargs)
+    else:
+        return shutil.copy2(source, dest, follow_symlinks=False, **kwargs)

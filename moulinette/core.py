@@ -6,7 +6,6 @@ import json
 import logging
 
 import moulinette
-from moulinette.globals import init_moulinette_env
 
 logger = logging.getLogger("moulinette.core")
 
@@ -18,7 +17,7 @@ def during_unittests_run():
 # Internationalization -------------------------------------------------
 
 
-class Translator(object):
+class Translator:
 
     """Internationalization class
 
@@ -39,11 +38,7 @@ class Translator(object):
         # Attempt to load default translations
         if not self._load_translations(default_locale):
             logger.error(
-                "unable to load locale '%s' from '%s'. Does the file '%s/%s.json' exists?",
-                default_locale,
-                locale_dir,
-                locale_dir,
-                default_locale,
+                f"unable to load locale '{default_locale}' from '{locale_dir}'. Does the file '{locale_dir}/{default_locale}.json' exists?",
             )
         self.default_locale = default_locale
 
@@ -178,7 +173,7 @@ class Translator(object):
         return True
 
 
-class Moulinette18n(object):
+class Moulinette18n:
 
     """Internationalization service for the moulinette
 
@@ -195,47 +190,24 @@ class Moulinette18n(object):
         self.default_locale = default_locale
         self.locale = default_locale
 
-        moulinette_env = init_moulinette_env()
-        self.locales_dir = moulinette_env["LOCALES_DIR"]
-
         # Init global translator
-        self._global = Translator(self.locales_dir, default_locale)
+        global_locale_dir = "/usr/share/moulinette/locales"
+        if during_unittests_run():
+            global_locale_dir = os.path.dirname(__file__) + "/../locales"
 
-        # Define namespace related variables
-        self._namespaces = {}
-        self._current_namespace = None
+        self._global = Translator(global_locale_dir, default_locale)
 
-    def load_namespace(self, namespace):
-        """Load the namespace to use
-
-        Load and set translations of a given namespace. Those translations
-        are accessible with Moulinette18n.n().
-
-        Keyword arguments:
-            - namespace -- The namespace to load
-
-        """
-        if namespace not in self._namespaces:
-            # Create new Translator object
-            lib_dir = init_moulinette_env()["LIB_DIR"]
-            translator = Translator(
-                "%s/%s/locales" % (lib_dir, namespace), self.default_locale
-            )
-            translator.set_locale(self.locale)
-            self._namespaces[namespace] = translator
-
-        # Set current namespace
-        self._current_namespace = namespace
+    def set_locales_dir(self, locales_dir):
+        self.translator = Translator(locales_dir, self.default_locale)
 
     def set_locale(self, locale):
         """Set the locale to use"""
+
         self.locale = locale
-
         self._global.set_locale(locale)
-        for n in self._namespaces.values():
-            n.set_locale(locale)
+        self.translator.set_locale(locale)
 
-    def g(self, key, *args, **kwargs):
+    def g(self, key: str, *args, **kwargs) -> str:
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from moulinette translations
@@ -247,7 +219,7 @@ class Moulinette18n(object):
         """
         return self._global.translate(key, *args, **kwargs)
 
-    def n(self, key, *args, **kwargs):
+    def n(self, key: str, *args, **kwargs) -> str:
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from current loaded namespace
@@ -258,123 +230,16 @@ class Moulinette18n(object):
             - key -- The key to translate
 
         """
-        return self._namespaces[self._current_namespace].translate(key, *args, **kwargs)
+        return self.translator.translate(key, *args, **kwargs)
 
-    def key_exists(self, key):
+    def key_exists(self, key: str) -> bool:
         """Check if a key exists in the translation files
 
         Keyword arguments:
             - key -- The key to translate
 
         """
-        return self._namespaces[self._current_namespace].key_exists(key)
-
-
-class MoulinetteSignals(object):
-
-    """Signals connector for the moulinette
-
-    Allow to easily connect signals from the moulinette to handlers. A
-    signal is emitted by calling the relevant method which call the
-    handler.
-    For the moment, a return value can be requested by a signal to its
-    connected handler - make them not real-signals.
-
-    Keyword arguments:
-        - kwargs -- A dict of {signal: handler} to connect
-
-    """
-
-    def __init__(self, **kwargs):
-        # Initialize handlers
-        for s in self.signals:
-            self.clear_handler(s)
-
-        # Iterate over signals to connect
-        for s, h in kwargs.items():
-            self.set_handler(s, h)
-
-    def set_handler(self, signal, handler):
-        """Set the handler for a signal"""
-        if signal not in self.signals:
-            logger.error("unknown signal '%s'", signal)
-            return
-        setattr(self, "_%s" % signal, handler)
-
-    def clear_handler(self, signal):
-        """Clear the handler of a signal"""
-        if signal not in self.signals:
-            logger.error("unknown signal '%s'", signal)
-            return
-        setattr(self, "_%s" % signal, self._notimplemented)
-
-    # Signals definitions
-
-    """The list of available signals"""
-    signals = {"authenticate", "prompt", "display"}
-
-    def authenticate(self, authenticator):
-        """Process the authentication
-
-        Attempt to authenticate to the given authenticator and return
-        it.
-        It is called when authentication is needed (e.g. to process an
-        action).
-
-        Keyword arguments:
-            - authenticator -- The authenticator object to use
-
-        Returns:
-            The authenticator object
-
-        """
-        if authenticator.is_authenticated:
-            return authenticator
-        return self._authenticate(authenticator)
-
-    def prompt(self, message, is_password=False, confirm=False, color="blue"):
-        """Prompt for a value
-
-        Prompt the interface for a parameter value which is a password
-        if 'is_password' and must be confirmed if 'confirm'.
-        Is is called when a parameter value is needed and when the
-        current interface should allow user interaction (e.g. to parse
-        extra parameter 'ask' in the cli).
-
-        Keyword arguments:
-            - message -- The message to display
-            - is_password -- True if the parameter is a password
-            - confirm -- True if the value must be confirmed
-            - color -- Color to use for the prompt ...
-
-        Returns:
-            The collected value
-
-        """
-        return self._prompt(message, is_password, confirm, color=color)
-
-    def display(self, message, style="info"):
-        """Display a message
-
-        Display a message with a given style to the user.
-        It is called when a message should be printed to the user if the
-        current interface allows user interaction (e.g. print a success
-        message to the user).
-
-        Keyword arguments:
-            - message -- The message to display
-            - style -- The type of the message. Possible values are:
-                info, success, warning
-
-        """
-        try:
-            self._display(message, style)
-        except NotImplementedError:
-            pass
-
-    @staticmethod
-    def _notimplemented(*args, **kwargs):
-        raise NotImplementedError("this signal is not handled")
+        return self.translator.key_exists(key)
 
 
 # Moulinette core classes ----------------------------------------------
@@ -394,7 +259,7 @@ class MoulinetteError(Exception):
         super(MoulinetteError, self).__init__(msg)
         self.strerror = msg
 
-    def content(self):
+    def content(self) -> str:
         return self.strerror
 
 
@@ -408,11 +273,7 @@ class MoulinetteAuthenticationError(MoulinetteError):
     http_code = 401
 
 
-class MoulinetteLdapIsDownError(MoulinetteError):
-    """Used when ldap is down"""
-
-
-class MoulinetteLock(object):
+class MoulinetteLock:
 
     """Locker for a moulinette instance
 
@@ -430,10 +291,11 @@ class MoulinetteLock(object):
 
     base_lockfile = "/var/run/moulinette_%s.lock"
 
-    def __init__(self, namespace, timeout=None, interval=0.5):
+    def __init__(self, namespace, timeout=None, enable_lock=True, interval=0.5):
         self.namespace = namespace
         self.timeout = timeout
         self.interval = interval
+        self.enable_lock = enable_lock
 
         self._lockfile = self.base_lockfile % namespace
         self._stale_checked = False
@@ -560,7 +422,7 @@ class MoulinetteLock(object):
         return False
 
     def __enter__(self):
-        if not self._locked:
+        if self.enable_lock and not self._locked:
             self.acquire()
         return self
 

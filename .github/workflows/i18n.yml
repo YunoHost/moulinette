@@ -1,0 +1,29 @@
+name: Autoreformat locale files
+on:
+  push:
+      branches:
+          - dev
+jobs:
+  i18n:
+    name: Autoreformat locale files
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v2
+        - name: Apply reformating scripts
+          id: action_reformat
+          run: |
+              python3 test/remove_stale_i18n_strings.py
+              python3 test/autofix_locale_format.py
+              python3 test/reformat_locales.py
+              git diff -w --exit-code
+        - name: Create Pull Request
+          if: ${{ failure() }}
+          uses: peter-evans/create-pull-request@v3
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            title: "Reformat locale files"
+            commit-message: ":robot: Reformat locale files"
+            body: |
+              Automatic pull request using the scripts in `test/`
+            base: ${{ github.head_ref }}
+            branch: actions/i18nreformat

@@ -1,6 +1,7 @@
 import os
 from subprocess import CalledProcessError
 
+import mock
 import pytest
 
 from moulinette.utils.process import run_commands
@@ -65,39 +66,71 @@ def test_run_shell_kwargs():
 
 
 def test_call_async_output(test_file):
+
+    mock_callback_stdout = mock.Mock()
+    mock_callback_stderr = mock.Mock()
+
     def stdout_callback(a):
-        assert a == "foo" or a == "bar"
+        mock_callback_stdout(a)
 
     def stderr_callback(a):
-        assert False  # we shouldn't reach this line
+        mock_callback_stderr(a)
 
     callbacks = (lambda l: stdout_callback(l), lambda l: stderr_callback(l))
 
     call_async_output(["cat", str(test_file)], callbacks)
 
+    calls = [mock.call("foo"), mock.call("bar")]
+    mock_callback_stdout.assert_has_calls(calls)
+    mock_callback_stderr.assert_not_called()
+
+    mock_callback_stdout.reset_mock()
+    mock_callback_stderr.reset_mock()
+
     with pytest.raises(TypeError):
         call_async_output(["cat", str(test_file)], 1)
 
-    def callbackA(a):
-        assert a == "foo" or a == "bar"
+    mock_callback_stdout.assert_not_called()
+    mock_callback_stderr.assert_not_called()
 
-    def callbackB(a):
-        assert "cat: doesntexists" in a
+    mock_callback_stdout.reset_mock()
+    mock_callback_stderr.reset_mock()
 
-    callback = (callbackA, callbackB)
+    def callback_stdout(a):
+        mock_callback_stdout(a)
+
+    def callback_stderr(a):
+        mock_callback_stderr(a)
+
+    callback = (callback_stdout, callback_stderr)
     call_async_output(["cat", str(test_file)], callback)
-    call_async_output(["cat", "doesntexists"], callback)
+    calls = [mock.call("foo"), mock.call("bar")]
+    mock_callback_stdout.assert_has_calls(calls)
+    mock_callback_stderr.assert_not_called()
+    mock_callback_stdout.reset_mock()
+    mock_callback_stderr.reset_mock()
+
+    env_var = {"LANG": "C"}
+    call_async_output(["cat", "doesntexists"], callback, env=env_var)
+    calls = [mock.call("cat: doesntexists: No such file or directory")]
+    mock_callback_stdout.assert_not_called()
+    mock_callback_stderr.assert_has_calls(calls)
 
 
 def test_call_async_output_kwargs(test_file, mocker):
+
+    mock_callback_stdout = mock.Mock()
+    mock_callback_stdinfo = mock.Mock()
+    mock_callback_stderr = mock.Mock()
+
     def stdinfo_callback(a):
-        assert False  # we shouldn't reach this line
+        mock_callback_stdinfo(a)
 
     def stdout_callback(a):
-        assert a == "foo" or a == "bar"
+        mock_callback_stdout(a)
 
     def stderr_callback(a):
-        assert False  # we shouldn't reach this line
+        mock_callback_stderr(a)
 
     callbacks = (
         lambda l: stdout_callback(l),
@@ -107,16 +140,43 @@ def test_call_async_output_kwargs(test_file, mocker):
 
     with pytest.raises(ValueError):
         call_async_output(["cat", str(test_file)], callbacks, stdout=None)
+    mock_callback_stdout.assert_not_called()
+    mock_callback_stdinfo.assert_not_called()
+    mock_callback_stderr.assert_not_called()
+
+    mock_callback_stdout.reset_mock()
+    mock_callback_stdinfo.reset_mock()
+    mock_callback_stderr.reset_mock()
+
     with pytest.raises(ValueError):
         call_async_output(["cat", str(test_file)], callbacks, stderr=None)
+    mock_callback_stdout.assert_not_called()
+    mock_callback_stdinfo.assert_not_called()
+    mock_callback_stderr.assert_not_called()
+
+    mock_callback_stdout.reset_mock()
+    mock_callback_stdinfo.reset_mock()
+    mock_callback_stderr.reset_mock()
+
     with pytest.raises(TypeError):
         call_async_output(["cat", str(test_file)], callbacks, stdinfo=None)
+    mock_callback_stdout.assert_not_called()
+    mock_callback_stdinfo.assert_not_called()
+    mock_callback_stderr.assert_not_called()
+
+    mock_callback_stdout.reset_mock()
+    mock_callback_stdinfo.reset_mock()
+    mock_callback_stderr.reset_mock()
 
     dirname = os.path.dirname(str(test_file))
     os.mkdir(os.path.join(dirname, "testcwd"))
     call_async_output(
         ["cat", str(test_file)], callbacks, cwd=os.path.join(dirname, "testcwd")
     )
+    calls = [mock.call("foo"), mock.call("bar")]
+    mock_callback_stdout.assert_has_calls(calls)
+    mock_callback_stdinfo.assert_not_called()
+    mock_callback_stderr.assert_not_called()
 
 
 def test_check_output(test_file):

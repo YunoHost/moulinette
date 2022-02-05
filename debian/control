@@ -2,21 +2,21 @@ Source: moulinette
 Section: python
 Priority: optional
 Maintainer: YunoHost Contributors <contrib@yunohost.org>
-Build-Depends: debhelper (>= 9), python3 (>= 3.7), dh-python, python3-setuptools, python3-psutil, python3-all (>= 3.7)
+Build-Depends: debhelper (>= 9), debhelper-compat (= 13), python3 (>= 3.7), dh-python, python3-setuptools, python3-psutil, python3-all (>= 3.7)
 Standards-Version: 3.9.6
 Homepage: https://github.com/YunoHost/moulinette
 
 Package: moulinette
 Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends},
-    python3-ldap,
     python3-yaml,
     python3-bottle (>= 0.12),
     python3-gevent-websocket,
-    python3-argcomplete,
     python3-toml,
     python3-psutil,
-    python3-tz
+    python3-tz,
+    python3-prompt-toolkit,
+    python3-pygments
 Breaks: yunohost (<< 4.1)
 Description: prototype interfaces with ease in Python
  Quickly and easily prototype interfaces for your application.

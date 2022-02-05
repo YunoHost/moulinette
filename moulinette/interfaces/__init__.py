@@ -4,14 +4,17 @@ import re
 import logging
 import argparse
 import copy
+import datetime
 from collections import deque, OrderedDict
+from json.encoder import JSONEncoder
+from typing import Optional
 
-from moulinette import msettings, m18n, console
+from moulinette import m18n, console
 from moulinette.core import MoulinetteError
 
 logger = logging.getLogger("moulinette.interface")
 
-GLOBAL_SECTION = "_global"
+# FIXME : are these even used for anything useful ...
 TO_RETURN_PROP = "_to_return"
 CALLBACKS_PROP = "_callbacks"
 
@@ -19,7 +22,7 @@ CALLBACKS_PROP = "_callbacks"
 # Base Class -----------------------------------------------------------
 
 
-class BaseActionsMapParser(object):
+class BaseActionsMapParser:
 
     """Actions map's base Parser
 
@@ -35,21 +38,14 @@ class BaseActionsMapParser(object):
     """
 
     def __init__(self, parent=None, **kwargs):
-        if parent:
-            self._o = parent
-        else:
+        if not parent:
             logger.debug("initializing base actions map parser for %s", self.interface)
-            msettings["interface"] = self.interface
-
-            self._o = self
-            self._global_conf = {}
-            self._conf = {}
 
     # Virtual properties
     # Each parser classes must implement these properties.
 
     """The name of the interface for which it is the parser"""
-    interface = None
+    interface: Optional[str] = None
 
     # Virtual methods
     # Each parser classes must implement these methods.
@@ -121,7 +117,7 @@ class BaseActionsMapParser(object):
             "derived class '%s' must override this method" % self.__class__.__name__
         )
 
-    def auth_required(self, args, **kwargs):
+    def auth_method(self, *args, **kwargs):
         """Check if authentication is required to run the requested action
 
         Keyword arguments:
@@ -163,7 +159,7 @@ class BaseActionsMapParser(object):
         ):
             raise MoulinetteError("invalid_usage")
         elif not tid:
-            tid = GLOBAL_SECTION
+            tid = "_global"
 
         # Prepare namespace
         if namespace is None:
@@ -171,151 +167,6 @@ class BaseActionsMapParser(object):
         namespace._tid = tid
 
         return namespace
-
-    # Configuration access
-
-    @property
-    def global_conf(self):
-        """Return the global configuration of the parser"""
-        return self._o._global_conf
-
-    def set_global_conf(self, configuration):
-        """Set global configuration
-
-        Set the global configuration to use for the parser.
-
-        Keyword arguments:
-            - configuration -- The global configuration
-
-        """
-        self._o._global_conf.update(self._validate_conf(configuration, True))
-
-    def get_conf(self, action, name):
-        """Get the value of an action configuration
-
-        Return the formated value of configuration 'name' for the action
-        identified by 'action'. If the configuration for the action is
-        not set, the default one is returned.
-
-        Keyword arguments:
-            - action -- An action identifier
-            - name -- The configuration name
-
-        """
-        try:
-            return self._o._conf[action][name]
-        except KeyError:
-            return self.global_conf[name]
-
-    def set_conf(self, action, configuration):
-        """Set configuration for an action
-
-        Set the configuration to use for a given action identified by
-        'action' which is specific to the parser.
-
-        Keyword arguments:
-            - action -- The action identifier
-            - configuration -- The configuration for the action
-
-        """
-        self._o._conf[action] = self._validate_conf(configuration)
-
-    def _validate_conf(self, configuration, is_global=False):
-        """Validate configuration for the parser
-
-        Return the validated configuration for the interface's actions
-        map parser.
-
-        Keyword arguments:
-            - configuration -- The configuration to pre-format
-
-        """
-        # TODO: Create a class with a validator method for each configuration
-        conf = {}
-
-        # -- 'authenficate'
-        try:
-            ifaces = configuration["authenticate"]
-        except KeyError:
-            pass
-        else:
-            if ifaces == "all":
-                conf["authenticate"] = ifaces
-            elif ifaces is False:
-                conf["authenticate"] = False
-            elif isinstance(ifaces, list):
-                if "all" in ifaces:
-                    conf["authenticate"] = "all"
-                else:
-                    # Store only if authentication is needed
-                    conf["authenticate"] = True if self.interface in ifaces else False
-            else:
-                error_message = (
-                    "expecting 'all', 'False' or a list for "
-                    "configuration 'authenticate', got %r" % ifaces,
-                )
-                logger.error(error_message)
-                raise MoulinetteError(error_message, raw_msg=True)
-
-        # -- 'authenticator'
-        auth = configuration.get("authenticator", "default")
-        if not is_global and isinstance(auth, str):
-            # Store needed authenticator profile
-            if auth not in self.global_conf["authenticator"]:
-                error_message = (
-                    "requesting profile '%s' which is undefined in "
-                    "global configuration of 'authenticator'" % auth,
-                )
-                logger.error(error_message)
-                raise MoulinetteError(error_message, raw_msg=True)
-            else:
-                conf["authenticator"] = auth
-        elif is_global and isinstance(auth, dict):
-            if len(auth) == 0:
-                logger.warning(
-                    "no profile defined in global configuration " "for 'authenticator'"
-                )
-            else:
-                auths = {}
-                for auth_name, auth_conf in auth.items():
-                    auths[auth_name] = {
-                        "name": auth_name,
-                        "vendor": auth_conf.get("vendor"),
-                        "parameters": auth_conf.get("parameters", {}),
-                        "extra": {"help": auth_conf.get("help", None)},
-                    }
-                conf["authenticator"] = auths
-        else:
-            error_message = (
-                "expecting a dict of profile(s) or a profile name "
-                "for configuration 'authenticator', got %r",
-                auth,
-            )
-            logger.error(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
-
-        return conf
-
-
-class BaseInterface(object):
-
-    """Moulinette's base Interface
-
-    Each interfaces must implement an Interface class derived from this
-    class which must overrides virtual properties and methods.
-    It is used to provide a user interface for an actions map.
-
-    Keyword arguments:
-        - actionsmap -- The ActionsMap instance to connect to
-
-    """
-
-    # TODO: Add common interface methods and try to standardize default ones
-
-    def __init__(self, actionsmap):
-        raise NotImplementedError(
-            "derived class '%s' must override this method" % self.__class__.__name__
-        )
 
 
 # Argument parser ------------------------------------------------------
@@ -358,7 +209,7 @@ class _CallbackAction(argparse.Action):
             func = getattr(mod, func_name)
         except (AttributeError, ImportError):
             console.print_exception()
-            raise ValueError("unable to import method {0}".format(self.callback_method))
+            raise ValueError(f"unable to import method {self.callback_method}")
         self._callback = func
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -371,9 +222,8 @@ class _CallbackAction(argparse.Action):
             # Execute callback and get returned value
             value = self.callback(namespace, values, **self.callback_kwargs)
         except Exception as e:
-            error_message = (
-                "cannot get value from callback method "
-                "'{0}': {1}".format(self.callback_method, e)
+            error_message = "cannot get value from callback method " "'{}': {}".format(
+                self.callback_method, e
             )
             logger.exception(error_message)
             raise MoulinetteError(error_message, raw_msg=True)
@@ -479,7 +329,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
             c.execute(namespace, v)
         try:
             delattr(namespace, CALLBACKS_PROP)
-        except Exception:
+        except AttributeError:
             pass
 
     def _get_callbacks_queue(self, namespace, create=True):
@@ -709,4 +559,41 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
                 usage = "\n".join(lines)
 
         # prefix with 'usage:'
-        return "%s%s\n\n" % (prefix, usage)
+        return "{}{}\n\n".format(prefix, usage)
+
+
+class JSONExtendedEncoder(JSONEncoder):
+
+    """Extended JSON encoder
+
+    Extend default JSON encoder to recognize more types and classes. It will
+    never raise an exception if the object can't be encoded and return its repr
+    instead.
+
+    The following objects and types are supported:
+        - set: converted into list
+
+    """
+
+    def default(self, o):
+
+        import pytz  # Lazy loading, this takes like 3+ sec on a RPi2 ?!
+
+        """Return a serializable object"""
+        # Convert compatible containers into list
+        if isinstance(o, set) or (hasattr(o, "__iter__") and hasattr(o, "next")):
+            return list(o)
+
+        # Display the date in its iso format ISO-8601 Internet Profile (RFC 3339)
+        if isinstance(o, datetime.date):
+            if o.tzinfo is None:
+                o = o.replace(tzinfo=pytz.utc)
+            return o.isoformat()
+
+        # Return the repr for object that json can't encode
+        logger.warning(
+            "cannot properly encode in JSON the object %s, " "returned repr is: %r",
+            type(o),
+            o,
+        )
+        return repr(o)
