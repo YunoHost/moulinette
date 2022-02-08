@@ -260,11 +260,14 @@ class _ExtendedSubParsersAction(argparse._SubParsersAction):
         self._deprecated_command_map = {}
 
     def add_parser(self, name, type_=None, **kwargs):
+        hide_in_help = kwargs.pop("hide_in_help", False)
         deprecated = kwargs.pop("deprecated", False)
         deprecated_alias = kwargs.pop("deprecated_alias", [])
 
         if deprecated:
             self._deprecated_command_map[name] = None
+
+        if deprecated or hide_in_help:
             if "help" in kwargs:
                 del kwargs["help"]
 

@@ -364,6 +364,7 @@ class ActionsMapParser(BaseActionsMapParser):
         action_help=None,
         deprecated=False,
         deprecated_alias=[],
+        hide_in_help=False,
         **kwargs,
     ):
         """Add a parser for an action
@@ -384,6 +385,7 @@ class ActionsMapParser(BaseActionsMapParser):
             description=action_help,
             deprecated=deprecated,
             deprecated_alias=deprecated_alias,
+            hide_in_help=hide_in_help,
         )
 
     def add_global_arguments(self, arguments):
