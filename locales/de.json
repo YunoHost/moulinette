@@ -24,7 +24,7 @@
     "deprecated_command": "'{prog} {command}' ist veraltet und wird bald entfernt werden",
     "deprecated_command_alias": "'{prog} {old}' ist veraltet und wird bald entfernt werden, benutze '{prog} {new}' stattdessen",
     "unknown_group": "Gruppe '{group}' ist unbekannt",
-    "unknown_user": "Benutzer '{user}' ist unbekannt",
+    "unknown_user": "Konto '{user}' ist unbekannt",
     "info": "Info:",
     "corrupted_json": "Beschädigtes JSON gelesen von {ressource} (reason: {error})",
     "unknown_error_reading_file": "Unbekannter Fehler beim Lesen der Datei {file} (reason: {error})",
