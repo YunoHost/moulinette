@@ -1,3 +1,12 @@
+moulinette (11.0.6) testing; urgency=low
+
+  - [enh] cli: Add possibility to hide commands in --help (cb9ecb46)
+  - [i18n] Translations updated for Finnish, Galician
+
+  Thanks to all contributors <3 ! (Alexandre Aubin, alexAubin, José M, Mico Hauataluoma, Weblate)
+
+ -- Kay0u <pierre@kayou.io>  Tue, 29 Mar 2022 14:23:40 +0200
+
 moulinette (11.0.2) testing; urgency=low
 
   - [fix] Various tweaks for Python 3.9
