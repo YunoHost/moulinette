@@ -32,7 +32,7 @@
     "error_writing_file": "Error al escribir el archivo {file}: {error}",
     "error_removing": "Error al eliminar {path}: {error}",
     "error_changing_file_permissions": "Error al cambiar los permisos para {path}: {error}",
-    "invalid_url": "URL inválida {url} (¿Existe este sitio?)",
+    "invalid_url": "URL inválida {url} (¿Existe este sitio?).",
     "download_ssl_error": "Error SSL al conectar con {url}",
     "download_timeout": "{url} tardó demasiado en responder, abandono.",
     "download_unknown_error": "Error al descargar datos desde {url} : {error}",
