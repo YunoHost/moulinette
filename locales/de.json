@@ -1,7 +1,7 @@
 {
     "argument_required": "Der Parameter {argument} ist erforderlich",
     "authentication_required": "Anmeldung erforderlich",
-    "confirm": "Bestätigen Sie {Aufforderung}",
+    "confirm": "Bestätigen Sie {prompt}",
     "error": "Fehler:",
     "file_not_exist": "Datei ist nicht vorhanden: '{path}'",
     "folder_exists": "Ordner existiert bereits: '{path}'",
