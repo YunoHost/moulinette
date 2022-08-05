@@ -65,6 +65,6 @@ def prependlines(text, prepend):
 # Randomize ------------------------------------------------------------
 
 
-def random_ascii(length=20):
+def random_ascii(length=40):
     """Return a random ascii string"""
-    return binascii.hexlify(os.urandom(length)).decode("ascii")
+    return binascii.hexlify(os.urandom(length)).decode("ascii")[:length]

@@ -20,3 +20,4 @@ def test_prependlines():
 
 def test_random_ascii():
     assert isinstance(random_ascii(length=2), str)
+    assert len(random_ascii(length=10)) == 10
