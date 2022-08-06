@@ -727,12 +727,6 @@ class Interface:
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
 
-        # Wrapper which sets proper header
-        # Doesn't work if the HTTPResponse has been raised
-        # like HTTP Error
-        def apiheader():
-            response.set_header("Access-Control-Allow-Origin", "*")
-
         # Attempt to retrieve and set locale
         def api18n(callback):
             def wrapper(*args, **kwargs):
@@ -747,7 +741,6 @@ class Interface:
 
         # Install plugins
         app.install(filter_csrf)
-        app.add_hook("after_request", apiheader)
         app.install(api18n)
         actionsmapplugin = _ActionsMapPlugin(actionsmap, log_queues)
         app.install(actionsmapplugin)
@@ -760,9 +753,6 @@ class Interface:
         # and our damned swagger api documentation tool
         def options_prefetch_cors():
             response = HTTPResponse("", 200)
-            response.set_header("Access-Control-Allow-Origin", "*")
-            response.set_header("Access-Control-Allow-Headers", "x-requested-with")
-            response.set_header("Allow", "GET, POST, PUT, DELETE, OPTIONS")
             return response
 
         app.route('/<:re:.*>', method="OPTIONS",
