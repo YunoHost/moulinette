@@ -728,12 +728,10 @@ class Interface:
         app = Bottle(autojson=True)
 
         # Wrapper which sets proper header
-        def apiheader(callback):
-            def wrapper(*args, **kwargs):
-                response.set_header("Access-Control-Allow-Origin", "*")
-                return callback(*args, **kwargs)
-
-            return wrapper
+        # Doesn't work if the HTTPResponse has been raised
+        # like HTTP Error
+        def apiheader():
+            response.set_header("Access-Control-Allow-Origin", "*")
 
         # Attempt to retrieve and set locale
         def api18n(callback):
@@ -749,7 +747,7 @@ class Interface:
 
         # Install plugins
         app.install(filter_csrf)
-        app.install(apiheader)
+        app.add_hook("after_request", apiheader)
         app.install(api18n)
         actionsmapplugin = _ActionsMapPlugin(actionsmap, log_queues)
         app.install(actionsmapplugin)
@@ -757,6 +755,19 @@ class Interface:
         self.authenticate = actionsmapplugin.authenticate
         self.display = actionsmapplugin.display
         self.prompt = actionsmapplugin.prompt
+
+        # Answer to prefetch OPTIONS request to make CORS working
+        # and our damned swagger api documentation tool
+        def options_prefetch_cors():
+            response = HTTPResponse("", 200)
+            response.set_header("Access-Control-Allow-Origin", "*")
+            response.set_header("Access-Control-Allow-Headers", "x-requested-with")
+            response.set_header("Allow", "GET, POST, PUT, DELETE, OPTIONS")
+            return response
+
+        app.route('/<:re:.*>', method="OPTIONS",
+                  callback=options_prefetch_cors, skip=["actionsmap"])
+
 
         # Append additional routes
         # TODO: Add optional authentication to those routes?
