@@ -1,3 +1,9 @@
+moulinette (4.4.1) stable; urgency=low
+
+  - Bump version for 4.4.1 stable
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Tue, 09 Aug 2022 23:37:23 +0200
+
 moulinette (4.4.0) testing; urgency=low
 
   - Bump version for 4.4 release
