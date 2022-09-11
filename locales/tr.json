@@ -25,13 +25,13 @@
     "download_unknown_error": "{url} adresinden veri indirilirken hata oluştu: {error}",
     "download_timeout": "{url} yanıtlaması çok uzun sürdü, pes etti.",
     "download_ssl_error": "{url} ağına bağlanırken SSL hatası",
-    "invalid_url": "Geçersiz url {url} (bu site var mı?)",
+    "invalid_url": "{url} bağlanılamadı... URL çalışmıyor olabilir veya IPv4/IPv6 internete düzgün bir şekilde bağlı değilsiniz.",
     "error_changing_file_permissions": "{path} için izinler değiştirilirken hata oluştu: {error}",
     "error_removing": "{path} kaldırılırken hata oluştu: {error}",
     "error_writing_file": "{file} dosyası yazılırken hata oluştu: {error}",
     "corrupted_toml": "{ressource} kaynağından okunan bozuk TOML(nedeni: {error})",
-    "corrupted_yaml": "{ressource} kaynağından bozuk yaml okunuyor (nedeni: {error})",
-    "corrupted_json": "{ressource} adresinden okunan bozuk json (nedeni: {error})",
+    "corrupted_yaml": "{ressource} kaynağından bozuk YAML okunuyor (neden: {error})",
+    "corrupted_json": "{ressource} adresinden okunan bozuk json (neden: {error})",
     "unknown_error_reading_file": "{file} dosyasını okumaya çalışırken bilinmeyen hata (nedeni: {error})",
     "cannot_write_file": "{file} dosyası yazılamadı (nedeni: {error})",
     "cannot_open_file": "{file} dosyası açılamadı (nedeni: {error})",
@@ -42,5 +42,6 @@
     "folder_exists": "Klasör zaten var: '{path}'",
     "file_not_exist": "Dosya mevcut değil: '{path}'",
     "deprecated_command_alias": "'{prog} {old}' kullanımdan kaldırıldı ve gelecekte kaldırılacak, bunun yerine '{prog} {new}' kullanın",
-    "deprecated_command": "'{prog} {command}' kullanımdan kaldırıldı ve gelecekte kaldırılacak"
+    "deprecated_command": "'{prog} {command}' kullanımdan kaldırıldı ve gelecekte kaldırılacak",
+    "edit_text_question": "{}. Bu metni düzenle ? [yN]: "
 }
