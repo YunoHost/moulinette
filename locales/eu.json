@@ -24,7 +24,7 @@
     "warn_the_user_about_waiting_lock": "YunoHosten beste komando bat ari da exekutatzen, horrek amaitu arte gaude zain",
     "warn_the_user_about_waiting_lock_again": "Zain…",
     "folder_exists": "Direktorioa existitzen da dagoeneko: '{path}'",
-    "instance_already_running": "YunoHosten eragiketa bat exekutatzen ari da dagoeneko. Mesedez, itxaron amaitu arte beste eragiketa bat abiarazi baino lehen.",
+    "instance_already_running": "YunoHosten eragiketa bat exekutatzen ari da dagoeneko. Itxaron amaitu arte beste eragiketa bat abiarazi baino lehen.",
     "invalid_usage": "Erabilera okerra, idatzi --help aukerak ikusteko",
     "pattern_not_match": "Ez dator ereduarekin bat",
     "root_required": "Ezinbestekoa da 'root' izatea eragiketa hau exekutatzeko",
