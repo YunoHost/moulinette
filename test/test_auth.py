@@ -255,25 +255,6 @@ class TestAuthCLI:
 
         assert "invalid_password" in str(exception)
 
-    def test_request_with_callback(self, moulinette_cli, capsys, mocker):
-        mocker.patch("os.isatty", return_value=True)
-        mocker.patch("prompt_toolkit.prompt", return_value="dummy")
-        moulinette_cli.run(["--version"], output_as="plain")
-        message = capsys.readouterr()
-
-        assert "666" in message.out
-
-        moulinette_cli.run(["-v"], output_as="plain")
-        message = capsys.readouterr()
-
-        assert "666" in message.out
-
-        with pytest.raises(MoulinetteError):
-            moulinette_cli.run(["--wersion"], output_as="plain")
-        message = capsys.readouterr()
-
-        assert "cannot get value from callback method" in message.err
-
     def test_request_with_arg(self, moulinette_cli, capsys, mocker):
         mocker.patch("os.isatty", return_value=True)
         mocker.patch("prompt_toolkit.prompt", return_value="dummy")
