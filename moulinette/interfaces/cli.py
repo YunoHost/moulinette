@@ -288,7 +288,9 @@ class ActionsMapParser(BaseActionsMapParser):
 
     """
 
-    def __init__(self, parent=None, parser=None, subparser_kwargs=None, top_parser=None):
+    def __init__(
+        self, parent=None, parser=None, subparser_kwargs=None, top_parser=None
+    ):
 
         super(ActionsMapParser, self).__init__(parent)
 
@@ -334,7 +336,11 @@ class ActionsMapParser(BaseActionsMapParser):
         parser = self._subparsers.add_parser(
             name, description=category_help, help=category_help, **kwargs
         )
-        return self.__class__(parent=self, parser=parser, subparser_kwargs={"title": "subcommands", "required": True})
+        return self.__class__(
+            parent=self,
+            parser=parser,
+            subparser_kwargs={"title": "subcommands", "required": True},
+        )
 
     def add_subcategory_parser(self, name, subcategory_help=None, **kwargs):
         """Add a parser for a subcategory
@@ -353,7 +359,11 @@ class ActionsMapParser(BaseActionsMapParser):
             help=subcategory_help,
             **kwargs,
         )
-        return self.__class__(parent=self, parser=parser, subparser_kwargs={"title": "actions", "required": True})
+        return self.__class__(
+            parent=self,
+            parser=parser,
+            subparser_kwargs={"title": "actions", "required": True},
+        )
 
     def add_action_parser(
         self,
