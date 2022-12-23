@@ -387,25 +387,9 @@ class ActionsMapParser(BaseActionsMapParser):
         )
 
     def auth_method(self, args):
-        # FIXME? idk .. this try/except is duplicated from parse_args below
-        # Just to be able to obtain the tid
-        try:
-            ret = self._parser.parse_args(args)
-        except SystemExit:
-            raise
-        except Exception as e:
-            error_message = "unable to parse arguments '{}' because: {}".format(
-                " ".join(args),
-                e,
-            )
-            logger.exception(error_message)
-            raise MoulinetteValidationError(error_message, raw_msg=True)
 
-        tid = getattr(ret, "_tid", None)
-
-        # Ugh that's for yunohost --version ...
-        if tid is None:
-            return None
+        ret = self.parse_args(args)
+        tid = getattr(ret, "_tid", [])
 
         # We go down in the subparser tree until we find the leaf
         # corresponding to the tid with a defined authentication
@@ -432,6 +416,17 @@ class ActionsMapParser(BaseActionsMapParser):
             )
             logger.exception(error_message)
             raise MoulinetteValidationError(error_message, raw_msg=True)
+
+    def want_to_take_lock(self, args):
+
+        ret = self.parse_args(args)
+        tid = getattr(ret, "_tid", [])
+        if len(tid) == 3:
+            _p = self._subparsers.choices[tid[1]]._actions[1].choices[tid[2]]
+        elif len(tid) == 4:
+            _p = self._subparsers.choices[tid[1]]._actions[1].choices[tid[2]]._actions[1].choices[tid[3]]
+
+        return getattr(_p, "want_to_take_lock", True)
 
 
 class Interface:
