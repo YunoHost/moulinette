@@ -7,21 +7,6 @@ _global:
     authentication:
         api: dummy
         cli: dummy
-    arguments:
-        -v:
-            full: --version
-            help: Display Yoloswag versions
-            action: callback
-            callback:
-                method: test.src.testauth.yoloswag_version
-                return: true
-        -w:
-            full: --wersion
-            help: Not existing function
-            action: callback
-            callback:
-                method: test.src.testauth.not_existing_function
-                return: true
 
 #############################
 #       Test Actions        #

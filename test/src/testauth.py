@@ -44,7 +44,3 @@ def testauth_with_extra_str_only(only_a_str):
 
 def testauth_with_type_int(only_an_int):
     return only_an_int
-
-
-def yoloswag_version(*args, **kwargs):
-    return "666"
