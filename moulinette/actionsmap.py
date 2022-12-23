@@ -18,7 +18,7 @@ from moulinette.core import (
     MoulinetteLock,
     MoulinetteValidationError,
 )
-from moulinette.interfaces import BaseActionsMapParser, TO_RETURN_PROP
+from moulinette.interfaces import BaseActionsMapParser
 from moulinette.utils.log import start_action_logging
 from moulinette.utils.filesystem import read_yaml
 
@@ -515,10 +515,6 @@ class ActionsMap:
         tid = arguments.pop("_tid")
         arguments = self.extraparser.parse_args(tid, arguments)
 
-        # Return immediately if a value is defined
-        if TO_RETURN_PROP in arguments:
-            return arguments.get(TO_RETURN_PROP)
-
         # Retrieve action information
         if len(tid) == 4:
             namespace, category, subcategory, action = tid
@@ -625,9 +621,6 @@ class ActionsMap:
         self.namespace = _global["namespace"]
         self.enable_lock = _global.get("lock", True)
         self.default_authentication = _global["authentication"][interface_type]
-
-        if top_parser.has_global_parser():
-            top_parser.add_global_arguments(_global["arguments"])
 
         # category_name is stuff like "user", "domain", "hooks"...
         # category_values is the values of this category (like actions)

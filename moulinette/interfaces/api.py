@@ -235,9 +235,6 @@ class _HTTPArgumentParser:
 
         return self._parser.parse_args(arg_strings, namespace)
 
-    def dequeue_callbacks(self, *args, **kwargs):
-        return self._parser.dequeue_callbacks(*args, **kwargs)
-
     def _error(self, message):
         raise MoulinetteValidationError(message, raw_msg=True)
 
@@ -671,7 +668,6 @@ class ActionsMapParser(BaseActionsMapParser):
 
         # TODO: Catch errors?
         ret = parser.parse_args(args, ret)
-        parser.dequeue_callbacks(ret)
         return ret
 
     # Private methods

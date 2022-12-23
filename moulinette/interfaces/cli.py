@@ -388,15 +388,6 @@ class ActionsMapParser(BaseActionsMapParser):
             hide_in_help=hide_in_help,
         )
 
-    def add_global_arguments(self, arguments):
-        for argument_name, argument_options in arguments.items():
-            # will adapt arguments name for cli or api context
-            names = self.format_arg_names(
-                str(argument_name), argument_options.pop("full", None)
-            )
-
-            self.global_parser.add_argument(*names, **argument_options)
-
     def auth_method(self, args):
         # FIXME? idk .. this try/except is duplicated from parse_args below
         # Just to be able to obtain the tid
@@ -433,7 +424,7 @@ class ActionsMapParser(BaseActionsMapParser):
 
     def parse_args(self, args, **kwargs):
         try:
-            ret = self._parser.parse_args(args)
+            return self._parser.parse_args(args)
         except SystemExit:
             raise
         except Exception as e:
@@ -443,10 +434,6 @@ class ActionsMapParser(BaseActionsMapParser):
             )
             logger.exception(error_message)
             raise MoulinetteValidationError(error_message, raw_msg=True)
-        else:
-            self.prepare_action_namespace(getattr(ret, "_tid", None), ret)
-            self._parser.dequeue_callbacks(ret)
-            return ret
 
 
 class Interface:

@@ -14,10 +14,6 @@ from moulinette.core import MoulinetteError
 
 logger = logging.getLogger("moulinette.interface")
 
-# FIXME : are these even used for anything useful ...
-TO_RETURN_PROP = "_to_return"
-CALLBACKS_PROP = "_callbacks"
-
 
 # Base Class -----------------------------------------------------------
 
@@ -148,93 +144,8 @@ class BaseActionsMapParser:
             "derived class '%s' must override this method" % self.__class__.__name__
         )
 
-    # Arguments helpers
-
-    @staticmethod
-    def prepare_action_namespace(tid, namespace=None):
-        """Prepare the namespace for a given action"""
-        # Validate tid and namespace
-        if not isinstance(tid, tuple) and (
-            namespace is None or not hasattr(namespace, TO_RETURN_PROP)
-        ):
-            raise MoulinetteError("invalid_usage")
-        elif not tid:
-            tid = "_global"
-
-        # Prepare namespace
-        if namespace is None:
-            namespace = argparse.Namespace()
-        namespace._tid = tid
-
-        return namespace
-
 
 # Argument parser ------------------------------------------------------
-
-
-class _CallbackAction(argparse.Action):
-    def __init__(
-        self,
-        option_strings,
-        dest,
-        nargs=0,
-        callback={},
-        default=argparse.SUPPRESS,
-        help=None,
-    ):
-        if not callback or "method" not in callback:
-            raise ValueError("callback must be provided with at least " "a method key")
-        super(_CallbackAction, self).__init__(
-            option_strings=option_strings,
-            dest=dest,
-            nargs=nargs,
-            default=default,
-            help=help,
-        )
-        self.callback_method = callback.get("method")
-        self.callback_kwargs = callback.get("kwargs", {})
-        self.callback_return = callback.get("return", False)
-
-    @property
-    def callback(self):
-        if not hasattr(self, "_callback"):
-            self._retrieve_callback()
-        return self._callback
-
-    def _retrieve_callback(self):
-        # Attempt to retrieve callback method
-        mod_name, func_name = (self.callback_method).rsplit(".", 1)
-        try:
-            mod = __import__(mod_name, globals=globals(), level=0, fromlist=[func_name])
-            func = getattr(mod, func_name)
-        except (AttributeError, ImportError):
-            import traceback
-
-            traceback.print_exc()
-            raise ValueError("unable to import method {}".format(self.callback_method))
-        self._callback = func
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        parser.enqueue_callback(namespace, self, values)
-        if self.callback_return:
-            setattr(namespace, TO_RETURN_PROP, {})
-
-    def execute(self, namespace, values):
-        try:
-            # Execute callback and get returned value
-            value = self.callback(namespace, values, **self.callback_kwargs)
-        except Exception as e:
-            error_message = "cannot get value from callback method " "'{}': {}".format(
-                self.callback_method, e
-            )
-            logger.exception(error_message)
-            raise MoulinetteError(error_message, raw_msg=True)
-        else:
-            if value:
-                if self.callback_return:
-                    setattr(namespace, TO_RETURN_PROP, value)
-                else:
-                    setattr(namespace, self.dest, value)
 
 
 class _ExtendedSubParsersAction(argparse._SubParsersAction):
@@ -319,34 +230,7 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
         )
 
         # Register additional actions
-        self.register("action", "callback", _CallbackAction)
         self.register("action", "parsers", _ExtendedSubParsersAction)
-
-    def enqueue_callback(self, namespace, callback, values):
-        queue = self._get_callbacks_queue(namespace)
-        queue.append((callback, values))
-
-    def dequeue_callbacks(self, namespace):
-        queue = self._get_callbacks_queue(namespace, False)
-        for _i in range(len(queue)):
-            c, v = queue.popleft()
-            # FIXME: break dequeue if callback returns
-            c.execute(namespace, v)
-        try:
-            delattr(namespace, CALLBACKS_PROP)
-        except AttributeError:
-            pass
-
-    def _get_callbacks_queue(self, namespace, create=True):
-        try:
-            queue = getattr(namespace, CALLBACKS_PROP)
-        except AttributeError:
-            if create:
-                queue = deque()
-                setattr(namespace, CALLBACKS_PROP, queue)
-            else:
-                queue = list()
-        return queue
 
     def add_arguments(
         self, arguments, extraparser, format_arg_names=None, validate_extra=True
