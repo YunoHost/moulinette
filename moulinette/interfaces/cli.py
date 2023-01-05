@@ -434,7 +434,13 @@ class ActionsMapParser(BaseActionsMapParser):
         if len(tid) == 3:
             _p = self._subparsers.choices[tid[1]]._actions[1].choices[tid[2]]
         elif len(tid) == 4:
-            _p = self._subparsers.choices[tid[1]]._actions[1].choices[tid[2]]._actions[1].choices[tid[3]]
+            _p = (
+                self._subparsers.choices[tid[1]]
+                ._actions[1]
+                .choices[tid[2]]
+                ._actions[1]
+                .choices[tid[3]]
+            )
 
         return getattr(_p, "want_to_take_lock", True)
 
