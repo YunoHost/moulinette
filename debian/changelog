@@ -1,3 +1,13 @@
+moulinette (11.1.2) testing; urgency=low
+
+  - legacy: Remove the 'global argument' mechanism ... we only use it for --version and it's just batshit overly complicated for what this achieves... (50b19a95, 80873777, 7f4e8b39)
+  - Dont take lock for read/GET operations ([#327](https://github.com/yunohost/moulinette/pull/327))
+  - [i18n] Translations updated for Arabic, Basque, Dutch
+
+  Thanks to all contributors <3 ! (André Koot, ButterflyOfFire, xabirequejo)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 06 Jan 2023 00:37:23 +0100
+
 moulinette (11.1.0) testing; urgency=low
 
   - Bump version for testing release
