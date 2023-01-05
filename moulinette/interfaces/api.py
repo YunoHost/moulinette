@@ -647,6 +647,12 @@ class ActionsMapParser(BaseActionsMapParser):
 
         return parser.authentication
 
+    def want_to_take_lock(self, _, route):
+
+        _, parser = self._parsers[route]
+
+        return getattr(parser, "want_to_take_lock", True)
+
     def parse_args(self, args, **kwargs):
         """Parse arguments
 

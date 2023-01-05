@@ -515,6 +515,8 @@ class ActionsMap:
         tid = arguments.pop("_tid")
         arguments = self.extraparser.parse_args(tid, arguments)
 
+        want_to_take_lock = self.parser.want_to_take_lock(args, **kwargs)
+
         # Retrieve action information
         if len(tid) == 4:
             namespace, category, subcategory, action = tid
@@ -537,7 +539,7 @@ class ActionsMap:
             full_action_name = "{}.{}.{}".format(namespace, category, action)
 
         # Lock the moulinette for the namespace
-        with MoulinetteLock(namespace, timeout, self.enable_lock):
+        with MoulinetteLock(namespace, timeout, self.enable_lock and want_to_take_lock):
             start = time()
             try:
                 mod = __import__(
@@ -662,6 +664,14 @@ class ActionsMap:
                 if interface_type in authentication:
                     action_parser.authentication = authentication[interface_type]
 
+                # Disable the locking mechanism for all actions that are 'GET' actions on the api
+                routes = action_options.get("api")
+                routes = [routes] if isinstance(routes, str) else routes
+                if routes and all(route.startswith("GET ") for route in routes):
+                    action_parser.want_to_take_lock = False
+                else:
+                    action_parser.want_to_take_lock = True
+
             # subcategory_name is like "cert" in "domain cert status"
             # subcategory_values is the values of this subcategory (like actions)
             for subcategory_name, subcategory_values in subcategories.items():
@@ -704,6 +714,14 @@ class ActionsMap:
                     action_parser.authentication = self.default_authentication
                     if interface_type in authentication:
                         action_parser.authentication = authentication[interface_type]
+
+                    # Disable the locking mechanism for all actions that are 'GET' actions on the api
+                    routes = action_options.get("api")
+                    routes = [routes] if isinstance(routes, str) else routes
+                    if routes and all(route.startswith("GET ") for route in routes):
+                        action_parser.want_to_take_lock = False
+                    else:
+                        action_parser.want_to_take_lock = True
 
         logger.debug("building parser took %.3fs", time() - start)
         return top_parser

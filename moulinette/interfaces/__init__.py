@@ -5,12 +5,11 @@ import logging
 import argparse
 import copy
 import datetime
-from collections import deque, OrderedDict
+from collections import OrderedDict
 from json.encoder import JSONEncoder
 from typing import Optional
 
 from moulinette import m18n
-from moulinette.core import MoulinetteError
 
 logger = logging.getLogger("moulinette.interface")
 
