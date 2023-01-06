@@ -412,6 +412,9 @@ class ActionsMapParser(BaseActionsMapParser):
             else:
                 _p = _p._actions[1]
 
+        if tid == []:
+            return None
+
         raise MoulinetteError(f"Authentication undefined for {tid} ?", raw_msg=True)
 
     def parse_args(self, args, **kwargs):
@@ -495,6 +498,9 @@ class Interface:
         """
 
         if output_as and output_as not in ["json", "plain", "none"]:
+            raise MoulinetteValidationError("invalid_usage")
+
+        if not args:
             raise MoulinetteValidationError("invalid_usage")
 
         try:
