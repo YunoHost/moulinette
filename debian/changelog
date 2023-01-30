@@ -1,3 +1,12 @@
+moulinette (11.1.2.1) testing; urgency=low
+
+  - Handle calling 'yunohost' with no args more gracefully (4c03e16d)
+  - [i18n] Translations updated for Arabic
+
+  Thanks to all contributors <3 ! (ButterflyOfFire)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 30 Jan 2023 16:34:23 +0100
+
 moulinette (11.1.2) testing; urgency=low
 
   - legacy: Remove the 'global argument' mechanism ... we only use it for --version and it's just batshit overly complicated for what this achieves... (50b19a95, 80873777, 7f4e8b39)
