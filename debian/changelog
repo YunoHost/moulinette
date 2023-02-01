@@ -1,3 +1,9 @@
+moulinette (11.1.4) stable; urgency=low
+
+  - Releasing as stable
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 01 Feb 2023 20:28:56 +0100
+
 moulinette (11.1.2.1) testing; urgency=low
 
   - Handle calling 'yunohost' with no args more gracefully (4c03e16d)
