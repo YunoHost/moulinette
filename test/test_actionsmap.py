@@ -161,7 +161,6 @@ def test_required_paremeter_missing_value(iface, caplog):
 
 
 def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
-
     from moulinette.interfaces.api import ActionsMapParser
 
     amap = ActionsMap("test/actionsmap/moulitest.yml", ActionsMapParser())

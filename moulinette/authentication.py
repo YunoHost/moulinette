@@ -29,7 +29,6 @@ class BaseAuthenticator:
     # Each authenticator classes must implement these methods.
 
     def authenticate_credentials(self, credentials):
-
         try:
             # Attempt to authenticate
             auth_info = self._authenticate_credentials(credentials) or {}

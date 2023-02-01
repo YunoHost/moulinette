@@ -11,7 +11,6 @@ import json
 
 
 def find_expected_string_keys():
-
     # Try to find :
     #    m18n.g(   "foo"
     #    MoulinetteError("foo"
@@ -69,7 +68,6 @@ def test_undefined_i18n_keys():
 
 
 def test_unused_i18n_keys():
-
     unused_keys = keys_defined.difference(expected_string_keys)
     unused_keys = sorted(unused_keys)
 

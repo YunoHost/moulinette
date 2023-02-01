@@ -116,7 +116,6 @@ class Translator:
             self.default_locale != self.locale
             and key in self._translations.get(self.default_locale, {})
         ):
-
             try:
                 return self._translations[self.default_locale][key].format(
                     *args, **kwargs
@@ -246,7 +245,6 @@ class Moulinette18n:
 
 
 class MoulinetteError(Exception):
-
     http_code = 500
 
     """Moulinette base exception"""
@@ -264,12 +262,10 @@ class MoulinetteError(Exception):
 
 
 class MoulinetteValidationError(MoulinetteError):
-
     http_code = 400
 
 
 class MoulinetteAuthenticationError(MoulinetteError):
-
     http_code = 401
 
 
@@ -321,7 +317,6 @@ class MoulinetteLock:
         logger.debug("acquiring lock...")
 
         while True:
-
             lock_pids = self._lock_PIDs()
 
             if self._is_son_of(lock_pids):
@@ -389,7 +384,6 @@ class MoulinetteLock:
             raise MoulinetteError("root_required")
 
     def _lock_PIDs(self):
-
         if not os.path.isfile(self._lockfile):
             return []
 

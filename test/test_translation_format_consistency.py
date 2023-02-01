@@ -13,12 +13,10 @@ reference = json.loads(open(locale_folder + "en.json").read())
 
 
 def find_inconsistencies(locale_file):
-
     this_locale = json.loads(open(locale_folder + locale_file).read())
 
     # We iterate over all keys/string in en.json
     for key, string in reference.items():
-
         # Ignore check if there's no translation yet for this key
         if key not in this_locale:
             continue

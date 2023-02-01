@@ -39,7 +39,6 @@ class classproperty:
 
 
 class Moulinette:
-
     _interface = None
 
     def prompt(*args, **kwargs):

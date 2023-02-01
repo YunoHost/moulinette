@@ -86,7 +86,6 @@ class APIQueueHandler(logging.Handler):
         self.actionsmap = None
 
     def emit(self, record):
-
         # Prevent triggering this function while moulinette
         # is being initialized with --debug
         if not self.actionsmap or len(request.cookies) == 0:
@@ -254,7 +253,6 @@ class _ActionsMapPlugin:
     api = 2
 
     def __init__(self, actionsmap, log_queues={}):
-
         self.actionsmap = actionsmap
         self.log_queues = log_queues
 
@@ -293,7 +291,7 @@ class _ActionsMapPlugin:
         )
 
         # Append routes from the actions map
-        for (m, p) in self.actionsmap.parser.routes:
+        for m, p in self.actionsmap.parser.routes:
             app.route(p, method=m, callback=self.process)
 
     def apply(self, callback, context):
@@ -376,7 +374,6 @@ class _ActionsMapPlugin:
 
     # This is called before each time a route is going to be processed
     def authenticate(self, authenticator):
-
         try:
             session_infos = authenticator.get_session_cookie()
         except Exception:
@@ -386,7 +383,6 @@ class _ActionsMapPlugin:
         return session_infos
 
     def logout(self):
-
         profile = request.params.get("profile", self.actionsmap.default_authentication)
         authenticator = self.actionsmap.get_authenticator(profile)
 
@@ -468,7 +464,6 @@ class _ActionsMapPlugin:
         else:
             return format_for_response(ret)
         finally:
-
             # Clean upload directory
             # FIXME do that in a better way
             global UPLOAD_DIR
@@ -492,7 +487,6 @@ class _ActionsMapPlugin:
                 queue.put(StopIteration)
 
     def display(self, message, style="info"):
-
         profile = request.params.get("profile", self.actionsmap.default_authentication)
         authenticator = self.actionsmap.get_authenticator(profile)
         s_id = authenticator.get_session_cookie(raise_if_no_session_exists=False)["id"]
@@ -517,7 +511,6 @@ class _ActionsMapPlugin:
 
 
 def moulinette_error_to_http_response(error):
-
     content = error.content()
     if isinstance(content, dict):
         return HTTPResponse(
@@ -634,7 +627,6 @@ class ActionsMapParser(BaseActionsMapParser):
         return parser
 
     def auth_method(self, _, route):
-
         try:
             # Retrieve the tid for the route
             _, parser = self._parsers[route]
@@ -648,7 +640,6 @@ class ActionsMapParser(BaseActionsMapParser):
         return parser.authentication
 
     def want_to_take_lock(self, _, route):
-
         _, parser = self._parsers[route]
 
         return getattr(parser, "want_to_take_lock", True)
@@ -717,7 +708,6 @@ class Interface:
     type = "api"
 
     def __init__(self, routes={}, actionsmap=None):
-
         actionsmap = ActionsMap(actionsmap, ActionsMapParser())
 
         # Attempt to retrieve log queues from an APIQueueHandler
