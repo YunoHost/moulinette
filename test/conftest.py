@@ -76,7 +76,6 @@ def patch_lock(moulinette):
 
 @pytest.fixture(scope="session", autouse=True)
 def moulinette(tmp_path_factory):
-
     import moulinette
     import moulinette.core
     from moulinette.utils.log import configure_logging
@@ -104,7 +103,6 @@ def moulinette(tmp_path_factory):
 
 @pytest.fixture
 def moulinette_webapi(moulinette):
-
     from webtest import TestApp
     from webtest.app import CookiePolicy
 

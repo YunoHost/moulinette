@@ -392,7 +392,6 @@ class ActionsMap:
     """
 
     def __init__(self, actionsmap_yml, top_parser, load_only_category=None):
-
         assert isinstance(top_parser, BaseActionsMapParser), (
             "Invalid parser class '%s'" % top_parser.__class__.__name__
         )
@@ -408,7 +407,6 @@ class ActionsMap:
         actionsmap_pkl = f"{actionsmap_yml_dir}/.{actionsmap_yml_file}.{actionsmap_yml_stat.st_size}-{actionsmap_yml_stat.st_mtime}.pkl"
 
         def generate_cache():
-
             logger.debug("generating cache for actions map")
 
             # Read actions map from yaml file
@@ -464,7 +462,6 @@ class ActionsMap:
 
     @cache
     def get_authenticator(self, auth_method):
-
         if auth_method == "default":
             auth_method = self.default_authentication
 
@@ -484,7 +481,6 @@ class ActionsMap:
             return mod.Authenticator()
 
     def check_authentication_if_required(self, *args, **kwargs):
-
         auth_method = self.parser.auth_method(*args, **kwargs)
 
         if auth_method is None:
@@ -627,7 +623,6 @@ class ActionsMap:
         # category_name is stuff like "user", "domain", "hooks"...
         # category_values is the values of this category (like actions)
         for category_name, category_values in actionsmap.items():
-
             actions = category_values.pop("actions", {})
             subcategories = category_values.pop("subcategories", {})
 
@@ -675,7 +670,6 @@ class ActionsMap:
             # subcategory_name is like "cert" in "domain cert status"
             # subcategory_values is the values of this subcategory (like actions)
             for subcategory_name, subcategory_values in subcategories.items():
-
                 actions = subcategory_values.pop("actions")
 
                 # Get subcategory parser

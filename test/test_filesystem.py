@@ -330,7 +330,6 @@ def test_mkdir(tmp_path):
 
 
 def test_mkdir_with_permission(tmp_path, mocker):
-
     # This test only make sense when not being root
     if os.getuid() == 0:
         return

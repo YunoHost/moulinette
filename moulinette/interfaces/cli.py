@@ -291,7 +291,6 @@ class ActionsMapParser(BaseActionsMapParser):
     def __init__(
         self, parent=None, parser=None, subparser_kwargs=None, top_parser=None
     ):
-
         super(ActionsMapParser, self).__init__(parent)
 
         if subparser_kwargs is None:
@@ -397,7 +396,6 @@ class ActionsMapParser(BaseActionsMapParser):
         )
 
     def auth_method(self, args):
-
         ret = self.parse_args(args)
         tid = getattr(ret, "_tid", [])
 
@@ -431,7 +429,6 @@ class ActionsMapParser(BaseActionsMapParser):
             raise MoulinetteValidationError(error_message, raw_msg=True)
 
     def want_to_take_lock(self, args):
-
         ret = self.parse_args(args)
         tid = getattr(ret, "_tid", [])
         if len(tid) == 3:
@@ -469,7 +466,6 @@ class Interface:
         actionsmap=None,
         locales_dir=None,
     ):
-
         # Set user locale
         m18n.set_locale(get_locale())
 
@@ -557,9 +553,7 @@ class Interface:
             )
 
         def _prompt(message):
-
             if not is_multiline:
-
                 import prompt_toolkit
                 from prompt_toolkit.completion import WordCompleter
                 from prompt_toolkit.styles import Style

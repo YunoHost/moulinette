@@ -66,7 +66,6 @@ def test_run_shell_kwargs():
 
 
 def test_call_async_output(test_file):
-
     mock_callback_stdout = mock.Mock()
     mock_callback_stderr = mock.Mock()
 
@@ -118,7 +117,6 @@ def test_call_async_output(test_file):
 
 
 def test_call_async_output_kwargs(test_file, mocker):
-
     mock_callback_stdout = mock.Mock()
     mock_callback_stdinfo = mock.Mock()
     mock_callback_stderr = mock.Mock()

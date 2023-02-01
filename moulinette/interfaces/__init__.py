@@ -283,11 +283,9 @@ class ExtendedArgumentParser(argparse.ArgumentParser):
 
         # positionals, optionals and user-defined groups
         for action_group in self._action_groups:
-
             # Dirty hack to separate 'subcommands'
             # into 'actions' and 'subcategories'
             if action_group.title == "subcommands":
-
                 # Make a copy of the "action group actions"...
                 choice_actions = action_group._group_actions[0]._choices_actions
                 actions_subparser = copy.copy(action_group._group_actions[0])
@@ -387,7 +385,6 @@ class PositionalsFirstHelpFormatter(argparse.HelpFormatter):
             # wrap the usage parts if it's too long
             text_width = self._width - self._current_indent
             if len(prefix) + len(usage) > text_width:
-
                 # break usage into wrappable parts
                 part_regexp = r"\(.*?\)+|\[.*?\]+|\S+"
                 opt_usage = format(optionals, groups)
@@ -464,7 +461,6 @@ class JSONExtendedEncoder(JSONEncoder):
     """
 
     def default(self, o):
-
         import pytz  # Lazy loading, this takes like 3+ sec on a RPi2 ?!
 
         """Return a serializable object"""

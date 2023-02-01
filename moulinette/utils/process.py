@@ -80,7 +80,6 @@ def call_async_output(args, callback, **kwargs):
         p = subprocess.Popen(args, **kwargs)
 
         while p.poll() is None:
-
             while True:
                 try:
                     callback, message = log_queue.get(True, 1)
@@ -201,7 +200,6 @@ def run_commands(cmds, callback=None, separate_stderr=False, shell=True, **kwarg
     # Iterate over commands
     error = 0
     for cmd in cmds:
-
         process = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=_stderr, shell=shell, **kwargs
         )

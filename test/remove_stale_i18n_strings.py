@@ -10,7 +10,6 @@ locale_files.remove("en.json")
 reference = json.loads(open(locale_folder + "en.json").read())
 
 for locale_file in locale_files:
-
     print(locale_file)
     this_locale = json.loads(
         open(locale_folder + locale_file).read(), object_pairs_hook=OrderedDict

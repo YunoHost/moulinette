@@ -22,14 +22,12 @@ class Authenticator(BaseAuthenticator):
         pass
 
     def _authenticate_credentials(self, credentials=None):
-
         if not credentials == self.name:
             raise MoulinetteError("invalid_password", raw_msg=True)
 
         return
 
     def set_session_cookie(self, infos):
-
         from bottle import response
 
         assert isinstance(infos, dict)
@@ -49,7 +47,6 @@ class Authenticator(BaseAuthenticator):
         )
 
     def get_session_cookie(self, raise_if_no_session_exists=True):
-
         from bottle import request
 
         try:
@@ -68,7 +65,6 @@ class Authenticator(BaseAuthenticator):
         return infos
 
     def delete_session_cookie(self):
-
         from bottle import response
 
         response.set_cookie("moulitest", "", max_age=-1)
