@@ -352,7 +352,7 @@ class _ActionsMapPlugin:
 
     def sse(self):
         import time
-        import zmq
+        import zmq.green as zmq
 
         # FIXME : check auth...
 
@@ -367,13 +367,14 @@ class _ActionsMapPlugin:
         # Set client-side auto-reconnect timeout, ms.
         yield 'retry: 100\n\n'
 
-        while True:
-            try:
+        try:
+            while True:
                 if sub.poll(10, zmq.POLLIN):
                     _, msg = sub.recv_multipart()
                     yield 'data: ' + str(msg.decode()) + '\n\n'
-            except KeyboardInterrupt:
-                break
+        finally:
+            sub.close()
+            ctx.term()
 
     def process(self, _route, arguments={}):
         """Process the relevant action for the route
