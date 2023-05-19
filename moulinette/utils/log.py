@@ -47,7 +47,6 @@ DEFAULT_LOGGING = {
     "loggers": {"moulinette": {"level": "DEBUG", "handlers": ["console"]}},
 }
 
-
 def configure_logging(logging_config=None):
     """Configure logging with default and optionally given configuration
 
@@ -196,3 +195,39 @@ class ActionFilter:
             return False
         record.__dict__[self.message_key] = msg
         return True
+
+
+# Log broadcasting via the broker -----------------------------------------------
+
+
+# FIXME : hard-coded value about yunohost ... and also we need to secure those file such that they are not public
+LOG_BROKER_BACKEND_ENDPOINT = "ipc:///var/run/yunohost/log_broker_backend"
+LOG_BROKER_FRONTEND_ENDPOINT = "ipc:///var/run/yunohost/log_broker_frontend"
+
+if not os.path.isdir("/var/run/yunohost"):
+    os.mkdir("/var/run/yunohost")
+os.chown("/var/run/yunohost", 0, 0)
+os.chmod("/var/run/yunohost", 0o700)
+
+def start_log_broker():
+
+    from multiprocessing import Process
+
+    def server():
+        import zmq
+
+        ctx = zmq.Context()
+        backend = ctx.socket(zmq.XSUB)
+        backend.bind(LOG_BROKER_BACKEND_ENDPOINT)
+        frontend = ctx.socket(zmq.XPUB)
+        frontend.bind(LOG_BROKER_FRONTEND_ENDPOINT)
+
+        zmq.proxy(frontend, backend)
+
+        # Example says "we never get here"?
+        frontend.close()
+        backend.close()
+        ctx.term()
+
+    p = Process(target=server)
+    p.start()
