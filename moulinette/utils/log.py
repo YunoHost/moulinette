@@ -222,9 +222,11 @@ def start_log_broker():
         frontend = ctx.socket(zmq.XPUB)
         frontend.bind(LOG_BROKER_FRONTEND_ENDPOINT)
 
-        zmq.proxy(frontend, backend)
+        try:
+            zmq.proxy(frontend, backend)
+        except KeyboardInterrupt:
+            pass
 
-        # Example says "we never get here"?
         frontend.close()
         backend.close()
         ctx.term()
