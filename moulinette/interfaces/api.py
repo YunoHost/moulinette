@@ -351,10 +351,15 @@ class _ActionsMapPlugin:
             return m18n.g("logged_out")
 
     def sse(self):
-        import time
         import zmq.green as zmq
 
-        # FIXME : check auth...
+        profile = request.params.get("profile", self.actionsmap.default_authentication)
+        authenticator = self.actionsmap.get_authenticator(profile)
+
+        try:
+            authenticator.get_session_cookie()
+        except KeyError:
+            raise HTTPResponse(m18n.g("not_logged_in"), 401)
 
         ctx = zmq.Context()
         sub = ctx.socket(zmq.SUB)
