@@ -1,3 +1,13 @@
+moulinette (11.1.5) stable; urgency=low
+
+  - setup.py: fix version specifier in python_requires, python tooling not happy with * i guess (2373a7fa)
+  - auth: prevent stupid issue where outdated cookie usage would trigger error 500 intead of 401, resulting in a ~bug after Yunohost self-upgrade and the webadmin is confused about the API not being up again (c06e1a91)
+  - i18n: Translations updated for Chinese (Simplified), Indonesian, Japanese
+
+  Thanks to all contributors <3 ! (liimee, motcha, Neko Nekowazarashi, Poesty Li)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 10 Jul 2023 21:32:20 +0200
+
 moulinette (11.1.4) stable; urgency=low
 
   - Releasing as stable
