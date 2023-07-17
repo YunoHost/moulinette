@@ -110,89 +110,14 @@ class MoulinetteLogger(Logger):
         f = currentframe()
         if f is not None:
             f = f.f_back
-        rv = "(unknown file)", 0, "(unknown function)"
+        rv = "(unknown file)", 0, "(unknown function)", None
         while hasattr(f, "f_code"):
             co = f.f_code
             filename = os.path.normcase(co.co_filename)
             if filename == _srcfile or filename == __file__:
                 f = f.f_back
                 continue
-            rv = (co.co_filename, f.f_lineno, co.co_name)
+            rv = (co.co_filename, f.f_lineno, co.co_name, None)
             break
+
         return rv
-
-    def _log(self, *args, **kwargs):
-        """Append action_id if available to the extra."""
-        if self.action_id is not None:
-            extra = kwargs.get("extra", {})
-            if "action_id" not in extra:
-                # FIXME: Get real action_id instead of logger/current one
-                extra["action_id"] = _get_action_id()
-                kwargs["extra"] = extra
-        return super()._log(*args, **kwargs)
-
-
-# Action logging -------------------------------------------------------
-
-pid = os.getpid()
-action_id = 0
-
-
-def _get_action_id():
-    return "%d.%d" % (pid, action_id)
-
-
-def start_action_logging():
-    """Configure logging for a new action
-
-    Returns:
-        The new action id
-
-    """
-    global action_id
-    action_id += 1
-
-    return _get_action_id()
-
-
-def getActionLogger(name=None, logger=None, action_id=None):
-    """Get the logger adapter for an action
-
-    Return a logger for the specified name - or use given logger - and
-    optionally for a given action id, retrieving it if necessary.
-
-    Either a name or a logger must be specified.
-
-    """
-    if not name and not logger:
-        raise ValueError("Either a name or a logger must be specified")
-
-    logger = logger or getLogger(name)
-    logger.action_id = action_id if action_id else _get_action_id()
-    return logger
-
-
-class ActionFilter:
-
-    """Extend log record for an optionnal action
-
-    Filter a given record and look for an `action_id` key. If it is not found
-    and `strict` is True, the record will not be logged. Otherwise, the key
-    specified by `message_key` will be added to the record, containing the
-    message formatted for the action or just the original one.
-
-    """
-
-    def __init__(self, message_key="fmessage", strict=False):
-        self.message_key = message_key
-        self.strict = strict
-
-    def filter(self, record):
-        msg = record.getMessage()
-        action_id = record.__dict__.get("action_id", None)
-        if action_id is not None:
-            msg = "[{:s}] {:s}".format(action_id, msg)
-        elif self.strict:
-            return False
-        record.__dict__[self.message_key] = msg
-        return True

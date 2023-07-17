@@ -19,7 +19,6 @@ from moulinette.core import (
     MoulinetteValidationError,
 )
 from moulinette.interfaces import BaseActionsMapParser
-from moulinette.utils.log import start_action_logging
 from moulinette.utils.filesystem import read_yaml
 
 logger = logging.getLogger("moulinette.actionsmap")
@@ -398,8 +397,6 @@ class ActionsMap:
 
         self.from_cache = False
 
-        logger.debug("loading actions map")
-
         actionsmap_yml_dir = os.path.dirname(actionsmap_yml)
         actionsmap_yml_file = os.path.basename(actionsmap_yml)
         actionsmap_yml_stat = os.stat(actionsmap_yml)
@@ -562,17 +559,7 @@ class ActionsMap:
                 logger.exception(error_message)
                 raise MoulinetteError(error_message, raw_msg=True)
             else:
-                log_id = start_action_logging()
-                if logger.isEnabledFor(logging.DEBUG):
-                    # Log arguments in debug mode only for safety reasons
-                    logger.debug(
-                        "processing action [%s]: %s with args=%s",
-                        log_id,
-                        full_action_name,
-                        arguments,
-                    )
-                else:
-                    logger.debug("processing action [%s]: %s", log_id, full_action_name)
+                logger.debug("processing action '%s'", full_action_name)
 
                 # Load translation and process the action
                 start = time()
@@ -580,7 +567,7 @@ class ActionsMap:
                     return func(**arguments)
                 finally:
                     stop = time()
-                    logger.debug("action [%s] executed in %.3fs", log_id, stop - start)
+                    logger.debug("action executed in %.3fs", stop - start)
 
     # Private methods
 
@@ -598,7 +585,6 @@ class ActionsMap:
 
         """
 
-        logger.debug("building parser...")
         start = time()
 
         interface_type = top_parser.interface
@@ -717,5 +703,4 @@ class ActionsMap:
                     else:
                         action_parser.want_to_take_lock = True
 
-        logger.debug("building parser took %.3fs", time() - start)
         return top_parser

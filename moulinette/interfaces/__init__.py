@@ -33,8 +33,7 @@ class BaseActionsMapParser:
     """
 
     def __init__(self, parent=None, **kwargs):
-        if not parent:
-            logger.debug("initializing base actions map parser for %s", self.interface)
+        pass
 
     # Virtual properties
     # Each parser classes must implement these properties.
