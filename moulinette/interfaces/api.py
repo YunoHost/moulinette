@@ -388,7 +388,7 @@ class _ActionsMapPlugin:
 
         try:
             authenticator.get_session_cookie()
-        except KeyError:
+        except Exception:
             raise HTTPResponse(m18n.g("not_logged_in"), 401)
         else:
             # Delete cookie and clean the session
