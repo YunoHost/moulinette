@@ -312,6 +312,9 @@ class _ActionsMapPlugin:
             return value
 
         def wrapper(*args, **kwargs):
+            if request.get_header("Content-Type") == "application/json":
+                return callback((request.method, context.rule), request.json)
+
             params = kwargs
             # Format boolean params
             for a in args:
