@@ -387,6 +387,7 @@ class _ActionsMapPlugin:
         try:
             session_infos = authenticator.get_session_cookie()
         except Exception:
+            authenticator.delete_session_cookie()
             msg = m18n.g("authentication_required")
             raise HTTPResponse(msg, 401)
 
