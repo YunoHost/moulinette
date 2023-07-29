@@ -53,7 +53,7 @@ class Moulinette:
 
 
 # Easy access to interfaces
-def api(host="localhost", port=80, routes={}, actionsmap=None, locales_dir=None):
+def api(host="localhost", port=80, routes={}, actionsmap=None, locales_dir=None, allowed_cors_origins=[]):
     """Web server (API) interface
 
     Run a HTTP server with the moulinette for an API usage.
@@ -73,6 +73,7 @@ def api(host="localhost", port=80, routes={}, actionsmap=None, locales_dir=None)
         Api(
             routes=routes,
             actionsmap=actionsmap,
+            allowed_cors_origins=allowed_cors_origins,
         ).run(host, port)
     except MoulinetteError as e:
         import logging
