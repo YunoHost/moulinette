@@ -272,13 +272,14 @@ class _ActionsMapPlugin:
             name="login",
             method="POST",
             callback=self.login,
-            skip=["actionsmap"],
+            skip=[filter_csrf, "actionsmap"],
         )
         app.route(
             "/logout",
             name="logout",
             method="GET",
             callback=self.logout,
+            # No need to bypass CSRF here because filter allows GET requests
             skip=["actionsmap"],
         )
 
@@ -362,9 +363,12 @@ class _ActionsMapPlugin:
             credentials = request.json["credentials"]
             profile = request.json.get("profile", self.actionsmap.default_authentication)
         else:
-            if "credentials" not in request.params:
+            if "credentials" in request.params:
+                credentials = request.params["credentials"]
+            elif "username" in request.params and "password" in request.params:
+                credentials = request.params["username"] + ":" + request.params["password"]
+            else:
                 raise HTTPResponse("Missing credentials parameter", 400)
-            credentials = request.params["credentials"]
 
             profile = request.params.get("profile", self.actionsmap.default_authentication)
 
