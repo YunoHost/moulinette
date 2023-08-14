@@ -13,7 +13,7 @@ from gevent import sleep
 from gevent.queue import Queue
 from geventwebsocket import WebSocketError
 
-from bottle import request, response, Bottle, HTTPResponse, FileUpload
+from bottle import redirect, request, response, Bottle, HTTPResponse, FileUpload
 from bottle import abort
 
 from moulinette import m18n, Moulinette
@@ -380,7 +380,11 @@ class _ActionsMapPlugin:
             raise HTTPResponse(e.strerror, 401)
         else:
             authenticator.set_session_cookie(auth_infos)
-            return m18n.g("logged_in")
+            referer = request.get_header("Referer")
+            if "referer_redirect" in request.params and referer:
+                redirect(referer)
+            else:
+                return m18n.g("logged_in")
 
     # This is called before each time a route is going to be processed
     def authenticate(self, authenticator):
@@ -404,7 +408,11 @@ class _ActionsMapPlugin:
         else:
             # Delete cookie and clean the session
             authenticator.delete_session_cookie()
-            return m18n.g("logged_out")
+            referer = request.get_header("Referer")
+            if "referer_redirect" in request.params and referer:
+                redirect(referer)
+            else:
+                return m18n.g("logged_in")
 
     def messages(self):
         """Listen to the messages WebSocket stream
