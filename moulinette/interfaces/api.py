@@ -30,7 +30,7 @@ from moulinette.interfaces import (
 )
 from moulinette.utils import log
 
-logger = log.getLogger("moulinette.interface.api")
+logger = logging.getLogger("moulinette.interface.api")
 
 
 # API helpers ----------------------------------------------------------
