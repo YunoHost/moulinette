@@ -180,7 +180,7 @@ class TestAuthAPI:
 
     def test_request_arg_without_action(self, moulinette_webapi, caplog, mocker):
         self.login(moulinette_webapi)
-        moulinette_webapi.get("/test-auth", status=404)
+        moulinette_webapi.get("/test-auth", status=405)
 
 
 class TestAuthCLI:
