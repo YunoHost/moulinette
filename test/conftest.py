@@ -46,7 +46,7 @@ def logging_configuration(moulinette):
                 "format": "%(asctime)-15s %(levelname)-8s %(name)s %(funcName)s - %(fmessage)s"  # noqa
             },
         },
-        "filters": {"action": {"()": "moulinette.utils.log.ActionFilter"}},
+        "filters": {},
         "handlers": {
             "api": {
                 "level": level,
