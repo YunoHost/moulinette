@@ -312,6 +312,9 @@ class _ActionsMapPlugin:
             return value
 
         def wrapper(*args, **kwargs):
+            if request.get_header("Content-Type") == "application/json":
+                return callback((request.method, context.rule), request.json)
+
             params = kwargs
             # Format boolean params
             for a in args:
@@ -353,11 +356,18 @@ class _ActionsMapPlugin:
 
         """
 
-        if "credentials" not in request.params:
-            raise HTTPResponse("Missing credentials parameter", 400)
-        credentials = request.params["credentials"]
+        if request.get_header("Content-Type") == "application/json":
+            if "credentials" not in request.json:
+                raise HTTPResponse("Missing credentials parameter", 400)
+            credentials = request.json["credentials"]
+            profile = request.json.get("profile", self.actionsmap.default_authentication)
+        else:
+            if "credentials" not in request.params:
+                raise HTTPResponse("Missing credentials parameter", 400)
+            credentials = request.params["credentials"]
 
-        profile = request.params.get("profile", self.actionsmap.default_authentication)
+            profile = request.params.get("profile", self.actionsmap.default_authentication)
+
         authenticator = self.actionsmap.get_authenticator(profile)
 
         try:
@@ -377,6 +387,7 @@ class _ActionsMapPlugin:
         try:
             session_infos = authenticator.get_session_cookie()
         except Exception:
+            authenticator.delete_session_cookie()
             msg = m18n.g("authentication_required")
             raise HTTPResponse(msg, 401)
 
@@ -707,8 +718,10 @@ class Interface:
 
     type = "api"
 
-    def __init__(self, routes={}, actionsmap=None):
+    def __init__(self, routes={}, actionsmap=None, allowed_cors_origins=[]):
         actionsmap = ActionsMap(actionsmap, ActionsMapParser())
+
+        self.allowed_cors_origins = allowed_cors_origins
 
         # Attempt to retrieve log queues from an APIQueueHandler
         handler = log.getHandlersByClass(APIQueueHandler, limit=1)
@@ -719,11 +732,18 @@ class Interface:
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
 
-        # Wrapper which sets proper header
-        def apiheader(callback):
+        def cors(callback):
             def wrapper(*args, **kwargs):
-                response.set_header("Access-Control-Allow-Origin", "*")
-                return callback(*args, **kwargs)
+                r = callback(*args, **kwargs)
+                origin = request.headers.environ.get("HTTP_ORIGIN", "")
+                if origin and origin in self.allowed_cors_origins:
+                    resp = r if isinstance(r, HTTPResponse) else response
+                    resp.headers['Access-Control-Allow-Origin'] = origin
+                    resp.headers['Access-Control-Allow-Methods'] = 'GET, HEAD, POST, PUT, OPTIONS, DELETE'
+                    resp.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+                    resp.headers['Access-Control-Allow-Credentials'] = 'true'
+
+                return r
 
             return wrapper
 
@@ -732,7 +752,7 @@ class Interface:
             def wrapper(*args, **kwargs):
                 try:
                     locale = request.params.pop("locale")
-                except KeyError:
+                except (KeyError, ValueError):
                     locale = m18n.default_locale
                 m18n.set_locale(locale)
                 return callback(*args, **kwargs)
@@ -741,7 +761,7 @@ class Interface:
 
         # Install plugins
         app.install(filter_csrf)
-        app.install(apiheader)
+        app.install(cors)
         app.install(api18n)
         actionsmapplugin = _ActionsMapPlugin(actionsmap, log_queues)
         app.install(actionsmapplugin)
@@ -749,6 +769,12 @@ class Interface:
         self.authenticate = actionsmapplugin.authenticate
         self.display = actionsmapplugin.display
         self.prompt = actionsmapplugin.prompt
+
+        def handle_options():
+            return HTTPResponse("", 204)
+
+        app.route('/<:re:.*>', method="OPTIONS",
+                  callback=handle_options, skip=["actionsmap"])
 
         # Append additional routes
         # TODO: Add optional authentication to those routes?
