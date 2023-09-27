@@ -6,7 +6,6 @@ from logging import (
     addLevelName,
     setLoggerClass,
     Logger,
-    getLogger,
     NOTSET,  # noqa
     DEBUG,
     INFO,

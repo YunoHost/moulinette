@@ -585,8 +585,6 @@ class ActionsMap:
 
         """
 
-        start = time()
-
         interface_type = top_parser.interface
 
         # If loading from cache, extra were already checked when cache was
