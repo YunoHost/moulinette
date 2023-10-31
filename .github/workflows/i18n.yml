@@ -8,7 +8,7 @@ jobs:
     name: Autoreformat locale files
     runs-on: ubuntu-latest
     steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
         - name: Apply reformating scripts
           id: action_reformat
           run: |
