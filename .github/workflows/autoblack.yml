@@ -8,7 +8,7 @@ jobs:
     name: Check / auto apply black
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check files using the black formatter
         uses: rickstaa/action-black@v1
         id: action_black
