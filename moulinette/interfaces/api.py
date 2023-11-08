@@ -734,7 +734,11 @@ class Interface:
 
         def cors(callback):
             def wrapper(*args, **kwargs):
-                r = callback(*args, **kwargs)
+                try:
+                    r = callback(*args, **kwargs)
+                except HTTPResponse as e:
+                    r = e
+
                 origin = request.headers.environ.get("HTTP_ORIGIN", "")
                 if origin and origin in self.allowed_cors_origins:
                     resp = r if isinstance(r, HTTPResponse) else response
