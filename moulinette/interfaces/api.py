@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import sys
 import re
 import errno
 import logging
@@ -471,6 +471,7 @@ class _ActionsMapPlugin:
 
             tb = traceback.format_exc()
             logs = {"route": _route, "arguments": arguments, "traceback": tb}
+            print(tb, file=sys.stderr)
             return HTTPResponse(json_encode(logs), 500)
         else:
             return format_for_response(ret)
