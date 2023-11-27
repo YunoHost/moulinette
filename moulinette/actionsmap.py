@@ -464,7 +464,7 @@ class ActionsMap:
 
         # Load and initialize the authenticator module
         auth_module = f"{self.namespace}.authenticators.{auth_method}"
-        logger.debug(f"Loading auth module {auth_module}")
+        #logger.debug(f"Loading auth module {auth_module}")
         try:
             mod = import_module(auth_module)
         except ImportError as e:
