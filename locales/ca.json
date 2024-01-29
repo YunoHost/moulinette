@@ -1,5 +1,5 @@
 {
-    "argument_required": "Es requereix l'argument {argument}",
+    "argument_required": "Es requereix l'argument «{argument}»",
     "authentication_required": "Es requereix autenticació",
     "confirm": "Confirmar{prompt}",
     "deprecated_command": "{prog}{command}és obsolet i es desinstal·larà en el futur",
@@ -42,5 +42,6 @@
     "corrupted_toml": "El fitxer TOML ha estat corromput en la lectura des de {ressource} (motiu: {error})",
     "warn_the_user_about_waiting_lock": "Hi ha una altra ordre de YunoHost en execució, s'executarà aquesta ordre un cop l'anterior hagi acabat",
     "warn_the_user_about_waiting_lock_again": "Encara en espera…",
-    "warn_the_user_that_lock_is_acquired": "L'altra ordre tot just ha acabat, ara s'executarà aquesta ordre"
+    "warn_the_user_that_lock_is_acquired": "L'altra ordre tot just ha acabat, ara s'executarà aquesta ordre",
+    "edit_text_question": "{}. Edita aquest text ? [yN]: "
 }
