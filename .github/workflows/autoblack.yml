@@ -8,16 +8,16 @@ jobs:
     name: Check / auto apply black
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check files using the black formatter
-        uses: rickstaa/action-black@v1
-        id: action_black
+        uses: psf/black@v24
+        id: black
         with:
           black_args: "."
         continue-on-error: true
       - name: Create Pull Request
         if: steps.action_black.outputs.is_formatted == 'true'
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "Format Python code with Black"
