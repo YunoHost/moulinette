@@ -10,13 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check files using the black formatter
-        uses: psf/black@v24
+        uses: psf/black@stable
         id: black
         with:
           black_args: "."
         continue-on-error: true
       - name: Create Pull Request
-        if: steps.action_black.outputs.is_formatted == 'true'
+        if: steps.black.outputs.is_formatted == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
