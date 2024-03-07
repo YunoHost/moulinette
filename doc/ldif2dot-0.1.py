@@ -200,4 +200,4 @@ if __name__ == '__main__':
     else:
         name = '<stdin>'
         file = sys.stdin
-    print Converter().parse(file, name)
+    print(Converter().parse(file, name))
