@@ -13,7 +13,7 @@ jobs:
         uses: psf/black@stable
         id: black
         with:
-          black_args: "."
+          options: "."
         continue-on-error: true
       - name: Create Pull Request
         if: steps.black.outputs.is_formatted == 'true'
