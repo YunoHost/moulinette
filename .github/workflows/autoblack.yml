@@ -2,7 +2,7 @@ name: Check / auto apply Black
 on:
   push:
       branches:
-          - dev
+          - autoblack-diff
 jobs:
   black:
     name: Check / auto apply black
