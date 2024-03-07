@@ -50,7 +50,7 @@ def monkey_get_action_name(argument):
 
 argparse._get_action_name = monkey_get_action_name
 
-logger = log.getLogger("moulinette.cli")
+logger = logging.getLogger("moulinette.cli")
 
 
 # CLI helpers ----------------------------------------------------------
@@ -235,28 +235,26 @@ class TTYHandler(logging.StreamHandler):
         log.CRITICAL: "red",
     }
 
-    def __init__(self, message_key="fmessage"):
+    def __init__(self, message_key="message_with_color"):
         logging.StreamHandler.__init__(self)
         self.message_key = message_key
 
     def format(self, record):
         """Enhance message with level and colors if supported."""
         msg = record.getMessage()
+        level = record.levelname
+        level_with_color = level
         if self.supports_color():
-            level = ""
-            if self.level <= log.DEBUG:
-                # add level name before message
-                level = "%s " % record.levelname
-            elif record.levelname in ["SUCCESS", "WARNING", "ERROR", "INFO"]:
-                # add translated level name before message
-                level = "%s " % m18n.g(record.levelname.lower())
+            if self.level > log.DEBUG and record.levelname in ["SUCCESS", "WARNING", "ERROR", "INFO"]:
+                level = m18n.g(record.levelname.lower())
             color = self.LEVELS_COLOR.get(record.levelno, "white")
-            msg = "{}{}{}{}".format(colors_codes[color], level, END_CLI_COLOR, msg)
+            level_with_color = f"{colors_codes[color]}{level}{END_CLI_COLOR}"
+            if self.level == log.DEBUG:
+                level_with_color = level_with_color + " " * max(0, 7 - len(level))
         if self.formatter:
-            # use user-defined formatter
-            record.__dict__[self.message_key] = msg
+            record.__dict__["level_with_color"] = level_with_color
             return self.formatter.format(record)
-        return msg
+        return level_with_color + " " + msg
 
     def emit(self, record):
         # set proper stream first

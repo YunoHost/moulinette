@@ -82,7 +82,7 @@ def call_async_output(args, callback, **kwargs):
         while p.poll() is None:
             while True:
                 try:
-                    callback, message = log_queue.get(True, 1)
+                    callback, message = log_queue.get(True, 0.1)
                 except queue.Empty:
                     break
 
