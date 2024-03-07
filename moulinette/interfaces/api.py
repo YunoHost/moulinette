@@ -66,14 +66,12 @@ def filter_csrf(callback):
 
 
 class LogQueues(dict):
-
     """Map of session ids to queue."""
 
     pass
 
 
 class APIQueueHandler(logging.Handler):
-
     """
     A handler class which store logging records into a queue, to be used
     and retrieved from the API.
@@ -109,7 +107,6 @@ class APIQueueHandler(logging.Handler):
 
 
 class _HTTPArgumentParser:
-
     """Argument parser for HTTP requests
 
     Object for parsing HTTP requests into Python objects. It is based
@@ -547,7 +544,6 @@ def format_for_response(content):
 
 
 class ActionsMapParser(BaseActionsMapParser):
-
     """Actions map's Parser for the API
 
     Provide actions map parsing methods for a CLI usage. The parser for
@@ -691,7 +687,6 @@ class ActionsMapParser(BaseActionsMapParser):
 
 
 class Interface:
-
     """Application Programming Interface for the moulinette
 
     Initialize a HTTP server which serves the API connected to a given

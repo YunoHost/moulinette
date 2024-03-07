@@ -43,7 +43,7 @@ class Element:
 
     def __repr__(self):
         """Returns a basic state dump."""
-        return 'Element' + str(self.index) + str(self.attributes)
+        return "Element" + str(self.index) + str(self.attributes)
 
     def add(self, line):
         """Adds a line of input to the object.
@@ -57,10 +57,10 @@ class Element:
         """
 
         def _valid(line):
-            return line and not line.startswith('#')
+            return line and not line.startswith("#")
 
         def _interesting(line):
-            return line != 'objectClass: top'
+            return line != "objectClass: top"
 
         if self.is_valid() and not _valid(line):
             return True
@@ -70,11 +70,11 @@ class Element:
 
     def is_valid(self):
         """Indicates whether a valid entry has been read."""
-        return len(self.attributes) != 0 and self.attributes[0].startswith('dn: ')
+        return len(self.attributes) != 0 and self.attributes[0].startswith("dn: ")
 
     def dn(self):
         """Returns the DN for this entry."""
-        if self.attributes[0].startswith('dn: '):
+        if self.attributes[0].startswith("dn: "):
             return self.attributes[0][4:]
         else:
             return None
@@ -86,12 +86,12 @@ class Element:
         Element objects) and returns a string which declares a DOT edge, or an
         empty string, if no parent was found.
         """
-        dn_components = self.dn().split(',')
+        dn_components = self.dn().split(",")
         for i in range(1, len(dn_components) + 1):
-            parent = ','.join(dn_components[i:])
+            parent = ",".join(dn_components[i:])
             if parent in dnmap:
-                return '  n%d->n%d\n' % (dnmap[parent].index, self.index)
-        return ''
+                return "  n%d->n%d\n" % (dnmap[parent].index, self.index)
+        return ""
 
     def dot(self, dnmap):
         """Returns a text representation of the node and perhaps its parent edge.
@@ -99,6 +99,7 @@ class Element:
         Args:
          - dnmap: dictionary mapping dn names to Element objects
         """
+
         def _format(attributes):
             result = [TITLE_ENTRY_TEMPALTE % attributes[0]]
 
@@ -107,7 +108,12 @@ class Element:
 
             return result
 
-        return TABLE_TEMPLATE % (self.index, '\n    '.join(_format(self.attributes)), self.edge(dnmap))
+        return TABLE_TEMPLATE % (
+            self.index,
+            "\n    ".join(_format(self.attributes)),
+            self.edge(dnmap),
+        )
+
 
 class Converter:
     """An LDIF to DOT converter."""
@@ -144,7 +150,11 @@ class Converter:
                 e = Element()
         if e.is_valid():
             self._append(e)
-        return (BASE_TEMPLATE % (name, ''.join([e.dot(self.dnmap) for e in self.elements])))
+        return BASE_TEMPLATE % (
+            name,
+            "".join([e.dot(self.dnmap) for e in self.elements]),
+        )
+
 
 BASE_TEMPLATE = """\
 strict digraph "%s" {
@@ -191,13 +201,13 @@ ENTRY_TEMPALTE = """\
 """
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) > 2:
-        raise 'Expected at most one argument.'
+        raise "Expected at most one argument."
     elif len(sys.argv) == 2:
         name = sys.argv[1]
-        file = open(sys.argv[1], 'r')
+        file = open(sys.argv[1], "r")
     else:
-        name = '<stdin>'
+        name = "<stdin>"
         file = sys.stdin
     print(Converter().parse(file, name))
