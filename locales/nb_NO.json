@@ -7,7 +7,7 @@
     "unknown_user": "Ukjent '{user}' bruker",
     "unknown_group": "Ukjent '{group}' gruppe",
     "unable_authenticate": "Kunne ikke identitetsbekrefte",
-    "success": "Vellykket.",
+    "success": "Vellykket!",
     "operation_interrupted": "Operasjon forstyrret",
     "not_logged_in": "Du er ikke innlogget",
     "logged_in": "Innlogget",
