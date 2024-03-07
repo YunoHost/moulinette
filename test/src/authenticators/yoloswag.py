@@ -13,7 +13,6 @@ session_secret = random_ascii()
 
 
 class Authenticator(BaseAuthenticator):
-
     """Dummy authenticator used for tests"""
 
     name = "yoloswag"

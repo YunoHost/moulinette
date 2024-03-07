@@ -18,7 +18,6 @@ def during_unittests_run():
 
 
 class Translator:
-
     """Internationalization class
 
     Provide an internationalization mechanism based on JSON files to
@@ -173,7 +172,6 @@ class Translator:
 
 
 class Moulinette18n:
-
     """Internationalization service for the moulinette
 
     Manage internationalization and access to the proper keys translation
@@ -270,7 +268,6 @@ class MoulinetteAuthenticationError(MoulinetteError):
 
 
 class MoulinetteLock:
-
     """Locker for a moulinette instance
 
     It provides a lock mechanism for a given moulinette instance. It can
