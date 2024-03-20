@@ -16,7 +16,7 @@
     "operation_interrupted": "Opération interrompue",
     "password": "Mot de passe",
     "pattern_not_match": "Ne correspond pas au motif",
-    "root_required": "Vous devez être admin pour exécuter cette action",
+    "root_required": "Vous devez avoir les droits d'administration pour exécuter cette action",
     "server_already_running": "Un serveur est déjà en cours d'exécution sur ce port",
     "success": "Succès !",
     "unable_authenticate": "Impossible de vous authentifier",
