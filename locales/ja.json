@@ -12,7 +12,7 @@
     "download_unknown_error": "{url}からデータをダウンロードする際のエラー:{error}",
     "download_bad_status_code": "{url}は状態コード {code} を返しました",
     "warn_the_user_about_waiting_lock": "別のYunoHostコマンドが現在実行されているため、完了するのを待っています",
-    "warn_the_user_about_waiting_lock_again": "まだ待っています...",
+    "warn_the_user_about_waiting_lock_again": "まだ待っています…",
     "warn_the_user_that_lock_is_acquired": "他のコマンドが完了しました。このコマンドが開始されました",
     "file_not_exist": "ファイルが存在しません: '{path}'",
     "folder_exists": "フォルダは既に存在します: '{path}'",
@@ -41,7 +41,7 @@
     "error_writing_file": "ファイル{file}書き込み時のエラー:{error}",
     "error_removing": "{path}を削除するときのエラー:{error}",
     "error_changing_file_permissions": "{path}のアクセス許可変更時のエラー: {error}",
-    "invalid_url": "{url}に接続できませんでした...サービスがダウンしているか、IPv4 / IPv6でインターネットに正しく接続されていない可能性があります。",
+    "invalid_url": "{url}に接続できませんでした…サービスがダウンしているか、IPv4 / IPv6でインターネットに正しく接続されていない可能性があります。",
     "download_ssl_error": "{url}への接続時のSSLエラー",
     "download_timeout": "{url}は応答に時間がかかりすぎたため、あきらめました。"
 }

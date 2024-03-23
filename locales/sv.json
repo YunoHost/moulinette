@@ -1,5 +1,5 @@
 {
-    "warn_the_user_about_waiting_lock_again": "Väntar fortfarande …",
+    "warn_the_user_about_waiting_lock_again": "Väntar fortfarande…",
     "download_bad_status_code": "{url} svarade med statuskod {code}",
     "download_timeout": "Gav upp eftersom {url} tog för lång tid på sig att svara.",
     "download_ssl_error": "Ett SSL-fel påträffades vid anslutning till {url}",

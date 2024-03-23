@@ -1,9 +1,9 @@
 {
     "password": "Пароль",
     "logged_out": "Ви вийшли з системи",
-    "invalid_url": "Помилка з'єднання із {url}... можливо, служба не працює, або ви неправильно під'єднані до Інтернету в IPv4/IPv6.",
+    "invalid_url": "Помилка з'єднання із {url}… можливо, служба не працює, або ви неправильно під'єднані до Інтернету в IPv4/IPv6.",
     "warn_the_user_that_lock_is_acquired": "Інша команда щойно завершилася, тепер запускаємо цю команду",
-    "warn_the_user_about_waiting_lock_again": "Досі очікуємо...",
+    "warn_the_user_about_waiting_lock_again": "Досі очікуємо…",
     "warn_the_user_about_waiting_lock": "Зараз запускається ще одна команда YunoHost, ми чекаємо її завершення, перш ніж запустити цю",
     "download_bad_status_code": "{url} повернув код стану {code}",
     "download_unknown_error": "Помилка під час завантаження даних з {url}: {error}",

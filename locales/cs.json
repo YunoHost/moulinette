@@ -2,7 +2,7 @@
     "password": "Heslo",
     "logged_out": "Jste odhlášen/a",
     "warn_the_user_that_lock_is_acquired": "Předchozí operace dokončena, nyní spouštíme tuto",
-    "warn_the_user_about_waiting_lock_again": "Stále čekáme...",
+    "warn_the_user_about_waiting_lock_again": "Stále čekáme…",
     "warn_the_user_about_waiting_lock": "Jiná YunoHost operace právě probíhá, před spuštěním této čekáme na její dokončení",
     "download_bad_status_code": "{url} vrátil stavový kód {code}",
     "download_unknown_error": "Chyba při stahování dat z {url}: {error}",
