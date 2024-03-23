@@ -14,7 +14,7 @@
     "argument_required": "استدلال '{argument}' ضروری است",
     "password": "کلمه عبور",
     "warn_the_user_that_lock_is_acquired": "فرمان دیگر به تازگی تکمیل شده است ، اکنون این دستور را شروع کنید",
-    "warn_the_user_about_waiting_lock_again": "هنوز در انتظار...",
+    "warn_the_user_about_waiting_lock_again": "هنوز در انتظار…",
     "warn_the_user_about_waiting_lock": "یکی دیگر از دستورات YunoHost در حال اجرا است ، ما منتظر هستیم تا قبل از اجرای این دستور به پایان برسد",
     "download_bad_status_code": "{url} کد وضعیّت بازگشتی {code}",
     "download_unknown_error": "خطا هنگام بارگیری داده ها از {url}: {error}",
