@@ -33,7 +33,7 @@
     "error_writing_file": "Errore durante la scrittura del file {file}: {error}",
     "error_removing": "Errore durante la rimozione {path}: {error}",
     "error_changing_file_permissions": "Errore durante il cambio di permessi per {path}: {error}",
-    "invalid_url": "Fallita connessione a {url}... magari il servizio è down, o non sei connesso correttamente ad internet con IPv4/IPv6.",
+    "invalid_url": "Fallita connessione a {url}… magari il servizio è down, o non sei connesso correttamente ad internet con IPv4/IPv6.",
     "download_ssl_error": "Errore SSL durante la connessione a {url}",
     "download_timeout": "{url} ci ha messo troppo a rispondere, abbandonato.",
     "download_unknown_error": "Errore durante il download di dati da {url} : {error}",
