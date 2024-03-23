@@ -38,7 +38,7 @@
     "download_unknown_error": "Fout tijdens het downloaden van data van {url}: {error}",
     "download_bad_status_code": "{url} stuurt status code {code}",
     "warn_the_user_that_lock_is_acquired": "De andere opdracht is zojuist voltooid; nu wordt nu deze opdracht gestart",
-    "warn_the_user_about_waiting_lock_again": "Nog steeds aan het wachten...",
+    "warn_the_user_about_waiting_lock_again": "Nog steeds aan het wachten…",
     "warn_the_user_about_waiting_lock": "Een ander YunoHost commando wordt uitgevoerd, we wachten tot het gedaan is alovrens dit te starten",
     "corrupted_toml": "Ongeldige TOML werd gelezen van {ressource} (reason: {error})",
     "corrupted_yaml": "Ongeldig YAML bestand op {ressource} (reden: {error})",
