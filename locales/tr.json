@@ -25,7 +25,7 @@
     "download_unknown_error": "{url} adresinden veri indirilirken hata oluştu: {error}",
     "download_timeout": "{url} yanıtlaması çok uzun sürdü, pes etti.",
     "download_ssl_error": "{url} ağına bağlanırken SSL hatası",
-    "invalid_url": "{url} bağlanılamadı... URL çalışmıyor olabilir veya IPv4/IPv6 internete düzgün bir şekilde bağlı değilsiniz.",
+    "invalid_url": "{url} bağlanılamadı… URL çalışmıyor olabilir veya IPv4/IPv6 internete düzgün bir şekilde bağlı değilsiniz.",
     "error_changing_file_permissions": "{path} için izinler değiştirilirken hata oluştu: {error}",
     "error_removing": "{path} kaldırılırken hata oluştu: {error}",
     "error_writing_file": "{file} dosyası yazılırken hata oluştu: {error}",
