@@ -1,7 +1,7 @@
 {
     "argument_required": "Es requereix l'argument «{argument}»",
     "authentication_required": "Es requereix autenticació",
-    "confirm": "Confirmar{prompt}",
+    "confirm": "Confirmar {prompt}",
     "deprecated_command": "{prog}{command}és obsolet i es desinstal·larà en el futur",
     "deprecated_command_alias": "{prog}{old}és obsolet i es desinstal·larà en el futur, utilitzeu {prog}{new}en el seu lloc",
     "error": "Error:",
@@ -33,7 +33,7 @@
     "error_writing_file": "Error al escriure el fitxer {file}: {error}",
     "error_removing": "Error al eliminar {path}: {error}",
     "error_changing_file_permissions": "Error al canviar els permisos per {path}: {error}",
-    "invalid_url": "URL invàlid {url} (el lloc web existeix?)",
+    "invalid_url": "No s'ha pogut connectar a {url}… pot ser que el servei estigui caigut, o que no hi hagi connexió a Internet amb IPv4/IPv6.",
     "download_ssl_error": "Error SSL al connectar amb {url}",
     "download_timeout": "{url} ha tardat massa en respondre, s'ha deixat d'esperar.",
     "download_unknown_error": "Error al baixar dades des de {url}: {error}",
