@@ -20,7 +20,7 @@
     "download_unknown_error": "خطا هنگام بارگیری داده ها از {url}: {error}",
     "download_timeout": "پاسخ {url} خیلی طول کشید ، منصرف شو.",
     "download_ssl_error": "خطای SSL هنگام اتصال به {url}",
-    "invalid_url": "اتصال به {url} انجام نشد ... شاید سرویس خاموش باشد یا در IPv4/IPv6 به درستی به اینترنت متصل نشده باشید.",
+    "invalid_url": "اتصال به {url} انجام نشد … شاید سرویس خاموش باشد یا در IPv4/IPv6 به درستی به اینترنت متصل نشده باشید.",
     "error_changing_file_permissions": "خطا هنگام تغییر مجوزهای {path}: {error}",
     "error_removing": "خطا هنگام حذف {path}: {error}",
     "error_writing_file": "خطا هنگام نوشتن فایل {file}: {error}",
