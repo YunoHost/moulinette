@@ -42,6 +42,6 @@
     "error_writing_file": "Errorea {file} fitxategia idazterakoan: {error}",
     "error_removing": "Errorea {path} ezabatzerakoan: {error}",
     "download_bad_status_code": "{url} helbideak {code} egoera kodea agertu du",
-    "invalid_url": "Ezinezkoa izan da {url}-(e)ra konektatzea… agian zerbitzua ez dago martxan, edo zeu ez zaude IPv4/IPv6 bidez ondo konektatuta internetera.",
+    "invalid_url": "{url}-(e)ra konektatzeak huts egin du… agian zerbitzua ez dago martxan, edo ez zaude IPv4/IPv6 bidez ondo konektatuta internetera.",
     "download_timeout": "{url}(e)k denbora gehiegi behar izan du erantzuteko, bertan behera utzi du zerbitzariak."
 }
