@@ -39,7 +39,7 @@
     "corrupted_json": "JSON corrompido lido do {ressource} (motivo: {error})",
     "corrupted_yaml": "YAML corrompido lido do {ressource} (motivo: {error})",
     "warn_the_user_that_lock_is_acquired": "O outro comando acabou de concluir, agora iniciando este comando",
-    "warn_the_user_about_waiting_lock_again": "Ainda esperando...",
+    "warn_the_user_about_waiting_lock_again": "Ainda esperando…",
     "warn_the_user_about_waiting_lock": "Outro comando YunoHost está sendo executado agora, estamos aguardando o término antes de executar este",
     "corrupted_toml": "TOML corrompido lido em {ressource} (motivo: {error})",
     "info": "Informações:",
