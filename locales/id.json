@@ -22,7 +22,7 @@
     "values_mismatch": "Tidak sama",
     "cannot_write_file": "Tidak dapat menyimpan berkas {file} (alasan: {error})",
     "unknown_error_reading_file": "Galat yang tidak diketahui ketika membaca berkas {file} (alasan: {error})",
-    "invalid_url": "Gagal terhubung dengan {url} ... mungkin layanan tersebut sedang tidak berjalan atau Anda tidak terhubung ke internet di IPv4/IPv6.",
+    "invalid_url": "Gagal terhubung dengan {url} … mungkin layanan tersebut sedang tidak berjalan atau Anda tidak terhubung ke internet di IPv4/IPv6.",
     "download_timeout": "{url} memakan waktu yang lama untuk menjawab, menyerah.",
     "download_unknown_error": "Galat ketika mengunduh data dari {url}: {error}",
     "download_bad_status_code": "{url} menjawab dengan kode status {code}",
