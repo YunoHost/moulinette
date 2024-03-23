@@ -16,7 +16,7 @@
     "corrupted_json": "Koruptita JSON legis de {ressource} (Kialo: {error})",
     "unknown_error_reading_file": "Nekonata eraro dum provi legi dosieron {file} (kialo: {error})",
     "cannot_write_file": "Ne povis skribi dosieron {file} (kialo: {error})",
-    "cannot_open_file": "Ne povis malfermi dosieron {file: s} (kialo: {error: s})",
+    "cannot_open_file": "Ne povis malfermi dosieron {file} (kialo: {error})",
     "websocket_request_expected": "Atendis ret-peto",
     "warning": "Averto:",
     "values_mismatch": "Valoroj ne kongruas",
