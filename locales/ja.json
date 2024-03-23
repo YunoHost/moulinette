@@ -41,7 +41,7 @@
     "error_writing_file": "ファイル{file}書き込み時のエラー:{error}",
     "error_removing": "{path}を削除するときのエラー:{error}",
     "error_changing_file_permissions": "{path}のアクセス許可変更時のエラー: {error}",
-    "invalid_url": "{url}に接続できませんでした...サービスがダウンしているか、IPv4 / IPv6でインターネットに正しく接続されていない可能性があります。",
+    "invalid_url": "{url}に接続できませんでした…サービスがダウンしているか、IPv4 / IPv6でインターネットに正しく接続されていない可能性があります。",
     "download_ssl_error": "{url}への接続時のSSLエラー",
     "download_timeout": "{url}は応答に時間がかかりすぎたため、あきらめました。"
 }
