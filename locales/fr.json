@@ -32,7 +32,7 @@
     "error_writing_file": "Erreur en écrivant le fichier {file} : {error}",
     "error_removing": "Erreur lors de la suppression {path} : {error}",
     "error_changing_file_permissions": "Erreur lors de la modification des autorisations pour {path} : {error}",
-    "invalid_url": "Impossible de se connecter à {url}… peut-être que le service est en panne ou que vous n'êtes pas correctement connecté à Internet en IPv4/IPv6.",
+    "invalid_url": "Impossible de se connecter à {url}... peut-être que le service est en panne ou que vous n'êtes pas correctement connecté à Internet en IPv4/IPv6.",
     "download_ssl_error": "Erreur SSL lors de la connexion à {url}",
     "download_timeout": "{url} a pris trop de temps pour répondre : abandon.",
     "download_unknown_error": "Erreur lors du téléchargement des données à partir de {url} : {error}",
@@ -41,7 +41,7 @@
     "info": "Info :",
     "corrupted_toml": "Fichier TOML corrompu en lecture depuis {ressource} (raison : {error})",
     "warn_the_user_about_waiting_lock": "Une autre commande YunoHost est actuellement en cours, nous attendons qu'elle se termine avant de démarrer celle là",
-    "warn_the_user_about_waiting_lock_again": "Toujours en attente…",
+    "warn_the_user_about_waiting_lock_again": "Toujours en attente...",
     "warn_the_user_that_lock_is_acquired": "La commande précédente vient de se terminer, lancement de cette nouvelle commande",
     "edit_text_question": "{}. Modifier ce texte ? [yN] : "
 }
