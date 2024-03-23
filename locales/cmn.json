@@ -40,7 +40,7 @@
     "download_unknown_error": "下载{url}失败：{error}",
     "download_bad_status_code": "{url}返回状态码：{code}",
     "warn_the_user_that_lock_is_acquired": "另一个命令刚刚完成，现在启动此命令",
-    "warn_the_user_about_waiting_lock_again": "仍在等待...",
+    "warn_the_user_about_waiting_lock_again": "仍在等待…",
     "warn_the_user_about_waiting_lock": "目前正在运行另一个YunoHost命令，我们在运行此命令之前等待它完成",
     "corrupted_toml": "从{ressource}读取的TOML已损坏（原因：{error}）",
     "edit_text_question": "{}.编辑此文本？[yN]: "
