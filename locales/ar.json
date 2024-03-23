@@ -32,7 +32,7 @@
     "error_writing_file": "طرأ هناك خطأ أثناء الكتابة في الملف {file}: {error}",
     "error_removing": "خطأ أثناء عملية حذف {path}: {error}",
     "error_changing_file_permissions": "خطأ أثناء عملية تعديل التصريحات لـ {path}: {error}",
-    "invalid_url": "فشل الاتصال بـ {url} ... ربما تكون الخدمة معطلة ، أو أنك غير متصل بشكل صحيح بالإنترنت في IPv4 / IPv6.",
+    "invalid_url": "فشل الاتصال بـ {url}… ربما تكون الخدمة معطلة ، أو أنك غير متصل بشكل صحيح بالإنترنت في IPv4 / IPv6.",
     "download_ssl_error": "خطأ في الاتصال الآمن عبر الـ SSL أثناء محاولة الربط بـ {url}",
     "download_timeout": "{url} استغرق مدة طويلة جدا للإستجابة، فتوقّف.",
     "download_unknown_error": "خطأ أثناء عملية تنزيل البيانات مِن {url} : {error}",
