@@ -36,7 +36,7 @@
     "root_required": "Чтобы выполнить это действие, вы должны иметь права root",
     "corrupted_json": "Повреждённый json получен от {ressource} (причина: {error})",
     "warn_the_user_that_lock_is_acquired": "Другая команда только что завершилась, теперь запускается эта команда",
-    "warn_the_user_about_waiting_lock_again": "Все еще жду...",
+    "warn_the_user_about_waiting_lock_again": "Все еще жду…",
     "warn_the_user_about_waiting_lock": "Сейчас запускается еще одна команда YunoHost, мы ждем ее завершения, прежде чем запустить эту",
     "download_bad_status_code": "{url} вернул код состояния {code}",
     "error_changing_file_permissions": "Ошибка при изменении разрешений для {path}: {error}",
