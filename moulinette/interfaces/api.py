@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 import re
 import errno
 import logging
@@ -314,25 +314,29 @@ class _ActionsMapPlugin:
             for a in args:
                 params[a] = True
 
-            # Append other request params
-            req_params = list(request.params.dict.items())
-            # TODO test special chars in filename
-            req_params += list(request.files.dict.items())
-            for k, v in req_params:
-                v = _format(v)
-                if k not in params.keys():
-                    params[k] = v
-                else:
-                    curr_v = params[k]
-                    # Append param value to the list
-                    if not isinstance(curr_v, list):
-                        curr_v = [curr_v]
-                    if isinstance(v, list):
-                        for i in v:
-                            curr_v.append(i)
+            if request.content_type == "application/json":
+                # Manage in REST with JSON content mode
+                params.update(json.loads(list(request.params.dict.keys())[0]))
+            else:
+                # Append other request params
+                req_params = list(request.params.dict.items())
+                # TODO test special chars in filename
+                req_params += list(request.files.dict.items())
+                for k, v in req_params:
+                    v = _format(v)
+                    if k not in params.keys():
+                        params[k] = v
                     else:
-                        curr_v.append(v)
-                    params[k] = curr_v
+                        curr_v = params[k]
+                        # Append param value to the list
+                        if not isinstance(curr_v, list):
+                            curr_v = [curr_v]
+                        if isinstance(v, list):
+                            for i in v:
+                                curr_v.append(i)
+                        else:
+                            curr_v.append(v)
+                        params[k] = curr_v
 
             # Process the action
             return callback((request.method, context.rule), params)
