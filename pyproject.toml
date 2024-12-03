@@ -40,7 +40,7 @@ dev = [
 requires = ["setuptools", "setuptools-scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
+# [tool.setuptools_scm]
 # version_file = "moulinette/_version.py"
 
 [tool.setuptools]
