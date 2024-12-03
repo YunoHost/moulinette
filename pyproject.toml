@@ -1,0 +1,53 @@
+[project]
+name = "moulinette"
+description = "Prototype interfaces quickly and easily"
+urls = {Homepage = "https://yunohost.org"}
+authors = [
+    {name = "YunoHost Team", email = "contrib@yunohost.org"},
+]
+readme = "README.md"
+license = {text = "AGPL"}
+
+dynamic = ["version"]
+
+requires-python = ">=3.11.0,<3.12"
+
+dependencies = [
+    "psutil",
+    "pytz",
+    "pyyaml",
+    "toml",
+    "gevent-websocket",
+    "bottle",
+    "prompt-toolkit>=3.0",
+    "pygments",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "pytest-env",
+    "pytest-mock",
+    "mock",
+    "requests",
+    "requests-mock",
+    "tox",
+    "webtest",
+]
+
+[build-system]
+requires = ["setuptools", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+# version_file = "moulinette/_version.py"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["moulinette*"]
+
+[tool.setuptools.data-files]
+"share/moulinette/locales" = ["locales/*.json"]
