@@ -11,7 +11,6 @@
     "invalid_argument": "المُعامِل غير صالح '{argument}': {error}",
     "invalid_usage": "إستعمال غير صالح، إستخدم --help لعرض المساعدة",
     "logged_in": "مُتّصل",
-    "logged_out": "تم تسجيل خروجك",
     "not_logged_in": "لم تقم بعدُ بتسجيل دخولك",
     "operation_interrupted": "تم توقيف العملية",
     "password": "كلمة السر",

@@ -11,7 +11,6 @@
     "confirm": "Confirma {prompt}",
     "authentication_required": "Autenticación requerida",
     "argument_required": "O argumento '{argument}' é requerido",
-    "logged_out": "Sesión pechada",
     "password": "Contrasinal",
     "warning": "Aviso:",
     "values_mismatch": "Non concordan os valores",

@@ -1,5 +1,4 @@
 {
-    "logged_out": "Kilépett",
     "password": "Jelszó",
     "download_timeout": "{url} régóta nem válaszol, folyamat megszakítva.",
     "invalid_url": "Helytelen URL: {url} (biztos létezik az oldal?)",

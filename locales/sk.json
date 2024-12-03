@@ -14,7 +14,6 @@
     "invalid_argument": "Nesprávny argument '{argument}': {error}",
     "invalid_usage": "Nesprávne použitie, pridajte --help pre zobrazenie pomocníka",
     "logged_in": "Prihlásený",
-    "logged_out": "Boli ste odhlásený",
     "not_logged_in": "Nie ste prihlásený",
     "operation_interrupted": "Operácia bola prerušená",
     "pattern_not_match": "Nezodpovedá výrazu",

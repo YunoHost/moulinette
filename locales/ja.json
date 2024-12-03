@@ -1,5 +1,4 @@
 {
-    "logged_out": "ログアウトしました",
     "password": "パスワード",
     "argument_required": "引数 '{argument}' が必要です",
     "authentication_required": "認証が必要",

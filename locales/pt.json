@@ -9,7 +9,6 @@
     "invalid_argument": "Argumento inválido '{argument}': {error}",
     "invalid_usage": "Uso invalido, utilizar --help para ver a ajuda",
     "logged_in": "Sessão iniciada",
-    "logged_out": "Sessão terminada",
     "not_logged_in": "Não tem sessão iniciada",
     "operation_interrupted": "Operação cancelada",
     "password": "Senha",

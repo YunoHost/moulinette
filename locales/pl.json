@@ -1,5 +1,4 @@
 {
-    "logged_out": "Wylogowano",
     "password": "Hasło",
     "warn_the_user_that_lock_is_acquired": "Inne polecenie właśnie się zakończyło, teraz uruchamiam to polecenie",
     "warn_the_user_about_waiting_lock_again": "Wciąż czekam…",

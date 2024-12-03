@@ -11,7 +11,6 @@
     "invalid_argument": "Argumento no válido «{argument}»: {error}",
     "invalid_usage": "Uso no válido, utilice --help para ver la ayuda",
     "logged_in": "Sesión iniciada",
-    "logged_out": "Sesión cerrada",
     "not_logged_in": "No ha iniciado sesión",
     "operation_interrupted": "Operación interrumpida",
     "password": "Contraseña",

@@ -11,7 +11,6 @@
     "invalid_argument": "Argument '{argument}' incorrect : {error}",
     "invalid_usage": "Utilisation erronée, utilisez --help pour accéder à l'aide",
     "logged_in": "Connecté",
-    "logged_out": "Déconnecté",
     "not_logged_in": "Vous n'êtes pas connecté",
     "operation_interrupted": "Opération interrompue",
     "password": "Mot de passe",

@@ -6,7 +6,6 @@
     "instance_already_running": "Halihazırda bir YunoHost operasyonu var. Lütfen başka bir tane çalıştırmadan önce bitmesini bekleyin.",
     "invalid_argument": "Geçersiz argüman '{argument}': {error}",
     "logged_in": "Giriş yapıldı",
-    "logged_out": "Çıkış yapıldı",
     "not_logged_in": "Giriş yapmadınız",
     "operation_interrupted": "İşlem yarıda kesildi",
     "password": "Parola",

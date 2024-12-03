@@ -2,7 +2,6 @@
     "argument_required": "Argumen '{argument}' dibutuhkan",
     "authentication_required": "Autentikasi dibutuhkan",
     "deprecated_command": "'{prog} {command}' sudah usang dan akan dihapus nanti",
-    "logged_out": "Berhasil keluar",
     "password": "Kata sandi",
     "deprecated_command_alias": "'{prog} {old}' sudah usang dan akan dihapus nanti, gunakan '{prog} {new}'",
     "info": "Informasi:",

@@ -11,7 +11,6 @@
     "invalid_argument": "अवैध तर्क '{argument}':'{error}'",
     "invalid_usage": "अवैध उपयोग, सहायता देखने के लिए --help साथ लिखे।",
     "logged_in": "लोग्ड इन",
-    "logged_out": "लॉग आउट",
     "not_logged_in": "आप लोग्ड इन नहीं हैं।",
     "operation_interrupted": "कार्य बाधित",
     "password": "पासवर्ड",

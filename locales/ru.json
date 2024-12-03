@@ -9,7 +9,6 @@
     "folder_exists": "Каталог уже существует: '{path}'",
     "invalid_argument": "Неправильный аргумент '{argument}': {error}",
     "logged_in": "Вы вошли",
-    "logged_out": "Вы вышли из системы",
     "not_logged_in": "Вы не вошли в систему",
     "operation_interrupted": "Действие прервано",
     "password": "Пароль",

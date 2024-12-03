@@ -12,7 +12,6 @@
     "invalid_argument": "参数错误{argument}：{error}",
     "invalid_usage": "用法错误，输入 --help 查看帮助信息",
     "logged_in": "登录",
-    "logged_out": "登出",
     "not_logged_in": "您未登录",
     "operation_interrupted": "操作中断",
     "password": "密码",

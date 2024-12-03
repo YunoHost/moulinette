@@ -9,7 +9,6 @@
     "invalid_argument": "Ongeldig argument '{argument}': {error}",
     "invalid_usage": "Ongeldig gebruik, doe --help om de hulptekst te lezen",
     "logged_in": "Ingelogd",
-    "logged_out": "Uitgelogd",
     "not_logged_in": "U bent niet ingelogd",
     "operation_interrupted": "Operatie onderbroken",
     "password": "Wachtwoord",

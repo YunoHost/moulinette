@@ -13,7 +13,6 @@
     "invalid_argument": "Invalid argument '{argument}': {error}",
     "invalid_usage": "Invalid usage, pass --help to see help",
     "logged_in": "Logged in",
-    "logged_out": "Logged out",
     "not_logged_in": "You are not logged in",
     "operation_interrupted": "Operation interrupted",
     "password": "Password",

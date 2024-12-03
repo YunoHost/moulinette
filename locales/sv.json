@@ -18,7 +18,6 @@
     "not_logged_in": "Du är inte inloggad",
     "logged_in": "Inloggad",
     "invalid_argument": "Ogiltig parameter '{argument}': {error}",
-    "logged_out": "Utloggad",
     "info": "Info:",
     "folder_exists": "Katalogen finns redan: '{path}'",
     "file_not_exist": "Filen finns inte: '{path}'",

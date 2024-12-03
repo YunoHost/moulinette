@@ -1,5 +1,4 @@
 {
-    "logged_out": "लग आउट",
     "password": "पासवर्ड",
     "deprecated_command_alias": "'{prog} {old}' अस्वीकृत गरिएको छ र भविष्यमा हटाइनेछ, यसको सट्टा '{prog} {new}' प्रयोग गर्नुहोस्।",
     "deprecated_command": "'{prog} {command}' अस्वीकृत गरिएको छ र भविष्यमा हटाइनेछ",

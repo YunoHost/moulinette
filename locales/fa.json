@@ -41,6 +41,5 @@
     "root_required": "برای انجام این عمل باید کاربر ریشه باشید",
     "pattern_not_match": "با الگو مطابقت ندارد",
     "operation_interrupted": "عملیات قطع شده است",
-    "not_logged_in": "‌شما وارد نشده اید",
-    "logged_out": "خارج شده"
+    "not_logged_in": "‌شما وارد نشده اید"
 }

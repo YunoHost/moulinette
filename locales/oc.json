@@ -2,7 +2,6 @@
     "argument_required": "L’argument {argument} es requesit",
     "authentication_required": "Autentificacion requesida",
     "logged_in": "Connectat",
-    "logged_out": "Desconnectat",
     "password": "Senhal",
     "confirm": "Confirmatz : {prompt}",
     "deprecated_command": "« {prog} {command} » es despreciat e serà lèu suprimit",

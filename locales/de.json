@@ -9,7 +9,6 @@
     "invalid_argument": "Argument ungültig '{argument}': {error}",
     "invalid_usage": "Falscher Aufruf, verwende --help für den Hilfstext",
     "logged_in": "Angemeldet",
-    "logged_out": "Abgemeldet",
     "not_logged_in": "Du bist nicht angemeldet",
     "operation_interrupted": "Vorgang unterbrochen",
     "password": "Passwort",
