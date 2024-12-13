@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 import sys
 import re
 import errno
@@ -751,8 +752,11 @@ class Interface:
 
     type = "api"
 
-    def __init__(self, routes={}, actionsmap=None, allowed_cors_origins=[]):
-        actionsmap = ActionsMap(actionsmap, ActionsMapParser())
+    def __init__(self, routes={}, actionsmap=None, allowed_cors_origins=[], override_type: str | None = None):
+        parser = ActionsMapParser()
+        if override_type is not None:
+            parser.interface = override_type
+        actionsmap = ActionsMap(actionsmap, parser)
 
         self.allowed_cors_origins = allowed_cors_origins
 
@@ -827,30 +831,45 @@ class Interface:
 
         Moulinette._interface = self
 
-    def run(self, host="localhost", port=80):
+    def run(self, host="localhost", port=80, socket_path=None):
         """Run the moulinette
 
-        Start a server instance on the given port to serve moulinette
+        Start a server instance on the given port or socket to serve moulinette
         actions.
 
         Keyword arguments:
             - host -- Server address to bind to
             - port -- Server port to bind to
+            - socket_path -- If given, binds to a socket instead of a port.
 
         """
 
-        logger.debug(
-            "starting the server instance in %s:%d",
-            host,
-            port,
-        )
+        if socket_path:
+            logger.debug("starting the server instance in %s", socket_path)
+        else:
+            logger.debug("starting the server instance in %s:%d", host, port)
 
         try:
             from gevent.pywsgi import WSGIServer
             from geventwebsocket.handler import WebSocketHandler
 
-            server = WSGIServer((host, port), self._app, handler_class=WebSocketHandler)
-            server.serve_forever()
+            if socket_path:
+                from gevent import socket
+                listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                if os.path.exists(socket_path):
+                    os.remove(socket_path)
+                listener.bind(socket_path)
+                listener.listen()
+
+            else:
+                listener = (host, port)
+
+            server = WSGIServer(listener, self._app, handler_class=WebSocketHandler)
+            if socket_path:
+                server.serve_forever()
+            else:
+                server.start()
+
         except IOError as e:
             error_message = "unable to start the server instance on %s:%d: %s" % (
                 host,

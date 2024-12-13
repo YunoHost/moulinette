@@ -112,6 +112,46 @@ def api(
     return 0
 
 
+def socket_api(
+    socket_path: str,
+    routes={},
+    actionsmap=None,
+    locales_dir=None,
+    allowed_cors_origins=[],
+) -> int:
+    """Web server (API) interface on a socket
+
+    Run a HTTP server with the moulinette for an API usage.
+
+    Keyword arguments:
+        - socket_path -- Path of a socket to expose
+        - routes -- A dict of additional routes to add in the form of
+            {(method, uri): callback}
+
+    """
+    from moulinette.interfaces.api import Interface as Api
+
+    m18n.set_locales_dir(locales_dir)
+
+    try:
+        Api(
+            routes=routes,
+            actionsmap=actionsmap,
+            allowed_cors_origins=allowed_cors_origins,
+            override_type="sockapi"
+        ).run(host=None, socket_path=socket_path)
+    except MoulinetteError as e:
+        import logging
+
+        logging.getLogger("moulinette").error(e.strerror)
+        return 1
+    except KeyboardInterrupt:
+        import logging
+
+        logging.getLogger("moulinette").info(m18n.g("operation_interrupted"))
+    return 0
+
+
 def cli(
     args, top_parser, output_as=None, timeout=None, actionsmap=None, locales_dir=None
 ):
