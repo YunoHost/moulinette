@@ -95,6 +95,9 @@ def api(
     m18n.set_locales_dir(locales_dir)
 
     try:
+        import logging
+
+        logging.getLogger("moulinette").debug(f"Using actionmap {actionsmap}")
         Api(
             routes=routes,
             actionsmap=actionsmap,
