@@ -1,13 +1,13 @@
 {
     "password": "Heslo",
     "warn_the_user_that_lock_is_acquired": "Předchozí operace dokončena, nyní spouštíme tuto",
-    "warn_the_user_about_waiting_lock_again": "Stále čekáme…",
+    "warn_the_user_about_waiting_lock_again": "Stále čekáme...",
     "warn_the_user_about_waiting_lock": "Jiná YunoHost operace právě probíhá, před spuštěním této čekáme na její dokončení",
     "download_bad_status_code": "{url} vrátil stavový kód {code}",
     "download_unknown_error": "Chyba při stahování dat z {url}: {error}",
     "download_timeout": "{url} příliš dlouho neodpovídá, akce přerušena.",
     "download_ssl_error": "SSL chyba při spojení s {url}",
-    "invalid_url": "Špatný odkaz {url} (je vůbec dostupný?).",
+    "invalid_url": "Nedá se připojit k {url}... možná je služba mimo provoz nebo nejste správně připojeni k internetu přes IPv4/IPv6.",
     "error_changing_file_permissions": "Chyba při nastavování oprávnění pro {path}: {error}",
     "error_removing": "Chyba při přesunu {path}: {error}",
     "error_writing_file": "Chyba při zápisu souboru/ů {file}: {error}",
@@ -42,5 +42,6 @@
     "confirm": "Potvrdit {prompt}",
     "authentication_required": "Vyžadováno ověření",
     "argument_required": "Je vyžadován argument '{argument}'",
-    "edit_text_question": "{}. Upravit tento text? [yN]: "
+    "edit_text_question": "{}. Upravit tento text? [yN]: ",
+    "logged_out": "Odhlášení"
 }
