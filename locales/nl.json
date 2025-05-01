@@ -42,5 +42,6 @@
     "corrupted_toml": "Ongeldige TOML werd gelezen van {ressource} (reason: {error})",
     "corrupted_yaml": "Ongeldig YAML bestand op {ressource} (reden: {error})",
     "info": "Ter info:",
-    "edit_text_question": "{}. Deze tekst bewerken ? [yN]: "
+    "edit_text_question": "{}. Deze tekst bewerken ? [yN]: ",
+    "logged_out": "Uitgelogd"
 }
