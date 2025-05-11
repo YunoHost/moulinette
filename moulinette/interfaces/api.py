@@ -19,6 +19,7 @@
 #
 
 import os
+import shlex
 import sys
 import re
 import errno
@@ -163,13 +164,17 @@ class _HTTPArgumentParser:
                     arg_strings.append(option_string)
                 arg_strings.append(UPLOAD_DIR + "/" + value.filename)
             elif isinstance(value, str):
+                splitted = [value]
+                if value and action.nargs:
+                    splitted = shlex.split(value)
+
                 if option_string is not None:
                     arg_strings.append(option_string)
                     # TODO: Review this fix
                     if value:
-                        arg_strings.append(value)
+                        arg_strings.extend(splitted)
                 else:
-                    arg_strings.append(value)
+                    arg_strings.extend(splitted)
             elif isinstance(value, list):
                 if option_string is not None:
                     arg_strings.append(option_string)
