@@ -22,6 +22,7 @@ import os
 import time
 import json
 import logging
+from typing import Any
 
 import moulinette
 
@@ -47,7 +48,7 @@ class Translator:
 
     """
 
-    def __init__(self, locale_dir, default_locale="en"):
+    def __init__(self, locale_dir: str, default_locale: str = "en") -> None:
         self.locale_dir = locale_dir
         self.locale = default_locale
         self._translations = {}
@@ -59,7 +60,7 @@ class Translator:
             )
         self.default_locale = default_locale
 
-    def get_locales(self):
+    def get_locales(self) -> list[str]:
         """Return a list of the avalaible locales"""
         locales = []
 
@@ -69,7 +70,7 @@ class Translator:
                 locales.append(f[:-5])
         return locales
 
-    def set_locale(self, locale):
+    def set_locale(self, locale: str) -> bool:
         """Set the locale to use
 
         Set the locale to use at first. If the locale is not available,
@@ -96,10 +97,10 @@ class Translator:
         self.locale = locale
         return True
 
-    def key_exists(self, key):
+    def key_exists(self, key) -> bool:
         return key in self._translations[self.default_locale]
 
-    def translate(self, key, *args, **kwargs):
+    def translate(self, key: str, *args: Any, **kwargs: Any) -> str:
         """Retrieve proper translation for a key
 
         Attempt to retrieve translation for a key using the current locale
@@ -160,7 +161,7 @@ class Translator:
 
         return key
 
-    def _load_translations(self, locale, overwrite=False):
+    def _load_translations(self, locale: str, overwrite: bool = False) -> bool:
         """Load translations for a locale
 
         Attempt to load translations for a given locale. If 'overwrite' is
@@ -199,7 +200,7 @@ class Moulinette18n:
 
     """
 
-    def __init__(self, default_locale="en"):
+    def __init__(self, default_locale: str = "en") -> None:
         self.default_locale = default_locale
         self.locale = default_locale
 
@@ -210,17 +211,17 @@ class Moulinette18n:
 
         self._global = Translator(global_locale_dir, default_locale)
 
-    def set_locales_dir(self, locales_dir):
+    def set_locales_dir(self, locales_dir: str) -> None:
         self.translator = Translator(locales_dir, self.default_locale)
 
-    def set_locale(self, locale):
+    def set_locale(self, locale: str) -> None:
         """Set the locale to use"""
 
         self.locale = locale
         self._global.set_locale(locale)
         self.translator.set_locale(locale)
 
-    def g(self, key: str, *args, **kwargs) -> str:
+    def g(self, key: str, *args: Any, **kwargs: Any) -> str:
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from moulinette translations
@@ -232,7 +233,7 @@ class Moulinette18n:
         """
         return self._global.translate(key, *args, **kwargs)
 
-    def n(self, key: str, *args, **kwargs) -> str:
+    def n(self, key: str, *args: Any, **kwargs: Any) -> str:
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from current loaded namespace

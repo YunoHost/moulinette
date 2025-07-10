@@ -76,7 +76,7 @@ def searchf(pattern, path, count=0, flags=re.MULTILINE):
 # Text formatting ------------------------------------------------------
 
 
-def prependlines(text, prepend):
+def prependlines(text: str, prepend: str) -> str:
     """Prepend a string to each line of a text"""
     lines = text.splitlines(True)
     return "{}{}".format(prepend, prepend.join(lines))
@@ -85,6 +85,6 @@ def prependlines(text, prepend):
 # Randomize ------------------------------------------------------------
 
 
-def random_ascii(length=40):
+def random_ascii(length: int = 40) -> str:
     """Return a random ascii string"""
     return binascii.hexlify(os.urandom(length)).decode("ascii")[:length]

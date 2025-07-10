@@ -25,6 +25,8 @@ import errno
 import shutil
 import json
 import grp
+from pathlib import Path
+from typing import Any, TextIO
 
 from pwd import getpwnam
 from collections import OrderedDict
@@ -34,8 +36,10 @@ from moulinette.core import MoulinetteError
 
 # Files & directories --------------------------------------------------
 
+Jsonable = str | int | float | bool | None | dict["Jsonable", "Jsonable"] | list["Jsonable"]
 
-def read_file(file_path, file_mode="r"):
+
+def read_file(file_path: str, file_mode: str = "r") -> str | bytes:
     """
     Read a regular text file
 
@@ -67,7 +71,7 @@ def read_file(file_path, file_mode="r"):
     return file_content
 
 
-def read_json(file_path):
+def read_json(file_path: str) -> Jsonable:
     """
     Read a json file
 
@@ -87,7 +91,7 @@ def read_json(file_path):
     return loaded_json
 
 
-def read_yaml(file_):
+def read_yaml(file_: str | Path | TextIO) -> Jsonable:
     """
     Safely read a yaml file
 
@@ -108,7 +112,7 @@ def read_yaml(file_):
     return loaded_yaml
 
 
-def read_toml(file_path):
+def read_toml(file_path: str) -> Jsonable:
     """
     Safely read a toml file
 
@@ -128,7 +132,7 @@ def read_toml(file_path):
     return loaded_toml
 
 
-def write_to_file(file_path, data, file_mode="w"):
+def write_to_file(file_path: str, data: Jsonable, file_mode: str = "w") -> None:
     """
     Write a single string or a list of string to a text file.
     The text file will be overwritten by default.
@@ -175,7 +179,7 @@ def write_to_file(file_path, data, file_mode="w"):
         raise MoulinetteError("error_writing_file", file=file_path, error=str(e))
 
 
-def append_to_file(file_path, data):
+def append_to_file(file_path: str, data: Jsonable) -> None:
     """
     Append a single string or a list of string to a text file.
 
@@ -187,7 +191,7 @@ def append_to_file(file_path, data):
     write_to_file(file_path, data, file_mode="a")
 
 
-def write_to_json(file_path, data, sort_keys=False, indent=None):
+def write_to_json(file_path: str, data: Jsonable, sort_keys: bool = False, indent: int | None = None) -> None:
     """
     Write a dictionnary or a list to a json file
 
@@ -229,7 +233,7 @@ def write_to_json(file_path, data, sort_keys=False, indent=None):
         raise MoulinetteError("error_writing_file", file=file_path, error=str(e))
 
 
-def write_to_yaml(file_path, data):
+def write_to_yaml(file_path: str, data: Jsonable) -> None:
     """
     Write a dictionnary or a list to a yaml file
 
@@ -253,7 +257,7 @@ def write_to_yaml(file_path, data):
         raise MoulinetteError("error_writing_file", file=file_path, error=str(e))
 
 
-def mkdir(path, mode=0o0777, parents=False, uid=None, gid=None, force=False):
+def mkdir(path: str, mode: int = 0o0777, parents: bool = False, uid: int | None = None, gid: int | None = None, force: bool = False) -> None:
     """Create a directory with optional features
 
     Create a directory and optionaly set its permissions to mode and its
@@ -300,7 +304,7 @@ def mkdir(path, mode=0o0777, parents=False, uid=None, gid=None, force=False):
         chown(path, uid, gid)
 
 
-def chown(path, uid=None, gid=None, recursive=False):
+def chown(path: str, uid: int | None = None, gid: int | None = None, recursive: bool = False) -> None:
     """Change the owner and/or group of a path
 
     Keyword arguments:
@@ -342,7 +346,7 @@ def chown(path, uid=None, gid=None, recursive=False):
         )
 
 
-def chmod(path, mode, fmode=None, recursive=False):
+def chmod(path: str, mode: int , fmode: int | None =None, recursive: bool = False) -> None:
     """Change the mode of a path
 
     Keyword arguments:
@@ -368,7 +372,7 @@ def chmod(path, mode, fmode=None, recursive=False):
         )
 
 
-def rm(path, recursive=False, force=False):
+def rm(path: str, recursive: bool = False, force: bool = False) -> None:
     """Remove a file or directory
 
     Keyword arguments:
@@ -387,7 +391,7 @@ def rm(path, recursive=False, force=False):
                 raise MoulinetteError("error_removing", path=path, error=str(e))
 
 
-def cp(source, dest, recursive=False, **kwargs):
+def cp(source: str, dest: str, recursive: bool = False, **kwargs: Any) -> str:
     if recursive and os.path.isdir(source):
         return shutil.copytree(source, dest, symlinks=True, **kwargs)
     else:

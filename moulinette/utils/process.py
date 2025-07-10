@@ -37,7 +37,7 @@ logger = logging.getLogger("moulinette.utils.process")
 # Alternative subprocess methods ---------------------------------------
 
 
-def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs):
+def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs) -> str:
     """Run command with arguments and return its output as a byte string
 
     Overwrite some of the arguments to capture standard error in the result
@@ -54,7 +54,7 @@ def check_output(args, stderr=subprocess.STDOUT, shell=True, **kwargs):
 # Call with stream access ----------------------------------------------
 
 
-def call_async_output(args, callback, **kwargs):
+def call_async_output(args, callback, **kwargs) -> int:
     """Run command and provide its output asynchronously
 
     Run command with arguments and wait for it to complete to return the
