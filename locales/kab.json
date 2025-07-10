@@ -3,5 +3,13 @@
     "success": "Akka d rrbeḥ !",
     "password": "Awal n uɛeddi",
     "logged_in": "Taqqneḍ",
-    "authentication_required": "Tlaq tuqqna"
+    "authentication_required": "Tlaq tuqqna",
+    "info": "Talɣut:",
+    "folder_exists": "Akaram-a yella ya: '{path}'",
+    "file_not_exist": "Afaylu '{path}' ulac-it",
+    "not_logged_in": "Ur teqqineḍ ara",
+    "warning": "Ɣur-k·m:",
+    "unknown_group": "Agraw '{group}' d arussin",
+    "unknown_user": "Aseqdac '{user}' d arussin",
+    "logged_out": "Tessensreḍ tuqqna"
 }
