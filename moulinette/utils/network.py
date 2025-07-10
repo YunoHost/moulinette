@@ -23,7 +23,9 @@ import json
 from moulinette.core import MoulinetteError
 
 
-Jsonable = str | int | float | bool | None | dict["Jsonable", "Jsonable"] | list["Jsonable"]
+Jsonable = (
+    str | int | float | bool | None | dict["Jsonable", "Jsonable"] | list["Jsonable"]
+)
 
 
 def download_text(url: str, timeout: int = 30, expected_status_code: int = 200) -> str:
@@ -66,7 +68,9 @@ def download_text(url: str, timeout: int = 30, expected_status_code: int = 200) 
     return r.text
 
 
-def download_json(url: str, timeout: int = 30, expected_status_code: int = 200) -> Jsonable:
+def download_json(
+    url: str, timeout: int = 30, expected_status_code: int = 200
+) -> Jsonable:
     """
     Download json from a url and returns the loaded json object
 

@@ -36,7 +36,9 @@ from moulinette.core import MoulinetteError
 
 # Files & directories --------------------------------------------------
 
-Jsonable = str | int | float | bool | None | dict["Jsonable", "Jsonable"] | list["Jsonable"]
+Jsonable = (
+    str | int | float | bool | None | dict["Jsonable", "Jsonable"] | list["Jsonable"]
+)
 
 
 def read_file(file_path: str, file_mode: str = "r") -> str | bytes:
@@ -191,7 +193,9 @@ def append_to_file(file_path: str, data: Jsonable) -> None:
     write_to_file(file_path, data, file_mode="a")
 
 
-def write_to_json(file_path: str, data: Jsonable, sort_keys: bool = False, indent: int | None = None) -> None:
+def write_to_json(
+    file_path: str, data: Jsonable, sort_keys: bool = False, indent: int | None = None
+) -> None:
     """
     Write a dictionnary or a list to a json file
 
@@ -257,7 +261,14 @@ def write_to_yaml(file_path: str, data: Jsonable) -> None:
         raise MoulinetteError("error_writing_file", file=file_path, error=str(e))
 
 
-def mkdir(path: str, mode: int = 0o0777, parents: bool = False, uid: int | None = None, gid: int | None = None, force: bool = False) -> None:
+def mkdir(
+    path: str,
+    mode: int = 0o0777,
+    parents: bool = False,
+    uid: int | None = None,
+    gid: int | None = None,
+    force: bool = False,
+) -> None:
     """Create a directory with optional features
 
     Create a directory and optionaly set its permissions to mode and its
@@ -304,7 +315,9 @@ def mkdir(path: str, mode: int = 0o0777, parents: bool = False, uid: int | None 
         chown(path, uid, gid)
 
 
-def chown(path: str, uid: int | None = None, gid: int | None = None, recursive: bool = False) -> None:
+def chown(
+    path: str, uid: int | None = None, gid: int | None = None, recursive: bool = False
+) -> None:
     """Change the owner and/or group of a path
 
     Keyword arguments:
@@ -346,7 +359,9 @@ def chown(path: str, uid: int | None = None, gid: int | None = None, recursive: 
         )
 
 
-def chmod(path: str, mode: int , fmode: int | None =None, recursive: bool = False) -> None:
+def chmod(
+    path: str, mode: int, fmode: int | None = None, recursive: bool = False
+) -> None:
     """Change the mode of a path
 
     Keyword arguments:
