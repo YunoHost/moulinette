@@ -76,7 +76,7 @@ setup(
     author_email="yunohost@yunohost.org",
     url="https://yunohost.org",
     license="AGPL",
-    packages=find_packages(exclude=["test"]),
+    packages=find_packages(exclude=["tests"]),
     data_files=[("/usr/share/moulinette/locales", locale_files)],
     python_requires=">=3.11.0,<3.12",
     install_requires=install_deps,

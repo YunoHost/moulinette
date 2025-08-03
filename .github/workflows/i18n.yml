@@ -12,9 +12,9 @@ jobs:
         - name: Apply reformating scripts
           id: action_reformat
           run: |
-              python3 test/remove_stale_i18n_strings.py
-              python3 test/autofix_locale_format.py
-              python3 test/reformat_locales.py
+              python3 tests/remove_stale_i18n_strings.py
+              python3 tests/autofix_locale_format.py
+              python3 tests/reformat_locales.py
               git diff -w --exit-code
         - name: Create Pull Request
           if: ${{ failure() }}

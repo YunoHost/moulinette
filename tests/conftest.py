@@ -102,9 +102,9 @@ def moulinette(tmp_path_factory):
     # that would lead to some "import test" not importing the right stuff
     namespace = "moulitest"
     tmp_dir = str(tmp_path_factory.mktemp(namespace))
-    shutil.copy("./test/actionsmap/moulitest.yml", f"{tmp_dir}/moulitest.yml")
-    shutil.copytree("./test/src", f"{tmp_dir}/lib/{namespace}/")
-    shutil.copytree("./test/locales", f"{tmp_dir}/locales")
+    shutil.copy("./tests/actionsmap/moulitest.yml", f"{tmp_dir}/moulitest.yml")
+    shutil.copytree("./tests/src", f"{tmp_dir}/lib/{namespace}/")
+    shutil.copytree("./tests/locales", f"{tmp_dir}/locales")
     sys.path.insert(0, f"{tmp_dir}/lib")
 
     patch_translate(moulinette)

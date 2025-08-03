@@ -183,7 +183,7 @@ def test_required_paremeter_missing_value(iface, caplog):
 def test_actions_map_unknown_authenticator(monkeypatch, tmp_path):
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap("test/actionsmap/moulitest.yml", ActionsMapParser())
+    amap = ActionsMap("tests/actionsmap/moulitest.yml", ActionsMapParser())
 
     with pytest.raises(MoulinetteError) as exception:
         amap.get_authenticator("unknown")
@@ -254,7 +254,7 @@ def test_actions_map_api():
     from moulinette.interfaces.api import ActionsMapParser
 
     parser = ActionsMapParser()
-    amap = ActionsMap("test/actionsmap/moulitest.yml", parser)
+    amap = ActionsMap("tests/actionsmap/moulitest.yml", parser)
 
     assert amap.namespace == "moulitest"
     assert amap.default_authentication == "dummy"
@@ -269,7 +269,7 @@ def test_actions_map_api():
 def test_actions_map_import_error(mocker):
     from moulinette.interfaces.api import ActionsMapParser
 
-    amap = ActionsMap("test/actionsmap/moulitest.yml", ActionsMapParser())
+    amap = ActionsMap("tests/actionsmap/moulitest.yml", ActionsMapParser())
 
     from moulinette.core import MoulinetteLock
 
@@ -308,7 +308,7 @@ def test_actions_map_cli():
     )
 
     parser = ActionsMapParser(top_parser=top_parser)
-    amap = ActionsMap("test/actionsmap/moulitest.yml", parser)
+    amap = ActionsMap("tests/actionsmap/moulitest.yml", parser)
 
     assert amap.namespace == "moulitest"
     assert amap.default_authentication == "dummy"
