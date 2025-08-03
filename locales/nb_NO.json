@@ -1,11 +1,8 @@
 {
     "argument_required": "Argumentet '{argument}' er påkrevd",
     "warn_the_user_about_waiting_lock_again": "Venter fremdeles…",
-    "websocket_request_expected": "Forventet en WebSocket-forespørsel",
     "warning": "Advarsel:",
     "values_mismatch": "Verdiene samsvarer ikke",
-    "unknown_user": "Ukjent '{user}' bruker",
-    "unknown_group": "Ukjent '{group}' gruppe",
     "unable_authenticate": "Kunne ikke identitetsbekrefte",
     "success": "Vellykket!",
     "operation_interrupted": "Operasjon forstyrret",
