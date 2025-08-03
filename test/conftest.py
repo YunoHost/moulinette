@@ -49,41 +49,43 @@ def patch_translate(moulinette):
     moulinette.core.Moulinette18n.g = new_m18nn
 
 
-def logging_configuration(moulinette):
-    """Configure logging to use the custom logger."""
-    handlers = {"tty", "api"}
-    root_handlers = set(handlers)
+# REMOVEME : obsolete, moved to yunohost ?
 
-    level = "INFO"
-    tty_level = "INFO"
-
-    return {
-        "version": 1,
-        "disable_existing_loggers": True,
-        "formatters": {
-            "tty-debug": {"format": "%(relativeCreated)-4d %(fmessage)s"},
-            "precise": {
-                "format": "%(asctime)-15s %(levelname)-8s %(name)s %(funcName)s - %(fmessage)s"  # noqa
-            },
-        },
-        "filters": {},
-        "handlers": {
-            "tty": {
-                "level": tty_level,
-                "class": "moulinette.interfaces.cli.TTYHandler",
-                "formatter": "",
-            },
-        },
-        "loggers": {
-            "moulinette": {"level": level, "handlers": [], "propagate": True},
-            "moulinette.interface": {
-                "level": level,
-                "handlers": handlers,
-                "propagate": False,
-            },
-        },
-        "root": {"level": level, "handlers": root_handlers},
-    }
+#def logging_configuration(moulinette):
+#    """Configure logging to use the custom logger."""
+#    handlers = {"tty", "api"}
+#    root_handlers = set(handlers)
+#
+#    level = "INFO"
+#    tty_level = "INFO"
+#
+#    return {
+#        "version": 1,
+#        "disable_existing_loggers": True,
+#        "formatters": {
+#            "tty-debug": {"format": "%(relativeCreated)-4d %(fmessage)s"},
+#            "precise": {
+#                "format": "%(asctime)-15s %(levelname)-8s %(name)s %(funcName)s - %(fmessage)s"  # noqa
+#            },
+#        },
+#        "filters": {},
+#        "handlers": {
+#            "tty": {
+#                "level": tty_level,
+#                "class": "moulinette.interfaces.cli.TTYHandler",
+#                "formatter": "",
+#            },
+#        },
+#        "loggers": {
+#            "moulinette": {"level": level, "handlers": [], "propagate": True},
+#            "moulinette.interface": {
+#                "level": level,
+#                "handlers": handlers,
+#                "propagate": False,
+#            },
+#        },
+#        "root": {"level": level, "handlers": root_handlers},
+#    }
 
 
 def patch_lock(moulinette):
@@ -94,7 +96,7 @@ def patch_lock(moulinette):
 def moulinette(tmp_path_factory):
     import moulinette
     import moulinette.core
-    from moulinette.utils.log import configure_logging
+    #from moulinette.utils.log import configure_logging
 
     # Can't call the namespace just 'test' because
     # that would lead to some "import test" not importing the right stuff
@@ -108,7 +110,7 @@ def moulinette(tmp_path_factory):
     patch_translate(moulinette)
     patch_lock(moulinette)
 
-    configure_logging(logging_configuration(moulinette))
+    #configure_logging(logging_configuration(moulinette))
     moulinette.m18n.set_locales_dir(f"{tmp_dir}/locales")
 
     # Dirty hack to pass this path to Api() and Cli() init later
