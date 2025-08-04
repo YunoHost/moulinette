@@ -1,3 +1,14 @@
+moulinette (12.1.1) testing; urgency=low
+
+  - Log which actionsmap is used for debugging ([#371](http://github.com/YunoHost/moulinette/pull/371))
+  - refactor: Move utils/ to yunohost ([#375](http://github.com/YunoHost/moulinette/pull/375))
+  - codequality: Add some typing to provide to yunohost (e651405e)
+  - i18n: Translations updated for Arabic, Czech, Dutch, French, German, Kabyle, Occitan
+
+  Thanks to all contributors <3 ! (Boudewijn, ButterflyOfFire, Christophe Henry, demodé, Félix Piédallu, Matthias Roy, OniriCorpe, Quentí)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Mon, 04 Aug 2025 17:31:26 +0200
+
 moulinette (12.1.0) testing; urgency=low
 
   - Tweaks for new SSE API: run the 'yunohost-api' as a GeventServer, drop the old websocket code, handle the new /sse route ([#333](http://github.com/YunoHost/moulinette/pull/333))
