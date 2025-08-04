@@ -18,9 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
+import binascii
 import logging
 import json
-from moulinette.utils.text import random_ascii
 from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
 from moulinette.authentication import BaseAuthenticator
 
@@ -28,13 +29,17 @@ logger = logging.getLogger("moulinette.authenticator.yoloswag")
 
 # Dummy authenticator implementation
 
+
+def random_ascii(length: int = 40) -> str:
+    """Return a random ascii string"""
+    return binascii.hexlify(os.urandom(length)).decode("ascii")[:length]
 session_secret = random_ascii()
 
 
 class Authenticator(BaseAuthenticator):
     """Dummy authenticator used for tests"""
 
-    name = "dummy"
+    name = "yoloswag"
 
     def __init__(self, *args, **kwargs):
         pass

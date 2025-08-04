@@ -36,7 +36,26 @@ from moulinette.interfaces import (
     ExtendedArgumentParser,
     JSONExtendedEncoder,
 )
-from moulinette.utils import log
+from logging import (
+    NOTSET,
+    DEBUG,
+    INFO,
+    WARNING,
+    ERROR,
+    CRITICAL,
+)
+
+SUCCESS = 25
+
+LEVELS_COLOR = {
+    NOTSET: "white",
+    DEBUG: "white",
+    INFO: "cyan",
+    SUCCESS: "green",
+    WARNING: "yellow",
+    ERROR: "red",
+    CRITICAL: "red",
+}
 
 # Monkeypatch _get_action_name function because there is an annoying bug
 # Explained here: https://bugs.python.org/issue29298
@@ -242,16 +261,6 @@ class TTYHandler(logging.StreamHandler):
 
     """
 
-    LEVELS_COLOR = {
-        log.NOTSET: "white",
-        log.DEBUG: "white",
-        log.INFO: "cyan",
-        log.SUCCESS: "green",
-        log.WARNING: "yellow",
-        log.ERROR: "red",
-        log.CRITICAL: "red",
-    }
-
     def __init__(self, message_key="message_with_color"):
         logging.StreamHandler.__init__(self)
         self.message_key = message_key
@@ -262,16 +271,16 @@ class TTYHandler(logging.StreamHandler):
         level = record.levelname
         level_with_color = level
         if self.supports_color():
-            if self.level > log.DEBUG and record.levelname in [
+            if self.level > DEBUG and record.levelname in [
                 "SUCCESS",
                 "WARNING",
                 "ERROR",
                 "INFO",
             ]:
                 level = m18n.g(record.levelname.lower())
-            color = self.LEVELS_COLOR.get(record.levelno, "white")
+            color = LEVELS_COLOR.get(record.levelno, "white")
             level_with_color = f"{colors_codes[color]}{level}{END_CLI_COLOR}"
-            if self.level == log.DEBUG:
+            if self.level == DEBUG:
                 level_with_color = level_with_color + " " * max(0, 7 - len(level))
         if self.formatter:
             record.__dict__["level_with_color"] = level_with_color
@@ -280,7 +289,7 @@ class TTYHandler(logging.StreamHandler):
 
     def emit(self, record):
         # set proper stream first
-        if record.levelno >= log.WARNING:
+        if record.levelno >= WARNING:
             self.stream = sys.stderr
         else:
             self.stream = sys.stdout

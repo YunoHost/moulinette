@@ -23,6 +23,7 @@ import re
 import logging
 import glob
 import pickle as pickle
+import yaml
 
 from typing import List, Optional
 from time import time
@@ -37,7 +38,6 @@ from moulinette.core import (
     MoulinetteValidationError,
 )
 from moulinette.interfaces import BaseActionsMapParser
-from moulinette.utils.filesystem import read_yaml
 
 logger = logging.getLogger("moulinette.actionsmap")
 
@@ -419,7 +419,8 @@ class ActionsMap:
             logger.debug("generating cache for actions map")
 
             # Read actions map from yaml file
-            actionsmap = read_yaml(actionsmap_yml)
+            with open(actionsmap_yml) as f:
+                actionsmap = yaml.safe_load(f.read())
 
             if not actionsmap["_global"].get("cache", True):
                 return actionsmap

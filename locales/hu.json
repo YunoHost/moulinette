@@ -1,16 +1,10 @@
 {
     "password": "Jelszó",
-    "download_timeout": "{url} régóta nem válaszol, folyamat megszakítva.",
-    "invalid_url": "Helytelen URL: {url} (biztos létezik az oldal?)",
-    "cannot_open_file": "{file} megnyitása sikertelen (Oka: {error})",
-    "unknown_user": "Ismeretlen felhasználó: '{user}'",
-    "unknown_group": "Ismeretlen csoport: '{group}'",
     "server_already_running": "Egy szerver már fut ezen a porton",
     "logged_in": "Bejelentkezve",
     "success": "Siker!",
     "values_mismatch": "Eltérő értékek",
     "warning": "Figyelem:",
     "info": "Információ:",
-    "file_not_exist": "A fájl nem létezik: '{path}'",
     "error": "Hiba:"
 }

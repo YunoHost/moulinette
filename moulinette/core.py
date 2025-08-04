@@ -51,7 +51,7 @@ class Translator:
     def __init__(self, locale_dir: str, default_locale: str = "en") -> None:
         self.locale_dir = locale_dir
         self.locale = default_locale
-        self._translations = {}
+        self._translations: dict[str, dict[str, str]] = {}
 
         # Attempt to load default translations
         if not self._load_translations(default_locale):
