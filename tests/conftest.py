@@ -51,7 +51,7 @@ def patch_translate(moulinette):
 
 # REMOVEME : obsolete, moved to yunohost ?
 
-#def logging_configuration(moulinette):
+# def logging_configuration(moulinette):
 #    """Configure logging to use the custom logger."""
 #    handlers = {"tty", "api"}
 #    root_handlers = set(handlers)
@@ -96,7 +96,8 @@ def patch_lock(moulinette):
 def moulinette(tmp_path_factory):
     import moulinette
     import moulinette.core
-    #from moulinette.utils.log import configure_logging
+
+    # from moulinette.utils.log import configure_logging
 
     # Can't call the namespace just 'test' because
     # that would lead to some "import test" not importing the right stuff
@@ -110,7 +111,7 @@ def moulinette(tmp_path_factory):
     patch_translate(moulinette)
     patch_lock(moulinette)
 
-    #configure_logging(logging_configuration(moulinette))
+    # configure_logging(logging_configuration(moulinette))
     moulinette.m18n.set_locales_dir(f"{tmp_dir}/locales")
 
     # Dirty hack to pass this path to Api() and Cli() init later
