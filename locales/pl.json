@@ -1,7 +1,7 @@
 {
     "password": "Hasło",
     "warn_the_user_that_lock_is_acquired": "Inne polecenie właśnie się zakończyło, teraz uruchamiam to polecenie",
-    "warn_the_user_about_waiting_lock_again": "Wciąż czekam…",
+    "warn_the_user_about_waiting_lock_again": "Oczekiwanie...",
     "warn_the_user_about_waiting_lock": "Kolejne polecenie YunoHost jest obecnie uruchomione, czekamy na jego zakończenie przed uruchomieniem tego",
     "warning": "Ostrzeżenie:",
     "values_mismatch": "Wartości nie pasują",
@@ -23,5 +23,6 @@
     "confirm": "Potwierdź {prompt}",
     "authentication_required": "Wymagane uwierzytelnienie",
     "argument_required": "Argument „{argument}” jest wymagany",
-    "edit_text_question": "{}. Zedytować ten tekst? [tN]: "
+    "edit_text_question": "{}. Zedytować ten tekst? [tN]: ",
+    "logged_out": "Wylogowano"
 }
