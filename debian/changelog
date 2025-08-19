@@ -1,3 +1,12 @@
+moulinette (12.1.2) stable; urgency=low
+
+  - [i18n] Translations updated for Polish
+  - Release as stable !
+
+  Thanks to all contributors <3 ! (Przemysław Samul)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Wed, 20 Aug 2025 01:36:47 +0200
+
 moulinette (12.1.1) testing; urgency=low
 
   - Log which actionsmap is used for debugging ([#371](http://github.com/YunoHost/moulinette/pull/371))
