@@ -1,3 +1,9 @@
+moulinette (12.1.3) stable; urgency=low
+
+  - Flag moulinette 12.1 as breaking yunohost <= 12.0.x (bb0371c0)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Sun, 24 Aug 2025 18:37:16 +0200
+
 moulinette (12.1.2) stable; urgency=low
 
   - [i18n] Translations updated for Polish
