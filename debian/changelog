@@ -1,3 +1,12 @@
+moulinette (13.0.0) testing; urgency=low
+
+  - m18n: Add a noformat argument to prevent formatting the string and align with the gettext API (593524b2)
+  - i18n: Translations updated for Persian
+
+  Thanks to all contributors <3 ! (Avid, Félix Piédallu)
+
+ -- Alexandre Aubin <alex.aubin@mailoo.org>  Fri, 31 Oct 2025 19:36:06 +0100
+
 moulinette (12.1.3) stable; urgency=low
 
   - Flag moulinette 12.1 as breaking yunohost <= 12.0.x (bb0371c0)
