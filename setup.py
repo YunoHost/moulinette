@@ -78,7 +78,7 @@ setup(
     license="AGPL",
     packages=find_packages(exclude=["tests"]),
     data_files=[("/usr/share/moulinette/locales", locale_files)],
-    python_requires=">=3.11.0,<3.12",
+    python_requires=">=3.11.0,<3.14",
     install_requires=install_deps,
     tests_require=test_deps,
     extras_require=extras,

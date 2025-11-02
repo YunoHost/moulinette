@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.11]
+        python-version: [3.13]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -28,13 +28,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
-      run: tox -e py311-pytest
+      run: tox -e py313-pytest
 
   invalidcode:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.11]
+        python-version: [3.13]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -46,6 +46,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Linter
-      run: tox -e py311-invalidcode
+      run: tox -e py313-invalidcode
     - name: Mypy
-      run: tox -e py311-mypy
+      run: tox -e py313-mypy
