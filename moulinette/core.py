@@ -101,7 +101,7 @@ class Translator:
         return key in self._translations[self.default_locale]
 
     def translate(
-        self, key: str, noformat: bool = False, *args: Any, **kwargs: Any
+        self, key: str, *args: Any, noformat: bool = False, **kwargs: Any
     ) -> str:
         """Retrieve proper translation for a key
 
@@ -240,7 +240,7 @@ class Moulinette18n:
         """
         return self._global.translate(key, *args, **kwargs)
 
-    def n(self, key: str, noformat: bool = False, *args: Any, **kwargs: Any) -> str:
+    def n(self, key: str, *args: Any, noformat: bool = False, **kwargs: Any) -> str:
         """Retrieve proper translation for a moulinette key
 
         Attempt to retrieve value for a key from current loaded namespace
@@ -252,7 +252,7 @@ class Moulinette18n:
             - noformat -- Do not format the string
 
         """
-        return self.translator.translate(key, noformat=noformat, *args, **kwargs)
+        return self.translator.translate(key, *args, noformat=noformat, **kwargs)
 
     def key_exists(self, key: str) -> bool:
         """Check if a key exists in the translation files
