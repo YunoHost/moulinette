@@ -100,7 +100,9 @@ class Translator:
     def key_exists(self, key) -> bool:
         return key in self._translations[self.default_locale]
 
-    def translate(self, key: str, noformat: bool = False, *args: Any, **kwargs: Any) -> str:
+    def translate(
+        self, key: str, noformat: bool = False, *args: Any, **kwargs: Any
+    ) -> str:
         """Retrieve proper translation for a key
 
         Attempt to retrieve translation for a key using the current locale
