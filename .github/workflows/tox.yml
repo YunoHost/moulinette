@@ -2,9 +2,10 @@ name: Tests
 
 on:
   push:
-      branches:
-          - dev
-          - bullseye
+    branches:
+    - dev
+    - bullseye
+    - trixie
   pull_request:
 
 jobs:
