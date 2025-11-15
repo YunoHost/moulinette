@@ -19,7 +19,7 @@
     "root_required": "Você deve ser root para executar esta ação",
     "server_already_running": "Um servidor já está em execução nessa porta",
     "success": "Sucesso!",
-    "unable_authenticate": "Não é possível autenticar",
+    "unable_authenticate": "Não foi possível autenticar",
     "values_mismatch": "Os valores não correspondem",
     "warning": "Aviso:",
     "warn_the_user_about_waiting_lock": "Outro comando do YunoHost está em execução agora, estamos esperando que ele termine antes de executar este",
