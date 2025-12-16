@@ -1,7 +1,7 @@
 {
     "password": "Пароль",
     "warn_the_user_that_lock_is_acquired": "Інша команда щойно завершилася, тепер запускаємо цю команду",
-    "warn_the_user_about_waiting_lock_again": "Досі очікуємо…",
+    "warn_the_user_about_waiting_lock_again": "Все ще чекаємо...",
     "warn_the_user_about_waiting_lock": "Зараз запускається ще одна команда YunoHost, ми чекаємо її завершення, перш ніж запустити цю",
     "warning": "Попередження:",
     "values_mismatch": "Неприпустимі значення",
@@ -23,5 +23,6 @@
     "confirm": "Підтвердити {prompt}",
     "authentication_required": "Потрібна автентифікація",
     "argument_required": "Потрібен аргумент '{argument}'",
-    "edit_text_question": "{}. Редагувати цей текст? [yN]: "
+    "edit_text_question": "{}. Редагувати цей текст? [yN]: ",
+    "logged_out": "Вийшли з системи"
 }
