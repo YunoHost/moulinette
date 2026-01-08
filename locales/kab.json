@@ -9,5 +9,6 @@
     "warning": "Ɣur-k·m:",
     "logged_out": "Tessensreḍ tuqqna",
     "confirm": "Sentem {prompt}",
-    "edit_text_question": "{}. Ẓreg aḍris-a ? [yN]: "
+    "edit_text_question": "{}. Ẓreg aḍris-a ? [yN]: ",
+    "server_already_running": "Yella yakan uqeddac itteddun ɣef tewwurt-nni"
 }
