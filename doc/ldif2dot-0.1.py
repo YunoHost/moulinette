@@ -30,7 +30,6 @@ ldapsearch -x -b 'dc=nodomain' | \\
 
 """
 
-
 import sys
 
 
