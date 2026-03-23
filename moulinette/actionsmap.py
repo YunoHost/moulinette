@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import copy
 import os
 import re
 import logging
@@ -646,7 +647,7 @@ class ActionsMap:
                 # Store action identifier and add arguments
                 action_parser.set_defaults(_tid=tid)
                 action_parser.add_arguments(
-                    arguments,
+                    copy.deepcopy(arguments),
                     extraparser=self.extraparser,
                     format_arg_names=top_parser.format_arg_names,
                     validate_extra=validate_extra,
@@ -696,7 +697,7 @@ class ActionsMap:
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
                     action_parser.add_arguments(
-                        arguments,
+                        copy.deepcopy(arguments),
                         extraparser=self.extraparser,
                         format_arg_names=top_parser.format_arg_names,
                         validate_extra=validate_extra,
