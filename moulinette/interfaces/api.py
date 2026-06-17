@@ -115,11 +115,15 @@ def best_locale_match_from_accept_language_header() -> str:
     prefered_languages = parse_accept_language(prefered_languages_raw)
 
     locales_dir = Path(m18n.translator.locale_dir)
-    supported_locales_codes = {p.name[:-len('.json')] for p in locales_dir.glob("*.json")}
+    supported_locales_codes = {
+        p.name[: -len(".json")] for p in locales_dir.glob("*.json")
+    }
     # supported_locales looks like
     # { ... 'en', 'fr', 'it', 'ar', 'nb_NO', 'pt_BR', 'te', 'zh_Hans', ... }
     # but we convert those to code tuples to make it easier to compare with the prefered languages
-    supported_locales_map = {code_to_code_tuple(code):code for code in supported_locales_codes}
+    supported_locales_map = {
+        code_to_code_tuple(code): code for code in supported_locales_codes
+    }
 
     for lang, suffix in prefered_languages:
         # First check for exact matches
@@ -131,7 +135,11 @@ def best_locale_match_from_accept_language_header() -> str:
             return supported_locales_map[(lang, None)]
 
         # Then check for stuff like "zh_whatever", fallback to the first "zh" we find, such as "zh_Hans"
-        matches = [code_tuple for code_tuple in supported_locales_map.keys() if code_tuple[0] == lang]
+        matches = [
+            code_tuple
+            for code_tuple in supported_locales_map.keys()
+            if code_tuple[0] == lang
+        ]
         if matches:
             return supported_locales_map[matches[0]]
 

@@ -218,7 +218,9 @@ class Moulinette18n:
         """Set the locale to use"""
 
         if not locale.replace("_", "").isalnum():
-            logger.warning(f"Refusing to set locale '{locale}' : is not a valid locale code ?")
+            logger.warning(
+                f"Refusing to set locale '{locale}' : is not a valid locale code ?"
+            )
             return
 
         self.locale = locale
