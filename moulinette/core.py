@@ -217,6 +217,10 @@ class Moulinette18n:
     def set_locale(self, locale: str) -> None:
         """Set the locale to use"""
 
+        if not locale.replace("_", "").isalnum():
+            logger.warning(f"Refusing to set locale '{locale}' : is not a valid locale code ?")
+            return
+
         self.locale = locale
         self._global.set_locale(locale)
         self.translator.set_locale(locale)

@@ -28,6 +28,7 @@ import argparse
 from json import dumps as json_encode
 from tempfile import mkdtemp
 from shutil import rmtree
+from pathlib import Path
 
 from bottle import redirect, request, response, Bottle, HTTPResponse, FileUpload
 from bottle import abort
@@ -78,6 +79,63 @@ def filter_csrf(callback):
             return callback(*args, **kwargs)
 
     return wrapper
+
+
+def best_locale_match_from_accept_language_header() -> str:
+    # Werkzeug, Flask and Babel have utils for this but we use neither of them
+    # so let's implement a homemade helper for this ...
+
+    # In particular, this helper covers the ynh-portal case, because the front
+    # doesn't provide a "locale" header info like the yunohost-admin front does
+
+    def code_to_code_tuple(code: str) -> tuple[str, str | None]:
+        # "fr"          -> ("fr",  None)
+        # "zh_Hans"     -> ("zh", "hans")
+        # "foo-bar_baz" -> ("foo", "bar-baz")
+        code = code.replace("_", "-").lower()
+        return tuple(code.split("-", 1)) if "-" in code else (code, None)
+
+    def parse_accept_language(header: str) -> list[tuple[str, str | None]]:
+        # Transform the accept-language header, for example "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3"
+        # Into: [('fr', None), ('fr', 'fr'), ('en', 'us'), ('en', None)]
+        if not header:
+            return []
+
+        result = []
+        for part in header.strip().replace(" ", "").split(","):
+            # (I admit this regex bit is from ChatGPT :grimacing:)
+            m = re.match(r"^\s*([A-Za-z0-9\-\_]+)\s*(?:;\s*q=([0-9.]+))?\s*$", part)
+            if not m:
+                continue
+            result.append(code_to_code_tuple(m.group(1)))
+
+        return result
+
+    prefered_languages_raw = request.get_header("Accept-Language")
+    prefered_languages = parse_accept_language(prefered_languages_raw)
+
+    locales_dir = Path(m18n.translator.locale_dir)
+    supported_locales_codes = {p.name[:-len('.json')] for p in locales_dir.glob("*.json")}
+    # supported_locales looks like
+    # { ... 'en', 'fr', 'it', 'ar', 'nb_NO', 'pt_BR', 'te', 'zh_Hans', ... }
+    # but we convert those to code tuples to make it easier to compare with the prefered languages
+    supported_locales_map = {code_to_code_tuple(code):code for code in supported_locales_codes}
+
+    for lang, suffix in prefered_languages:
+        # First check for exact matches
+        if (lang, suffix) in supported_locales_map:
+            return supported_locales_map[(lang, suffix)]
+
+        # Then check for stuff like "fr-FR", fallback to just "fr"
+        if suffix is not None and (lang, None) in supported_locales_map:
+            return supported_locales_map[(lang, None)]
+
+        # Then check for stuff like "zh_whatever", fallback to the first "zh" we find, such as "zh_Hans"
+        matches = [code_tuple for code_tuple in supported_locales_map.keys() if code_tuple[0] == lang]
+        if matches:
+            return supported_locales_map[matches[0]]
+
+    return m18n.default_locale
 
 
 class _HTTPArgumentParser:
@@ -689,6 +747,13 @@ class Interface:
                     locale = request.get_header("locale")
                 except Exception:
                     locale = None
+
+                if not locale:
+                    try:
+                        locale = best_locale_match_from_accept_language_header()
+                    except Exception:
+                        locale = None
+
                 locale = locale or m18n.default_locale
                 m18n.set_locale(locale)
                 return callback(*args, **kwargs)
