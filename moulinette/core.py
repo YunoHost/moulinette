@@ -288,6 +288,10 @@ class MoulinetteAuthenticationError(MoulinetteError):
     http_code = 401
 
 
+class MoulinetteLockAcquireTimeout(MoulinetteError):
+    pass
+
+
 class MoulinetteLock:
     """Locker for a moulinette instance
 
@@ -354,7 +358,7 @@ class MoulinetteLock:
                     break
 
             if self.timeout is not None and (time.time() - start_time) > self.timeout:
-                raise MoulinetteError("instance_already_running")
+                raise MoulinetteLockAcquireTimeout("instance_already_running")
 
             # warn the user if it's been too much time since they are waiting
             if (time.time() - start_time) > warning_treshold:
