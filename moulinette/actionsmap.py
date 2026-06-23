@@ -660,7 +660,10 @@ class ActionsMap:
                 # Disable the locking mechanism for all actions that are 'GET' actions on the api
                 routes = action_options.get("api")
                 routes = [routes] if isinstance(routes, str) else routes
-                if routes and all(route.startswith("GET ") or route.startswith("QUERY ") for route in routes):
+                if routes and all(
+                    route.startswith("GET ") or route.startswith("QUERY ")
+                    for route in routes
+                ):
                     action_parser.want_to_take_lock = False
                 else:
                     action_parser.want_to_take_lock = True
