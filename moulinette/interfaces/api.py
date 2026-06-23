@@ -573,7 +573,7 @@ class ActionsMapParser(BaseActionsMapParser):
         super(ActionsMapParser, self).__init__(parent)
 
         self._parsers = {}  # dict({(method, path): _HTTPArgumentParser})
-        self._route_re = re.compile(r"(GET|POST|PUT|DELETE) (/\S+)")
+        self._route_re = re.compile(r"(GET|POST|PUT|DELETE|QUERY) (/\S+)")
 
     @property
     def routes(self):
@@ -737,7 +737,7 @@ class Interface:
                     resp = r if isinstance(r, HTTPResponse) else response
                     resp.headers["Access-Control-Allow-Origin"] = origin
                     resp.headers["Access-Control-Allow-Methods"] = (
-                        "GET, HEAD, POST, PUT, OPTIONS, DELETE"
+                        "GET, HEAD, POST, PUT, OPTIONS, DELETE, QUERY"
                     )
                     resp.headers["Access-Control-Allow-Headers"] = (
                         "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
