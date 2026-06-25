@@ -282,8 +282,9 @@ class _HTTPArgumentParser:
             if dest in args:
                 arg_strings = append(arg_strings, args[dest], action)
 
-        # Post-treatment of the dirty hack describe above
         parsed_args = self._parser.parse_args(arg_strings, namespace)
+
+        # Post-treatment of the dirty hack describe above
         parsed_args_dict = vars(parsed_args)
         known_args = [action.dest for action in self._positional]
         known_args += list(self._optional.keys())
