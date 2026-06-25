@@ -228,21 +228,33 @@ class _HTTPArgumentParser:
                 value.save(UPLOAD_DIR)
                 if option_string is not None:
                     arg_strings.append(option_string)
-                arg_strings.append(UPLOAD_DIR + "/" + value.filename)
+                # ==== SPACE DIRTY_HACK =====
+                # In order to avoid option injection by starting a value with @
+                # we add a starting space on all string values, like that argparse
+                # do not interpret it as an option...
+                # The space is remove in a post-treatment
+                # see https://github.com/python/cpython/issues/138950
+                arg_strings.append(f" {UPLOAD_DIR}/{value.filename}")
             elif isinstance(value, str):
+                # Same space dirty hack as above
+                protected_value = f" {value}"
                 if option_string is not None:
                     arg_strings.append(option_string)
                     # TODO: Review this fix
+                    # FIXME What if value is an empty string ?
                     if value:
-                        arg_strings.append(value)
+                        arg_strings.append(protected_value)
                 else:
-                    arg_strings.append(value)
+                    arg_strings.append(protected_value)
             elif isinstance(value, list):
                 if option_string is not None:
                     arg_strings.append(option_string)
                 for v in value:
                     if isinstance(v, str):
-                        arg_strings.append(v)
+                        # Same space dirty hack as above
+
+                        protected_value = f" {v}"
+                        arg_strings.append(protected_value)
                     else:
                         logger.warning(
                             "unsupported argument value type %r "
@@ -270,7 +282,13 @@ class _HTTPArgumentParser:
             if dest in args:
                 arg_strings = append(arg_strings, args[dest], action)
 
-        return self._parser.parse_args(arg_strings, namespace)
+        # Post-treatment of the dirty hack describe above
+        parsed_args = self._parser.parse_args(arg_strings, namespace)
+        for option_string, value in vars(parsed_args).items():
+            if isinstance(value, str) and option_string not in ["loginShell", "_tid"]:
+                # We remove the starting space we have added on all values...
+                setattr(parsed_args, option_string, value[1:])
+        return parsed_args
 
     def _error(self, message):
         raise MoulinetteValidationError(message, raw_msg=True)
