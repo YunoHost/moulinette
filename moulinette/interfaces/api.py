@@ -284,8 +284,14 @@ class _HTTPArgumentParser:
 
         # Post-treatment of the dirty hack describe above
         parsed_args = self._parser.parse_args(arg_strings, namespace)
-        for option_string, value in vars(parsed_args).items():
-            if isinstance(value, str) and option_string not in ["loginShell", "_tid"]:
+        parsed_args_dict = vars(parsed_args)
+        known_args = [action.dest for action in self._positional]
+        known_args += list(self._optional.keys())
+        for option_string in known_args:
+            if option_string not in args:
+                continue
+            value = parsed_args_dict[option_string]
+            if isinstance(value, str) and value[0] == " ":
                 # We remove the starting space we have added on all values...
                 setattr(parsed_args, option_string, value[1:])
         return parsed_args
