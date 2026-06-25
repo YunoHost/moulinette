@@ -232,7 +232,7 @@ class _HTTPArgumentParser:
                 # In order to avoid option injection by starting a value with @
                 # we add a starting space on all string values, like that argparse
                 # do not interpret it as an option...
-                # The space is remove in a post-treatment
+                # The space is removed in a post-treatment
                 # see https://github.com/python/cpython/issues/138950
                 arg_strings.append(f" {UPLOAD_DIR}/{value.filename}")
             elif isinstance(value, str):
