@@ -147,6 +147,9 @@ def best_locale_match_from_accept_language_header() -> str:
     return m18n.default_locale
 
 
+# FIXME This parser transform API call into CLI command and parse
+# it with argparse. There are probably method to validate and ordering
+# API arguments without relying on argparse cli tools
 class _HTTPArgumentParser:
     """Argument parser for HTTP requests
 
@@ -229,9 +232,9 @@ class _HTTPArgumentParser:
                 if option_string is not None:
                     arg_strings.append(option_string)
                 # ==== SPACE DIRTY_HACK =====
-                # In order to avoid option injection by starting a value with @
-                # we add a starting space on all string values, like that argparse
-                # do not interpret it as an option...
+                # In order to avoid option injection by starting a value with a
+                # prefix_chars (here @), we add a starting space on all string
+                # values, like that argparse do not interpret it as an option...
                 # The space is removed in a post-treatment
                 # see https://github.com/python/cpython/issues/138950
                 arg_strings.append(f" {UPLOAD_DIR}/{value.filename}")
