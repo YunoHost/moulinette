@@ -231,16 +231,14 @@ class _HTTPArgumentParser:
                 value.save(UPLOAD_DIR)
                 if option_string is not None:
                     arg_strings.append(option_string)
+                arg_strings.append(f"{UPLOAD_DIR}/{value.filename}")
+            elif isinstance(value, str):
                 # ==== SPACE DIRTY_HACK =====
                 # In order to avoid option injection by starting a value with a
-                # prefix_chars (here @), we add a starting space on all string
-                # values, like that argparse do not interpret it as an option...
-                # The space is removed in a post-treatment
-                # see https://github.com/python/cpython/issues/138950
-                arg_strings.append(f" {UPLOAD_DIR}/{value.filename}")
-            elif isinstance(value, str):
-                # Same space dirty hack as above
-                protected_value = f" {value}"
+                # prefix_chars (here @), we add a starting space on string values
+                # starting with @, like that argparse do not interpret it as an
+                # option...
+                protected_value = f" {value}" if value.startswith("@") else value
                 if option_string is not None:
                     arg_strings.append(option_string)
                     # TODO: Review this fix
@@ -256,7 +254,7 @@ class _HTTPArgumentParser:
                     if isinstance(v, str):
                         # Same space dirty hack as above
 
-                        protected_value = f" {v}"
+                        protected_value = f" {v}" if v.startswith("@") else v
                         arg_strings.append(protected_value)
                     else:
                         logger.warning(
@@ -276,28 +274,29 @@ class _HTTPArgumentParser:
             return arg_strings
 
         # Iterate over positional arguments
+        known_args = []
         for action in self._positional:
             if action.dest in args:
                 arg_strings = append(arg_strings, args[action.dest], action)
+                known_args.append((action.dest, args[action.dest]))
 
         # Iterate over optional arguments
         for dest, action in self._optional.items():
             if dest in args:
                 arg_strings = append(arg_strings, args[dest], action)
+                known_args.append((dest, args[dest]))
 
         parsed_args = self._parser.parse_args(arg_strings, namespace)
 
         # Post-treatment of the dirty hack describe above
         parsed_args_dict = vars(parsed_args)
-        known_args = [action.dest for action in self._positional]
-        known_args += list(self._optional.keys())
-        for option_string in known_args:
+        for option_string, value in known_args:
             if option_string not in args:
                 continue
-            value = parsed_args_dict[option_string]
-            if isinstance(value, str) and value[0] == " ":
-                # We remove the starting space we have added on all values...
-                setattr(parsed_args, option_string, value[1:])
+            protected_value = parsed_args_dict[option_string]
+            if isinstance(protected_value, str) and value.startswith("@"):
+                # We remove the starting space we have added on values starting with @...
+                setattr(parsed_args, option_string, protected_value[1:])
         return parsed_args
 
     def _error(self, message):
