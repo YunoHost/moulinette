@@ -21,7 +21,7 @@
     "deprecated_command_alias": "'{prog} {old}' ist veraltet und wird bald entfernt werden, benutze '{prog} {new}' stattdessen",
     "info": "Info:",
     "warn_the_user_that_lock_is_acquired": "Der andere Befehl wurde gerade abgeschlossen, starte jetzt diesen Befehl",
-    "warn_the_user_about_waiting_lock_again": "Immer noch wartend…",
+    "warn_the_user_about_waiting_lock_again": "Immer noch wartend...",
     "warn_the_user_about_waiting_lock": "Ein anderer YunoHost Befehl läuft gerade, wir warten bis er fertig ist, bevor dieser laufen kann",
     "edit_text_question": "{}. Diesen Text bearbeiten? [yN]: ",
     "logged_out": "Abgemeldet"
