@@ -49,6 +49,14 @@ version = {attr = "maintenance.version.version"}
 [tool.setuptools.package-dir]
 moulinette = "moulinette"
 
+[tool.mypy]
+# strict = true
+follow_imports = "normal"
+# warn_return_any = true
+warn_unused_configs = true
+# disallow_untyped_defs = true
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 # for --cov-config see https://github.com/nedbat/coveragepy/issues/512
 addopts = "--cov=moulinette --no-cov-on-fail --cov-config=pyproject.toml"
@@ -56,4 +64,59 @@ norecursedirs = ["dist", "doc", "build", ".tox", ".eggs"]
 testpaths = ["tests/"]
 env = [
     "TESTS_RUN = True",
+]
+
+[tool.tox]
+env_list = [
+    { product = [["pytest", "lint", "invalidcode", "mypy"],  ["3.13", "3.14"]] },
+    "format",
+    "format-check",
+]
+
+[tool.tox.env_run_base]
+use_develop = true
+dependency_groups = ["tests"]
+deps = [
+    { replace = "if", condition = "factor.lint", then = ["flake8"], extend = true },
+    { replace = "if", condition = "factor.invalidcode", then = ["flake8"], extend = true },
+    { replace = "if", condition = "factor.mypy", then = ["mypy"], extend = true },
+]
+
+[tool.tox.env_base.pytest]
+factors = [["3.13", "3.14"]]
+commands = [["pytest", "{posargs:tests}"]]
+
+[tool.tox.env_base.lint]
+factors = [["3.13", "3.14"]]
+skipsdist = true
+deps = ["flake8"]
+commands = [["flake8", "--ignore", "E501,E128,E731,E722,W503,E203", "moulinette", "tests"]]
+
+[tool.tox.env_base.invalidcode]
+factors = [["3.13", "3.14"]]
+skipsdist = true
+commands = [["flake8", "moulinette", "tests", "--select", "F"]]
+
+[tool.tox.env_base.mypy]
+factors = [["3.13", "3.14"]]
+skipsdist = true
+commands = [
+    ["mypy", "--install-types", "--non-interactive", "moulinette"]
+]
+
+[tool.tox.env.format]
+skip_install = true
+skipsdist = true
+commands = [["black", "moulinette", "tests"]]
+
+[tool.tox.env.format-check]
+skipsdist = true
+commands = [
+    ["black", { replace = "posargs", default = ["--check", "--diff"], extend = true }, "moulinette", "tests"]
+]
+
+[tool.tox.env.docs]
+dependency_groups = ["docs"]
+commands = [
+    ["python3", "-m", "sphinx", "-W", "doc/", "doc/_build"]
 ]
