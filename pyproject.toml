@@ -48,3 +48,12 @@ version = {attr = "maintenance.version.version"}
 
 [tool.setuptools.package-dir]
 moulinette = "moulinette"
+
+[tool.pytest.ini_options]
+# for --cov-config see https://github.com/nedbat/coveragepy/issues/512
+addopts = "--cov=moulinette --no-cov-on-fail --cov-config=pyproject.toml"
+norecursedirs = ["dist", "doc", "build", ".tox", ".eggs"]
+testpaths = ["tests/"]
+env = [
+    "TESTS_RUN = True",
+]
