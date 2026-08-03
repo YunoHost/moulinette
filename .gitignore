@@ -23,6 +23,7 @@ log
 
 # Installer logs
 pip-log.txt
+uv.lock
 
 # Unit test / coverage reports
 .coverage
@@ -42,3 +43,4 @@ lib/**
 !lib/test
 data/actionsmap/**
 !data/actionsmap/test.yml
+tests/actionsmap/.moulitest*
