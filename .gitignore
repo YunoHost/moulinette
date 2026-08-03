@@ -44,3 +44,12 @@ lib/**
 data/actionsmap/**
 !data/actionsmap/test.yml
 tests/actionsmap/.moulitest*
+
+# Debian build
+/.pybuild/
+/debian/.debhelper/
+/debian/moulinette/
+/debian/debhelper-build-stamp
+/debian/files
+/debian/install
+/debian/moulinette.*
