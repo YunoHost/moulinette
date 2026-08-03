@@ -1,0 +1,50 @@
+[project]
+name = "Moulinette"
+description = "Prototype interfaces quickly and easily"
+dynamic = ["version"]
+readme = "README.md"
+license = "AGPL-3.0"
+authors = [
+    { name = "YunoHost", email = "yunohost@yunohost.org" }
+]
+urls.Repository = "https://github.com/YunoHost/moulinette"
+urls.Homepage = "https://yunohost.org"
+
+requires-python = ">=3.13"
+
+# These dependencies might not be up to date, please see debian/control instead
+dependencies = [
+    "psutil",
+    "pytz",
+    "pyyaml",
+    "toml",
+    "gevent-websocket",
+    "bottle",
+    "prompt-toolkit>=3.0",
+    "pygments",
+]
+
+[dependency-groups]
+tests = [
+    "pytest",
+    "pytest-cov",
+    "pytest-env",
+    "pytest-mock",
+    "mock",
+    "requests",
+    "requests-mock",
+    "webtest",
+]
+
+docs = [
+    "mock",
+    "pyyaml",
+    "sphinx",
+    "toml",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "maintenance.version.version"}
+
+[tool.setuptools.package-dir]
+moulinette = "moulinette"
