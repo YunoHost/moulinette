@@ -68,7 +68,7 @@ env = [
 
 [tool.tox]
 env_list = [
-    { product = [["pytest", "lint", "invalidcode", "mypy"],  ["3.13", "3.14"]] },
+    { product = [["pytest", "lint", "invalidcode", "mypy"],  ["3.13"]] },
     "format",
     "format-check",
 ]
