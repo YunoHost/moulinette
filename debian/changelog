@@ -1,3 +1,17 @@
+moulinette (13.0.1) testing; urgency=low
+
+  - m18n: Add a noformat argument to prevent formatting the string and align with the gettext API (593524b2)
+  - Bump python compatibility to Python 3.13 (34c89e0d)
+  - actionsmap: fix an edgecase bug when using yaml references to not repeat 'arguments' across multiple actions (339c99d5)
+  - API: Try to derive locale when no 'locale' header is passed (962aa952)
+  - lock: Raise a custom exception on timeout (85e1d0a8)
+  - api: add support for the QUERY http verb (f302a6c5)
+  - [i18n] Translations updated for Kabyle, Persian, Portuguese (Brazil), Russian, Norwegian Nynorsk, Uzbek
+
+  Thanks to all contributors <3 ! (Alekseï, Alexandre Aubin, alexAubin, Avid, ButterflyOfFire, Eduardo Mozart de Oliveira, Salamandar)
+
+ -- Félix Piédallu <felix@piedallu.me>  Wed, 05 Aug 2026 22:50:39 +0200
+
 moulinette (13.0.0) testing; urgency=low
 
   - m18n: Add a noformat argument to prevent formatting the string and align with the gettext API (593524b2)
@@ -166,7 +180,7 @@ moulinette (11.0.7) testing; urgency=low
   - [i18n] Translations updated for Spanish
 
   Thanks to all contributors <3 ! (JimScope, Alexandre Aubin)
-  
+
  -- tituspijean <titus+yunohost@pijean.ovh>  Wed, 18 May 2022 00:02:25 +0200
 
 moulinette (11.0.6) testing; urgency=low
@@ -379,7 +393,7 @@ moulinette (4.1.1) testing; urgency=low
 moulinette (4.1.0.1) testing; urgency=low
 
   - Tmp bump version number for CI / tests
-  
+
 moulinette (4.1.0) testing; urgency=low
 
   - [enh] Simplify interface initialization (Moulinette#245)
@@ -1379,4 +1393,3 @@ moulinette (2.0-beta4~megusta1) test; urgency=low
   * Init
 
  -- Adrien Beudin <beudbeud@yunohost.org>  Wed, 07 May 2014 08:01:45 +0200
-
