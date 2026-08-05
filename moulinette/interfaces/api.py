@@ -93,7 +93,8 @@ def best_locale_match_from_accept_language_header() -> str:
         # "zh_Hans"     -> ("zh", "hans")
         # "foo-bar_baz" -> ("foo", "bar-baz")
         code = code.replace("_", "-").lower()
-        return tuple(code.split("-", 1)) if "-" in code else (code, None)
+        lang, spec = code.split("-", 1) if "-" in code else (code, None)
+        return lang, spec
 
     def parse_accept_language(header: str) -> list[tuple[str, str | None]]:
         # Transform the accept-language header, for example "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3"
