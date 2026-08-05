@@ -7,5 +7,7 @@
     "info": "Talɣut:",
     "not_logged_in": "Ur teqqineḍ ara",
     "warning": "Ɣur-k·m:",
-    "logged_out": "Tessensreḍ tuqqna"
+    "logged_out": "Tessensreḍ tuqqna",
+    "confirm": "Sentem {prompt}",
+    "edit_text_question": "{}. Ẓreg aḍris-a ? [yN]: "
 }

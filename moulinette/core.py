@@ -224,6 +224,12 @@ class Moulinette18n:
     def set_locale(self, locale: str) -> None:
         """Set the locale to use"""
 
+        if not locale.replace("_", "").isalnum():
+            logger.warning(
+                f"Refusing to set locale '{locale}' : is not a valid locale code ?"
+            )
+            return
+
         self.locale = locale
         self._global.set_locale(locale)
         self.translator.set_locale(locale)
@@ -292,6 +298,10 @@ class MoulinetteAuthenticationError(MoulinetteError):
     http_code = 401
 
 
+class MoulinetteLockAcquireTimeout(MoulinetteError):
+    pass
+
+
 class MoulinetteLock:
     """Locker for a moulinette instance
 
@@ -358,7 +368,7 @@ class MoulinetteLock:
                     break
 
             if self.timeout is not None and (time.time() - start_time) > self.timeout:
-                raise MoulinetteError("instance_already_running")
+                raise MoulinetteLockAcquireTimeout("instance_already_running")
 
             # warn the user if it's been too much time since they are waiting
             if (time.time() - start_time) > warning_treshold:

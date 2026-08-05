@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import copy
 import os
 import re
 import logging
@@ -646,7 +647,7 @@ class ActionsMap:
                 # Store action identifier and add arguments
                 action_parser.set_defaults(_tid=tid)
                 action_parser.add_arguments(
-                    arguments,
+                    copy.deepcopy(arguments),
                     extraparser=self.extraparser,
                     format_arg_names=top_parser.format_arg_names,
                     validate_extra=validate_extra,
@@ -659,7 +660,10 @@ class ActionsMap:
                 # Disable the locking mechanism for all actions that are 'GET' actions on the api
                 routes = action_options.get("api")
                 routes = [routes] if isinstance(routes, str) else routes
-                if routes and all(route.startswith("GET ") for route in routes):
+                if routes and all(
+                    route.startswith("GET ") or route.startswith("QUERY ")
+                    for route in routes
+                ):
                     action_parser.want_to_take_lock = False
                 else:
                     action_parser.want_to_take_lock = True
@@ -696,7 +700,7 @@ class ActionsMap:
                     # Store action identifier and add arguments
                     action_parser.set_defaults(_tid=tid)
                     action_parser.add_arguments(
-                        arguments,
+                        copy.deepcopy(arguments),
                         extraparser=self.extraparser,
                         format_arg_names=top_parser.format_arg_names,
                         validate_extra=validate_extra,
