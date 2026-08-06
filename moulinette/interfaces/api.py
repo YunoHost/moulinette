@@ -18,27 +18,25 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
-import sys
-import re
+import argparse
 import errno
 import logging
-import argparse
-
+import os
+import re
+import sys
 from json import dumps as json_encode
-from tempfile import mkdtemp
-from shutil import rmtree
 from pathlib import Path
+from shutil import rmtree
+from tempfile import mkdtemp
 
-from bottle import redirect, request, response, Bottle, HTTPResponse, FileUpload
-from bottle import abort
+from bottle import Bottle, FileUpload, HTTPResponse, abort, redirect, request, response
 
-from moulinette import m18n, Moulinette
+from moulinette import Moulinette, m18n
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import (
+    MoulinetteAuthenticationError,
     MoulinetteError,
     MoulinetteValidationError,
-    MoulinetteAuthenticationError,
 )
 from moulinette.interfaces import (
     BaseActionsMapParser,

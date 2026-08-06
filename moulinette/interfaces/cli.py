@@ -18,31 +18,31 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
-import sys
+import argparse
 import locale
 import logging
-import argparse
+import os
+import sys
 import tempfile
 from collections import OrderedDict
 from datetime import date, datetime
+from logging import (
+    CRITICAL,
+    DEBUG,
+    ERROR,
+    INFO,
+    NOTSET,
+    WARNING,
+)
 from subprocess import call
 
-from moulinette import m18n, Moulinette
+from moulinette import Moulinette, m18n
 from moulinette.actionsmap import ActionsMap
 from moulinette.core import MoulinetteError, MoulinetteValidationError
 from moulinette.interfaces import (
     BaseActionsMapParser,
     ExtendedArgumentParser,
     JSONExtendedEncoder,
-)
-from logging import (
-    NOTSET,
-    DEBUG,
-    INFO,
-    WARNING,
-    ERROR,
-    CRITICAL,
 )
 
 SUCCESS = 25

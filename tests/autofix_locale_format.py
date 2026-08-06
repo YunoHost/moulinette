@@ -18,9 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import re
-import json
 import glob
+import json
+import re
 
 # List all locale files (except en.json being the ref)
 locale_folder = "locales/"

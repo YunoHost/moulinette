@@ -19,20 +19,20 @@
 #
 
 import copy
-import os
-import re
-import logging
 import glob
+import logging
+import os
 import pickle as pickle
+import re
+from collections import OrderedDict
+from functools import cache
+from importlib import import_module
+from time import time
+from typing import List, Optional
+
 import yaml
 
-from typing import List, Optional
-from time import time
-from collections import OrderedDict
-from importlib import import_module
-from functools import cache
-
-from moulinette import m18n, Moulinette
+from moulinette import Moulinette, m18n
 from moulinette.core import (
     MoulinetteError,
     MoulinetteLock,

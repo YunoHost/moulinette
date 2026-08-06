@@ -20,18 +20,17 @@
 
 import pytest
 
+from moulinette import Moulinette, m18n
 from moulinette.actionsmap import (
-    CommentParameter,
+    ActionsMap,
     AskParameter,
+    CommentParameter,
+    ExtraArgumentParser,
     PasswordParameter,
     PatternParameter,
     RequiredParameter,
-    ExtraArgumentParser,
-    ActionsMap,
 )
-
 from moulinette.core import MoulinetteError
-from moulinette import m18n, Moulinette
 
 
 @pytest.fixture
@@ -296,8 +295,9 @@ def test_actions_map_import_error(mocker):
 
 
 def test_actions_map_cli():
-    from moulinette.interfaces.cli import ActionsMapParser
     import argparse
+
+    from moulinette.interfaces.cli import ActionsMapParser
 
     top_parser = argparse.ArgumentParser(add_help=False)
     top_parser.add_argument(

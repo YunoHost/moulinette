@@ -19,8 +19,8 @@
 #
 
 from moulinette.core import (
-    MoulinetteError,
     Moulinette18n,
+    MoulinetteError,
 )
 
 __title__ = "moulinette"

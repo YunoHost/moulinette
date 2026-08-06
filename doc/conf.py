@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 
 import sys
+
 from mock import Mock as MagicMock
 
 

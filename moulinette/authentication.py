@@ -20,7 +20,7 @@
 
 import logging
 
-from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
+from moulinette.core import MoulinetteAuthenticationError, MoulinetteError
 
 logger = logging.getLogger("moulinette.authenticator")
 

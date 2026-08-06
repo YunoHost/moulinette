@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import json
 import glob
+import json
 from collections import OrderedDict
 
 locale_folder = "locales/"

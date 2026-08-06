@@ -20,14 +20,14 @@
 
 """Pytest fixtures for testing."""
 
-import sys
-import toml
-import yaml
 import json
 import os
-
 import shutil
+import sys
+
 import pytest
+import toml
+import yaml
 
 
 def patch_translate(moulinette):

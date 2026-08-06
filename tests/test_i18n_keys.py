@@ -18,9 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import re
 import glob
 import json
+import re
 
 ###############################################################################
 #   Find used keys in python code                                             #

@@ -18,12 +18,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
 import binascii
-import logging
 import json
-from moulinette.core import MoulinetteError, MoulinetteAuthenticationError
+import logging
+import os
+
 from moulinette.authentication import BaseAuthenticator
+from moulinette.core import MoulinetteAuthenticationError, MoulinetteError
 
 logger = logging.getLogger("moulinette.authenticator.yoloswag")
 
