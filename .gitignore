@@ -51,5 +51,4 @@ tests/actionsmap/.moulitest*
 /debian/moulinette/
 /debian/debhelper-build-stamp
 /debian/files
-/debian/install
 /debian/moulinette.*
