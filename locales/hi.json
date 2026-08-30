@@ -20,5 +20,9 @@
     "values_mismatch": "वैल्यूज मेल नहीं खाती।",
     "warning": "चेतावनी:",
     "info": "सूचना:",
-    "warn_the_user_about_waiting_lock_again": ""
+    "warn_the_user_about_waiting_lock_again": "",
+    "edit_text_question": "",
+    "warn_the_user_about_waiting_lock": "",
+    "warn_the_user_that_lock_is_acquired": "",
+    "logged_out": ""
 }
