@@ -23,5 +23,6 @@
     "warn_the_user_about_waiting_lock_again": "Ainda esperando…",
     "warn_the_user_about_waiting_lock": "Outro comando YunoHost está sendo executado agora, estamos aguardando o término antes de executar este",
     "info": "Informações:",
-    "edit_text_question": "{}. Editar este texto ? [yN]: "
+    "edit_text_question": "{}. Editar este texto ? [yN]: ",
+    "logged_out": ""
 }
