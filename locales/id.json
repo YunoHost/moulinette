@@ -23,6 +23,5 @@
     "not_logged_in": "Anda belum masuk",
     "operation_interrupted": "Tindakan terganggu",
     "pattern_not_match": "Tidak cocok dengan pola",
-    "root_required": "Anda harus berada di root untuk melakukan tindakan ini",
-    "logged_out": ""
+    "root_required": "Anda harus berada di root untuk melakukan tindakan ini"
 }

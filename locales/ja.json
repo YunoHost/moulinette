@@ -23,6 +23,5 @@
     "success": "成功！",
     "unable_authenticate": "認証できません",
     "values_mismatch": "値が一致しない",
-    "warning": "警告:",
-    "logged_out": ""
+    "warning": "警告:"
 }

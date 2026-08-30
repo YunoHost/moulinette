@@ -23,6 +23,5 @@
     "info": "Bilgi:",
     "deprecated_command_alias": "'{prog} {old}' kullanımdan kaldırıldı ve gelecekte kaldırılacak, bunun yerine '{prog} {new}' kullanın",
     "deprecated_command": "'{prog} {command}' kullanımdan kaldırıldı ve gelecekte kaldırılacak",
-    "edit_text_question": "{}. Bu metni düzenle ? [yN]: ",
-    "logged_out": ""
+    "edit_text_question": "{}. Bu metni düzenle ? [yN]: "
 }

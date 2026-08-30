@@ -22,7 +22,5 @@
     "deprecated_command": "'{prog} {command}' malakceptas kaj estos forigita estonte",
     "confirm": "Konfirmu {prompt}",
     "authentication_required": "Aŭtentigo bezonata",
-    "argument_required": "Argumento '{argument}' estas bezonata",
-    "edit_text_question": "",
-    "logged_out": ""
+    "argument_required": "Argumento '{argument}' estas bezonata"
 }

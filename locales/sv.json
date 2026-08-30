@@ -22,7 +22,5 @@
     "unable_authenticate": "Det gick inte att autentisera",
     "invalid_usage": "Ogiltig användning. Ange --help för att visa hjälpen",
     "instance_already_running": "En annan YunoHost-åtgärd körs redan. Vänta tills den är klar innan du kör en ny.",
-    "authentication_required": "Autentisering krävs",
-    "edit_text_question": "",
-    "logged_out": ""
+    "authentication_required": "Autentisering krävs"
 }
