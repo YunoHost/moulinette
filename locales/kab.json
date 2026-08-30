@@ -11,5 +11,18 @@
     "confirm": "Sentem {prompt}",
     "edit_text_question": "{}. Ẓreg aḍris-a ? [yN]: ",
     "server_already_running": "Yella yakan uqeddac itteddun ɣef tewwurt-nni",
-    "warn_the_user_about_waiting_lock_again": ""
+    "warn_the_user_about_waiting_lock_again": "",
+    "invalid_usage": "",
+    "argument_required": "",
+    "deprecated_command_alias": "",
+    "warn_the_user_about_waiting_lock": "",
+    "warn_the_user_that_lock_is_acquired": "",
+    "invalid_argument": "",
+    "instance_already_running": "",
+    "root_required": "",
+    "operation_interrupted": "",
+    "unable_authenticate": "",
+    "values_mismatch": "",
+    "pattern_not_match": "",
+    "deprecated_command": ""
 }
