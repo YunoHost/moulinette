@@ -23,5 +23,6 @@
     "warning": "Varovanie:",
     "warn_the_user_about_waiting_lock": "Práve prebieha iná operácia YunoHost, pred spustením čakáme na jej dokončenie",
     "warn_the_user_about_waiting_lock_again": "Stále čakáme…",
-    "warn_the_user_that_lock_is_acquired": "Predchádzajúca operácia bola dokončená, teraz spúšťame túto"
+    "warn_the_user_that_lock_is_acquired": "Predchádzajúca operácia bola dokončená, teraz spúšťame túto",
+    "logged_out": ""
 }
