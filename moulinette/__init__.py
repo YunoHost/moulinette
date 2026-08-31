@@ -78,6 +78,7 @@ def api(
     actionsmap=None,
     locales_dir=None,
     allowed_cors_origins=[],
+    umask=None
 ):
     """Web server (API) interface
 
@@ -102,6 +103,7 @@ def api(
             routes=routes,
             actionsmap=actionsmap,
             allowed_cors_origins=allowed_cors_origins,
+            umask=umask
         ).run(host, port)
     except MoulinetteError as e:
         import logging
