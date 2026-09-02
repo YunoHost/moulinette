@@ -280,7 +280,11 @@ class TTYHandler(logging.StreamHandler):
                 level_key = record.levelname.lower()
                 # When m18n.g detects a missing key, it raises a warning which is formated back here.
                 # This produces a infinite recursion. Avoid that by checking whether the key exists manually here.
-                level = m18n.g(level_key) if m18n.key_exists(level_key) else record.levelname
+                level = (
+                    m18n.g(level_key)
+                    if m18n.key_exists(level_key)
+                    else record.levelname
+                )
             color = LEVELS_COLOR.get(record.levelno, "white")
             level_with_color = f"{colors_codes[color]}{level}{END_CLI_COLOR}"
             if self.level == DEBUG:
