@@ -539,7 +539,8 @@ class Interface:
         # For security reason, set default umask before each request
         # to be sure we run the request with the default value
         # See: https://github.com/YunoHost/yunohost/pull/2344
-        os.umask(self.umask)
+        if self.umask is not None:
+            os.umask(self.umask)
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)
