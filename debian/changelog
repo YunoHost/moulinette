@@ -1,3 +1,14 @@
+moulinette (13.0.2) testing; urgency=medium
+
+  - refactoring: sort imports with ruff (9027b889)
+  - debian: Add back debian/install file for locale install (7d0dafd7)
+  - Merge changes from 12.1.4
+  - i18n: Translations updated for Arabic, Basque, Bengali (Bangladesh), Breton, Catalan, Chinese (Simplified Han script), Czech, Danish, Dutch, Esperanto, Finnish, French, Galician, German, Greek, Hebrew, Hindi, Hungarian, Indonesian, Italian, Japanese, Kabyle, Korean, Kurdish (Sorani), Lithuanian, Macedonian, Nepali, Norwegian Bokmål, Norwegian Nynorsk, Occitan, Portuguese, Slovak, Slovenian, Spanish, Swedish, Tamil, Telugu, Turkish, Ukrainian, Uzbek
+
+  Thanks to all contributors <3 ! (Alekseï, Anonymous, Atalay Daban, ButterflyOfFire, cjdw, demodé, Dhanush G, Félix Piédallu, fflorent, Florent, g-rppl, Jonatan Nyberg, José M, leinaduhcs, ljf (zamentur), Mer, OniriCorpe, Poesty Li, rosbeef andino, Tommi, xabirequejo)
+
+ -- Tagada <tagada@yunohost.org>  Fri, 04 Sep 2026 01:37:31 +0200
+
 moulinette (12.1.4) stable; urgency=medium
 
   - actionsmap: allow to bind YAML references for arguments in the actionsmap (339c99d5)
