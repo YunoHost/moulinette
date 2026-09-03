@@ -499,7 +499,7 @@ class Interface:
         load_only_category=None,
         actionsmap=None,
         locales_dir=None,
-        umask=None
+        umask=None,
     ):
         # Set user locale
         m18n.set_locale(get_locale())
