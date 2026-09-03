@@ -147,6 +147,9 @@ def best_locale_match_from_accept_language_header() -> str:
     return m18n.default_locale
 
 
+# FIXME This parser transform API call into CLI command and parse
+# it with argparse. There are probably method to validate and ordering
+# API arguments without relying on argparse cli tools
 class _HTTPArgumentParser:
     """Argument parser for HTTP requests
 
@@ -228,21 +231,31 @@ class _HTTPArgumentParser:
                 value.save(UPLOAD_DIR)
                 if option_string is not None:
                     arg_strings.append(option_string)
-                arg_strings.append(UPLOAD_DIR + "/" + value.filename)
+                arg_strings.append(f"{UPLOAD_DIR}/{value.filename}")
             elif isinstance(value, str):
+                # ==== SPACE DIRTY_HACK =====
+                # In order to avoid option injection by starting a value with a
+                # prefix_chars (here @), we add a starting space on string values
+                # starting with @, like that argparse do not interpret it as an
+                # option...
+                protected_value = f" {value}" if value.startswith("@") else value
                 if option_string is not None:
                     arg_strings.append(option_string)
                     # TODO: Review this fix
+                    # FIXME What if value is an empty string ?
                     if value:
-                        arg_strings.append(value)
+                        arg_strings.append(protected_value)
                 else:
-                    arg_strings.append(value)
+                    arg_strings.append(protected_value)
             elif isinstance(value, list):
                 if option_string is not None:
                     arg_strings.append(option_string)
                 for v in value:
                     if isinstance(v, str):
-                        arg_strings.append(v)
+                        # Same space dirty hack as above
+
+                        protected_value = f" {v}" if v.startswith("@") else v
+                        arg_strings.append(protected_value)
                     else:
                         logger.warning(
                             "unsupported argument value type %r "
@@ -261,16 +274,30 @@ class _HTTPArgumentParser:
             return arg_strings
 
         # Iterate over positional arguments
+        known_args = []
         for action in self._positional:
             if action.dest in args:
                 arg_strings = append(arg_strings, args[action.dest], action)
+                known_args.append((action.dest, args[action.dest]))
 
         # Iterate over optional arguments
         for dest, action in self._optional.items():
             if dest in args:
                 arg_strings = append(arg_strings, args[dest], action)
+                known_args.append((dest, args[dest]))
 
-        return self._parser.parse_args(arg_strings, namespace)
+        parsed_args = self._parser.parse_args(arg_strings, namespace)
+
+        # Post-treatment of the dirty hack describe above
+        parsed_args_dict = vars(parsed_args)
+        for option_string, value in known_args:
+            if option_string not in args:
+                continue
+            protected_value = parsed_args_dict[option_string]
+            if isinstance(protected_value, str) and value.startswith("@"):
+                # We remove the starting space we have added on values starting with @...
+                setattr(parsed_args, option_string, protected_value[1:])
+        return parsed_args
 
     def _error(self, message):
         raise MoulinetteValidationError(message, raw_msg=True)
