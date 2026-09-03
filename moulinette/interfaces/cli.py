@@ -499,6 +499,7 @@ class Interface:
         load_only_category=None,
         actionsmap=None,
         locales_dir=None,
+        umask=None
     ):
         # Set user locale
         m18n.set_locale(get_locale())
@@ -508,6 +509,8 @@ class Interface:
             ActionsMapParser(top_parser=top_parser),
             load_only_category=load_only_category,
         )
+
+        self.umask = umask
 
         Moulinette._interface = self
 
@@ -532,6 +535,12 @@ class Interface:
 
         if not args:
             raise MoulinetteValidationError("invalid_usage")
+
+        # For security reason, set default umask before each request
+        # to be sure we run the request with the default value
+        # See: https://github.com/YunoHost/yunohost/pull/2344
+        if self.umask is not None:
+            os.umask(self.umask)
 
         try:
             ret = self.actionsmap.process(args, timeout=timeout)

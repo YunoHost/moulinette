@@ -78,6 +78,7 @@ def api(
     actionsmap=None,
     locales_dir=None,
     allowed_cors_origins=[],
+    umask=None
 ):
     """Web server (API) interface
 
@@ -102,6 +103,7 @@ def api(
             routes=routes,
             actionsmap=actionsmap,
             allowed_cors_origins=allowed_cors_origins,
+            umask=umask
         ).run(host, port)
     except MoulinetteError as e:
         import logging
@@ -116,7 +118,8 @@ def api(
 
 
 def cli(
-    args, top_parser, output_as=None, timeout=None, actionsmap=None, locales_dir=None
+    args, top_parser, output_as=None, timeout=None, actionsmap=None, locales_dir=None,
+    umask=None
 ):
     """Command line interface
 
@@ -140,6 +143,7 @@ def cli(
             top_parser=top_parser,
             load_only_category=load_only_category,
             actionsmap=actionsmap,
+            umask=umask
         ).run(args, output_as=output_as, timeout=timeout)
     except MoulinetteError as e:
         import logging

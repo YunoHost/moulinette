@@ -718,13 +718,25 @@ class Interface:
 
     type = "api"
 
-    def __init__(self, routes={}, actionsmap=None, allowed_cors_origins=[]):
+    def __init__(self, routes={}, actionsmap=None, allowed_cors_origins=[],
+                umask=None):
         actionsmap = ActionsMap(actionsmap, ActionsMapParser())
 
         self.allowed_cors_origins = allowed_cors_origins
+        self.umask = umask
 
         # TODO: Return OK to 'OPTIONS' xhr requests (l173)
         app = Bottle(autojson=True)
+
+        def set_umask(callback):
+            def wrapper(*args, **kwargs):
+                """ For security reason, set default umask before each request
+                to be sure we run the request with the default value
+                See: https://github.com/YunoHost/yunohost/pull/2344
+                """
+                os.umask(self.umask)
+                return callback(*args, **kwargs)
+            return wrapper
 
         def cors(callback):
             def wrapper(*args, **kwargs):
@@ -775,6 +787,8 @@ class Interface:
         app.install(api18n)
         actionsmapplugin = _ActionsMapPlugin(actionsmap)
         app.install(actionsmapplugin)
+        if self.umask is not None:
+            app.install(set_umask)
 
         self.authenticate = actionsmapplugin.authenticate
         self.display = actionsmapplugin.display
