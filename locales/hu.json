@@ -6,5 +6,9 @@
     "values_mismatch": "Eltérő értékek",
     "warning": "Figyelem:",
     "info": "Információ:",
-    "error": "Hiba:"
+    "error": "Hiba:",
+    "authentication_required": "Hitelesítés szükséges",
+    "confirm": "Megerősítés {prompt}",
+    "deprecated_command": "\"{prog} {command}\" elavult és a jövőben törölve lesz",
+    "deprecated_command_alias": "\"{prog} {old}\" elavult és a jövőben törölve less. Használja helyette a \"{prog} {new}\"-t"
 }
