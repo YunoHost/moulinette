@@ -10,5 +10,13 @@
     "authentication_required": "Hitelesítés szükséges",
     "confirm": "Megerősítés {prompt}",
     "deprecated_command": "\"{prog} {command}\" elavult és a jövőben törölve lesz",
-    "deprecated_command_alias": "\"{prog} {old}\" elavult és a jövőben törölve less. Használja helyette a \"{prog} {new}\"-t"
+    "deprecated_command_alias": "\"{prog} {old}\" elavult és a jövőben törölve less. Használja helyette a \"{prog} {new}\"-t",
+    "edit_text_question": "{}. Szöveg módosítása? [i/N]: ",
+    "instance_already_running": "Már fut egy YunoHost művelet. Kérjük várjon míg befejeződik mielőtt újat indít.",
+    "logged_out": "Kijelentkezve",
+    "not_logged_in": "Nem vagy bejelentkezve",
+    "operation_interrupted": "Művelet megszakítva",
+    "pattern_not_match": "Nem felel meg a mintának",
+    "root_required": "E művelet végrehajtásához root jogosultság szükséges",
+    "unable_authenticate": "A hitelesítés nem sikerült"
 }
