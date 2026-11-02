@@ -19,7 +19,7 @@ jobs:
           path: moulinette
 
       - name: Build YunoHost
-        uses: yunohost/yunohost-ci/.github/actions/build_deb
+        uses: yunohost/yunohost-ci/.github/actions/build_deb@main
         with:
           path: moulinette
           outdir: packages
