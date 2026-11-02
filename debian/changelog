@@ -1,3 +1,12 @@
+moulinette (13.0.3) testing; urgency=medium
+
+  - i18n: Translations updated for Hungarian, Kabyle, Turkish
+  - Miscelaneous CI improvements
+
+  Thanks to all contributors <3 ! (ButterflyOfFire, Simon F, Tekhne)
+
+ -- Salamandar <felix@piedallu.me>  Mon, 02 Nov 2026 19:41:23 +0100
+
 moulinette (13.0.2) testing; urgency=medium
 
   - refactoring: sort imports with ruff (9027b889)
