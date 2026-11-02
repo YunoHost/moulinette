@@ -1,0 +1,49 @@
+name: Automatically reformat files
+
+on:
+  push:
+    branches: [main, dev, bullseye, bookworm, trixie]
+
+jobs:
+  python:
+    name: Format python code and commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check files using the black formatter
+        uses: psf/black@stable
+        id: black
+        with:
+          options: "."
+        continue-on-error: true
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: ":art: Format Python code with Black"
+
+  i18n:
+    name: Format locale files and create pull request
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Apply reformating scripts
+        id: action_reformat
+        run: |
+          python3 maintenance/remove_stale_i18n_strings.py
+          python3 maintenance/autofix_locale_format.py
+          python3 maintenance/reformat_locales.py
+          git diff -w --exit-code
+
+      - name: Create Pull Request
+        if: ${{ failure() }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Reformat locale files"
+          commit-message: ":robot: Reformat locale files"
+          body: |
+            Automatic pull request using the scripts in `maintenance/`
+          base: ${{ github.head_ref }}
+          branch: actions/i18nreformat

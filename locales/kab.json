@@ -1,5 +1,5 @@
 {
-    "error": "Erreur :",
+    "error": "Tuccḍa:",
     "success": "Akka d rrbeḥ !",
     "password": "Awal n uɛeddi",
     "logged_in": "Taqqneḍ",
@@ -10,5 +10,19 @@
     "logged_out": "Tessensreḍ tuqqna",
     "confirm": "Sentem {prompt}",
     "edit_text_question": "{}. Ẓreg aḍris-a ? [yN]: ",
-    "server_already_running": "Yella yakan uqeddac itteddun ɣef tewwurt-nni"
+    "server_already_running": "Yella yakan uqeddac itteddun ɣef tewwurt-nni",
+    "warn_the_user_about_waiting_lock_again": "Mazal la ntraǧu...",
+    "operation_interrupted": "Tamhelt teḥbes",
+    "unable_authenticate": "D awezɣi usesteb",
+    "values_mismatch": "Azalen ur msadan ara",
+    "argument_required": "Ilaq ufakul '{argument}'",
+    "invalid_argument": "Afakul arameɣtu '{argument}': {error}",
+    "root_required": "Ilaq ad tiliḍ d root iwakken ad txedmeḍ tigawt-a",
+    "deprecated_command": "'{prog} {command}' teqdem yerna ad tettwakkes sya ɣer zdat",
+    "deprecated_command_alias": "'{prog} {old}' teqdem yerna ad tettwakkes sya ɣer zdat, seqdec '{prog} {new}' deg nnuba-is",
+    "instance_already_running": "Tella yakan temhelt n YunoHost itteddun. Ttxil-k·m, rǧu alamma tfuk uqbel ad tebduḍ tayeḍ.",
+    "invalid_usage": "Aseqdec arameɣtu, seqdec --help akken ad twaliḍ tallalt",
+    "pattern_not_match": "Ur yemsada ara d uzenziɣ",
+    "warn_the_user_about_waiting_lock": "Tella tladna n YunoHost nnayeḍ tetteddu akka tura, la ntraǧu ad ttfakk uqbel ad nsekker ta",
+    "warn_the_user_that_lock_is_acquired": "Taladna-nni nnayeḍ akken kan i tfuk, tura ad nsekker ta"
 }

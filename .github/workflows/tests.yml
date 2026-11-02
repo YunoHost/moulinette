@@ -1,0 +1,41 @@
+name: Test code
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev, bullseye, bookworm, trixie]
+
+jobs:
+  test-tox:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.13]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install apt dependencies
+        run: |
+          sudo apt update
+          sudo apt install ldap-utils slapd libsasl2-dev libldap2-dev libssl-dev
+
+      - name: Install tox
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox tox-gh-actions
+
+      - name: Run Pytest
+        run: tox -e py313-pytest
+
+      - name: Run Flake8
+        if: success() || failure()
+        run: tox -e py313-invalidcode
+
+      - name: Run Mypy
+        if: success() || failure()
+        run: tox -e py313-mypy
