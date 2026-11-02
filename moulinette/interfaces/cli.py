@@ -212,33 +212,31 @@ def pretty_print_dict(d, depth=0):
             keys = natsorted(keys)
         else:
             keys = sorted(keys)
-    else:
-        keys = sorted(keys)
-        for k in keys:
-            v = d[k]
-            k = colorize(str(k), "purple")
-            if isinstance(v, (tuple, set)):
-                v = list(v)
-            if isinstance(v, list) and len(v) == 1:
-                v = v[0]
-            if isinstance(v, dict):
-                print("{:s}{}: ".format("  " * depth, k))
-                pretty_print_dict(v, depth + 1)
-            elif isinstance(v, list):
-                print("{:s}{}: ".format("  " * depth, k))
-                for key, value in enumerate(v):
-                    if isinstance(value, tuple):
-                        pretty_print_dict({value[0]: value[1]}, depth + 1)
-                    elif isinstance(value, dict):
-                        pretty_print_dict({key: value}, depth + 1)
-                    else:
-                        if isinstance(v, date):
-                            v = pretty_date(v)
-                        print("{:s}- {}".format("  " * (depth + 1), value))
-            else:
-                if isinstance(v, date):
-                    v = pretty_date(v)
-                print("{:s}{}: {}".format("  " * depth, k, v))
+    for k in keys:
+        v = d[k]
+        k = colorize(str(k), "purple")
+        if isinstance(v, (tuple, set)):
+            v = list(v)
+        if isinstance(v, list) and len(v) == 1:
+            v = v[0]
+        if isinstance(v, dict):
+            print("{:s}{}: ".format("  " * depth, k))
+            pretty_print_dict(v, depth + 1)
+        elif isinstance(v, list):
+            print("{:s}{}: ".format("  " * depth, k))
+            for key, value in enumerate(v):
+                if isinstance(value, tuple):
+                    pretty_print_dict({value[0]: value[1]}, depth + 1)
+                elif isinstance(value, dict):
+                    pretty_print_dict({key: value}, depth + 1)
+                else:
+                    if isinstance(v, date):
+                        v = pretty_date(v)
+                    print("{:s}- {}".format("  " * (depth + 1), value))
+        else:
+            if isinstance(v, date):
+                v = pretty_date(v)
+            print("{:s}{}: {}".format("  " * depth, k, v))
 
 
 def get_locale():
