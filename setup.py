@@ -50,6 +50,7 @@ install_deps = [
     "bottle",
     "prompt-toolkit>=3.0",
     "pygments",
+    "natsort",
 ]
 
 test_deps = [

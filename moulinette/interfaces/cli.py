@@ -200,7 +200,18 @@ def pretty_print_dict(d, depth=0):
     """
     keys = d.keys()
     if not isinstance(d, OrderedDict):
-        keys = sorted(keys)
+        keys_types = set(type(k) for k in keys)
+        # Keys are assumed to be of integer, float or/and string type
+        if len(keys_types) > 1:
+            # In case of mixed types, convert all values as strings
+            # else sorting function will crash
+            keys = [str(k) for k in keys]
+            # `natsorted()` does proper numeric sorting when dealing with
+            # numbers even when the data is of string type
+            from natsort import natsorted
+            keys = natsorted(keys)
+        else:
+            keys = sorted(keys)
     for k in keys:
         v = d[k]
         k = colorize(str(k), "purple")
