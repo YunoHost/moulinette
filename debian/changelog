@@ -1,3 +1,11 @@
+moulinette (13.0.4) testing; urgency=low
+
+  - workflows: Name the build workflow (ce5b69e6)
+  - workflows: build: Run on ubuntu 26.04 for compatibility (fa414f20)
+  - workflows: build: allow archive (b1ee2938)
+
+ -- Salamandar <felix@piedallu.me>  Fri, 13 Nov 2026 11:37:24 +0100
+
 moulinette (13.0.3) testing; urgency=medium
 
   - i18n: Translations updated for Hungarian, Kabyle, Turkish
