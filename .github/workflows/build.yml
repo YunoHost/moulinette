@@ -1,3 +1,5 @@
+name: Build debian package
+
 on:
   pull_request:
   push:
