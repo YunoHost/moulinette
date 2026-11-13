@@ -1,3 +1,9 @@
+moulinette (12.1.6) stable; urgency=low
+
+  - workflows: build: allow archive (3bc1f6b4)
+
+ -- Félix Piédallu <felix@piedallu.me>  Fri, 13 Nov 2026 11:20:50 +0100
+
 moulinette (12.1.5) stable; urgency=low
 
   - maintenance: make executable make_changelog.sh (4eb57af8)
